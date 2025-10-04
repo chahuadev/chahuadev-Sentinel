@@ -1,6 +1,6 @@
 {
-    "name": "chahuadev-rules-validator",
-    "displayName": "Chahuadev Rules Validator",
+    "name": "chahuadev-sentinel",
+    "displayName": "Chahuadev Sentinel",
     "description": "Enforce absolute coding rules: No mocking, No hardcoding, No silent fallbacks, No internal caching",
     "version": "1.0.0",
     "publisher": "chahuadev",
