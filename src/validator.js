@@ -97,7 +97,7 @@ const ABSOLUTE_RULES = {
             { regex: /import\s+.*\s+from\s+['"]mockery['"]/, name: 'import mockery', severity: 'ERROR' },
             { regex: /require\s*\(\s*['"]sinon['"]\s*\)/, name: 'require sinon', severity: 'ERROR' },
             { regex: /require\s*\(\s*['"]testdouble['"]\s*\)/, name: 'require testdouble', severity: 'ERROR' },
-            
+
             // Additional mocking patterns - EXTENDED COVERAGE
             { regex: /jest\.createMockFromModule\s*\(/, name: 'jest.createMockFromModule()', severity: 'ERROR' },
             { regex: /jest\.requireActual\s*\(/, name: 'jest.requireActual() (used with mocks)', severity: 'WARNING' },
@@ -108,7 +108,7 @@ const ABSOLUTE_RULES = {
             { regex: /\.mock\.calls/, name: '.mock.calls (checking mock calls)', severity: 'ERROR' },
             { regex: /\.mock\.results/, name: '.mock.results (checking mock results)', severity: 'ERROR' },
             { regex: /\.mock\.instances/, name: '.mock.instances (checking mock instances)', severity: 'ERROR' },
-            
+
             // Sinon extended patterns
             { regex: /sinon\.useFakeTimers\s*\(/, name: 'sinon.useFakeTimers()', severity: 'ERROR' },
             { regex: /sinon\.useFakeServer\s*\(/, name: 'sinon.useFakeServer()', severity: 'ERROR' },
@@ -125,7 +125,7 @@ const ABSOLUTE_RULES = {
             { regex: /\.callsArgWith\s*\(/, name: '.callsArgWith()', severity: 'ERROR' },
             { regex: /\.callThrough\s*\(/, name: '.callThrough() (spy original)', severity: 'ERROR' },
             { regex: /\.restore\s*\(/, name: '.restore() (restore original)', severity: 'ERROR' },
-            
+
             // Vitest extended patterns
             { regex: /vi\.mocked\s*\(/, name: 'vitest mocked() helper', severity: 'ERROR' },
             { regex: /vi\.isMockFunction\s*\(/, name: 'vitest isMockFunction()', severity: 'ERROR' },
@@ -134,16 +134,16 @@ const ABSOLUTE_RULES = {
             { regex: /vi\.useRealTimers\s*\(/, name: 'vitest useRealTimers()', severity: 'ERROR' },
             { regex: /vi\.setSystemTime\s*\(/, name: 'vitest setSystemTime()', severity: 'ERROR' },
             { regex: /vi\.advanceTimersByTime\s*\(/, name: 'vitest advanceTimersByTime()', severity: 'ERROR' },
-            
+
             // Enzyme & React Testing Library mocking
             { regex: /shallow\s*\(/, name: 'Enzyme shallow() (creates mocked render)', severity: 'WARNING' },
             { regex: /mount\s*\(/, name: 'Enzyme mount() (may involve mocking)', severity: 'WARNING' },
             { regex: /@testing-library\/react.*\bmock\b/i, name: 'React Testing Library with mock', severity: 'ERROR' },
-            
+
             // Node.js native mocking (Node 20+)
             { regex: /mock\s*\(/, name: 'Node.js native mock()', severity: 'ERROR' },
             { regex: /test\.mock\./, name: 'Node.js test.mock', severity: 'ERROR' },
-            
+
             // MSW (Mock Service Worker) - API mocking
             { regex: /import\s+.*\s+from\s+['"]msw['"]/, name: 'import msw (API mocking)', severity: 'ERROR' },
             { regex: /setupWorker\s*\(/, name: 'MSW setupWorker()', severity: 'ERROR' },
@@ -151,19 +151,19 @@ const ABSOLUTE_RULES = {
             { regex: /rest\.get\s*\(/, name: 'MSW rest.get() handler', severity: 'ERROR' },
             { regex: /rest\.post\s*\(/, name: 'MSW rest.post() handler', severity: 'ERROR' },
             { regex: /graphql\.query\s*\(/, name: 'MSW graphql.query() handler', severity: 'ERROR' },
-            
+
             // Nock (HTTP mocking)
             { regex: /import\s+.*\s+from\s+['"]nock['"]/, name: 'import nock (HTTP mocking)', severity: 'ERROR' },
             { regex: /nock\s*\(/, name: 'nock() HTTP interceptor', severity: 'ERROR' },
-            
+
             // Fetch-mock
             { regex: /import\s+.*\s+from\s+['"]fetch-mock['"]/, name: 'import fetch-mock', severity: 'ERROR' },
             { regex: /fetchMock\./, name: 'fetchMock usage', severity: 'ERROR' },
-            
+
             // Jest mock modules
             { regex: /__mocks__/, name: '__mocks__ directory (Jest convention)', severity: 'ERROR' },
             { regex: /\.mocked\s*\(/, name: '.mocked() type helper', severity: 'ERROR' },
-            
+
             // Global mock functions
             { regex: /global\.\w+\s*=\s*jest\.fn/, name: 'global mock assignment', severity: 'ERROR' },
             { regex: /window\.\w+\s*=\s*jest\.fn/, name: 'window mock assignment', severity: 'ERROR' },
@@ -358,9 +358,9 @@ const ABSOLUTE_RULES = {
                 name: 'JWT Token',
                 severity: 'ERROR'
             },
-            
+
             // ADDITIONAL HARDCODE PATTERNS - EXTENDED COVERAGE
-            
+
             // More API Key patterns
             {
                 regex: /['"]xoxb-[a-zA-Z0-9-]+['"]/,
@@ -442,7 +442,7 @@ const ABSOLUTE_RULES = {
                 name: 'Google OAuth Refresh Token',
                 severity: 'ERROR'
             },
-            
+
             // Database credentials patterns
             {
                 regex: /user:\s*['"][^'"]+['"]\s*,\s*password:\s*['"][^'"]+['"]/i,
@@ -464,7 +464,7 @@ const ABSOLUTE_RULES = {
                 name: 'DATABASE_URL constant',
                 severity: 'ERROR'
             },
-            
+
             // SSH/Private Keys
             {
                 regex: /-----BEGIN (?:RSA |DSA |EC |OPENSSH )?PRIVATE KEY-----/,
@@ -481,7 +481,7 @@ const ABSOLUTE_RULES = {
                 name: 'SSH ED25519 Key',
                 severity: 'WARNING'
             },
-            
+
             // Cryptocurrency private keys/seeds
             {
                 regex: /['"][13][a-km-zA-HJ-NP-Z1-9]{25,34}['"]/,
@@ -498,7 +498,7 @@ const ABSOLUTE_RULES = {
                 name: 'Cryptocurrency seed phrase',
                 severity: 'ERROR'
             },
-            
+
             // OAuth & Session Secrets
             {
                 regex: /client_secret:\s*['"][^'"]+['"]/i,
@@ -525,7 +525,7 @@ const ABSOLUTE_RULES = {
                 name: 'Encryption key',
                 severity: 'ERROR'
             },
-            
+
             // Cloud Platform Specific
             {
                 regex: /['"]ASIA[a-zA-Z0-9]{16}['"]/,
@@ -547,7 +547,7 @@ const ABSOLUTE_RULES = {
                 name: 'Azure credential hardcode pattern',
                 severity: 'WARNING'
             },
-            
+
             // Connection strings with embedded credentials
             {
                 regex: /['"](?:Server|Host)=[^;'"]+(User ID|UID)=[^;']+(Password|PWD)=[^;'"]+['"]/i,
@@ -559,7 +559,7 @@ const ABSOLUTE_RULES = {
                 name: '.NET connection string with credentials',
                 severity: 'ERROR'
             },
-            
+
             // Docker & Kubernetes secrets
             {
                 regex: /REGISTRY_AUTH\s*=\s*['"][^'"]+['"]/,
@@ -571,7 +571,7 @@ const ABSOLUTE_RULES = {
                 name: 'Kubernetes token',
                 severity: 'ERROR'
             },
-            
+
             // Payment Gateway Keys
             {
                 regex: /['"]sk_live_[a-zA-Z0-9]{24,}['"]/,
@@ -593,7 +593,7 @@ const ABSOLUTE_RULES = {
                 name: 'Stripe Restricted Key',
                 severity: 'ERROR'
             },
-            
+
             // Generic secret patterns
             {
                 regex: /(?:secret|token|key|password|pwd|pass|auth)['"]?\s*[:=]\s*['"][^'"\s]{12,}['"]/i,
@@ -772,77 +772,77 @@ CORRECT APPROACH:
             { regex: /catch\s*\(\s*_(?:error|err|e)?\s*\)/, name: 'Catch with _ (ignoring error intentionally)', severity: 'ERROR' },
             { regex: /catch\s*\(\s*ignore[dD]?\s*\)/, name: 'Catch with "ignored" variable name', severity: 'ERROR' },
             { regex: /catch\s*\(\s*unused\s*\)/, name: 'Catch with "unused" variable name', severity: 'ERROR' },
-            
+
             // ADDITIONAL SILENT FALLBACK PATTERNS - EXTENDED COVERAGE
-            
+
             // Array methods with silent failures
             { regex: /\.find\s*\([^)]+\)\s*\|\|/, name: '.find() with || fallback (may hide not found)', severity: 'WARNING' },
             { regex: /\.filter\s*\([^)]+\)\s*\[0\]\s*\|\|/, name: '.filter()[0] with || fallback', severity: 'WARNING' },
             { regex: /\.reduce\s*\([^)]+\)\s*\|\|/, name: '.reduce() with || fallback', severity: 'WARNING' },
             { regex: /\.map\s*\([^)]+\)\s*\[0\]\s*\|\|/, name: '.map()[0] with || fallback', severity: 'WARNING' },
-            
+
             // Object property access with silent fallback
             { regex: /\w+\[['"][^'"]+['"]\]\s*\|\|/, name: 'Object[key] with || fallback', severity: 'WARNING' },
             { regex: /\w+\.\w+\s*\|\|\s*\{\}/, name: 'Object.property || {} (hiding undefined)', severity: 'WARNING' },
             { regex: /\w+\.\w+\s*\|\|\s*\[\]/, name: 'Object.property || [] (hiding undefined)', severity: 'WARNING' },
-            
+
             // Function calls with silent fallback
             { regex: /\w+\([^)]*\)\s*\|\|\s*(?:null|undefined|false|\[\]|\{\})/, name: 'Function call with silent fallback', severity: 'WARNING' },
             { regex: /\w+\([^)]*\)\s*\?\?\s*(?:null|undefined|\[\]|\{\})/, name: 'Function call with ?? fallback', severity: 'WARNING' },
-            
+
             // Try-catch with continue/break (silently skipping errors)
             { regex: /catch\s*\([^)]*\)\s*\{\s*continue\s*;?\s*\}/, name: 'Catch with continue (silently skipping error)', severity: 'ERROR' },
             { regex: /catch\s*\([^)]*\)\s*\{\s*break\s*;?\s*\}/, name: 'Catch with break (silently skipping error)', severity: 'ERROR' },
             { regex: /catch\s*\([^)]*\)\s*\{\s*return\s*;?\s*\}/, name: 'Catch with empty return (silently exiting)', severity: 'ERROR' },
-            
+
             // Error handling with only console.log (not error logging)
             { regex: /catch\s*\([^)]*\)\s*\{\s*console\.log\(/, name: 'Catch with console.log() (use console.error)', severity: 'ERROR' },
             { regex: /catch\s*\([^)]*\)\s*\{\s*console\.info\(/, name: 'Catch with console.info() (use console.error)', severity: 'ERROR' },
             { regex: /catch\s*\([^)]*\)\s*\{\s*console\.debug\(/, name: 'Catch with console.debug() (use console.error)', severity: 'ERROR' },
-            
+
             // Silent error with only variable assignment
             { regex: /catch\s*\([^)]*\)\s*\{\s*\w+\s*=\s*(?:null|undefined|false|\[\]|\{\})\s*;?\s*\}/, name: 'Catch only assigning default value', severity: 'ERROR' },
-            
+
             // Promises with empty .catch
             { regex: /\.catch\s*\(\s*\(\s*\)\s*=>\s*\{\s*\}\s*\)/, name: 'Empty Promise.catch() block', severity: 'ERROR' },
             { regex: /\.catch\s*\(\s*\w+\s*=>\s*\{\s*\}\s*\)/, name: 'Empty Promise.catch() with parameter', severity: 'ERROR' },
-            
+
             // Async/await with empty catch
             { regex: /async[^{]+\{[^}]*try\s*\{[^}]+\}\s*catch\s*\([^)]*\)\s*\{\s*\}/, name: 'Async function with empty catch', severity: 'ERROR' },
-            
+
             // Error swallowing with void operator
             { regex: /void\s+\w+\([^)]*\)\.catch/, name: 'void with .catch() (suppressing errors)', severity: 'ERROR' },
-            
+
             // Silent failure in event handlers
             { regex: /\.on\s*\(\s*['"]error['"].*?\(\s*\)\s*=>\s*\{\s*\}/, name: 'Empty error event handler', severity: 'ERROR' },
             { regex: /\.addEventListener\s*\(\s*['"]error['"].*?\(\s*\)\s*=>\s*\{\s*\}/, name: 'Empty addEventListener error handler', severity: 'ERROR' },
             { regex: /onerror\s*=\s*\(\s*\)\s*=>\s*\{\s*\}/, name: 'Empty onerror handler', severity: 'ERROR' },
             { regex: /onerror\s*=\s*\(\s*\)\s*=>\s*(?:null|undefined|false)/, name: 'onerror returning null/undefined/false', severity: 'ERROR' },
-            
+
             // Process error handlers without logging
             { regex: /process\.on\s*\(\s*['"]uncaughtException['"].*?catch.*?\{\s*\}/, name: 'Empty uncaughtException handler', severity: 'ERROR' },
             { regex: /process\.on\s*\(\s*['"]unhandledRejection['"].*?catch.*?\{\s*\}/, name: 'Empty unhandledRejection handler', severity: 'ERROR' },
-            
+
             // Window error handlers
             { regex: /window\.onerror\s*=.*?return\s+true/, name: 'window.onerror returning true (suppressing)', severity: 'ERROR' },
             { regex: /window\.addEventListener\s*\(\s*['"]error['"].*?\{\s*\}/, name: 'Empty window error listener', severity: 'ERROR' },
-            
+
             // Silent failures in callbacks
             { regex: /callback\s*\(\s*(?:null|undefined)\s*,/, name: 'Callback with null error (Node.js pattern without check)', severity: 'WARNING' },
             { regex: /cb\s*\(\s*(?:null|undefined)\s*,/, name: 'cb() with null error without check', severity: 'WARNING' },
-            
+
             // Axios/Fetch interceptors with silent failures
             { regex: /interceptors\.\w+\.use\([^,]+,\s*\(\s*\)\s*=>\s*\{\s*\}/, name: 'Axios interceptor with empty error handler', severity: 'ERROR' },
             { regex: /interceptors\.\w+\.use\([^,]+,\s*\w+\s*=>\s*\{\s*return\s+\w+\s*\}/, name: 'Interceptor returning error without logging', severity: 'WARNING' },
-            
+
             // GraphQL/Apollo error handling
             { regex: /onError\s*:\s*\(\s*\)\s*=>\s*\{\s*\}/, name: 'Empty onError callback', severity: 'ERROR' },
             { regex: /errorPolicy\s*:\s*['"]ignore['"]/, name: 'Apollo errorPolicy: ignore', severity: 'ERROR' },
-            
+
             // React error boundaries without logging
             { regex: /componentDidCatch\s*\([^)]*\)\s*\{\s*\}/, name: 'Empty componentDidCatch (React)', severity: 'ERROR' },
             { regex: /static\s+getDerivedStateFromError.*?\{\s*return\s+\{/, name: 'getDerivedStateFromError without logging', severity: 'WARNING' },
-            
+
             // Express/Koa error middleware
             { regex: /\(err,\s*req,\s*res,\s*next\)\s*=>\s*\{\s*res\.(send|json)/, name: 'Express error middleware without logging', severity: 'WARNING' },
             { regex: /app\.use\s*\(\s*async.*?catch.*?\{\s*\}/, name: 'Empty catch in Express middleware', severity: 'ERROR' },
@@ -1022,84 +1022,84 @@ SEPARATION OF CONCERNS:
             { regex: /if\s*\(\s*typeof\s+\w+\s*!==?\s*['"]undefined['"]\s*\)\s*return\s+\w+/, name: 'if (typeof cached !== undefined) return', severity: 'WARNING' },
             { regex: /if\s*\(\s*\w+\s*in\s+\w*[Cc]ache/, name: 'if (key in cache) pattern', severity: 'WARNING' },
             { regex: /hasOwnProperty\s*\(\s*['"].*[Cc]ache.*['"]\s*\)/, name: 'hasOwnProperty cache check', severity: 'WARNING' },
-            
+
             // ADDITIONAL INTERNAL CACHE PATTERNS - EXTENDED COVERAGE
-            
+
             // React hooks for caching
             { regex: /useMemo\s*\(\s*\(\s*\)\s*=>/, name: 'useMemo() - React internal memoization', severity: 'WARNING' },
             { regex: /useCallback\s*\(\s*\(\s*\)\s*=>/, name: 'useCallback() - React callback memoization', severity: 'WARNING' },
             { regex: /React\.memo\s*\(/, name: 'React.memo() - component memoization', severity: 'WARNING' },
             { regex: /React\.useMemo/, name: 'React.useMemo', severity: 'WARNING' },
             { regex: /React\.useCallback/, name: 'React.useCallback', severity: 'WARNING' },
-            
+
             // Vue computed/watch (caching)
             { regex: /computed\s*:\s*\{/, name: 'Vue computed properties (caching)', severity: 'WARNING' },
             { regex: /computed\s*\(\s*\(\s*\)\s*=>/, name: 'Vue 3 computed() (caching)', severity: 'WARNING' },
-            
+
             // Lodash/Underscore memoization
             { regex: /_.memoize\s*\(/, name: 'Lodash _.memoize()', severity: 'WARNING' },
             { regex: /lodash\.memoize/, name: 'lodash.memoize', severity: 'WARNING' },
             { regex: /import\s+.*\bmemoize\b.*from\s+['"]lodash/, name: 'import memoize from lodash', severity: 'WARNING' },
-            
+
             // Ramda memoization
             { regex: /R\.memoizeWith\s*\(/, name: 'Ramda R.memoizeWith()', severity: 'WARNING' },
             { regex: /R\.memoize\s*\(/, name: 'Ramda R.memoize()', severity: 'WARNING' },
-            
+
             // Memoizee library
             { regex: /import\s+.*from\s+['"]memoizee['"]/, name: 'import memoizee library', severity: 'WARNING' },
             { regex: /require\s*\(\s*['"]memoizee['"]\s*\)/, name: 'require memoizee', severity: 'WARNING' },
-            
+
             // Fast-memoize library
             { regex: /import\s+.*from\s+['"]fast-memoize['"]/, name: 'import fast-memoize', severity: 'WARNING' },
             { regex: /require\s*\(\s*['"]fast-memoize['"]\s*\)/, name: 'require fast-memoize', severity: 'WARNING' },
-            
+
             // Moize library
             { regex: /import\s+.*from\s+['"]moize['"]/, name: 'import moize library', severity: 'WARNING' },
             { regex: /moize\s*\(/, name: 'moize() memoization', severity: 'WARNING' },
-            
+
             // Reselect (Redux memoization)
             { regex: /createSelector\s*\(/, name: 'createSelector() - Reselect memoization', severity: 'WARNING' },
             { regex: /import\s+.*createSelector.*from\s+['"]reselect['"]/, name: 'import Reselect library', severity: 'WARNING' },
-            
+
             // Singleton pattern (often used for caching)
             { regex: /let\s+instance\s*=\s*null[\s\S]*?getInstance\s*\(/, name: 'Singleton pattern (often caches instance)', severity: 'WARNING' },
             { regex: /private\s+static\s+instance\s*:/, name: 'Singleton instance property', severity: 'WARNING' },
-            
+
             // Module-level cache variables
             { regex: /^(?:const|let|var)\s+\w*[Cc]ache\w*\s*=/m, name: 'Module-level cache variable', severity: 'WARNING' },
             { regex: /^(?:const|let|var)\s+_\w*[Cc]ache\w*\s*=/m, name: 'Module-level private cache', severity: 'WARNING' },
-            
+
             // Object property caching patterns
             { regex: /if\s*\(\s*!\s*this\._\w*\)\s*\{\s*this\._\w*\s*=/, name: 'Lazy initialization caching pattern', severity: 'WARNING' },
             { regex: /get\s+\w+\s*\(\s*\)\s*\{[^}]*if\s*\(\s*!?\s*this\._/, name: 'Getter with internal cache', severity: 'WARNING' },
-            
+
             // IndexedDB/LocalStorage caching
             { regex: /localStorage\.getItem.*localStorage\.setItem/, name: 'localStorage caching pattern', severity: 'WARNING' },
             { regex: /sessionStorage\.getItem.*sessionStorage\.setItem/, name: 'sessionStorage caching pattern', severity: 'WARNING' },
             { regex: /indexedDB\.open/, name: 'IndexedDB (client-side caching)', severity: 'WARNING' },
-            
+
             // Service Worker caching
             { regex: /caches\.open\s*\(/, name: 'Service Worker Cache API', severity: 'WARNING' },
             { regex: /cache\.put\s*\(/, name: 'Service Worker cache.put()', severity: 'WARNING' },
             { regex: /cache\.match\s*\(/, name: 'Service Worker cache.match()', severity: 'WARNING' },
-            
+
             // Time-based caching
             { regex: /lastFetch|lastUpdate|lastCache/i, name: 'Time-based cache variable', severity: 'WARNING' },
             { regex: /cacheExpiry|cacheTimeout|cacheTTL/i, name: 'Cache TTL variable', severity: 'WARNING' },
             { regex: /if\s*\([^)]*Date\.now\(\)\s*-\s*\w*(?:Time|Timestamp)/, name: 'Time-based cache check', severity: 'WARNING' },
-            
+
             // Request deduplication (form of caching)
             { regex: /pendingRequests|inFlightRequests/i, name: 'Request deduplication (caching)', severity: 'WARNING' },
             { regex: /if\s*\(\s*\w*Pending\w*\[/, name: 'Pending request check (deduplication)', severity: 'WARNING' },
-            
+
             // Computed property caching
             { regex: /@computed\b/, name: '@computed decorator (MobX caching)', severity: 'WARNING' },
             { regex: /makeObservable.*computed/, name: 'MobX computed observable', severity: 'WARNING' },
-            
+
             // Apollo/GraphQL client caching
             { regex: /InMemoryCache\s*\(/, name: 'Apollo InMemoryCache', severity: 'WARNING' },
             { regex: /cache-first|cache-only|cache-and-network/i, name: 'Apollo cache policy', severity: 'WARNING' },
-            
+
             // SWR/React Query (data caching libraries)
             { regex: /useSWR\s*\(/, name: 'SWR hook (data caching)', severity: 'WARNING' },
             { regex: /useQuery\s*\(/, name: 'React Query useQuery (caching)', severity: 'WARNING' },

@@ -238,6 +238,104 @@ function registerCommands(context) {
             updateStatusBar();
         })
     );
+
+    // Command: Clean all emojis in file using emoji-cleaner.js
+    context.subscriptions.push(
+        vscode.commands.registerCommand('chahuadev.cleanEmojis', async (uri) => {
+            const config = vscode.workspace.getConfiguration('chahuadev');
+            const language = config.get('language', 'th');
+
+            try {
+                const document = await vscode.workspace.openTextDocument(uri);
+                const originalText = document.getText();
+                const path = require('path');
+                const fileExt = path.extname(uri.fsPath).toLowerCase();
+
+                outputChannel.appendLine(`\n${'='.repeat(80)}`);
+                outputChannel.appendLine(language === 'th'
+                    ? ` [EMOJI CLEANER] เริ่มทำความสะอาดไฟล์: ${uri.fsPath}`
+                    : ` [EMOJI CLEANER] Starting cleanup on: ${uri.fsPath}`
+                );
+                outputChannel.appendLine('='.repeat(80));
+
+                // Import emoji-cleaner.js functions
+                const emojiCleanerPath = path.join(__dirname, '..', '..', 'chahuadev-emoji-cleaner-tool', 'emoji-cleaner.js');
+                let removeEmojis, removeEmojiComments;
+
+                try {
+                    const emojiCleaner = require(emojiCleanerPath);
+                    removeEmojis = emojiCleaner.removeEmojis;
+                    removeEmojiComments = emojiCleaner.removeEmojiComments;
+                } catch (error) {
+                    // Fallback: Use built-in emoji removal if emoji-cleaner.js not found
+                    outputChannel.appendLine(language === 'th'
+                        ? ` [WARNING] ไม่พบ emoji-cleaner.js ใช้การลบอิโมจิแบบ built-in`
+                        : ` [WARNING] emoji-cleaner.js not found, using built-in emoji removal`
+                    );
+
+                    // Built-in emoji removal
+                    removeEmojis = (text) => {
+                        const emojiRegex = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu;
+                        const cleaned = text.replace(emojiRegex, '');
+                        return { content: cleaned, changed: cleaned !== text, count: text.length - cleaned.length };
+                    };
+
+                    removeEmojiComments = (text) => {
+                        const commentRegex = /\/\/.*[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}].*$/gmu;
+                        const cleaned = text.replace(commentRegex, '');
+                        return { content: cleaned, commentCount: 0 };
+                    };
+                }
+
+                // Execute emoji cleanup
+                const emojiResult = removeEmojis(originalText, uri.fsPath);
+                const commentResult = removeEmojiComments(emojiResult.content, fileExt, uri.fsPath);
+
+                if (emojiResult.changed || commentResult.commentCount > 0) {
+                    const newText = commentResult.content;
+                    const edit = new vscode.WorkspaceEdit();
+                    const fullRange = new vscode.Range(
+                        document.positionAt(0),
+                        document.positionAt(originalText.length)
+                    );
+
+                    edit.replace(uri, fullRange, newText);
+                    await vscode.workspace.applyEdit(edit);
+
+                    // Save the document
+                    await vscode.window.activeTextEditor?.document.save();
+
+                    const msg = language === 'th'
+                        ? `[SUCCESS] ลบอิโมจิสำเร็จ! (${emojiResult.count} ตัวอักษร)`
+                        : `[SUCCESS] Emojis cleaned successfully! (${emojiResult.count} characters removed)`;
+
+                    outputChannel.appendLine(` ${msg}`);
+                    outputChannel.appendLine('='.repeat(80));
+                    vscode.window.showInformationMessage(msg);
+
+                    // Re-validate the document
+                    validator.validateDocument(document);
+                } else {
+                    const msg = language === 'th'
+                        ? '[INFO] ไม่พบอิโมจิในไฟล์นี้'
+                        : '[INFO] No emojis found to clean';
+
+                    outputChannel.appendLine(` ${msg}`);
+                    outputChannel.appendLine('='.repeat(80));
+                    vscode.window.showInformationMessage(msg);
+                }
+            } catch (error) {
+                const msg = language === 'th'
+                    ? `[ERROR] ล้มเหลวในการลบอิโมจิ: ${error.message}`
+                    : `[ERROR] Failed to clean emojis: ${error.message}`;
+
+                outputChannel.appendLine(` ${msg}`);
+                outputChannel.appendLine(`Stack trace: ${error.stack}`);
+                outputChannel.appendLine('='.repeat(80));
+                vscode.window.showErrorMessage(msg);
+            }
+        })
+    );
 }
 
 /**
