@@ -1,10 +1,40 @@
 // ======================================================================
 // @author บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Rules Validator - Core validation logic with MAXIMUM DETAIL
+// Rules Validator - Grammar-Based Context-Aware Analysis
 // ======================================================================
 
 const vscode = require('vscode');
 const path = require('path');
+const acorn = require('acorn');
+
+// Import FULL Grammar System (all capabilities)
+const {
+    COMPLETE_GRAMMAR,
+    GRAMMAR_STATS,
+    validateGrammarCompleteness,
+    Trie,
+    ExampleTokenizer,
+    ParserIntegration
+} = require('./grammars/index.js');
+
+const { GrammarIndex } = require('./grammars/shared/grammar-index.js');
+const { DisambiguationEngine } = require('./grammars/shared/disambiguation-engine.js');
+const { ErrorAssistant } = require('./grammars/shared/error-assistant.js');
+const { findClosestMatch, findTypoSuggestions, similarityRatio } = require('./grammars/shared/fuzzy-search.js');
+
+// Initialize Grammar Indexes for all supported languages
+const grammarIndexes = {
+    javascript: new GrammarIndex(COMPLETE_GRAMMAR.javascript),
+    typescript: new GrammarIndex(COMPLETE_GRAMMAR.typescript),
+    jsx: new GrammarIndex(COMPLETE_GRAMMAR.jsx),
+    java: new GrammarIndex(COMPLETE_GRAMMAR.java),
+};
+
+// Initialize Disambiguation Engine
+const disambiguator = new DisambiguationEngine();
+
+// Initialize Error Assistant for better error messages
+const errorAssistant = new ErrorAssistant(COMPLETE_GRAMMAR);
 
 /**
  * ABSOLUTE RULES CONFIGURATION
@@ -938,23 +968,23 @@ SEPARATION OF CONCERNS:
         },
         patterns: [
             // ═══════════════════════════════════════════════════════════════════
-            // CACHE VARIABLE DECLARATIONS - จับการประกาศตัวแปร cache ทุกรูปแบบ
+            // CACHE VARIABLE DECLARATIONS - จับการประกาศตัวแปร cache ที่ชัดเจน
+            // ปรับปรุง: เน้นจับ pattern ที่มีการใช้งาน cache จริงๆ ไม่ใช่แค่ชื่อ
             // ═══════════════════════════════════════════════════════════════════
-            { regex: /(?:const|let|var)\s+cache\s*=/, name: 'cache variable declaration', severity: 'WARNING' },
-            { regex: /(?:const|let|var)\s+\w*[Cc]ache\w*\s*=/, name: 'variable with "cache" in name', severity: 'WARNING' },
-            { regex: /(?:const|let|var)\s+\w*[Mm]emo(?:ized?)?\w*\s*=/, name: 'variable with "memo" in name', severity: 'WARNING' },
-            { regex: /(?:const|let|var)\s+\w*[Ss]tored?\w*\s*=/, name: 'variable with "stored" in name', severity: 'WARNING' },
-            { regex: /(?:const|let|var)\s+\w*[Cc]ached\w*\s*=/, name: 'variable with "cached" in name', severity: 'WARNING' },
-            { regex: /(?:const|let|var)\s+_cache\s*=/, name: '_cache private variable', severity: 'WARNING' },
-            { regex: /(?:const|let|var)\s+__cache\s*=/, name: '__cache double underscore', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+cache\s*=\s*(?:new\s+Map\(|new\s+WeakMap\(|\{\}|\[\]|Object\.create)/, name: 'cache variable with Map/Object/Array', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+(?:result|data|value)Cache\s*=/, name: 'resultCache/dataCache/valueCache variable', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+cached(?:Results|Data|Values)\s*=\s*(?:new\s+Map|new\s+WeakMap|\{\})/, name: 'cachedResults/cachedData with Map/Object', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+_cache\s*=\s*(?:new\s+Map|new\s+WeakMap|\{\})/, name: '_cache private variable with storage', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+__cache\s*=\s*(?:new\s+Map|new\s+WeakMap|\{\})/, name: '__cache double underscore with storage', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
             // MAP/WEAKMAP/SET FOR CACHING - จับการใช้ Map/Set เป็น cache
+            // ปรับปรุง: เฉพาะตัวแปรที่มีชื่อชัดเจนว่าเป็น cache
             // ═══════════════════════════════════════════════════════════════════
-            { regex: /new\s+Map\s*\(\s*\)(?=.*(?:cache|memo|store))/i, name: 'new Map() for caching', severity: 'WARNING' },
-            { regex: /new\s+WeakMap\s*\(\s*\)/, name: 'new WeakMap() (usually for caching)', severity: 'WARNING' },
-            { regex: /new\s+Set\s*\(\s*\)(?=.*(?:cache|memo|store))/i, name: 'new Set() for caching', severity: 'WARNING' },
-            { regex: /new\s+WeakSet\s*\(\s*\)/, name: 'new WeakSet() (usually for caching)', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+(?:cache|resultCache|dataCache|queryCache)\s*=\s*new\s+Map\s*\(/, name: 'new Map() assigned to cache variable', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+(?:cache|resultCache|dataCache|queryCache)\s*=\s*new\s+WeakMap\s*\(/, name: 'new WeakMap() assigned to cache variable', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+(?:cache|resultCache|dataCache|queryCache)\s*=\s*new\s+Set\s*\(/, name: 'new Set() assigned to cache variable', severity: 'WARNING' },
+            { regex: /(?:const|let|var)\s+(?:cache|resultCache|dataCache|queryCache)\s*=\s*new\s+WeakSet\s*\(/, name: 'new WeakSet() assigned to cache variable', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
             // CACHE LOOKUP PATTERNS - จับการเช็คว่ามีใน cache หรือไม่
@@ -1377,36 +1407,70 @@ class RulesValidator {
             return this.checkCatchBlocks(content, document, rule);
         }
 
+        // Get language for grammar selection
+        const language = document.languageId === 'typescriptreact' || document.languageId === 'javascriptreact'
+            ? 'jsx'
+            : document.languageId === 'typescript'
+                ? 'typescript'
+                : 'javascript';
+
+        const grammarIndex = grammarIndexes[language] || grammarIndexes.javascript;
+
         // Check all patterns
         for (const patternDef of rule.patterns) {
             const pattern = patternDef.regex;
 
-            lines.forEach((line, index) => {
-                const match = pattern.exec(line);
-                if (match) {
-                    // Check exceptions for NO_HARDCODE
-                    if (rule.id === 'NO_HARDCODE' && rule.exceptions) {
-                        const isException = rule.exceptions.some(exc => exc.test(match[0]));
-                        if (isException) {
-                            return;
-                        }
-                    }
+            // Reset regex lastIndex for global patterns
+            pattern.lastIndex = 0;
 
-                    violations.push({
-                        rule: rule.id,
-                        ruleName: rule.name[this.language],
-                        description: rule.description[this.language],
-                        explanation: rule.explanation[this.language],
-                        severity: patternDef.severity || rule.severity,
-                        line: index + 1,
-                        column: match.index + 1,
-                        code: line.trim(),
-                        matched: match[0],
-                        patternName: patternDef.name,
-                        fix: rule.fix[this.language]
-                    });
+            let match;
+            // Check against entire content for multi-line patterns
+            while ((match = pattern.exec(content)) !== null) {
+                // === GRAMMAR-BASED CONTEXT FILTERING ===
+                // Skip if match is in comment, string, or regex literal
+                if (this.isInNonCodeContext(content, match.index, grammarIndex)) {
+                    continue;
                 }
-            });
+
+                // Check exceptions for NO_HARDCODE
+                if (rule.id === 'NO_HARDCODE' && rule.exceptions) {
+                    const isException = rule.exceptions.some(exc => exc.test(match[0]));
+                    if (isException) {
+                        continue;
+                    }
+                }
+
+                // Find line number from match index
+                const beforeMatch = content.substring(0, match.index);
+                const lineNumber = beforeMatch.split('\n').length;
+                const lineStart = beforeMatch.lastIndexOf('\n') + 1;
+                const column = match.index - lineStart + 1;
+
+                // Get code snippet
+                const matchedText = match[0];
+                const codeSnippet = matchedText.length > 200
+                    ? matchedText.substring(0, 200) + '...'
+                    : matchedText;
+
+                violations.push({
+                    rule: rule.id,
+                    ruleName: rule.name[this.language],
+                    description: rule.description[this.language],
+                    explanation: rule.explanation[this.language],
+                    severity: patternDef.severity || rule.severity,
+                    line: lineNumber,
+                    column: column,
+                    code: codeSnippet,
+                    matched: matchedText,
+                    patternName: patternDef.name,
+                    fix: rule.fix[this.language]
+                });
+
+                // Prevent infinite loop for non-global regex
+                if (!pattern.global) {
+                    break;
+                }
+            }
         }
 
         return violations;
@@ -1453,6 +1517,126 @@ class RulesValidator {
         }
 
         return violations;
+    }
+
+    /**
+     * Check if position is inside comment, string literal, or regex pattern
+     * Uses Grammar system for accurate context detection
+     */
+    isInNonCodeContext(content, position, grammarIndex) {
+        // Use Grammar Index to tokenize and understand context
+        const before = content.substring(Math.max(0, position - 300), position);
+        const after = content.substring(position, Math.min(content.length, position + 100));
+        const context = before + after;
+
+        // Get line info for context
+        const currentLine = content.substring(
+            content.lastIndexOf('\n', position - 1) + 1,
+            content.indexOf('\n', position) !== -1 ? content.indexOf('\n', position) : content.length
+        );
+        const posInLine = position - (content.lastIndexOf('\n', position - 1) + 1);
+
+        // === USE GRAMMAR INDEX FOR TOKEN IDENTIFICATION ===
+
+        // 1. Check if inside single-line comment using Grammar
+        const commentToken = grammarIndex.search('//');
+        if (commentToken && currentLine.includes('//')) {
+            const commentStart = currentLine.indexOf('//');
+            if (posInLine > commentStart) {
+                return true; // Position after // comment marker
+            }
+        }
+
+        // 2. Check if inside multi-line comment using Grammar
+        const multiCommentStart = grammarIndex.search('/*');
+        const multiCommentEnd = grammarIndex.search('*/');
+        if (multiCommentStart && multiCommentEnd) {
+            const lastStart = before.lastIndexOf('/*');
+            const lastEnd = before.lastIndexOf('*/');
+            if (lastStart !== -1 && lastStart > lastEnd) {
+                const nextEnd = content.indexOf('*/', position);
+                if (nextEnd !== -1) {
+                    return true; // Inside /* ... */ block
+                }
+            }
+        }
+
+        // 3. Check if inside string literal using Grammar punctuation
+        const quotes = ["'", '"', '`'];
+        for (const quote of quotes) {
+            const quoteToken = grammarIndex.search(quote);
+            if (quoteToken) {
+                // Count unescaped quotes before position
+                let count = 0;
+                let escaped = false;
+                for (let i = content.lastIndexOf('\n', position - 1) + 1; i < position; i++) {
+                    if (content[i] === '\\' && !escaped) {
+                        escaped = true;
+                        continue;
+                    }
+                    if (content[i] === quote && !escaped) {
+                        count++;
+                    }
+                    escaped = false;
+                }
+                // Odd count means we're inside a string
+                if (count % 2 === 1) {
+                    return true;
+                }
+            }
+        }
+
+        // 4. Check if inside regex literal using Grammar
+        // Regex pattern: /.../ with flags
+        const slashToken = grammarIndex.search('/');
+        if (slashToken) {
+            // Look for /pattern/flags pattern
+            const regexPattern = /\/(?![/*])((?:\\.|[^\\/\n])+?)\/[gimsuvy]*\s*$/;
+            const regexMatch = before.match(regexPattern);
+            if (regexMatch) {
+                // Verify this is a regex context (after =, (, [, return, etc.)
+                const beforeRegex = before.substring(0, before.lastIndexOf(regexMatch[0])).trim();
+                const regexContext = /[=(:[\[,;{]$|return\s*$|match\s*$|test\s*$|exec\s*$/;
+                if (regexContext.test(beforeRegex)) {
+                    return true; // Inside regex literal
+                }
+            }
+        }
+
+        // 5. Use DisambiguationEngine to analyze token context
+        try {
+            const tokenAtPos = this.extractTokenAtPosition(content, position);
+            if (tokenAtPos) {
+                const contextInfo = disambiguator.disambiguate(tokenAtPos, { before, after });
+                // If Grammar identifies this as comment/string/literal, skip
+                if (contextInfo && (
+                    contextInfo.type === 'comment' ||
+                    contextInfo.type === 'string' ||
+                    contextInfo.type === 'literal'
+                )) {
+                    return true;
+                }
+            }
+        } catch (e) {
+            // Fallback if disambiguation fails
+        }
+
+        return false;
+    }
+
+    /**
+     * Extract token at specific position for Grammar analysis
+     */
+    extractTokenAtPosition(content, position) {
+        // Find word boundaries around position
+        const before = content.substring(0, position);
+        const after = content.substring(position);
+
+        const wordBefore = before.match(/[\w$]+$/);
+        const wordAfter = after.match(/^[\w$]+/);
+
+        const token = (wordBefore ? wordBefore[0] : '') + (wordAfter ? wordAfter[0] : '');
+        return token || null;
     }
 
     /**

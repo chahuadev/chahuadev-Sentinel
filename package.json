@@ -2,9 +2,9 @@
     "name": "chahuadev-sentinel",
     "displayName": "Chahuadev Sentinel",
     "description": "Enforce absolute coding rules: No mocking, No hardcoding, No silent fallbacks, No internal caching",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "chahuadev",
-    "icon": "icon.png",
+    "icon": "logo.png",
     "engines": {
         "vscode": "^1.80.0"
     },
@@ -139,10 +139,12 @@
     "devDependencies": {
         "@vscode/vsce": "^2.20.0"
     },
-    "dependencies": {},
+    "dependencies": {
+        "acorn": "^8.15.0"
+    },
     "repository": {
         "type": "git",
-        "url": "https://github.com/chahuadev/chahuadev-scanner"
+        "url": "https://github.com/chahuadev/Chahuadev-Sentinel"
     },
     "license": "MIT",
     "author": {
