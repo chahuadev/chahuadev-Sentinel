@@ -3,7 +3,7 @@
 // Code Action Provider - Quick Fixes with Maximum Detail
 // ======================================================================
 
-const vscode = require('vscode');
+import * as vscode from 'vscode';
 
 /**
  * Provides quick fixes (lightbulb) for Chahuadev rule violations
@@ -875,4 +875,4 @@ class CodeActionProvider {
     }
 }
 
-module.exports = { CodeActionProvider };
+export { CodeActionProvider };

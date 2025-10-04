@@ -6,9 +6,9 @@
 // VS Code Extension - Main Entry Point (Pure JavaScript)
 // ======================================================================
 
-const vscode = require('vscode');
-const { RulesValidator } = require('./validator');
-const { CodeActionProvider } = require('./codeActionProvider');
+import * as vscode from 'vscode';
+import { RulesValidator } from './validator.js';
+import { CodeActionProvider } from './codeActionProvider.js';
 
 let diagnosticCollection;
 let validator;
@@ -19,41 +19,54 @@ let outputChannel;
  * Extension activation
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+async function activate(context) {
     outputChannel = vscode.window.createOutputChannel('Chahuadev Rules Validator');
     outputChannel.appendLine(' Chahuadev Rules Validator is now active!');
     outputChannel.appendLine(' Enforcing 4 absolute rules with ZERO tolerance');
     outputChannel.appendLine('');
 
-    // Create diagnostic collection
-    diagnosticCollection = vscode.languages.createDiagnosticCollection('chahuadev');
-    context.subscriptions.push(diagnosticCollection);
+    try {
+        // Create validator (will initialize grammar system asynchronously)
+        validator = new RulesValidator(diagnosticCollection, outputChannel);
 
-    // Create validator
-    validator = new RulesValidator(diagnosticCollection, outputChannel);
+        outputChannel.appendLine('[ACTIVATION] RulesValidator initialized successfully');
 
-    // Create status bar item
-    statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    statusBarItem.command = 'chahuadev.validateCurrentFile';
-    updateStatusBar();
-    statusBarItem.show();
-    context.subscriptions.push(statusBarItem);
+        // Create diagnostic collection
+        diagnosticCollection = vscode.languages.createDiagnosticCollection('chahuadev');
+        context.subscriptions.push(diagnosticCollection);
 
-    // Register commands
-    registerCommands(context);
+        // Create status bar item
+        statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+        statusBarItem.command = 'chahuadev.validateCurrentFile';
+        updateStatusBar();
+        statusBarItem.show();
+        context.subscriptions.push(statusBarItem);
 
-    // Register code action provider (Quick Fixes)
-    registerCodeActionProvider(context);
+        // Register commands
+        registerCommands(context);
 
-    // Setup document listeners
-    setupDocumentListeners(context);
+        // Register code action provider (Quick Fixes)
+        registerCodeActionProvider(context);
+
+        // Setup document listeners
+        setupDocumentListeners(context);
+    } catch (error) {
+        outputChannel.appendLine(`[ERROR] Extension activation failed: ${error.message}`);
+        outputChannel.appendLine(error.stack);
+        vscode.window.showErrorMessage(`Chahuadev Sentinel activation failed: ${error.message}`);
+        throw error;
+    }
 
     // Validate open documents
     validateOpenDocuments();
 
     // Show welcome message
     const config = vscode.workspace.getConfiguration('chahuadev');
-    if (config.get('showWelcomeMessage', true)) {
+    const showWelcome = config.get('showWelcomeMessage');
+    if (showWelcome === undefined) {
+        throw new Error('Configuration "chahuadev.showWelcomeMessage" is required but not set');
+    }
+    if (showWelcome) {
         showWelcomeMessage();
     }
 }
@@ -63,7 +76,11 @@ function activate(context) {
  */
 function showWelcomeMessage() {
     const config = vscode.workspace.getConfiguration('chahuadev');
-    const language = config.get('language', 'th');
+    const language = config.get('language');
+
+    if (!language) {
+        throw new Error('Configuration "chahuadev.language" is required but not set');
+    }
 
     const message = language === 'th'
         ? ' Chahuadev Rules Validator: บังคับใช้กฎเหล็ก 4 ข้อ - ไม่มีข้อยกเว้น!'
@@ -90,9 +107,18 @@ function registerCommands(context) {
     context.subscriptions.push(
         vscode.commands.registerCommand('chahuadev.validateWorkspace', async () => {
             const config = vscode.workspace.getConfiguration('chahuadev');
-            const language = config.get('language', 'th');
+            const language = config.get('language');
 
-            if (!config.get('enabled', true)) {
+            if (!language) {
+                throw new Error('Configuration "chahuadev.language" is required but not set');
+            }
+
+            const enabled = config.get('enabled');
+            if (enabled === undefined) {
+                throw new Error('Configuration "chahuadev.enabled" is required but not set');
+            }
+
+            if (!enabled) {
                 const msg = language === 'th'
                     ? 'Chahuadev validator ถูกปิดใช้งานในการตั้งค่า'
                     : 'Chahuadev validator is disabled in settings';
@@ -127,7 +153,7 @@ function registerCommands(context) {
                 for (const file of files) {
                     try {
                         const document = await vscode.workspace.openTextDocument(file);
-                        const violations = validator.validateDocument(document);
+                        const violations = await validator.validateDocument(document);
                         totalViolations += violations;
 
                         processed++;
@@ -170,13 +196,17 @@ function registerCommands(context) {
 
     // Command: Validate current file
     context.subscriptions.push(
-        vscode.commands.registerCommand('chahuadev.validateCurrentFile', () => {
+        vscode.commands.registerCommand('chahuadev.validateCurrentFile', async () => {
             const editor = vscode.window.activeTextEditor;
             const config = vscode.workspace.getConfiguration('chahuadev');
-            const language = config.get('language', 'th');
+            const language = config.get('language');
+
+            if (!language) {
+                throw new Error('Configuration "chahuadev.language" is required but not set');
+            }
 
             if (editor) {
-                const violations = validator.validateDocument(editor.document);
+                const violations = await validator.validateDocument(editor.document);
                 updateStatusBar();
 
                 const msg = language === 'th'
@@ -204,7 +234,12 @@ function registerCommands(context) {
             updateStatusBar();
 
             const config = vscode.workspace.getConfiguration('chahuadev');
-            const language = config.get('language', 'th');
+            const language = config.get('language');
+
+            if (!language) {
+                throw new Error('Configuration "chahuadev.language" is required but not set');
+            }
+
             const msg = language === 'th'
                 ? 'Chahuadev: ล้างการแจ้งเตือนทั้งหมดแล้ว!'
                 : 'Chahuadev: All diagnostics cleared!';
@@ -225,8 +260,16 @@ function registerCommands(context) {
     context.subscriptions.push(
         vscode.commands.registerCommand('chahuadev.toggleValidation', () => {
             const config = vscode.workspace.getConfiguration('chahuadev');
-            const currentState = config.get('enabled', true);
-            const language = config.get('language', 'th');
+            const currentState = config.get('enabled');
+            const language = config.get('language');
+
+            if (currentState === undefined) {
+                throw new Error('Configuration "chahuadev.enabled" is required but not set');
+            }
+
+            if (!language) {
+                throw new Error('Configuration "chahuadev.language" is required but not set');
+            }
 
             config.update('enabled', !currentState, vscode.ConfigurationTarget.Workspace);
 
@@ -243,12 +286,15 @@ function registerCommands(context) {
     context.subscriptions.push(
         vscode.commands.registerCommand('chahuadev.cleanEmojis', async (uri) => {
             const config = vscode.workspace.getConfiguration('chahuadev');
-            const language = config.get('language', 'th');
+            const language = config.get('language');
+
+            if (!language) {
+                throw new Error('Configuration "chahuadev.language" is required but not set');
+            }
 
             try {
                 const document = await vscode.workspace.openTextDocument(uri);
                 const originalText = document.getText();
-                const path = require('path');
                 const fileExt = path.extname(uri.fsPath).toLowerCase();
 
                 outputChannel.appendLine(`\n${'='.repeat(80)}`);
@@ -314,7 +360,7 @@ function registerCommands(context) {
                     vscode.window.showInformationMessage(msg);
 
                     // Re-validate the document
-                    validator.validateDocument(document);
+                    await validator.validateDocument(document);
                 } else {
                     const msg = language === 'th'
                         ? '[INFO] ไม่พบอิโมจิในไฟล์นี้'
@@ -369,10 +415,21 @@ function registerCodeActionProvider(context) {
 function setupDocumentListeners(context) {
     // Validate on open
     context.subscriptions.push(
-        vscode.workspace.onDidOpenTextDocument(document => {
+        vscode.workspace.onDidOpenTextDocument(async (document) => {
             const config = vscode.workspace.getConfiguration('chahuadev');
-            if (config.get('enabled', true) && config.get('validateOnOpen', true)) {
-                validator.validateDocument(document);
+            const enabled = config.get('enabled');
+            const validateOnOpen = config.get('validateOnOpen');
+
+            if (enabled === undefined) {
+                throw new Error('Configuration "chahuadev.enabled" is required but not set');
+            }
+
+            if (validateOnOpen === undefined) {
+                throw new Error('Configuration "chahuadev.validateOnOpen" is required but not set');
+            }
+
+            if (enabled && validateOnOpen) {
+                await validator.validateDocument(document);
                 updateStatusBar();
             }
         })
@@ -380,14 +437,29 @@ function setupDocumentListeners(context) {
 
     // Validate on save
     context.subscriptions.push(
-        vscode.workspace.onDidSaveTextDocument(document => {
+        vscode.workspace.onDidSaveTextDocument(async (document) => {
             const config = vscode.workspace.getConfiguration('chahuadev');
-            if (config.get('enabled', true) && config.get('validateOnSave', true)) {
-                const violations = validator.validateDocument(document);
+            const enabled = config.get('enabled');
+            const validateOnSave = config.get('validateOnSave');
+
+            if (enabled === undefined) {
+                throw new Error('Configuration "chahuadev.enabled" is required but not set');
+            }
+
+            if (validateOnSave === undefined) {
+                throw new Error('Configuration "chahuadev.validateOnSave" is required but not set');
+            }
+
+            if (enabled && validateOnSave) {
+                const violations = await validator.validateDocument(document);
                 updateStatusBar();
 
                 if (violations > 0) {
-                    const language = config.get('language', 'th');
+                    const language = config.get('language');
+                    if (!language) {
+                        throw new Error('Configuration "chahuadev.language" is required but not set');
+                    }
+
                     const msg = language === 'th'
                         ? ` พบการละเมิดกฎ ${violations} รายการในไฟล์นี้`
                         : ` Found ${violations} rule violations in this file`;
@@ -402,14 +474,25 @@ function setupDocumentListeners(context) {
     context.subscriptions.push(
         vscode.workspace.onDidChangeTextDocument(event => {
             const config = vscode.workspace.getConfiguration('chahuadev');
-            if (config.get('enabled', true) && config.get('validateOnType', false)) {
+            const enabled = config.get('enabled');
+            const validateOnType = config.get('validateOnType');
+
+            if (enabled === undefined) {
+                throw new Error('Configuration "chahuadev.enabled" is required but not set');
+            }
+
+            if (validateOnType === undefined) {
+                throw new Error('Configuration "chahuadev.validateOnType" is required but not set');
+            }
+
+            if (enabled && validateOnType) {
                 if (timeout) {
                     clearTimeout(timeout);
                 }
-                timeout = setTimeout(() => {
-                    validator.validateDocument(event.document);
+                timeout = setTimeout(async () => {
+                    await validator.validateDocument(event.document);
                     updateStatusBar();
-                }, 500); // 500ms debounce
+                }, 500);
             }
         })
     );
@@ -436,16 +519,22 @@ function setupDocumentListeners(context) {
 /**
  * Validate all currently open documents
  */
-function validateOpenDocuments() {
+async function validateOpenDocuments() {
     const config = vscode.workspace.getConfiguration('chahuadev');
-    if (!config.get('enabled', true)) {
+    const enabled = config.get('enabled');
+
+    if (enabled === undefined) {
+        throw new Error('Configuration "chahuadev.enabled" is required but not set');
+    }
+
+    if (!enabled) {
         diagnosticCollection.clear();
         return;
     }
 
-    vscode.workspace.textDocuments.forEach(document => {
-        validator.validateDocument(document);
-    });
+    for (const document of vscode.workspace.textDocuments) {
+        await validator.validateDocument(document);
+    }
     updateStatusBar();
 }
 
@@ -455,8 +544,16 @@ function validateOpenDocuments() {
 function updateStatusBar() {
     const totalViolations = getTotalViolations();
     const config = vscode.workspace.getConfiguration('chahuadev');
-    const enabled = config.get('enabled', true);
-    const language = config.get('language', 'th');
+    const enabled = config.get('enabled');
+    const language = config.get('language');
+
+    if (enabled === undefined) {
+        throw new Error('Configuration "chahuadev.enabled" is required but not set');
+    }
+
+    if (!language) {
+        throw new Error('Configuration "chahuadev.language" is required but not set');
+    }
 
     if (!enabled) {
         statusBarItem.text = language === 'th'
@@ -519,7 +616,7 @@ function deactivate() {
     }
 }
 
-module.exports = {
+export {
     activate,
     deactivate
 };

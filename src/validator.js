@@ -3,38 +3,84 @@
 // Rules Validator - Grammar-Based Context-Aware Analysis
 // ======================================================================
 
-const vscode = require('vscode');
-const path = require('path');
-const acorn = require('acorn');
+import * as vscode from 'vscode';
+import path from 'path';
+import * as acorn from 'acorn';
 
-// Import FULL Grammar System (all capabilities)
-const {
-    COMPLETE_GRAMMAR,
-    GRAMMAR_STATS,
-    validateGrammarCompleteness,
-    Trie,
-    ExampleTokenizer,
-    ParserIntegration
-} = require('./grammars/index.js');
+// Grammar System - will be loaded asynchronously
+let COMPLETE_GRAMMAR = null;
+let GRAMMAR_STATS = null;
+let validateGrammarCompleteness = null;
+let Trie = null;
+let ExampleTokenizer = null;
+let ParserIntegration = null;
+let GrammarIndex = null;
+let DisambiguationEngine = null;
+let ErrorAssistant = null;
+let findClosestMatch = null;
+let findTypoSuggestions = null;
+let similarityRatio = null;
 
-const { GrammarIndex } = require('./grammars/shared/grammar-index.js');
-const { DisambiguationEngine } = require('./grammars/shared/disambiguation-engine.js');
-const { ErrorAssistant } = require('./grammars/shared/error-assistant.js');
-const { findClosestMatch, findTypoSuggestions, similarityRatio } = require('./grammars/shared/fuzzy-search.js');
+// Grammar Indexes - initialized after loading
+let grammarIndexes = {};
+let disambiguator = null;
+let errorAssistant = null;
 
-// Initialize Grammar Indexes for all supported languages
-const grammarIndexes = {
-    javascript: new GrammarIndex(COMPLETE_GRAMMAR.javascript),
-    typescript: new GrammarIndex(COMPLETE_GRAMMAR.typescript),
-    jsx: new GrammarIndex(COMPLETE_GRAMMAR.jsx),
-    java: new GrammarIndex(COMPLETE_GRAMMAR.java),
-};
+// Grammar initialization promise
+let grammarInitPromise = null;
 
-// Initialize Disambiguation Engine
-const disambiguator = new DisambiguationEngine();
+/**
+ * Initialize Grammar System asynchronously
+ * @throws {Error} If grammar system initialization fails
+ */
+async function initializeGrammarSystem() {
+    if (grammarInitPromise) {
+        return grammarInitPromise;
+    }
 
-// Initialize Error Assistant for better error messages
-const errorAssistant = new ErrorAssistant(COMPLETE_GRAMMAR);
+    grammarInitPromise = (async () => {
+        try {
+            const grammarModule = await import('./grammars/index.js');
+            const grammarIndexModule = await import('./grammars/shared/grammar-index.js');
+            const disambiguationModule = await import('./grammars/shared/disambiguation-engine.js');
+            const errorAssistantModule = await import('./grammars/shared/error-assistant.js');
+            const fuzzySearchModule = await import('./grammars/shared/fuzzy-search.js');
+            const trieModule = await import('./grammars/shared/trie.js');
+            const tokenizerModule = await import('./grammars/shared/tokenizer-helper.js');
+
+            COMPLETE_GRAMMAR = grammarModule.COMPLETE_GRAMMAR;
+            GRAMMAR_STATS = grammarModule.GRAMMAR_STATS;
+            validateGrammarCompleteness = grammarModule.validateGrammarCompleteness;
+            GrammarIndex = grammarIndexModule.GrammarIndex;
+            DisambiguationEngine = disambiguationModule.DisambiguationEngine;
+            ErrorAssistant = errorAssistantModule.ErrorAssistant;
+            Trie = trieModule.Trie;
+            ExampleTokenizer = tokenizerModule.ExampleTokenizer;
+            ParserIntegration = tokenizerModule.ParserIntegration;
+            findClosestMatch = fuzzySearchModule.findClosestMatch;
+            findTypoSuggestions = fuzzySearchModule.findTypoSuggestions;
+            similarityRatio = fuzzySearchModule.similarityRatio;
+
+            grammarIndexes = {
+                javascript: new GrammarIndex(COMPLETE_GRAMMAR.javascript),
+                typescript: new GrammarIndex(COMPLETE_GRAMMAR.typescript),
+                jsx: new GrammarIndex(COMPLETE_GRAMMAR.jsx),
+                java: new GrammarIndex(COMPLETE_GRAMMAR.java),
+            };
+
+            disambiguator = new DisambiguationEngine();
+            errorAssistant = new ErrorAssistant(COMPLETE_GRAMMAR);
+
+            return true;
+        } catch (error) {
+            console.error('[CRITICAL] Grammar system initialization failed:', error);
+            vscode.window.showErrorMessage(`Chahuadev Sentinel: Grammar system initialization failed - ${error.message}`);
+            throw new Error(`Grammar system initialization failed: ${error.message}`);
+        }
+    })();
+
+    return grammarInitPromise;
+}
 
 /**
  * ABSOLUTE RULES CONFIGURATION
@@ -1335,6 +1381,117 @@ class RulesValidator {
         this.diagnosticCollection = diagnosticCollection;
         this.outputChannel = outputChannel;
         this.updateLanguage();
+
+        // Initialize Grammar System asynchronously
+        // Grammar tools will be initialized after grammar system loads
+        this.grammarReady = false;
+        this.initializeGrammarSystemAsync();
+    }
+
+    /**
+     * Initialize Grammar System asynchronously (non-blocking)
+     */
+    async initializeGrammarSystemAsync() {
+        try {
+            this.outputChannel.appendLine('[INIT] Loading Grammar System...');
+            await initializeGrammarSystem();
+            this.outputChannel.appendLine('[INIT] Grammar System loaded successfully');
+
+            // Initialize Grammar Tools after grammar system is ready
+            this.initializeGrammarTools();
+            this.validateAndLogGrammarSystem();
+
+            this.grammarReady = true;
+            this.outputChannel.appendLine('[INIT] All grammar tools initialized and ready');
+        } catch (error) {
+            this.outputChannel.appendLine(`[ERROR] Grammar System initialization failed: ${error.message}`);
+            this.outputChannel.appendLine(error.stack);
+            vscode.window.showErrorMessage(`Grammar System initialization failed: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Initialize Grammar Tools for advanced analysis
+     * @throws {Error} If grammar tools initialization fails
+     */
+    initializeGrammarTools() {
+        // Validate prerequisites
+        if (!Trie) {
+            throw new Error('Trie class not initialized');
+        }
+
+        if (!COMPLETE_GRAMMAR) {
+            throw new Error('COMPLETE_GRAMMAR not initialized');
+        }
+
+        if (!COMPLETE_GRAMMAR.javascript) {
+            throw new Error('JavaScript grammar not found in COMPLETE_GRAMMAR');
+        }
+
+        // Create Trie for fast keyword/operator lookup
+        this.keywordTrie = new Trie();
+        const keywords = Object.keys(COMPLETE_GRAMMAR.javascript.keywords);
+        keywords.forEach(keyword => {
+            this.keywordTrie.insert(keyword, { type: 'keyword', value: keyword });
+        });
+        this.outputChannel.appendLine(`[INIT] Keyword Trie built with ${keywords.length} keywords`);
+
+        // Validate ExampleTokenizer availability
+        if (!ExampleTokenizer) {
+            throw new Error('ExampleTokenizer class not initialized');
+        }
+
+        // Create Tokenizer for code analysis
+        this.tokenizer = new ExampleTokenizer(COMPLETE_GRAMMAR.javascript);
+        this.outputChannel.appendLine(`[INIT] ExampleTokenizer initialized for JavaScript`);
+
+        // Validate ParserIntegration availability
+        if (!ParserIntegration) {
+            throw new Error('ParserIntegration class not initialized');
+        }
+
+        // Create Parser Integration for AST analysis
+        this.parserIntegration = new ParserIntegration();
+        this.outputChannel.appendLine(`[INIT] ParserIntegration initialized`);
+    }
+
+    /**
+     * Validate Grammar System and log statistics
+     */
+    validateAndLogGrammarSystem() {
+        // Validate grammar completeness
+        const validation = validateGrammarCompleteness();
+
+        if (validation.allValid) {
+            this.outputChannel.appendLine('[OK] Grammar System: All grammars loaded successfully');
+        } else {
+            this.outputChannel.appendLine('[WARNING] Grammar System: Some grammars incomplete');
+            this.outputChannel.appendLine(JSON.stringify(validation.results, null, 2));
+        }
+
+        // Log statistics
+        this.outputChannel.appendLine(`\n[STATS] Grammar Statistics:`);
+        this.outputChannel.appendLine(`   JavaScript: ${GRAMMAR_STATS.javascript.total} rules`);
+        this.outputChannel.appendLine(`   TypeScript: ${GRAMMAR_STATS.typescript.total} rules`);
+        this.outputChannel.appendLine(`   Java: ${GRAMMAR_STATS.java.total} rules`);
+        this.outputChannel.appendLine(`   JSX: ${GRAMMAR_STATS.jsx.total} rules`);
+
+        const totalRules = GRAMMAR_STATS.javascript.total +
+            GRAMMAR_STATS.typescript.total +
+            GRAMMAR_STATS.java.total +
+            GRAMMAR_STATS.jsx.total;
+
+        this.outputChannel.appendLine(`   Total: ${totalRules} grammar rules loaded\n`);
+
+        // Test Grammar components
+        this.outputChannel.appendLine('[COMPONENTS] Grammar Components:');
+        this.outputChannel.appendLine(`   - Trie: ${typeof Trie === 'function' ? 'OK' : 'FAILED'}`);
+        this.outputChannel.appendLine(`   - ExampleTokenizer: ${typeof ExampleTokenizer === 'function' ? 'OK' : 'FAILED'}`);
+        this.outputChannel.appendLine(`   - ParserIntegration: ${typeof ParserIntegration === 'function' ? 'OK' : 'FAILED'}`);
+        this.outputChannel.appendLine(`   - DisambiguationEngine: ${disambiguator ? 'OK' : 'FAILED'}`);
+        this.outputChannel.appendLine(`   - ErrorAssistant: ${errorAssistant ? 'OK' : 'FAILED'}`);
+        this.outputChannel.appendLine(`   - Fuzzy Search: ${typeof findClosestMatch === 'function' ? 'OK' : 'FAILED'}\n`);
     }
 
     /**
@@ -1342,7 +1499,13 @@ class RulesValidator {
      */
     updateLanguage() {
         const config = vscode.workspace.getConfiguration('chahuadev');
-        this.language = config.get('language', 'th');
+        const language = config.get('language');
+
+        if (!language) {
+            throw new Error('Configuration "chahuadev.language" is required but not set');
+        }
+
+        this.language = language;
     }
 
     /**
@@ -1350,12 +1513,24 @@ class RulesValidator {
      * @param {vscode.TextDocument} document
      * @returns {number} Number of violations found
      */
-    validateDocument(document) {
+    async validateDocument(document) {
         this.updateLanguage();
+
+        // Wait for grammar system to be ready
+        if (!this.grammarReady) {
+            this.outputChannel.appendLine('[VALIDATION] Waiting for Grammar System to be ready...');
+            await this.initializeGrammarSystemAsync();
+        }
 
         // Check if validation is enabled
         const config = vscode.workspace.getConfiguration('chahuadev');
-        if (!config.get('enabled', true)) {
+        const enabled = config.get('enabled');
+
+        if (enabled === undefined) {
+            throw new Error('Configuration "chahuadev.enabled" is required but not set');
+        }
+
+        if (!enabled) {
             return 0;
         }
 
@@ -1375,7 +1550,12 @@ class RulesValidator {
 
         // Check each enabled rule
         for (const [ruleKey, rule] of Object.entries(ABSOLUTE_RULES)) {
-            const ruleEnabled = config.get(`rules.${this.camelCase(ruleKey)}`, true);
+            const ruleEnabled = config.get(`rules.${this.camelCase(ruleKey)}`);
+
+            if (ruleEnabled === undefined) {
+                throw new Error(`Configuration "chahuadev.rules.${this.camelCase(ruleKey)}" is required but not set`);
+            }
+
             if (!ruleEnabled) {
                 continue;
             }
@@ -1414,7 +1594,10 @@ class RulesValidator {
                 ? 'typescript'
                 : 'javascript';
 
-        const grammarIndex = grammarIndexes[language] || grammarIndexes.javascript;
+        const grammarIndex = grammarIndexes[language];
+        if (!grammarIndex) {
+            throw new Error(`Grammar index not found for language: ${language}`);
+        }
 
         // Check all patterns
         for (const patternDef of rule.patterns) {
@@ -1603,22 +1786,27 @@ class RulesValidator {
             }
         }
 
-        // 5. Use DisambiguationEngine to analyze token context
-        try {
-            const tokenAtPos = this.extractTokenAtPosition(content, position);
-            if (tokenAtPos) {
-                const contextInfo = disambiguator.disambiguate(tokenAtPos, { before, after });
-                // If Grammar identifies this as comment/string/literal, skip
-                if (contextInfo && (
-                    contextInfo.type === 'comment' ||
-                    contextInfo.type === 'string' ||
-                    contextInfo.type === 'literal'
-                )) {
-                    return true;
-                }
+        // 5. Use Trie to quickly check if token is a keyword
+        const tokenAtPos = this.extractTokenAtPosition(content, position);
+        if (tokenAtPos && this.keywordTrie) {
+            const keywordResult = this.keywordTrie.search(tokenAtPos);
+            if (keywordResult) {
+                // Token is a valid keyword, not in non-code context
+                return false;
             }
-        } catch (e) {
-            // Fallback if disambiguation fails
+        }
+
+        // 6. Use DisambiguationEngine to analyze token context
+        if (tokenAtPos && disambiguator) {
+            const contextInfo = disambiguator.disambiguate(tokenAtPos, { before, after });
+            // If Grammar identifies this as comment/string/literal, skip
+            if (contextInfo && (
+                contextInfo.type === 'comment' ||
+                contextInfo.type === 'string' ||
+                contextInfo.type === 'literal'
+            )) {
+                return true;
+            }
         }
 
         return false;
@@ -1636,7 +1824,12 @@ class RulesValidator {
         const wordAfter = after.match(/^[\w$]+/);
 
         const token = (wordBefore ? wordBefore[0] : '') + (wordAfter ? wordAfter[0] : '');
-        return token || null;
+
+        if (!token) {
+            return null;
+        }
+
+        return token;
     }
 
     /**
@@ -1655,30 +1848,122 @@ class RulesValidator {
             ? vscode.DiagnosticSeverity.Error
             : vscode.DiagnosticSeverity.Warning;
 
+        // Use Error Assistant for comprehensive error analysis
+        let enhancedMessage = '';
+        let errorDocumentation = '';
+        let errorExamples = '';
+
+        if (errorAssistant && violation.matched) {
+            // Generate full error with Error Assistant
+            const errorInfo = errorAssistant.generateError('invalid-syntax', {
+                token: violation.matched,
+                line: violation.line,
+                column: violation.column,
+                language: document.languageId,
+                code: violation.code
+            });
+
+            // Extract suggestions
+            if (errorInfo.suggestions && errorInfo.suggestions.length > 0) {
+                enhancedMessage = `\n\n[SUGGESTION] คำแนะนำจาก Grammar System:\n   ${errorInfo.suggestions.join('\n   ')}`;
+            }
+
+            // Extract documentation links
+            if (errorInfo.documentation && (errorInfo.documentation.mdn || errorInfo.documentation.official)) {
+                errorDocumentation = `\n\n[DOCUMENTATION]`;
+                if (errorInfo.documentation.mdn) {
+                    errorDocumentation += `\n   MDN: ${errorInfo.documentation.mdn}`;
+                }
+                if (errorInfo.documentation.official) {
+                    errorDocumentation += `\n   Official: ${errorInfo.documentation.official}`;
+                }
+            }
+
+            // Extract examples
+            if (errorInfo.examples && errorInfo.examples.length > 0) {
+                errorExamples = `\n\n[EXAMPLES]\n   ${errorInfo.examples.slice(0, 2).map(ex => ex.code).join('\n   ')}`;
+            }
+        }
+
+        // Use Fuzzy Search for typo suggestions on matched text
+        let typoSuggestion = '';
+        let similaritySuggestion = '';
+
+        if (!violation.matched) {
+            throw new Error('Violation matched text is required for typo suggestions');
+        }
+
+        if (!COMPLETE_GRAMMAR) {
+            throw new Error('COMPLETE_GRAMMAR not initialized');
+        }
+
+        if (!COMPLETE_GRAMMAR.javascript) {
+            throw new Error('JavaScript grammar not found in COMPLETE_GRAMMAR');
+        }
+
+        if (!COMPLETE_GRAMMAR.javascript.keywords) {
+            throw new Error('JavaScript keywords not found in grammar');
+        }
+
+        const keywords = Object.keys(COMPLETE_GRAMMAR.javascript.keywords);
+
+        // Use findTypoSuggestions for multiple suggestions
+        if (!findTypoSuggestions) {
+            throw new Error('findTypoSuggestions function not initialized');
+        }
+
+        const suggestions = findTypoSuggestions(violation.matched, keywords, 3);
+        if (!suggestions) {
+            throw new Error('findTypoSuggestions returned null/undefined');
+        }
+
+        if (suggestions.length > 0) {
+            typoSuggestion = `\n   คุณหมายถึง: ${suggestions.slice(0, 3).map(s => s.word).join(', ')} หรือไม่?`;
+        }
+
+        // Use findClosestMatch for best single match with similarity score
+        if (!findClosestMatch) {
+            throw new Error('findClosestMatch function not initialized');
+        }
+
+        if (!similarityRatio) {
+            throw new Error('similarityRatio function not initialized');
+        }
+
+        const closestMatch = findClosestMatch(violation.matched, keywords, 3);
+        if (!closestMatch) {
+            throw new Error('findClosestMatch returned null/undefined');
+        }
+
+        const similarity = similarityRatio(violation.matched, closestMatch.word);
+        if (similarity > 0.5) {
+            similaritySuggestion = `\n   ความคล้ายคลึง: ${(similarity * 100).toFixed(1)}% กับ "${closestMatch.word}"`;
+        }
+
         // Create detailed message
         const message = this.language === 'th'
-            ? ` ${violation.ruleName}
+            ? `[VIOLATION] ${violation.ruleName}
 
   คำอธิบาย: ${violation.description}
 
-💡เหตุผล: ${violation.explanation}
+  เหตุผล: ${violation.explanation}
 
   พบ: ${violation.patternName}
-   ${violation.matched}
+   ${violation.matched}${typoSuggestion}${similaritySuggestion}
 
-  วิธีแก้: ${violation.fix}
+  วิธีแก้: ${violation.fix}${enhancedMessage}${errorExamples}${errorDocumentation}
 
   อ่านเพิ่มเติม: กฎเหล็กข้อที่ ${this.getRuleNumber(violation.rule)}`
-            : ` ${violation.ruleName}
+            : `[VIOLATION] ${violation.ruleName}
 
   Description: ${violation.description}
 
   Reason: ${violation.explanation}
 
   Found: ${violation.patternName}
-   ${violation.matched}
+   ${violation.matched}${typoSuggestion}${similaritySuggestion}
 
-  Fix: ${violation.fix}
+  Fix: ${violation.fix}${enhancedMessage}${errorExamples}${errorDocumentation}
 
   Learn more: Absolute Rule #${this.getRuleNumber(violation.rule)}`;
 
@@ -1723,7 +2008,11 @@ class RulesValidator {
      */
     shouldExclude(filePath) {
         const config = vscode.workspace.getConfiguration('chahuadev');
-        const excludePatterns = config.get('excludePatterns', []);
+        const excludePatterns = config.get('excludePatterns');
+
+        if (!excludePatterns) {
+            throw new Error('Configuration "chahuadev.excludePatterns" is required but not set');
+        }
 
         const relativePath = vscode.workspace.asRelativePath(filePath);
 
@@ -1754,4 +2043,6 @@ class RulesValidator {
     }
 }
 
-module.exports = { RulesValidator };
+export { RulesValidator, initializeGrammarSystem };
+
+export { RulesValidator };
