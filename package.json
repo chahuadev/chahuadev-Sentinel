@@ -1,159 +1,20 @@
 {
-    "name": "chahuadev-sentinel",
-    "displayName": "Chahuadev Sentinel",
-    "description": "Enforce absolute coding rules: No mocking, No hardcoding, No silent fallbacks, No internal caching",
-    "version": "1.2.0",
-    "publisher": "chahuadev",
-    "icon": "logo.png",
-    "engines": {
-        "vscode": "^1.80.0"
-    },
-    "categories": [
-        "Linters",
-        "Programming Languages"
-    ],
-    "keywords": [
-        "validator",
-        "linter",
-        "code quality",
-        "best practices",
-        "coding standards"
-    ],
-    "activationEvents": [
-        "onLanguage:javascript",
-        "onLanguage:typescript",
-        "onLanguage:javascriptreact",
-        "onLanguage:typescriptreact"
-    ],
-    "main": "./src/extension.js",
-    "contributes": {
-        "commands": [
-            {
-                "command": "chahuadev.validateWorkspace",
-                "title": "Chahuadev: Validate Entire Workspace",
-                "category": "Chahuadev"
-            },
-            {
-                "command": "chahuadev.validateCurrentFile",
-                "title": "Chahuadev: Validate Current File",
-                "category": "Chahuadev"
-            },
-            {
-                "command": "chahuadev.clearDiagnostics",
-                "title": "Chahuadev: Clear All Diagnostics",
-                "category": "Chahuadev"
-            }
-        ],
-        "configuration": {
-            "title": "Chahuadev Rules Validator",
-            "properties": {
-                "chahuadev.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable/disable Chahuadev rules validation"
-                },
-                "chahuadev.showWelcomeMessage": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show welcome message on first activation"
-                },
-                "chahuadev.language": {
-                    "type": "string",
-                    "enum": [
-                        "en",
-                        "th"
-                    ],
-                    "default": "th",
-                    "description": "Language for validation messages (English or Thai)"
-                },
-                "chahuadev.validateOnSave": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Automatically validate files when saved"
-                },
-                "chahuadev.validateOnOpen": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Automatically validate files when opened"
-                },
-                "chahuadev.validateOnType": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Validate files in real-time as you type (may impact performance)"
-                },
-                "chahuadev.rules.noMocking": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enforce NO_MOCKING rule: Forbid jest.mock, sinon.stub, etc."
-                },
-                "chahuadev.rules.noHardcode": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enforce NO_HARDCODE rule: Forbid hardcoded URLs, API keys, etc."
-                },
-                "chahuadev.rules.noSilentFallback": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enforce NO_SILENT_FALLBACK rule: Forbid catch blocks returning defaults without logging"
-                },
-                "chahuadev.rules.noInternalCache": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enforce NO_INTERNAL_CACHE rule: Forbid internal memoization/caching"
-                },
-                "chahuadev.rules.noEmoji": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enforce NO_EMOJI rule: Forbid emoji characters in source code"
-                },
-                "chahuadev.excludePatterns": {
-                    "type": "array",
-                    "default": [
-                        "**/node_modules/**",
-                        "**/dist/**",
-                        "**/build/**",
-                        "**/*.min.js",
-                        "**/*.spec.js",
-                        "**/*.test.js"
-                    ],
-                    "description": "File patterns to exclude from validation"
-                }
-            }
-        },
-        "problemMatchers": [
-            {
-                "name": "chahuadev",
-                "owner": "chahuadev",
-                "fileLocation": "relative",
-                "pattern": {
-                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-                    "file": 1,
-                    "line": 2,
-                    "column": 3,
-                    "severity": 4,
-                    "message": 5
-                }
-            }
-        ]
-    },
-    "scripts": {
-        "package": "vsce package",
-        "publish": "vsce publish",
-        "test": "node test/runTest.js"
-    },
-    "devDependencies": {
-        "@vscode/vsce": "^2.20.0"
-    },
-    "dependencies": {
-        "acorn": "^8.15.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/chahuadev/Chahuadev-Sentinel"
-    },
-    "license": "MIT",
-    "author": {
-        "name": "Chahua Development Co., Ltd.",
-        "email": "chahuadev@gmail.com"
-    }
+  "name": "chahuadev-sentinel",
+  "displayName": "Chahuadev Sentinel",
+  "description": "Code quality checker for Chahua Development standards",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Linters"],
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
+  ],
+  "main": "./src/extension.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  }
 }

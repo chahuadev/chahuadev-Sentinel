@@ -18,35 +18,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ============================================================================
-// CORPUS CONFIGURATION
+// CORPUS CONFIGURATION - Load from external config file
 // ============================================================================
 
-const CORPUS_PROJECTS = [
-    {
-        name: 'React',
-        path: 'node_modules/react',
-        extensions: ['.js', '.jsx'],
-        description: 'React Library - JSX and modern JavaScript'
-    },
-    {
-        name: 'Lodash',
-        path: 'node_modules/lodash',
-        extensions: ['.js'],
-        description: 'Utility library - functional programming patterns'
-    },
-    {
-        name: 'Express',
-        path: 'node_modules/express',
-        extensions: ['.js'],
-        description: 'Web framework - Node.js patterns'
-    },
-    {
-        name: 'TypeScript',
-        path: 'node_modules/typescript/lib',
-        extensions: ['.js', '.d.ts'],
-        description: 'TypeScript compiler - complex patterns'
+function loadCorpusConfig() {
+    try {
+        const configPath = path.join(__dirname, 'corpus-config.json');
+        const configData = fs.readFileSync(configPath, 'utf8');
+        const config = JSON.parse(configData);
+        return config;
+    } catch (error) {
+        throw new Error(`Failed to load corpus configuration: ${error.message}`);
     }
-];
+}
+
+const config = loadCorpusConfig();
+const CORPUS_PROJECTS = config.corpusProjects;
+const TESTING_CONFIG = config.testingConfig;
 
 // ============================================================================
 // CORPUS TESTER CLASS

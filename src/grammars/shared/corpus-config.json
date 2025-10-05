@@ -1,0 +1,46 @@
+{
+    "corpusProjects": [
+        {
+            "name": "React",
+            "path": "node_modules/react",
+            "extensions": [".js", ".jsx"],
+            "description": "React Library - JSX and modern JavaScript"
+        },
+        {
+            "name": "Lodash", 
+            "path": "node_modules/lodash",
+            "extensions": [".js"],
+            "description": "Utility library - functional programming patterns"
+        },
+        {
+            "name": "Express",
+            "path": "node_modules/express", 
+            "extensions": [".js"],
+            "description": "Web framework - Node.js patterns"
+        },
+        {
+            "name": "TypeScript",
+            "path": "node_modules/typescript/lib",
+            "extensions": [".js", ".d.ts"],
+            "description": "TypeScript compiler - complex patterns"
+        },
+        {
+            "name": "Vue",
+            "path": "node_modules/vue/dist",
+            "extensions": [".js"],
+            "description": "Vue.js framework - template compilation patterns"
+        },
+        {
+            "name": "Webpack",
+            "path": "node_modules/webpack/lib",
+            "extensions": [".js"],
+            "description": "Module bundler - complex dependency resolution"
+        }
+    ],
+    "testingConfig": {
+        "maxFilesPerProject": 100,
+        "maxFileSizeKB": 500,
+        "skipPatterns": ["test", "spec", "mock", "__tests__", "node_modules"],
+        "timeout": 30000
+    }
+}
