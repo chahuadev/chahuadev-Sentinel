@@ -1,12 +1,27 @@
 {
   "name": "chahuadev-sentinel",
   "displayName": "Chahuadev Sentinel",
-  "description": "Code quality checker for Chahua Development standards",
+  "description": "Code quality checker for Chahua Development standards - VS Code Extension and CLI Tool",
   "version": "1.0.0",
+  "author": "Chahua Development Co., Ltd.",
+  "license": "MIT",
+  "keywords": [
+    "linter",
+    "code-quality",
+    "chahua",
+    "validation",
+    "typescript",
+    "javascript",
+    "vscode-extension",
+    "cli-tool"
+  ],
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.74.0",
+    "node": ">=14.0.0"
   },
-  "categories": ["Linters"],
+  "categories": [
+    "Linters"
+  ],
   "activationEvents": [
     "onLanguage:javascript",
     "onLanguage:typescript",
@@ -14,7 +29,36 @@
     "onLanguage:typescriptreact"
   ],
   "main": "./src/extension.js",
+
+  "files": [
+    "src/",
+    "cli.js",
+    "emoji-cleaner.js",
+    "scan-real-files.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@babel/parser": "^7.28.4",
+    "acorn": "^8.15.0"
+  },
+  "devDependencies": {},
   "scripts": {
-    "test": "echo \"No tests yet\""
-  }
+    "test": "node scan-real-files.js '*'",
+    "lint": "node cli.js .",
+    "clean-emoji": "node emoji-cleaner.js .",
+    "validate-project": "node scan-real-files.js '*' && echo 'Project validation complete'",
+    "install-parsers": "npm install acorn @babel/parser",
+    "vscode-package": "vsce package",
+    "publish-vscode": "vsce publish",
+    "publish-npm": "npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chahuadev/chahuadev-vscode-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chahuadev/chahuadev-vscode-extension/issues"
+  },
+  "homepage": "https://github.com/chahuadev/chahuadev-vscode-extension#readme"
 }

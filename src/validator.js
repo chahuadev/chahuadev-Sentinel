@@ -364,7 +364,7 @@ const userService = new UserService(testDatabase, testEmailService, testLogger);
 
             // Module mocking with manual implementations
             { regex: /jest\.doMock\s*\(\s*['"][^'"]+['"],\s*\(\s*\)\s*=>\s*\{/, name: 'jest.doMock with manual implementation', severity: 'ERROR' },
-            { regex: /require\.cache\[.*\]\s*=\s*{.*mock/, name: 'Manual require cache manipulation', severity: 'ERROR' },
+            { regex: /require\.cache\[[^\]]+\]\s*=\s*\{[^}]*mock/, name: 'Manual require cache manipulation', severity: 'ERROR' },
 
             // TypeScript mock patterns
             { regex: /as\s+jest\.MockedFunction/, name: 'TypeScript jest.MockedFunction cast', severity: 'ERROR' },
@@ -1362,58 +1362,33 @@ CORRECT APPROACH:
                 `/**
                  * @example-for-rule NO_SILENT_FALLBACKS
                  * @type violation
-                 * @matches-pattern Try-catch with silent return
+                 * @description Try-catch with silent return
                  */
-                try { riskyOperation(); } catch(e) { return null; }`,
-                
+                function riskyOperationWrapper() { try { riskyOperation(); } catch(e) { return null; } }`,
                 `/**
                  * @example-for-rule NO_SILENT_FALLBACKS
                  * @type violation
-                 * @matches-pattern Function call with silent fallback
+                 * @description Function call with silent fallback
                  */
-                const data = fetchData() || defaultData;`,
-                
+                const data = fetchData() || [];`,
                 `/**
                  * @example-for-rule NO_SILENT_FALLBACKS
                  * @type violation
-                 * @matches-pattern Empty catch block
+                 * @description Empty catch block
                  */
-                catch(error) { /* ignore errors */ }`,
-                
+                try {} catch(error) { /* ignore errors */ }`,
                 `/**
                  * @example-for-rule NO_SILENT_FALLBACKS
                  * @type violation
-                 * @matches-pattern Promise with empty catch
+                 * @description Promise with empty catch
                  */
-                promise.catch(() => {});`,
-                
+                new Promise((res, rej) => rej()).catch(() => {});`,
                 `/**
                  * @example-for-rule NO_SILENT_FALLBACKS
                  * @type violation
-                 * @matches-pattern Try-catch with default return
+                 * @description async function with await but no try-catch
                  */
-                try { parse(json); } catch(e) { return {}; }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Function call with silent fallback
-                 */
-                const user = users.find(u => u.id === id) || guestUser;`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Catch with console.log() (use console.error)
-                 */
-                catch(err) { console.log("Error occurred"); return false; }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern async function with await but no try-catch
-                 */
-                async function getData() { await apiCall(); }`
+                async function getData() { await Promise.resolve(1); }`
             ],
             th: [
                 `/**
@@ -1844,58 +1819,27 @@ SEPARATION OF CONCERNS:
                 `/**
                  * @example-for-rule NO_INTERNAL_CACHING
                  * @type violation
-                 * @matches-pattern cache variable with Map/Object/Array
+                 * @description cache variable with Map/Object/Array
                  */
-                const cache = {}; function getData(id) { if (cache[id]) return cache[id]; cache[id] = fetch(id); return cache[id]; }`,
-                
+                function getData(id) { const cache = {}; if (cache[id]) return cache[id]; }`,
                 `/**
                  * @example-for-rule NO_INTERNAL_CACHING
                  * @type violation
-                 * @matches-pattern memoize() function call
+                 * @description memoize() function call
                  */
-                const memoized = _.memoize(expensiveFunction);`,
-                
+                const memoized = _.memoize(() => 1);`,
                 `/**
                  * @example-for-rule NO_INTERNAL_CACHING
                  * @type violation
-                 * @matches-pattern let result(s) storage
-                 */
-                let lastResult; function compute() { if (lastResult) return lastResult; lastResult = calculate(); return lastResult; }`,
-                
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern cache.has() check
-                 */
-                const results = new Map(); function process(key) { if (results.has(key)) return results.get(key); }`,
-                
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern this.cache property
+                 * @description this.cache property
                  */
                 class Service { constructor() { this.cache = {}; } getData(id) { if (this.cache[id]) return this.cache[id]; } }`,
-                
-                `/**
+                 `/**
                  * @example-for-rule NO_INTERNAL_CACHING
                  * @type violation
-                 * @matches-pattern useMemo() - React internal memoization
+                 * @description useMemo() - React internal memoization
                  */
-                const useMemo(() => expensiveCalculation(), [deps]);`,
-                
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern cache[key] = value assignment
-                 */
-                function factorial(n) { if (!factorial.cache) factorial.cache = {}; if (factorial.cache[n]) return factorial.cache[n]; }`,
-                
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern SWR hook (data caching)
-                 */
-                const stored = useSWR(key, fetcher);`
+                const memoizedValue = useMemo(() => expensiveCalculation(), [deps]);`
             ],
             th: [
                 `/**
@@ -2554,9 +2498,130 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
 };
 
 // ======================================================================
-// MODULE EXPORTS - ส่งออกเฉพาะข้อมูลกฎ
+// ENHANCED VALIDATION ENGINE - ใช้ Grammar-based Analysis
 // ======================================================================
-export { ABSOLUTE_RULES };
+
+/**
+ * ValidationEngine - เครื่องมือตรวจสอบโค้ดด้วย Grammar และ AST
+ * ใช้ Parser มืออาชีพเป็นต้นแบบการเรียนรู้
+ */
+class ValidationEngine {
+    constructor() {
+        this.rules = ABSOLUTE_RULES;
+        this.parserStudy = null;
+        this.initializeParserStudy();
+    }
+
+    async initializeParserStudy() {
+        try {
+            const { ParserStudyModule } = require('./grammars/shared/parser-study.js');
+            this.parserStudy = new ParserStudyModule();
+            console.log('SUCCESS: Parser Study Module initialized');
+        } catch (error) {
+            console.warn('ERROR: Parser Study Module not available:', error.message);
+        }
+    }
+
+    async validateCode(code, language = 'javascript') {
+        const results = { violations: [], warnings: [], suggestions: [] };
+        if (this.parserStudy) {
+            try {
+                const astViolations = await this.analyzeWithAST(code);
+                results.violations.push(...astViolations);
+                console.log('SUCCESS: AST Analysis completed successfully');
+            } catch (astError) {
+                console.error('ERROR: AST Analysis failed:', astError.message);
+                console.warn('FALLBACK: Using regex-based analysis');
+                results.violations.push(...this.analyzeWithRegex(code));
+            }
+        } else {
+            results.violations.push(...this.analyzeWithRegex(code));
+        }
+        return results;
+    }
+    
+    async analyzeWithAST(code) {
+        if (!this.parserStudy) throw new Error("ParserStudyModule not initialized.");
+        
+        const violations = [];
+        const patterns = this.parserStudy.studyRulePatterns(code);
+        
+        // ! FIX: ตรวจสอบว่ามีกฎอยู่จริงใน ABSOLUTE_RULES ก่อนเรียกใช้
+        if (this.rules.NO_MOCKING) this.checkMockingViolations(patterns, violations);
+        if (this.rules.NO_EMOJI) this.checkEmojiViolations(patterns, violations);
+        if (this.rules.NO_HARDCODE) this.checkHardcodeViolations(patterns, violations);
+        if (this.rules.NO_SILENT_FALLBACKS) this.checkSilentFallbackViolations(patterns, violations);
+        if (this.rules.NO_COMPLEX_FUNCTIONS) this.checkComplexityViolations(patterns, violations);
+        if (this.rules.NO_INTERNAL_CACHING) this.checkCachingViolations(patterns, violations);
+        if (this.rules.NO_DEEP_NESTING) this.checkDeepNestingViolations(patterns, violations);
+
+        return violations;
+    }
+
+    analyzeWithRegex(code) {
+        const violations = [];
+        for (const [ruleId, rule] of Object.entries(this.rules)) {
+            for (const pattern of rule.patterns) {
+                const regex = new RegExp(pattern.regex.source, 'gu');
+                let match;
+                while ((match = regex.exec(code)) !== null) {
+                    violations.push({
+                        ruleId,
+                        severity: pattern.severity,
+                        message: `[${ruleId}] ${rule.description.th}`,
+                        match: match[0],
+                        position: match.index,
+                        pattern: pattern.name
+                    });
+                }
+            }
+        }
+        return violations;
+    }
+    
+    // --- ฟังก์ชัน check...Violations ทั้งหมดเหมือนเดิม ไม่ต้องแก้ไข ---
+    // (ผมใส่มาให้ครบถ้วนเพื่อความสมบูรณ์)
+    checkMockingViolations(patterns, violations) {
+        patterns.mockingPatterns?.forEach(p => violations.push({
+            ruleId: 'NO_MOCKING', severity: 'ERROR', message: `Detected ${p.pattern}`, location: p.location
+        }));
+    }
+    checkEmojiViolations(patterns, violations) {
+        patterns.emojiPatterns?.forEach(p => violations.push({
+            ruleId: 'NO_EMOJI', severity: 'ERROR', message: `Emoji "${p.emoji}" found`, location: p.location
+        }));
+    }
+    checkHardcodeViolations(patterns, violations) {
+        patterns.hardcodePatterns?.forEach(p => violations.push({
+            ruleId: 'NO_HARDCODE', severity: 'ERROR', message: `Hardcoded value detected: ${p.match}`, match: p.match, location: p.location
+        }));
+    }
+    checkSilentFallbackViolations(patterns, violations) {
+        patterns.silentFallbackPatterns?.forEach(p => violations.push({
+            ruleId: 'NO_SILENT_FALLBACKS', severity: 'ERROR', message: `Silent fallback detected: ${p.patternName}`, location: p.location
+        }));
+    }
+    checkComplexityViolations(patterns, violations) {
+        patterns.complexityPatterns?.forEach(p => violations.push({
+            ruleId: 'NO_COMPLEX_FUNCTIONS', severity: 'ERROR', message: `Function has ${p.paramCount} parameters (max 5)`, location: p.location
+        }));
+    }
+    checkCachingViolations(patterns, violations) {
+        patterns.internalCachingPatterns?.forEach(p => violations.push({
+            ruleId: 'NO_INTERNAL_CACHING', severity: 'WARNING', message: `Internal caching detected: ${p.patternName}`, location: p.location
+        }));
+    }
+    checkDeepNestingViolations(patterns, violations) {
+        patterns.deepNestingPatterns?.forEach(p => violations.push({
+            ruleId: 'NO_DEEP_NESTING', severity: 'ERROR', message: `Nesting level ${p.depth} exceeds maximum of 3`, location: p.location
+        }));
+    }
+}
+
+// ======================================================================
+// MODULE EXPORTS - ส่งออกทั้ง Rules และ Engine
+// ======================================================================
+module.exports = { ABSOLUTE_RULES, ValidationEngine };
 
 
 
