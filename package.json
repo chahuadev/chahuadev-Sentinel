@@ -5,6 +5,7 @@
   "version": "1.0.0",
   "author": "Chahua Development Co., Ltd.",
   "license": "MIT",
+  "type": "module",
   "keywords": [
     "linter",
     "code-quality",

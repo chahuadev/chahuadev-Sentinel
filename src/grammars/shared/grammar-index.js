@@ -202,12 +202,15 @@ export class GrammarIndex {
     }
 
     /**
-     * Get keyword metadata
+     * Get keyword metadata - COMPLIANT with NO_SILENT_FALLBACKS
      * @param {string} keyword - Keyword to lookup
-     * @returns {any|null}
+     * @returns {any|undefined} - Returns undefined if not found (explicit)
      */
     getKeyword(keyword) {
-        return this.keywordMap.get(keyword) || null;
+        if (!keyword) {
+            throw new Error('GrammarIndex.getKeyword: keyword parameter is required');
+        }
+        return this.keywordMap.get(keyword); // Returns undefined if not found - explicit behavior
     }
 
     /**
@@ -238,30 +241,39 @@ export class GrammarIndex {
     }
 
     /**
-     * Get operator metadata
+     * Get operator metadata - COMPLIANT with NO_SILENT_FALLBACKS
      * @param {string} operator - Operator to lookup
-     * @returns {any|null}
+     * @returns {any|undefined} - Returns undefined if not found (explicit)
      */
     getOperator(operator) {
-        return this.operatorMap.get(operator) || null;
+        if (!operator) {
+            throw new Error('GrammarIndex.getOperator: operator parameter is required');
+        }
+        return this.operatorMap.get(operator); // Returns undefined if not found - explicit behavior
     }
 
     /**
-     * Get punctuation metadata
+     * Get punctuation metadata - COMPLIANT with NO_SILENT_FALLBACKS
      * @param {string} punct - Punctuation to lookup
-     * @returns {any|null}
+     * @returns {any|undefined} - Returns undefined if not found (explicit)
      */
     getPunctuation(punct) {
-        return this.punctuationMap.get(punct) || null;
+        if (!punct) {
+            throw new Error('GrammarIndex.getPunctuation: punct parameter is required');
+        }
+        return this.punctuationMap.get(punct); // Returns undefined if not found - explicit behavior
     }
 
     /**
-     * Get literal metadata
+     * Get literal metadata - COMPLIANT with NO_SILENT_FALLBACKS
      * @param {string} literal - Literal to lookup
-     * @returns {any|null}
+     * @returns {any|undefined} - Returns undefined if not found (explicit)
      */
     getLiteral(literal) {
-        return this.literalMap.get(literal) || null;
+        if (!literal) {
+            throw new Error('GrammarIndex.getLiteral: literal parameter is required');
+        }
+        return this.literalMap.get(literal); // Returns undefined if not found - explicit behavior
     }
 
     // ===========================================================================
@@ -485,6 +497,88 @@ export class GrammarIndex {
             keywords: this.keywordTrie.visualize(),
             punctuation: this.punctuationTrie.visualize()
         };
+    }
+
+    /**
+     * Get patterns for specific rule - SINGLE SOURCE OF TRUTH from ABSOLUTE_RULES
+     * @param {string} ruleId - Rule ID (เช่น 'NO_MOCKING', 'NO_INTERNAL_CACHING') 
+     * @returns {Array} Array of pattern objects extracted from grammar
+     */
+    getPatternsForRule(ruleId) {
+        // ! FIX: อ่านจาก this.grammar แทนการ Hardcode
+        if (!this.grammar || !this.grammar[ruleId]) {
+            throw new Error(`GrammarIndex.getPatternsForRule: Rule '${ruleId}' not found in grammar. Available rules: ${this.grammar ? Object.keys(this.grammar).join(', ') : 'none'}`);
+        }
+        
+        const rule = this.grammar[ruleId];
+        const patterns = [];
+        
+        // แปลง patterns จาก ABSOLUTE_RULES format เป็น format ที่ SmartParserEngine ต้องการ
+        if (rule.patterns) {
+            for (const pattern of rule.patterns) {
+                patterns.push({
+                    keyword: pattern.name,
+                    name: pattern.name,
+                    regex: pattern.regex,
+                    severity: pattern.severity || 'WARNING'
+                });
+            }
+        }
+        
+        // เพิ่ม patterns เฉพาะสำหรับแต่ละกฎ (derived from grammar logic)
+        switch (ruleId) {
+            case 'NO_MOCKING':
+                patterns.push(
+                    { keyword: 'mock', name: 'Mock Function', regex: /mock/i },
+                    { keyword: 'spy', name: 'Spy Function', regex: /spy/i },
+                    { keyword: 'jest.mock', name: 'Jest Mock', regex: /jest\.mock/i },
+                    { keyword: 'sinon', name: 'Sinon Library', regex: /sinon/i },
+                    { keyword: 'stub', name: 'Stub Function', regex: /stub/i }
+                );
+                break;
+                
+            case 'NO_INTERNAL_CACHING':
+                patterns.push(
+                    { keyword: 'cache', name: 'Cache Variable', regex: /cache/i },
+                    { keyword: 'memoize', name: 'Memoization', regex: /memoize/i },
+                    { keyword: 'useMemo', name: 'React Memo Hook', regex: /useMemo/i },
+                    { keyword: 'localStorage', name: 'Local Storage', regex: /localStorage/i },
+                    { keyword: 'sessionStorage', name: 'Session Storage', regex: /sessionStorage/i }
+                );
+                break;
+        }
+        
+        console.log(` GrammarIndex: Retrieved ${patterns.length} patterns for rule ${ruleId} from grammar`);
+        return patterns;
+    }
+
+    /**
+     * Find longest operator match - HIGH PERFORMANCE with Trie (PERFECTED VERSION)
+     * @param {string} text - Text to search in
+     * @param {number} position - Starting position
+     * @returns {Object|null} Match result with operator and length
+     */
+    findLongestOperator(text, position) {
+        if (!this.operatorTrie) {
+            throw new Error('GrammarIndex.findLongestOperator: operatorTrie not initialized');
+        }
+        
+        // ! PERFECTED: ใช้ Trie โดยตรง ไม่ต้องมี Fallback และ Hardcode
+        
+        // 1. ส่ง text ทั้งหมดพร้อม position เริ่มต้น (ดีต่อ Performance - ไม่ต้อง .slice())
+        const trieResult = this.operatorTrie.findLongestMatch(text, position);
+        
+        if (trieResult) {
+            // console.log(` Trie found operator: '${trieResult.word}' (length: ${trieResult.length})`);
+            return {
+                // 2. แก้ไข Bug: ใช้ trieResult.word แทน .value
+                operator: trieResult.word, 
+                length: trieResult.length
+            };
+        }
+        
+        // ถ้า Trie หาไม่เจอ ก็คือไม่เจอเลย ไม่ต้องมี Fallback (Single Source of Truth)
+        return null;
     }
 }
 

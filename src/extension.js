@@ -87,8 +87,13 @@ async function updateDiagnostics(document) {
             diagnostics.push(diagnostic);
         }
 
-        // เพิ่ม warnings
-        for (const warning of results.warnings || []) {
+        // เพิ่ม warnings - COMPLIANT with NO_SILENT_FALLBACKS
+        const warnings = results.warnings;
+        if (!Array.isArray(warnings)) {
+            console.warn('ValidationEngine returned non-array warnings:', typeof warnings);
+            return; // Fail fast instead of silent fallback
+        }
+        for (const warning of warnings) {
             let range;
             
             if (warning.location) {

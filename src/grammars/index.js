@@ -206,7 +206,7 @@ class GrammarSearchProxy {
                 throw error;
             }
         } catch (error) {
-            console.error(`❌ Keyword search failed:`, error.message);
+            console.error(` Keyword search failed:`, error.message);
             return null;
         }
     }
@@ -256,7 +256,7 @@ export async function getJSXGrammar() {
  * @returns {Promise<Object>}
  */
 export async function getCompleteGrammar() {
-    console.log('📋 Requesting complete grammar set from search system...');
+    console.log(' Requesting complete grammar set from search system...');
     
     const [javascript, typescript, java, jsx] = await Promise.all([
         grammarProxy.requestGrammar('javascript'),
@@ -279,7 +279,7 @@ export async function getCompleteGrammar() {
  * @returns {Promise<Object>} Search results from search system
  */
 export async function searchAllGrammars(query) {
-    console.log(`🔍 Searching "${query}" across all grammars via search system...`);
+    console.log(` Searching "${query}" across all grammars via search system...`);
     
     const results = await Promise.all([
         grammarProxy.searchKeyword(query, 'javascript'),

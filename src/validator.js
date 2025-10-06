@@ -248,11 +248,137 @@ const userService = new UserService(testDatabase, testEmailService, testLogger);
             { regex: /sinon\.replace\s*\(/, name: 'sinon.replace()', severity: 'ERROR' },
             { regex: /sinon\.createStubInstance\s*\(/, name: 'sinon.createStubInstance()', severity: 'ERROR' },
             { regex: /sinon\.sandbox\s*\./, name: 'sinon.sandbox', severity: 'ERROR' },
+
+            // Mocha/Chai mocking and test doubles
+            { regex: /chai\.spy\s*\(/, name: 'chai.spy()', severity: 'ERROR' },
+            { regex: /proxyquire\s*\(/, name: 'proxyquire()', severity: 'ERROR' },
+            { regex: /rewire\s*\(/, name: 'rewire()', severity: 'ERROR' },
+            { regex: /testdouble\.replace\s*\(/, name: 'testdouble.replace()', severity: 'ERROR' },
+            { regex: /testdouble\.when\s*\(/, name: 'testdouble.when()', severity: 'ERROR' },
+            { regex: /testdouble\.verify\s*\(/, name: 'testdouble.verify()', severity: 'ERROR' },
+
+            // Node.js specific mocking
+            { regex: /require\.cache\s*\[/, name: 'require.cache manipulation', severity: 'ERROR' },
+            { regex: /module\._load\s*=/, name: 'module._load override', severity: 'ERROR' },
+            { regex: /process\.env\.NODE_ENV\s*=/, name: 'NODE_ENV mocking', severity: 'WARNING' },
+
+            // Generic mocking keywords and patterns
+            { regex: /\.mockReturnThis\s*\(/, name: '.mockReturnThis()', severity: 'ERROR' },
+            { regex: /\.toHaveBeenCalled/, name: 'jest spy assertion', severity: 'ERROR' },
+            { regex: /\.toHaveBeenCalledWith/, name: 'jest spy assertion with params', severity: 'ERROR' },
+            { regex: /\.toHaveBeenCalledTimes/, name: 'jest call count assertion', severity: 'ERROR' },
+            { regex: /\.toHaveBeenLastCalledWith/, name: 'jest last call assertion', severity: 'ERROR' },
+            { regex: /\.toHaveBeenNthCalledWith/, name: 'jest nth call assertion', severity: 'ERROR' },
+
+            // Library-specific mocking patterns
+            { regex: /nock\s*\(/, name: 'nock() HTTP mocking', severity: 'ERROR' },
+            { regex: /mockttp\s*\./, name: 'mockttp HTTP mocking', severity: 'ERROR' },
+            { regex: /msw\s*\./, name: 'Mock Service Worker', severity: 'ERROR' },
+            { regex: /jest-fetch-mock/, name: 'jest-fetch-mock', severity: 'ERROR' },
+            { regex: /axios-mock-adapter/, name: 'axios-mock-adapter', severity: 'ERROR' },
+
+            // Framework-specific mocking
+            { regex: /@testing-library.*mock/, name: 'Testing Library mocking', severity: 'ERROR' },
+            { regex: /enzyme.*mount.*mock/, name: 'Enzyme mocking', severity: 'ERROR' },
+            { regex: /shallow.*mock/, name: 'Shallow rendering with mocks', severity: 'ERROR' },
+
+            // Database and external service mocking
+            { regex: /mongodb-memory-server/, name: 'MongoDB memory server mocking', severity: 'WARNING' },
+            { regex: /jest-dynalite/, name: 'DynamoDB mocking', severity: 'WARNING' },
+            { regex: /aws-sdk-mock/, name: 'AWS SDK mocking', severity: 'ERROR' },
+
+            // Variable and function name patterns indicating mocking
+            { regex: /\bmock[A-Z]\w*/, name: 'mockVariableName pattern', severity: 'WARNING' },
+            { regex: /\bstub[A-Z]\w*/, name: 'stubVariableName pattern', severity: 'WARNING' },
+            { regex: /\bspy[A-Z]\w*/, name: 'spyVariableName pattern', severity: 'WARNING' },
+            { regex: /\bfake[A-Z]\w*/, name: 'fakeVariableName pattern', severity: 'WARNING' },
+            { regex: /\bdouble[A-Z]\w*/, name: 'testDoubleVariableName pattern', severity: 'WARNING' },
             { regex: /\.returns\s*\(/, name: '.returns() (sinon)', severity: 'WARNING' },
             { regex: /\.resolves\s*\(/, name: '.resolves() (sinon)', severity: 'WARNING' },
             { regex: /\.rejects\s*\(/, name: '.rejects() (sinon)', severity: 'WARNING' },
             { regex: /\.callsFake\s*\(/, name: '.callsFake() (sinon)', severity: 'ERROR' },
             { regex: /\.yields\s*\(/, name: '.yields() (sinon)', severity: 'ERROR' },
+
+            // Advanced Jest mocking patterns
+            { regex: /jest\.createMockFromModule\s*\(/, name: 'jest.createMockFromModule()', severity: 'ERROR' },
+            { regex: /jest\.requireActual\s*\(/, name: 'jest.requireActual()', severity: 'ERROR' },
+            { regex: /jest\.requireMock\s*\(/, name: 'jest.requireMock()', severity: 'ERROR' },
+            { regex: /jest\.genMockFromModule\s*\(/, name: 'jest.genMockFromModule()', severity: 'ERROR' },
+            { regex: /\.mockName\s*\(/, name: '.mockName()', severity: 'ERROR' },
+            { regex: /\.getMockName\s*\(/, name: '.getMockName()', severity: 'ERROR' },
+            { regex: /\.mock\.calls/, name: '.mock.calls property', severity: 'ERROR' },
+            { regex: /\.mock\.instances/, name: '.mock.instances property', severity: 'ERROR' },
+            { regex: /\.mock\.contexts/, name: '.mock.contexts property', severity: 'ERROR' },
+            { regex: /\.mock\.results/, name: '.mock.results property', severity: 'ERROR' },
+            { regex: /\.mock\.lastCall/, name: '.mock.lastCall property', severity: 'ERROR' },
+
+            // Sinon advanced patterns
+            { regex: /sinon\.useFakeTimers\s*\(/, name: 'sinon.useFakeTimers()', severity: 'ERROR' },
+            { regex: /sinon\.useFakeXMLHttpRequest\s*\(/, name: 'sinon.useFakeXMLHttpRequest()', severity: 'ERROR' },
+            { regex: /sinon\.useFakeServer\s*\(/, name: 'sinon.useFakeServer()', severity: 'ERROR' },
+            { regex: /sinon\.fakeServer\s*\./, name: 'sinon.fakeServer', severity: 'ERROR' },
+            { regex: /sinon\.fakeServerWithClock\s*\./, name: 'sinon.fakeServerWithClock', severity: 'ERROR' },
+            { regex: /\.calledWith\s*\(/, name: '.calledWith() (sinon)', severity: 'ERROR' },
+            { regex: /\.calledOnce\b/, name: '.calledOnce (sinon)', severity: 'ERROR' },
+            { regex: /\.calledTwice\b/, name: '.calledTwice (sinon)', severity: 'ERROR' },
+            { regex: /\.calledThrice\b/, name: '.calledThrice (sinon)', severity: 'ERROR' },
+            { regex: /\.callCount\b/, name: '.callCount (sinon)', severity: 'ERROR' },
+            { regex: /\.firstCall\b/, name: '.firstCall (sinon)', severity: 'ERROR' },
+            { regex: /\.secondCall\b/, name: '.secondCall (sinon)', severity: 'ERROR' },
+            { regex: /\.lastCall\b/, name: '.lastCall (sinon)', severity: 'ERROR' },
+            { regex: /\.getCall\s*\(/, name: '.getCall() (sinon)', severity: 'ERROR' },
+            { regex: /\.thisValues\b/, name: '.thisValues (sinon)', severity: 'ERROR' },
+            { regex: /\.args\b/, name: '.args (sinon)', severity: 'ERROR' },
+            { regex: /\.returnValues\b/, name: '.returnValues (sinon)', severity: 'ERROR' },
+            { regex: /\.exceptions\b/, name: '.exceptions (sinon)', severity: 'ERROR' },
+
+            // Testing framework mocking utilities
+            { regex: /vitest\.mock\s*\(/, name: 'vitest.mock()', severity: 'ERROR' },
+            { regex: /vitest\.spyOn\s*\(/, name: 'vitest.spyOn()', severity: 'ERROR' },
+            { regex: /vitest\.fn\s*\(/, name: 'vitest.fn()', severity: 'ERROR' },
+            { regex: /vi\.mock\s*\(/, name: 'vi.mock() (vitest)', severity: 'ERROR' },
+            { regex: /vi\.spyOn\s*\(/, name: 'vi.spyOn() (vitest)', severity: 'ERROR' },
+            { regex: /vi\.fn\s*\(/, name: 'vi.fn() (vitest)', severity: 'ERROR' },
+            { regex: /jasmine\.createSpy\s*\(/, name: 'jasmine.createSpy()', severity: 'ERROR' },
+            { regex: /jasmine\.createSpyObj\s*\(/, name: 'jasmine.createSpyObj()', severity: 'ERROR' },
+            { regex: /spyOn\s*\(/, name: 'spyOn() (jasmine)', severity: 'ERROR' },
+
+            // Mock file and module patterns
+            { regex: /__mocks__/, name: '__mocks__ directory', severity: 'ERROR' },
+            { regex: /\.mock\.(js|ts|jsx|tsx)$/, name: 'mock file extension', severity: 'ERROR' },
+            { regex: /manual-mocks/, name: 'manual-mocks directory', severity: 'ERROR' },
+
+            // External service mocking libraries
+            { regex: /miragejs/, name: 'MirageJS API mocking', severity: 'ERROR' },
+            { regex: /json-server/, name: 'JSON Server mocking', severity: 'WARNING' },
+            { regex: /mockoon/, name: 'Mockoon API mocking', severity: 'ERROR' },
+            { regex: /wiremock/, name: 'WireMock', severity: 'ERROR' },
+            { regex: /hoverfly/, name: 'Hoverfly mocking', severity: 'ERROR' },
+
+            // Dynamic and runtime mocking
+            { regex: /Object\.defineProperty.*mock/, name: 'Object.defineProperty mocking', severity: 'ERROR' },
+            { regex: /Object\.assign.*mock/, name: 'Object.assign mocking', severity: 'ERROR' },
+            { regex: /Proxy.*mock/, name: 'Proxy-based mocking', severity: 'ERROR' },
+            { regex: /Reflect.*mock/, name: 'Reflect API mocking', severity: 'ERROR' },
+
+            // Time and date mocking
+            { regex: /mockdate/, name: 'MockDate library', severity: 'ERROR' },
+            { regex: /timekeeper/, name: 'Timekeeper library', severity: 'ERROR' },
+            { regex: /jest\.useFakeTimers\s*\(/, name: 'jest.useFakeTimers()', severity: 'ERROR' },
+            { regex: /jest\.useRealTimers\s*\(/, name: 'jest.useRealTimers()', severity: 'ERROR' },
+            { regex: /jest\.setSystemTime\s*\(/, name: 'jest.setSystemTime()', severity: 'ERROR' },
+            { regex: /jest\.getRealSystemTime\s*\(/, name: 'jest.getRealSystemTime()', severity: 'ERROR' },
+
+            // Browser and DOM mocking
+            { regex: /jsdom/, name: 'JSDOM environment mocking', severity: 'WARNING' },
+            { regex: /happy-dom/, name: 'Happy DOM mocking', severity: 'WARNING' },
+            { regex: /puppeteer.*mock/, name: 'Puppeteer mocking', severity: 'ERROR' },
+            { regex: /playwright.*mock/, name: 'Playwright mocking', severity: 'ERROR' },
+
+            // Network and HTTP mocking
+            { regex: /fetch-mock/, name: 'fetch-mock library', severity: 'ERROR' },
+            { regex: /supertest.*mock/, name: 'Supertest with mocking', severity: 'ERROR' },
+            { regex: /http-mock/, name: 'HTTP mocking', severity: 'ERROR' },
 
             // Vitest mocking patterns
             { regex: /vi\.mock\s*\(/, name: 'vitest mock()', severity: 'ERROR' },
@@ -495,6 +621,431 @@ const userService = new UserService(testDatabase, testEmailService, testLogger);
                 severity: 'ERROR'
             },
             {
+                regex: /sk_live_[a-zA-Z0-9]{24}/,
+                name: 'Stripe Live Secret Key',
+                severity: 'ERROR'
+            },
+            {
+                regex: /pk_live_[a-zA-Z0-9]{24}/,
+                name: 'Stripe Live Publishable Key',
+                severity: 'ERROR'
+            },
+            {
+                regex: /sk_test_[a-zA-Z0-9]{24}/,
+                name: 'Stripe Test Secret Key',
+                severity: 'WARNING'
+            },
+            {
+                regex: /pk_test_[a-zA-Z0-9]{24}/,
+                name: 'Stripe Test Publishable Key',
+                severity: 'WARNING'
+            },
+            {
+                regex: /xoxb-[0-9]+-[0-9]+-[a-zA-Z0-9]+/,
+                name: 'Slack Bot Token',
+                severity: 'ERROR'
+            },
+            {
+                regex: /xoxp-[0-9]+-[0-9]+-[0-9]+-[a-zA-Z0-9]+/,
+                name: 'Slack User Token',
+                severity: 'ERROR'
+            },
+            {
+                regex: /AIza[0-9A-Za-z\-_]{35}/,
+                name: 'Google API Key',
+                severity: 'ERROR'
+            },
+            {
+                regex: /AKIA[0-9A-Z]{16}/,
+                name: 'AWS Access Key ID',
+                severity: 'ERROR'
+            },
+            {
+                regex: /[0-9a-zA-Z\/+]{40}/,
+                name: 'AWS Secret Access Key pattern',
+                severity: 'WARNING'
+            },
+            {
+                regex: /github_pat_[a-zA-Z0-9_]{82}/,
+                name: 'GitHub Personal Access Token',
+                severity: 'ERROR'
+            },
+            {
+                regex: /ghp_[a-zA-Z0-9]{36}/,
+                name: 'GitHub Personal Access Token (Classic)',
+                severity: 'ERROR'
+            },
+            {
+                regex: /ghs_[a-zA-Z0-9]{36}/,
+                name: 'GitHub Server Token',
+                severity: 'ERROR'
+            },
+            {
+                regex: /gho_[a-zA-Z0-9]{36}/,
+                name: 'GitHub OAuth Token',
+                severity: 'ERROR'
+            },
+            {
+                regex: /ghu_[a-zA-Z0-9]{36}/,
+                name: 'GitHub User Token',
+                severity: 'ERROR'
+            },
+            {
+                regex: /glpat-[a-zA-Z0-9\-_]{20}/,
+                name: 'GitLab Personal Access Token',
+                severity: 'ERROR'
+            },
+            {
+                regex: /ya29\.[0-9A-Za-z\-_]+/,
+                name: 'Google OAuth Access Token',
+                severity: 'ERROR'
+            },
+            {
+                regex: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+                name: 'UUID/GUID (potential secret)',
+                severity: 'WARNING'
+            },
+            {
+                regex: /Bearer\s+[A-Za-z0-9\-\._~\+\/]+=*/,
+                name: 'Bearer Token in Authorization header',
+                severity: 'ERROR'
+            },
+            {
+                regex: /Basic\s+[A-Za-z0-9+\/]+=*/,
+                name: 'Basic Auth credentials',
+                severity: 'ERROR'
+            },
+            {
+                regex: /(?:password|pwd|pass)['"]?\s*[:=]\s*['"][^'"]{8,}['"]/i,
+                name: 'Password assignment',
+                severity: 'ERROR'
+            },
+            {
+                regex: /(?:token|key|secret|credential)['"]?\s*[:=]\s*['"][a-zA-Z0-9]{16,}['"]/i,
+                name: 'Long secret/token assignment',
+                severity: 'ERROR'
+            },
+
+            // Database Connection Strings
+            {
+                regex: /['"](?:mongodb|mysql|postgresql|postgres):\/\/[^'"]*['"]/i,
+                name: 'Database connection string',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"](?:Server|Data Source|Initial Catalog|User ID|Password)=[^;'"]*['"]/i,
+                name: 'SQL Server connection string parameter',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]Host=[^;'"]*;Port=[^;'"]*['"]/i,
+                name: 'Database host/port configuration',
+                severity: 'ERROR'
+            },
+
+            // Server/Host URLs and IPs
+            {
+                regex: /['"](?:https?:\/\/)?[a-zA-Z0-9-]+\.(?:com|net|org|io|co|dev|local|internal)[^'"]*['"]/i,
+                name: 'Domain name/hostname',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"](?:https?:\/\/)?(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?::[0-9]+)?[^'"]*['"]/,
+                name: 'IP address with optional port',
+                severity: 'ERROR'
+            },
+
+            // Environment-specific hardcoded values
+            {
+                regex: /['"](?:development|production|staging|test|dev|prod|stage)['"](?:\s*[=:]\s*true|\s*===\s*['"](?:development|production|staging|test|dev|prod|stage)['"])/i,
+                name: 'Environment comparison hardcoded',
+                severity: 'ERROR'
+            },
+            {
+                regex: /process\.env\.NODE_ENV\s*===\s*['"](?:development|production|staging|test)['"]/,
+                name: 'NODE_ENV hardcoded comparison',
+                severity: 'WARNING'
+            },
+
+            // File paths (absolute paths, especially on Windows/Unix)
+            {
+                regex: /['"][C-Z]:\\[^'"]*['"]/,
+                name: 'Windows absolute file path',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]\/(?:usr|home|opt|var|tmp)\/[^'"]*['"]/,
+                name: 'Unix/Linux absolute file path',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]~\/[^'"]+['"]/,
+                name: 'Home directory path',
+                severity: 'WARNING'
+            },
+
+            // Version numbers and build numbers
+            {
+                regex: /(?:version|build|release)['"]?\s*[:=]\s*['"][0-9]+\.[0-9]+\.[0-9]+['"]/i,
+                name: 'Version number hardcoded',
+                severity: 'WARNING'
+            },
+            {
+                regex: /['"]v[0-9]+\.[0-9]+\.[0-9]+['"]/,
+                name: 'Version string pattern',
+                severity: 'WARNING'
+            },
+
+            // Magic numbers (common problematic values)
+            {
+                regex: /(?<![0-9.])\b(?:8080|3000|5000|8000|9000|3306|5432|6379|27017|443|80|22|21|25)\b(?![0-9.])/,
+                name: 'Common port number (should be configurable)',
+                severity: 'WARNING'
+            },
+            {
+                regex: /(?<![0-9.])\b(?:300|600|900|1800|3600|86400|604800|2592000)\b(?![0-9.])/,
+                name: 'Time duration in seconds (use constants)',
+                severity: 'WARNING'
+            },
+
+            // Cache expiration times
+            {
+                regex: /(?:expires?|ttl|timeout|cache)['"]?\s*[:=]\s*(?:[0-9]{4,}|'[0-9]{4,}'|"[0-9]{4,}")/i,
+                name: 'Cache/timeout duration hardcoded',
+                severity: 'WARNING'
+            },
+
+            // Email addresses
+            {
+                regex: /['"][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}['"]/,
+                name: 'Email address hardcoded',
+                severity: 'ERROR'
+            },
+
+            // Phone numbers
+            {
+                regex: /['"](?:\+?[1-9]\d{1,14}|(?:\(\d{3}\)|\d{3})[-.\s]?\d{3}[-.\s]?\d{4})['"]/,
+                name: 'Phone number hardcoded',
+                severity: 'ERROR'
+            },
+
+            // Credit card test numbers (common test patterns)
+            {
+                regex: /['"](?:4111111111111111|4000000000000002|5555555555554444|2223003122003222|378282246310005)['"]/,
+                name: 'Test credit card number (should use test data config)',
+                severity: 'WARNING'
+            },
+
+            // Company/organization specific identifiers
+            {
+                regex: /['"](?:admin|administrator|root|superuser|sa|sysadmin)['"]/i,
+                name: 'Admin/root username hardcoded',
+                severity: 'ERROR'
+            },
+
+            // Encryption/Hash related hardcoded values
+            {
+                regex: /['"][a-fA-F0-9]{32}['"]/,
+                name: 'MD5 hash or 32-char hex string',
+                severity: 'WARNING'
+            },
+            {
+                regex: /['"][a-fA-F0-9]{40}['"]/,
+                name: 'SHA1 hash or 40-char hex string',
+                severity: 'WARNING'
+            },
+            {
+                regex: /['"][a-fA-F0-9]{64}['"]/,
+                name: 'SHA256 hash or 64-char hex string',
+                severity: 'WARNING'
+            },
+
+            // JWT tokens
+            {
+                regex: /['"]eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*['"]/,
+                name: 'JWT token pattern',
+                severity: 'ERROR'
+            },
+
+            // OAuth client secrets and IDs
+            {
+                regex: /(?:client_secret|client_id|oauth_token)['"]?\s*[:=]\s*['"][a-zA-Z0-9_-]{20,}['"]/i,
+                name: 'OAuth client credentials',
+                severity: 'ERROR'
+            },
+
+            // Webhook URLs
+            {
+                regex: /['"]https?:\/\/hooks?\.slack\.com\/[^'"]*['"]/i,
+                name: 'Slack webhook URL',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]https?:\/\/discord(?:app)?\.com\/api\/webhooks\/[^'"]*['"]/i,
+                name: 'Discord webhook URL',
+                severity: 'ERROR'
+            },
+
+            // Cloud service keys and identifiers
+            {
+                regex: /['"]projects\/[a-zA-Z0-9-]+\/serviceAccounts\/[^'"]*['"]/i,
+                name: 'Google Cloud service account path',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]arn:aws:[^'"]*['"]/i,
+                name: 'AWS ARN (Amazon Resource Name)',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"][a-zA-Z0-9+\/]{87}=['"]/,
+                name: 'Base64 encoded key (88 chars with padding)',
+                severity: 'WARNING'
+            },
+
+            // Hardcoded salts and initialization vectors
+            {
+                regex: /(?:salt|iv|nonce)['"]?\s*[:=]\s*['"][a-zA-Z0-9+\/]{8,}['"]/i,
+                name: 'Cryptographic salt/IV/nonce hardcoded',
+                severity: 'ERROR'
+            },
+
+            // License keys
+            {
+                regex: /(?:license|serial|activation)['"]?\s*[:=]\s*['"][A-Z0-9-]{20,}['"]/i,
+                name: 'License/serial key pattern',
+                severity: 'ERROR'
+            },
+
+            // Payment processor keys
+            {
+                regex: /(?:merchant|paypal|square)['"]?\s*[:=]\s*['"][a-zA-Z0-9_-]{16,}['"]/i,
+                name: 'Payment processor credential',
+                severity: 'ERROR'
+            },
+
+            // Third-party service API endpoints
+            {
+                regex: /['"]https?:\/\/api\.[a-zA-Z0-9-]+\.com[^'"]*['"]/i,
+                name: 'Third-party API endpoint',
+                severity: 'WARNING'
+            },
+
+            // Hardcoded user IDs or account IDs
+            {
+                regex: /(?:user_id|account_id|customer_id)['"]?\s*[:=]\s*['"][a-zA-Z0-9_-]{8,}['"]/i,
+                name: 'User/Account ID hardcoded',
+                severity: 'WARNING'
+            },
+
+            // Social media app credentials
+            {
+                regex: /(?:twitter|facebook|instagram|linkedin)['"]?\s*[:=]\s*['"][a-zA-Z0-9_-]{16,}['"]/i,
+                name: 'Social media API credential',
+                severity: 'ERROR'
+            },
+
+            // Hardcoded session secrets
+            {
+                regex: /(?:session_secret|cookie_secret)['"]?\s*[:=]\s*['"][a-zA-Z0-9+\/]{16,}['"]/i,
+                name: 'Session/cookie secret hardcoded',
+                severity: 'ERROR'
+            },
+
+            // Container registry credentials
+            {
+                regex: /['"](?:docker|registry)\.(?:io|com|org)\/[^'"]*['"]/i,
+                name: 'Container registry URL',
+                severity: 'WARNING'
+            },
+
+            // Hardcoded CORS origins
+            {
+                regex: /(?:cors|origin)['"]?\s*[:=]\s*(?:\[['"][^'"]*['"](?:,\s*['"][^'"]*['"])*\]|['"]https?:\/\/[^'"]*['"])/i,
+                name: 'CORS origin hardcoded',
+                severity: 'WARNING'
+            },
+
+            // Telegram bot tokens
+            {
+                regex: /[0-9]{8,10}:[a-zA-Z0-9_-]{35}/,
+                name: 'Telegram bot token',
+                severity: 'ERROR'
+            },
+
+            // Firebase config
+            {
+                regex: /(?:apiKey|authDomain|projectId|storageBucket|messagingSenderId|appId)['"]?\s*[:=]\s*['"][^'"]+['"]/i,
+                name: 'Firebase configuration value',
+                severity: 'WARNING'
+            },
+
+            // Hardcoded feature flags
+            {
+                regex: /(?:feature_flag|flag)['"]?\s*[:=]\s*(?:true|false|['"](?:enabled|disabled)['"])/i,
+                name: 'Feature flag hardcoded',
+                severity: 'WARNING'
+            },
+
+            // CDN and asset URLs
+            {
+                regex: /['"]https?:\/\/[a-zA-Z0-9-]+\.cloudfront\.net[^'"]*['"]/i,
+                name: 'CloudFront CDN URL',
+                severity: 'WARNING'
+            },
+            {
+                regex: /['"]https?:\/\/[a-zA-Z0-9-]+\.s3\.amazonaws\.com[^'"]*['"]/i,
+                name: 'S3 bucket URL',
+                severity: 'WARNING'
+            },
+
+            // Analytics and tracking IDs
+            {
+                regex: /['"](?:GA|G)-[A-Z0-9-]{10,}['"]/,
+                name: 'Google Analytics tracking ID',
+                severity: 'WARNING'
+            },
+            {
+                regex: /['"]UA-[0-9]+-[0-9]+['"]/,
+                name: 'Google Analytics Universal ID',
+                severity: 'WARNING'
+            },
+
+            // Common test/placeholder values that should be configurable
+            {
+                regex: /['"](?:example\.com|test\.com|localhost|127\.0\.0\.1)['"]/i,
+                name: 'Test/example domain hardcoded',
+                severity: 'WARNING'
+            },
+            {
+                regex: /['"](?:John Doe|Jane Smith|Test User|Admin User)['"]/i,
+                name: 'Test user name hardcoded',
+                severity: 'WARNING'
+            },
+
+            // Hardcoded retry counts and limits
+            {
+                regex: /(?:max_retries?|retry_count|attempt_limit)['"]?\s*[:=]\s*[0-9]+/i,
+                name: 'Retry count/limit hardcoded',
+                severity: 'WARNING'
+            },
+
+            // Queue names and topic names
+            {
+                regex: /(?:queue|topic)['"]?\s*[:=]\s*['"][a-zA-Z0-9_-]+['"]/i,
+                name: 'Queue/topic name hardcoded',
+                severity: 'WARNING'
+            },
+
+            // Hardcoded rate limits
+            {
+                regex: /(?:rate_limit|requests_per_second|rpm|rps)['"]?\s*[:=]\s*[0-9]+/i,
+                name: 'Rate limit hardcoded',
+                severity: 'WARNING'
+            },
+
+            // Additional hardcoded API keys and constants
+            {
                 regex: /const\s+(?:API_KEY|APIKEY|SECRET_KEY|ACCESS_TOKEN|BEARER_TOKEN)\s*=\s*['"][^'"]+['"]/i,
                 name: 'Hardcoded API Key constant',
                 severity: 'ERROR'
@@ -602,6 +1153,147 @@ const userService = new UserService(testDatabase, testEmailService, testLogger);
             {
                 regex: /port\s*[:=]\s*(?:3001|4000|5000|8080|8443|9000|9443)(?![0-9])/i,
                 name: 'Hardcoded production port number',
+                severity: 'WARNING'
+            },
+
+            // Environment-specific hardcoded values
+            {
+                regex: /['"](?:production|prod|staging|stage|development|dev|test)['"]\s*[=:]/i,
+                name: 'Hardcoded environment name',
+                severity: 'ERROR'
+            },
+            {
+                regex: /NODE_ENV\s*[=:]\s*['"](?:production|staging|development)['"]/i,
+                name: 'Hardcoded NODE_ENV value',
+                severity: 'ERROR'
+            },
+
+            // File paths and directories (system-specific)
+            {
+                regex: /['"]\/home\/[^'"]+['"]/,
+                name: 'Hardcoded Linux home directory path',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]C:\\[^'"]+['"]/,
+                name: 'Hardcoded Windows path',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]\/var\/[^'"]+['"]/,
+                name: 'Hardcoded Unix system path',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]\/tmp\/[^'"]+['"]/,
+                name: 'Hardcoded temporary directory path',
+                severity: 'WARNING'
+            },
+
+            // Configuration values that should be externalized
+            {
+                regex: /timeout\s*[:=]\s*(?:[5-9][0-9]{3,}|[1-9][0-9]{4,})/i,
+                name: 'Hardcoded timeout value (large)',
+                severity: 'WARNING'
+            },
+            {
+                regex: /maxConnections?\s*[:=]\s*[0-9]+/i,
+                name: 'Hardcoded max connections',
+                severity: 'WARNING'
+            },
+            {
+                regex: /buffer[Ss]ize\s*[:=]\s*[0-9]+/i,
+                name: 'Hardcoded buffer size',
+                severity: 'WARNING'
+            },
+            {
+                regex: /max[A-Z]\w*\s*[:=]\s*[0-9]+/i,
+                name: 'Hardcoded max limit configuration',
+                severity: 'WARNING'
+            },
+
+            // Third-party service credentials and configurations
+            {
+                regex: /['"]pk_live_[a-zA-Z0-9]+['"]/,
+                name: 'Stripe live public key',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]sk_live_[a-zA-Z0-9]+['"]/,
+                name: 'Stripe live secret key',
+                severity: 'ERROR'
+            },
+            {
+                regex: /['"]pk_test_[a-zA-Z0-9]+['"]/,
+                name: 'Stripe test key (should be in config)',
+                severity: 'WARNING'
+            },
+            {
+                regex: /['"]sk_test_[a-zA-Z0-9]+['"]/,
+                name: 'Stripe test secret (should be in config)',
+                severity: 'WARNING'
+            },
+            {
+                regex: /client_id\s*[:=]\s*['"][^'"]+['"]/i,
+                name: 'OAuth client ID',
+                severity: 'ERROR'
+            },
+            {
+                regex: /client_secret\s*[:=]\s*['"][^'"]+['"]/i,
+                name: 'OAuth client secret',
+                severity: 'ERROR'
+            },
+
+            // JWT and encryption secrets
+            {
+                regex: /jwt[_-]?secret\s*[:=]\s*['"][^'"]+['"]/i,
+                name: 'JWT secret key',
+                severity: 'ERROR'
+            },
+            {
+                regex: /encryption[_-]?key\s*[:=]\s*['"][^'"]+['"]/i,
+                name: 'Encryption key',
+                severity: 'ERROR'
+            },
+            {
+                regex: /salt\s*[:=]\s*['"][^'"]{8,}['"]/i,
+                name: 'Hardcoded cryptographic salt',
+                severity: 'ERROR'
+            },
+
+            // Domain names and hostnames
+            {
+                regex: /['"][a-zA-Z0-9][\w-]*\.(?:com|net|org|io|co|app|dev)(?:\/[^'"]*)?['"]/,
+                name: 'Hardcoded domain name',
+                severity: 'WARNING'
+            },
+            {
+                regex: /host\s*[:=]\s*['"][^'"]+['"]/i,
+                name: 'Hardcoded hostname',
+                severity: 'ERROR'
+            },
+
+            // Magic numbers (business logic constants)
+            {
+                regex: /\b(?:86400|3600|604800|31536000|2592000)\b/,
+                name: 'Magic number (time constants should be named)',
+                severity: 'WARNING'
+            },
+            {
+                regex: /\b(?:1024|2048|4096|8192)\b/,
+                name: 'Magic number (buffer/memory sizes should be configurable)',
+                severity: 'WARNING'
+            },
+
+            // Email addresses and contact information
+            {
+                regex: /['"][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}['"]/,
+                name: 'Hardcoded email address',
+                severity: 'WARNING'
+            },
+            {
+                regex: /['"][\+]?[\d\s\-\(\)]{10,}['"]/,
+                name: 'Hardcoded phone number',
                 severity: 'WARNING'
             },
 
@@ -1312,6 +2004,55 @@ CORRECT APPROACH:
 
             // Promises with empty .catch
             { regex: /\.catch\s*\(\s*\(\s*\)\s*=>\s*\{\s*\}\s*\)/, name: 'Empty Promise.catch() block', severity: 'ERROR' },
+
+            // Advanced silent fallback patterns
+            { regex: /try\s*\{[^}]+\}\s*catch\s*\([^)]*\)\s*\{\s*\/\/\s*(?:ignore|skip|silent)/, name: 'Try-catch with ignore comment', severity: 'ERROR' },
+            { regex: /try\s*\{[^}]+\}\s*catch\s*\([^)]*\)\s*\{\s*\/\*[^*]*(?:ignore|skip|silent)[^*]*\*\//, name: 'Try-catch with ignore block comment', severity: 'ERROR' },
+            
+            // Conditional error suppression
+            { regex: /if\s*\([^)]*error[^)]*\)\s*\{\s*return\s*(?:null|undefined|false|\[\]|\{\})\s*;?\s*\}/, name: 'If error condition with silent return', severity: 'ERROR' },
+            { regex: /error\s*\?\s*(?:null|undefined|false|\[\]|\{\})\s*:/, name: 'Ternary operator silencing errors', severity: 'ERROR' },
+            
+            // Async/await without proper error handling
+            { regex: /async\s+(?:function\s+\w+\s*)?\([^)]*\)\s*\{(?:(?!try)(?!catch)(?!throw).)*await(?:(?!try)(?!catch)(?!throw).)*\}/, name: 'Async function without try-catch around await', severity: 'WARNING' },
+            { regex: /await\s+[^;]+\s*\|\|/, name: 'Await with || fallback (hiding async errors)', severity: 'ERROR' },
+            { regex: /await\s+[^;]+\s*\?\?/, name: 'Await with ?? fallback (hiding async errors)', severity: 'ERROR' },
+            
+            // JSON parsing without error handling
+            { regex: /JSON\.parse\s*\([^)]+\)\s*\|\|/, name: 'JSON.parse with || fallback (hiding parse errors)', severity: 'ERROR' },
+            { regex: /JSON\.parse\s*\([^)]+\)\s*\?\?/, name: 'JSON.parse with ?? fallback (hiding parse errors)', severity: 'ERROR' },
+            
+            // File system operations without error handling
+            { regex: /fs\.readFileSync\s*\([^)]+\)\s*\|\|/, name: 'fs.readFileSync with || fallback', severity: 'ERROR' },
+            { regex: /fs\.existsSync\s*\([^)]+\)\s*\?\s*[^:]+\s*:\s*(?:null|undefined|\[\]|\{\})/, name: 'fs.existsSync ternary with silent fallback', severity: 'WARNING' },
+            
+            // Database query silent failures
+            { regex: /\.query\s*\([^)]+\)\s*\|\|/, name: 'Database query with || fallback', severity: 'ERROR' },
+            { regex: /\.findOne\s*\([^)]+\)\s*\|\|/, name: 'Database findOne with || fallback', severity: 'WARNING' },
+            { regex: /\.findById\s*\([^)]+\)\s*\|\|/, name: 'Database findById with || fallback', severity: 'WARNING' },
+            
+            // HTTP requests without proper error handling
+            { regex: /axios\.[^(]+\([^)]+\)(?:(?!\.catch)(?!\.then\s*\([^)]*,\s*[^)]+\))).+;/, name: 'Axios request without .catch()', severity: 'WARNING' },
+            { regex: /fetch\s*\([^)]+\)(?:(?!\.catch)(?!\.then\s*\([^)]*,\s*[^)]+\))).+;/, name: 'Fetch request without .catch()', severity: 'WARNING' },
+            
+            // Event handlers swallowing errors
+            { regex: /\.on\s*\(\s*['"]error['"],\s*\(\s*\)\s*=>\s*\{\s*\}/, name: 'Empty error event handler', severity: 'ERROR' },
+            { regex: /\.addEventListener\s*\(\s*['"]error['"],\s*\(\s*\)\s*=>\s*\{\s*\}/, name: 'Empty error event listener', severity: 'ERROR' },
+            
+            // Process error handling
+            { regex: /process\.on\s*\(\s*['"]uncaughtException['"],\s*\(\s*\)\s*=>\s*\{\s*\}/, name: 'Empty uncaughtException handler', severity: 'ERROR' },
+            { regex: /process\.on\s*\(\s*['"]unhandledRejection['"],\s*\(\s*\)\s*=>\s*\{\s*\}/, name: 'Empty unhandledRejection handler', severity: 'ERROR' },
+            
+            // Stream error handling
+            { regex: /\.on\s*\(\s*['"]error['"],\s*err\s*=>\s*\{\s*\}\s*\)/, name: 'Stream with empty error handler', severity: 'ERROR' },
+            
+            // Silent error logging (using wrong log level)
+            { regex: /catch\s*\([^)]*\)\s*\{\s*logger\.info\(/, name: 'Catch logging as info (should be error)', severity: 'ERROR' },
+            { regex: /catch\s*\([^)]*\)\s*\{\s*logger\.debug\(/, name: 'Catch logging as debug (should be error)', severity: 'ERROR' },
+            
+            // Configuration fallbacks that might hide errors
+            { regex: /config\.\w+\s*\|\|\s*['"][^'"]*['"]/, name: 'Config property with string fallback (might hide missing config)', severity: 'WARNING' },
+            { regex: /process\.env\.\w+\s*\|\|\s*['"][^'"]*['"]/, name: 'Environment variable with hardcoded fallback', severity: 'WARNING' },
             { regex: /\.catch\s*\(\s*\w+\s*=>\s*\{\s*\}\s*\)/, name: 'Empty Promise.catch() with parameter', severity: 'ERROR' },
 
             // Async/await with empty catch
@@ -1665,6 +2406,86 @@ SEPARATION OF CONCERNS:
             { regex: /(?:const|let|var)\s+(?:cache|resultCache|dataCache|queryCache)\s*=\s*new\s+WeakSet\s*\(/, name: 'new WeakSet() assigned to cache variable', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
+            // MEMOIZATION PATTERNS - จับ memoization functions และ patterns
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /function\s+memoize\s*\(|const\s+memoize\s*=|let\s+memoize\s*=/, name: 'memoize() function implementation', severity: 'ERROR' },
+            { regex: /\.memoize\s*\(|\.memo\s*\(/, name: 'memoize() method call', severity: 'ERROR' },
+            { regex: /useMemo\s*\(/, name: 'React useMemo() hook (internal memoization)', severity: 'ERROR' },
+            { regex: /useCallback\s*\(/, name: 'React useCallback() hook (internal memoization)', severity: 'WARNING' },
+            { regex: /React\.memo\s*\(/, name: 'React.memo() HOC (component memoization)', severity: 'WARNING' },
+            { regex: /memo\s*\(.*\)/, name: 'generic memo() function call', severity: 'WARNING' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // CLASS-BASED CACHING - จับ caching ใน class properties
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /this\.cache\s*=\s*(?:new\s+Map|new\s+WeakMap|\{\}|\[\])/, name: 'this.cache property assignment', severity: 'ERROR' },
+            { regex: /this\._cache\s*=\s*(?:new\s+Map|new\s+WeakMap|\{\}|\[\])/, name: 'this._cache private property assignment', severity: 'ERROR' },
+            { regex: /this\.(?:result|data|query)Cache\s*=/, name: 'this.resultCache/dataCache property assignment', severity: 'ERROR' },
+            { regex: /this\.cached(?:Results|Data|Values)\s*=/, name: 'this.cachedResults/cachedData property assignment', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════  
+            // CACHE CHECKING PATTERNS - จับการตรวจสอบ cache
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /if\s*\(\s*cache\[|if\s*\(\s*cache\.get\(|if\s*\(\s*cache\.has\(/, name: 'cache checking with if statement', severity: 'WARNING' },
+            { regex: /cache\[.*\]\s*\?\s*cache\[.*\]\s*:/, name: 'ternary cache access pattern', severity: 'WARNING' },
+            { regex: /cached\s*\?\s*cached\s*:/, name: 'cached variable ternary check', severity: 'WARNING' },
+            { regex: /return\s+cache\[.*\]\s*\|\|/, name: 'return cache with || fallback', severity: 'WARNING' },
+            { regex: /return\s+cache\.get\(.*\)\s*\|\|/, name: 'return cache.get() with || fallback', severity: 'WARNING' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // CACHE OPERATIONS - จับการ get/set cache
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /cache\.set\s*\(|cache\[.*\]\s*=/, name: 'cache write operation (set/assignment)', severity: 'WARNING' },
+            { regex: /cache\.get\s*\(|cache\[.*\](?!=)/, name: 'cache read operation (get/access)', severity: 'WARNING' },
+            { regex: /cache\.delete\s*\(|delete\s+cache\[/, name: 'cache delete operation', severity: 'WARNING' },
+            { regex: /cache\.clear\s*\(|cache\s*=\s*\{\}/, name: 'cache clear operation', severity: 'WARNING' },
+            { regex: /cache\.has\s*\(/, name: 'cache.has() existence check', severity: 'WARNING' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // CLOSURE-BASED CACHING - จับ closure caching patterns
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /\(\s*function\s*\(\s*\)\s*\{[^}]*(?:const|let|var)\s+cache\s*=/, name: 'IIFE with internal cache variable', severity: 'ERROR' },
+            { regex: /function.*\{[^}]*(?:const|let|var)\s+(?:cache|_cache)\s*=\s*(?:\{\}|\[\]|new\s+Map)/, name: 'function with internal cache variable', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // BROWSER STORAGE AS CACHE - จับการใช้ browser storage เป็น cache
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /localStorage\.setItem\s*\([^,)]*cache/i, name: 'localStorage used for caching', severity: 'ERROR' },
+            { regex: /sessionStorage\.setItem\s*\([^,)]*cache/i, name: 'sessionStorage used for caching', severity: 'ERROR' },
+            { regex: /localStorage\.getItem\s*\([^,)]*cache/i, name: 'localStorage cache retrieval', severity: 'ERROR' },
+            { regex: /sessionStorage\.getItem\s*\([^,)]*cache/i, name: 'sessionStorage cache retrieval', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // LRU CACHE IMPLEMENTATIONS - จับ LRU cache ที่ implement เอง
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /class\s+LRU|function\s+LRU|const\s+LRU\s*=/i, name: 'LRU cache implementation', severity: 'ERROR' },
+            { regex: /lruCache|LruCache|lru_cache/i, name: 'LRU cache variable/function', severity: 'ERROR' },
+            { regex: /maxSize.*cache|cacheSize.*max/i, name: 'cache size configuration (indicates internal caching)', severity: 'WARNING' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // CACHE LIBRARY USAGE - จับการใช้ cache libraries ภายใน component
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /require\s*\(\s*['"]node-cache['"]|import.*from\s*['"]node-cache['"]/, name: 'node-cache library import (internal caching)', severity: 'ERROR' },
+            { regex: /require\s*\(\s*['"]memory-cache['"]|import.*from\s*['"]memory-cache['"]/, name: 'memory-cache library import', severity: 'ERROR' },
+            { regex: /require\s*\(\s*['"]lru-cache['"]|import.*from\s*['"]lru-cache['"]/, name: 'lru-cache library import', severity: 'ERROR' },
+            { regex: /new\s+NodeCache\s*\(|new\s+LRU\s*\(/i, name: 'cache library instantiation', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // CACHE INVALIDATION PATTERNS - จับ cache invalidation (ปัญหาเรื่อง staleness)
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /cache\.expire\s*\(|cache\.ttl\s*\(/, name: 'cache expiration/TTL management (complex internal caching)', severity: 'ERROR' },
+            { regex: /invalidate.*cache|cache.*invalidate/i, name: 'cache invalidation logic', severity: 'ERROR' },
+            { regex: /cache.*refresh|refresh.*cache/i, name: 'cache refresh logic', severity: 'WARNING' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // ADVANCED CACHING PATTERNS - จับ advanced caching ที่ซับซ้อน
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /cache\.(?:hits|misses|statistics)/i, name: 'cache statistics tracking (complex internal cache)', severity: 'ERROR' },
+            { regex: /cacheHit|cacheMiss|hit_rate|miss_rate/i, name: 'cache performance metrics variables', severity: 'ERROR' },
+            { regex: /warm.*cache|cache.*warm/i, name: 'cache warming logic', severity: 'WARNING' },
+            { regex: /preload.*cache|cache.*preload/i, name: 'cache preloading logic', severity: 'WARNING' },
+
+            // ═══════════════════════════════════════════════════════════════════
             // CACHE LOOKUP PATTERNS - จับการเช็คว่ามีใน cache หรือไม่
             // ═══════════════════════════════════════════════════════════════════
             { regex: /if\s*\(\s*\w*[Cc]ache\w*\s*\[/, name: 'if (cache[key]) pattern', severity: 'WARNING' },
@@ -1727,91 +2548,113 @@ SEPARATION OF CONCERNS:
             // ═══════════════════════════════════════════════════════════════════
             // COMMON CACHING PATTERNS - จับ pattern ที่ใช้บ่อยสำหรับ cache
             // ═══════════════════════════════════════════════════════════════════
-            { regex: /if\s*\(\s*typeof\s+\w+\s*!==?\s*['"]undefined['"]\s*\)\s*return\s+\w+/, name: 'if (typeof cached !== undefined) return', severity: 'WARNING' },
-            { regex: /if\s*\(\s*\w+\s*in\s+\w*[Cc]ache/, name: 'if (key in cache) pattern', severity: 'WARNING' },
-            { regex: /hasOwnProperty\s*\(\s*['"].*[Cc]ache.*['"]\s*\)/, name: 'hasOwnProperty cache check', severity: 'WARNING' },
-
-            // ADDITIONAL INTERNAL CACHE PATTERNS - EXTENDED COVERAGE
-
-            // React hooks for caching
-            { regex: /useMemo\s*\(\s*\(\s*\)\s*=>/, name: 'useMemo() - React internal memoization', severity: 'WARNING' },
-            { regex: /useCallback\s*\(\s*\(\s*\)\s*=>/, name: 'useCallback() - React callback memoization', severity: 'WARNING' },
-            { regex: /React\.memo\s*\(/, name: 'React.memo() - component memoization', severity: 'WARNING' },
-            { regex: /React\.useMemo/, name: 'React.useMemo', severity: 'WARNING' },
-            { regex: /React\.useCallback/, name: 'React.useCallback', severity: 'WARNING' },
-
-            // Vue computed/watch (caching)
-            { regex: /computed\s*:\s*\{/, name: 'Vue computed properties (caching)', severity: 'WARNING' },
-            { regex: /computed\s*\(\s*\(\s*\)\s*=>/, name: 'Vue 3 computed() (caching)', severity: 'WARNING' },
-
-            // Lodash/Underscore memoization
-            { regex: /_.memoize\s*\(/, name: 'Lodash _.memoize()', severity: 'WARNING' },
-            { regex: /lodash\.memoize/, name: 'lodash.memoize', severity: 'WARNING' },
-            { regex: /import\s+.*\bmemoize\b.*from\s+['"]lodash/, name: 'import memoize from lodash', severity: 'WARNING' },
-
-            // Ramda memoization
-            { regex: /R\.memoizeWith\s*\(/, name: 'Ramda R.memoizeWith()', severity: 'WARNING' },
-            { regex: /R\.memoize\s*\(/, name: 'Ramda R.memoize()', severity: 'WARNING' },
-
-            // Memoizee library
-            { regex: /import\s+.*from\s+['"]memoizee['"]/, name: 'import memoizee library', severity: 'WARNING' },
-            { regex: /require\s*\(\s*['"]memoizee['"]\s*\)/, name: 'require memoizee', severity: 'WARNING' },
-
-            // Fast-memoize library
-            { regex: /import\s+.*from\s+['"]fast-memoize['"]/, name: 'import fast-memoize', severity: 'WARNING' },
-            { regex: /require\s*\(\s*['"]fast-memoize['"]\s*\)/, name: 'require fast-memoize', severity: 'WARNING' },
-
-            // Moize library
-            { regex: /import\s+.*from\s+['"]moize['"]/, name: 'import moize library', severity: 'WARNING' },
-            { regex: /moize\s*\(/, name: 'moize() memoization', severity: 'WARNING' },
-
-            // Reselect (Redux memoization)
-            { regex: /createSelector\s*\(/, name: 'createSelector() - Reselect memoization', severity: 'WARNING' },
-            { regex: /import\s+.*createSelector.*from\s+['"]reselect['"]/, name: 'import Reselect library', severity: 'WARNING' },
-
-            // Singleton pattern (often used for caching)
-            { regex: /let\s+instance\s*=\s*null[\s\S]*?getInstance\s*\(/, name: 'Singleton pattern (often caches instance)', severity: 'WARNING' },
-            { regex: /private\s+static\s+instance\s*:/, name: 'Singleton instance property', severity: 'WARNING' },
-
-            // Module-level cache variables
-            { regex: /^(?:const|let|var)\s+\w*[Cc]ache\w*\s*=/m, name: 'Module-level cache variable', severity: 'WARNING' },
-            { regex: /^(?:const|let|var)\s+_\w*[Cc]ache\w*\s*=/m, name: 'Module-level private cache', severity: 'WARNING' },
-
-            // Object property caching patterns
-            { regex: /if\s*\(\s*!\s*this\._\w*\)\s*\{\s*this\._\w*\s*=/, name: 'Lazy initialization caching pattern', severity: 'WARNING' },
-            { regex: /get\s+\w+\s*\(\s*\)\s*\{[^}]*if\s*\(\s*!?\s*this\._/, name: 'Getter with internal cache', severity: 'WARNING' },
-
-            // IndexedDB/LocalStorage caching
-            { regex: /localStorage\.getItem.*localStorage\.setItem/, name: 'localStorage caching pattern', severity: 'WARNING' },
-            { regex: /sessionStorage\.getItem.*sessionStorage\.setItem/, name: 'sessionStorage caching pattern', severity: 'WARNING' },
-            { regex: /indexedDB\.open/, name: 'IndexedDB (client-side caching)', severity: 'WARNING' },
-
-            // Service Worker caching
-            { regex: /caches\.open\s*\(/, name: 'Service Worker Cache API', severity: 'WARNING' },
-            { regex: /cache\.put\s*\(/, name: 'Service Worker cache.put()', severity: 'WARNING' },
-            { regex: /cache\.match\s*\(/, name: 'Service Worker cache.match()', severity: 'WARNING' },
-
-            // Time-based caching
-            { regex: /lastFetch|lastUpdate|lastCache/i, name: 'Time-based cache variable', severity: 'WARNING' },
-            { regex: /cacheExpiry|cacheTimeout|cacheTTL/i, name: 'Cache TTL variable', severity: 'WARNING' },
-            { regex: /if\s*\([^)]*Date\.now\(\)\s*-\s*\w*(?:Time|Timestamp)/, name: 'Time-based cache check', severity: 'WARNING' },
-
-            // Request deduplication (form of caching)
-            { regex: /pendingRequests|inFlightRequests/i, name: 'Request deduplication (caching)', severity: 'WARNING' },
-            { regex: /if\s*\(\s*\w*Pending\w*\[/, name: 'Pending request check (deduplication)', severity: 'WARNING' },
-
-            // Computed property caching
-            { regex: /@computed\b/, name: '@computed decorator (MobX caching)', severity: 'WARNING' },
-            { regex: /makeObservable.*computed/, name: 'MobX computed observable', severity: 'WARNING' },
-
-            // Apollo/GraphQL client caching
-            { regex: /InMemoryCache\s*\(/, name: 'Apollo InMemoryCache', severity: 'WARNING' },
-            { regex: /cache-first|cache-only|cache-and-network/i, name: 'Apollo cache policy', severity: 'WARNING' },
-
-            // SWR/React Query (data caching libraries)
-            { regex: /useSWR\s*\(/, name: 'SWR hook (data caching)', severity: 'WARNING' },
-            { regex: /useQuery\s*\(/, name: 'React Query useQuery (caching)', severity: 'WARNING' },
-            { regex: /queryClient\.setQueryData/, name: 'React Query manual cache manipulation', severity: 'WARNING' },
+            { regex: /const\s+\w*[Ss]tored?\w*\s*=\s*(?:new\s+Map|\{\})/, name: 'stored/store variable for caching', severity: 'WARNING' },
+            { regex: /const\s+\w*[Bb]uffer\w*\s*=\s*(?:new\s+Map|\{\})/, name: 'buffer variable for caching', severity: 'WARNING' },
+            { regex: /if\s*\(\s*stored\w*\[/, name: 'if (stored[key]) lookup pattern', severity: 'WARNING' },
+            { regex: /stored\w*\[.*\]\s*=/, name: 'stored[key] = value assignment', severity: 'WARNING' },
+            
+            // Database result caching patterns
+            { regex: /const\s+\w*[Qq]ueryCache\w*\s*=/, name: 'queryCache variable', severity: 'ERROR' },
+            { regex: /const\s+\w*[Dd]bCache\w*\s*=/, name: 'dbCache variable', severity: 'ERROR' },
+            { regex: /const\s+\w*[Ss]qlCache\w*\s*=/, name: 'sqlCache variable', severity: 'ERROR' },
+            
+            // HTTP response caching
+            { regex: /const\s+\w*[Rr]esponseCache\w*\s*=/, name: 'responseCache variable', severity: 'ERROR' },
+            { regex: /const\s+\w*[Hh]ttpCache\w*\s*=/, name: 'httpCache variable', severity: 'ERROR' },
+            { regex: /const\s+\w*[Aa]piCache\w*\s*=/, name: 'apiCache variable', severity: 'ERROR' },
+            
+            // File system caching
+            { regex: /const\s+\w*[Ff]ileCache\w*\s*=/, name: 'fileCache variable', severity: 'ERROR' },
+            { regex: /const\s+\w*[Pp]athCache\w*\s*=/, name: 'pathCache variable', severity: 'ERROR' },
+            
+            // Computation result caching
+            { regex: /const\s+\w*[Cc]omputeCache\w*\s*=/, name: 'computeCache variable', severity: 'ERROR' },
+            { regex: /const\s+\w*[Cc]alcCache\w*\s*=/, name: 'calcCache variable', severity: 'ERROR' },
+            { regex: /const\s+\w*[Pp]rocessCache\w*\s*=/, name: 'processCache variable', severity: 'ERROR' },
+            
+            // Redis/Memcached usage inside functions
+            { regex: /require\s*\(\s*['"]redis['"]|import.*from\s*['"]redis['"]/, name: 'redis library import (should be external)', severity: 'WARNING' },
+            { regex: /require\s*\(\s*['"]memcached['"]|import.*from\s*['"]memcached['"]/, name: 'memcached library import (should be external)', severity: 'WARNING' },
+            { regex: /new\s+Redis\s*\(/i, name: 'new Redis() instantiation', severity: 'WARNING' },
+            { regex: /redis\.get\(|redis\.set\(/, name: 'redis get/set operations', severity: 'WARNING' },
+            
+            // Cache configuration patterns
+            { regex: /cacheTimeout|cache_timeout|cacheTTL|cache_ttl/i, name: 'cache timeout/TTL configuration', severity: 'WARNING' },
+            { regex: /maxCacheSize|max_cache_size|cacheLimit|cache_limit/i, name: 'cache size limit configuration', severity: 'WARNING' },
+            
+            // Service worker caching
+            { regex: /caches\.open\(|caches\.match\(/, name: 'Service Worker Cache API usage', severity: 'WARNING' },
+            
+            // IndexedDB caching
+            { regex: /indexedDB\.open\(.*cache/i, name: 'IndexedDB used for caching', severity: 'WARNING' },
+            
+            // Cookie-based caching
+            { regex: /document\.cookie.*cache/i, name: 'cookies used for caching', severity: 'WARNING' },
+            
+            // Cache-Control headers
+            { regex: /['"]Cache-Control['"]/, name: 'Cache-Control header (should be external concern)', severity: 'WARNING' },
+            { regex: /['"]ETag['"]/, name: 'ETag header (caching concern)', severity: 'WARNING' },
+            
+            // Memory optimization patterns (potential caching)
+            { regex: /const\s+\w*[Pp]ool\w*\s*=\s*(?:new\s+Map|\{\})/, name: 'object pool pattern (potential caching)', severity: 'WARNING' },
+            { regex: /const\s+\w*[Bb]ank\w*\s*=\s*(?:new\s+Map|\{\})/, name: 'data bank pattern (potential caching)', severity: 'WARNING' },
+            
+            // Singleton patterns used for caching
+            { regex: /getInstance\(\).*cache/i, name: 'singleton getInstance() with cache', severity: 'ERROR' },
+            { regex: /static\s+\w*[Cc]ache\w*/, name: 'static cache property', severity: 'ERROR' },
+            
+            // Lazy loading with caching
+            { regex: /lazy\w*\s*=.*cache|cache.*lazy/i, name: 'lazy loading with cache', severity: 'WARNING' },
+            
+            // Computed properties that cache
+            { regex: /get\s+\w+\(\)\s*\{[^}]*cache/, name: 'getter with internal cache', severity: 'ERROR' },
+            { regex: /computed\s*:\s*\{[^}]*cache/, name: 'computed property with cache', severity: 'WARNING' },
+            
+            // Throttle/debounce with caching
+            { regex: /throttle\(.*cache|debounce\(.*cache/, name: 'throttle/debounce with cache argument', severity: 'WARNING' },
+            
+            // Cache key generation
+            { regex: /cacheKey|cache_key|generateCacheKey/i, name: 'cache key generation logic', severity: 'WARNING' },
+            { regex: /hashKey.*cache|cache.*hashKey/i, name: 'hash-based cache key', severity: 'WARNING' },
+            
+            // Cache hit/miss tracking
+            { regex: /cacheHits\+\+|cacheMisses\+\+/, name: 'cache hit/miss counter increment', severity: 'ERROR' },
+            { regex: /hitCount|missCount|hit_count|miss_count/, name: 'cache statistics variables', severity: 'ERROR' },
+            
+            // Cache eviction policies
+            { regex: /evict.*cache|cache.*evict/i, name: 'cache eviction logic', severity: 'ERROR' },
+            { regex: /leastRecentlyUsed|mostRecentlyUsed|LRU|MRU/i, name: 'cache eviction policy implementation', severity: 'ERROR' },
+            
+            // Cache partitioning
+            { regex: /cachePartition|cache_partition|partitionedCache/i, name: 'cache partitioning logic', severity: 'ERROR' },
+            
+            // Cache serialization
+            { regex: /JSON\.stringify\(.*cache|cache.*JSON\.stringify/, name: 'cache serialization with JSON', severity: 'WARNING' },
+            { regex: /serialize.*cache|cache.*serialize/i, name: 'cache serialization logic', severity: 'WARNING' },
+            
+            // Cache warming strategies
+            { regex: /warmCache|warm_cache|prewarm|pre_warm/i, name: 'cache warming implementation', severity: 'ERROR' },
+            { regex: /preloadCache|preload_cache|cachePreload/i, name: 'cache preloading implementation', severity: 'ERROR' },
+            
+            // Advanced caching libraries
+            { regex: /require\s*\(\s*['"]quick-lru['"]/, name: 'quick-lru library (advanced caching)', severity: 'ERROR' },
+            { regex: /require\s*\(\s*['"]p-memoize['"]/, name: 'p-memoize library', severity: 'ERROR' },
+            { regex: /require\s*\(\s*['"]mem['"]/, name: 'mem memoization library', severity: 'ERROR' },
+            { regex: /require\s*\(\s*['"]memoizee['"]/, name: 'memoizee library', severity: 'ERROR' },
+            { regex: /require\s*\(\s*['"]lodash.*memoize['"]/, name: 'lodash memoize', severity: 'ERROR' },
+            
+            // Weak reference caching
+            { regex: /new\s+WeakRef\(.*cache/, name: 'WeakRef used for caching', severity: 'WARNING' },
+            { regex: /new\s+FinalizationRegistry\(.*cache/, name: 'FinalizationRegistry for cache cleanup', severity: 'WARNING' },
+            
+            // Stream caching
+            { regex: /streamCache|stream_cache/, name: 'stream caching implementation', severity: 'ERROR' },
+            
+            // Template/render caching
+            { regex: /templateCache|template_cache|renderCache|render_cache/i, name: 'template/render caching', severity: 'WARNING' },
+            
+            // Asset caching
+            { regex: /assetCache|asset_cache|resourceCache|resource_cache/i, name: 'asset/resource caching', severity: 'WARNING' }
         ],
         severity: 'WARNING',
         violationExamples: {
@@ -2082,7 +2925,7 @@ This validator catches ALL emoji forms including:
 - Skin tone modifiers (U+1F3FB-U+1F3FF)
 - Regional indicators (flag emoji like U+1F1F9 U+1F1ED for Thailand)
 - Variation selectors (text vs emoji presentation)
-- HTML entities (&#x1F600;, &#128512;)
+- HTML entities (, )
 - Tag characters and modifiers
 - All Unicode 15.1+ emoji blocks`,
             th: `อิโมจิในซอร์สโค้ดสร้างปัญหาร้ายแรงที่ทำให้โค้ดดูแลรักษาไม่ได้และไม่เป็นมืออาชีพ:
@@ -2108,7 +2951,7 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
 - Skin tone modifiers (สีผิว U+1F3FB-U+1F3FF)
 - Regional indicators (อิโมจิธง เช่น U+1F1F9 U+1F1ED สำหรับไทย)
 - Variation selectors (แสดงแบบข้อความ vs อิโมจิ)
-- HTML entities (&#x1F600;, &#128512;)
+- HTML entities (, )
 - Tag characters และ modifiers
 - ทุก Unicode 15.1+ emoji blocks`
         },
@@ -2133,6 +2976,86 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
             { regex: /[\u{2600}-\u{26FF}]/gu, name: 'Miscellaneous Symbols (U+2600-U+26FF) - sun, star, weather', severity: 'ERROR' },
             { regex: /[\u{2700}-\u{27BF}]/gu, name: 'Dingbats (U+2700-U+27BF) - scissors, checkmarks, arrows', severity: 'ERROR' },
             { regex: /[\u{1F1E0}-\u{1F1FF}]/gu, name: 'Regional Indicator (U+1F1E0-U+1F1FF) - flag letters', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // SKIN TONE MODIFIERS - จับ skin tone modifiers ทั้งหมด
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /[\u{1F3FB}-\u{1F3FF}]/gu, name: 'Skin Tone Modifiers (U+1F3FB-U+1F3FF) - light to dark skin', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // VARIATION SELECTORS - จับ emoji vs text presentation selectors
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /[\u{FE0E}\u{FE0F}]/gu, name: 'Variation Selectors (U+FE0E text, U+FE0F emoji)', severity: 'ERROR' },
+            { regex: /\u{2764}\u{FE0F}/gu, name: 'Red Heart with Emoji Variation Selector', severity: 'ERROR' },
+            { regex: /\u{2665}\u{FE0F}/gu, name: 'Black Heart with Variation Selector', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // ZWJ SEQUENCES - จับ Zero Width Joiner emoji sequences (family, profession)
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /\u{200D}/gu, name: 'Zero Width Joiner (U+200D) - used in multi-person emoji', severity: 'ERROR' },
+            { regex: /\u{1F469}\u{200D}\u{2695}\u{FE0F}/gu, name: 'Woman Health Worker ZWJ sequence', severity: 'ERROR' },
+            { regex: /\u{1F468}\u{200D}\u{1F4BB}/gu, name: 'Man Technologist ZWJ sequence', severity: 'ERROR' },
+            { regex: /\u{1F469}\u{200D}\u{1F373}/gu, name: 'Woman Cook ZWJ sequence', severity: 'ERROR' },
+            { regex: /\u{1F468}\u{200D}\u{1F692}/gu, name: 'Man Firefighter ZWJ sequence', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // FAMILY AND COUPLE SEQUENCES - จับ family emoji combinations
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /\u{1F468}\u{200D}\u{1F469}\u{200D}/gu, name: 'Family: Man, Woman... ZWJ sequence', severity: 'ERROR' },
+            { regex: /\u{1F469}\u{200D}\u{1F469}\u{200D}/gu, name: 'Family: Woman, Woman... ZWJ sequence', severity: 'ERROR' },
+            { regex: /\u{1F468}\u{200D}\u{1F468}\u{200D}/gu, name: 'Family: Man, Man... ZWJ sequence', severity: 'ERROR' },
+            { regex: /\u{1F48F}\u{1F3FB}/gu, name: 'Kiss with Skin Tone Modifier', severity: 'ERROR' },
+            { regex: /\u{1F491}\u{1F3FC}/gu, name: 'Couple with Heart with Skin Tone', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // KEYCAP SEQUENCES - จับ keycap emoji (numbers with enclosing keycap)
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /[\u{0030}-\u{0039}]\u{FE0F}\u{20E3}/gu, name: 'Number Keycap (0-9 with keycap)', severity: 'ERROR' },
+            { regex: /\u{0023}\u{FE0F}\u{20E3}/gu, name: 'Hash Keycap "[HASH_KEYCAP]"', severity: 'ERROR' },
+            { regex: /\u{002A}\u{FE0F}\u{20E3}/gu, name: 'Asterisk Keycap "[ASTERISK_KEYCAP]"', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // TAG SEQUENCES - จับ tag characters used in flag sequences
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /[\u{E0020}-\u{E007F}]/gu, name: 'Tag Characters (U+E0020-U+E007F) - used in subdivision flags', severity: 'ERROR' },
+            { regex: /\u{1F3F4}\u{E0067}\u{E0062}/gu, name: 'England Flag Tag Sequence', severity: 'ERROR' },
+            { regex: /\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}/gu, name: 'Scotland Flag Tag Sequence', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // HTML ENTITIES FOR EMOJI - จับ HTML entity ของ emoji
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /&#{1,2}[0-9]{4,6};/g, name: 'HTML Numeric Entity (possible emoji)', severity: 'WARNING' },
+            { regex: /||/g, name: 'HTML Entity for Face Emoji "[GRINNING_FACE][BEAMING_FACE][CRYING_LAUGHING]"', severity: 'ERROR' },
+            { regex: /&#9989;||/g, name: 'HTML Entity for Check/Cross/Button "[CHECK_MARK][CROSS_MARK][CIRCLE]"', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // UNICODE ESCAPE SEQUENCES - จับ Unicode escape ของ emoji ใน string
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /\\u\{1F[0-9A-Fa-f]{3}\}/g, name: 'Unicode escape for emoji (\\u{1F...})', severity: 'ERROR' },
+            { regex: /\\u1F[0-9A-Fa-f]{2}[0-9A-Fa-f]/g, name: 'Unicode escape for emoji (\\u1F...)', severity: 'ERROR' },
+            { regex: /\\x{1F[0-9A-Fa-f]+}/g, name: 'Hex escape for emoji (\\x{1F...})', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // COMMON EMOJI IN STRING LITERALS - จับ emoji ที่มักใช้ใน string
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /["'].*[\u{1F600}-\u{1F64F}].*["']/gu, name: 'String containing face emoji', severity: 'ERROR' },
+            { regex: /["'].*[\u{2764}\u{1F49C}\u{1F49B}\u{1F49A}\u{1F499}\u{1F9E1}].*["']/gu, name: 'String containing heart emoji', severity: 'ERROR' },
+            { regex: /["'].*[\u{1F44D}\u{1F44E}\u{1F44F}\u{1F590}].*["']/gu, name: 'String containing hand gesture emoji', severity: 'ERROR' },
+            { regex: /["'].*[\u{1F525}\u{1F4A5}\u{2728}\u{1F31F}].*["']/gu, name: 'String containing fire/sparkle emoji', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // COMMENT EMOJI - จับ emoji ใน comments
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /\/\/.*[\u{1F600}-\u{1F64F}]/gu, name: 'Single-line comment containing emoji', severity: 'ERROR' },
+            { regex: /\/\*[\s\S]*[\u{1F600}-\u{1F64F}][\s\S]*\*\//gu, name: 'Multi-line comment containing emoji', severity: 'ERROR' },
+            { regex: /#.*[\u{1F600}-\u{1F64F}]/gu, name: 'Hash comment containing emoji (Python, Shell)', severity: 'ERROR' },
+
+            // ═══════════════════════════════════════════════════════════════════
+            // VARIABLE NAMES WITH EMOJI - จับชื่อตัวแปรที่มี emoji
+            // ═══════════════════════════════════════════════════════════════════
+            { regex: /(?:const|let|var)\s+\w*[\u{1F600}-\u{1F64F}]\w*/gu, name: 'Variable name containing emoji', severity: 'ERROR' },
+            { regex: /function\s+\w*[\u{1F600}-\u{1F64F}]\w*/gu, name: 'Function name containing emoji', severity: 'ERROR' },
+            { regex: /class\s+\w*[\u{1F600}-\u{1F64F}]\w*/gu, name: 'Class name containing emoji', severity: 'ERROR' },
             { regex: /[\u{1F100}-\u{1F1FF}]/gu, name: 'Enclosed Alphanumeric Supplement', severity: 'ERROR' },
             { regex: /[\u{2B00}-\u{2BFF}]/gu, name: 'Miscellaneous Symbols and Arrows', severity: 'ERROR' },
 
@@ -2196,8 +3119,8 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
             // ═══════════════════════════════════════════════════════════════════
             // HTML ENTITIES - จับอิโมจิในรูปแบบ HTML
             // ═══════════════════════════════════════════════════════════════════
-            { regex: /&#x1F[0-9A-Fa-f]{3,4};/g, name: 'Hex HTML emoji entity (&#x1F600;)', severity: 'ERROR' },
-            { regex: /&#1[0-9]{4,6};/g, name: 'Decimal HTML emoji entity (&#128512;)', severity: 'ERROR' },
+            { regex: /&#x1F[0-9A-Fa-f]{3,4};/g, name: 'Hex HTML emoji entity ()', severity: 'ERROR' },
+            { regex: /&#1[0-9]{4,6};/g, name: 'Decimal HTML emoji entity ()', severity: 'ERROR' },
             { regex: /&(?:hearts?|spades?|clubs?|diams?|star|check|cross|times);/gi, name: 'Named HTML symbol entities', severity: 'ERROR' },
 
             // ═══════════════════════════════════════════════════════════════════
@@ -2513,25 +3436,17 @@ class ValidationEngine {
     }
 
     async initializeParserStudy() {
-        try {
-            // ! UPGRADE: ใช้ Smart Parser Engine แทน ParserStudyModule
-            const { SmartParserEngine } = require('./grammars/shared/smart-parser-engine.js');
-            this.parserStudy = new SmartParserEngine();
-            console.log('SUCCESS: Smart Parser Engine initialized 🚀');
-        } catch (error) {
-            console.warn('ERROR: Smart Parser Engine not available:', error.message);
-            // Fallback to old system if needed
-            try {
-                const { ParserStudyModule } = require('./grammars/shared/parser-study.js');
-                this.parserStudy = new ParserStudyModule();
-                console.log('FALLBACK: Using old Parser Study Module');
-            } catch (fallbackError) {
-                console.warn('ERROR: Both parsers failed:', fallbackError.message);
-            }
-        }
+        // ! FIX: FAIL FAST - ไม่มี Silent Fallback เพื่อให้รู้ปัญหาทันที
+        console.log('Initializing Smart Parser Engine (NO FALLBACK MODE)...');
+        
+        const { SmartParserEngine } = await import('./grammars/shared/smart-parser-engine.js');
+        this.parserStudy = new SmartParserEngine(this.rules); // ส่ง ABSOLUTE_RULES เข้าไป
+        
+        console.log('SUCCESS: Smart Parser Engine initialized with grammar rules');
+        console.log('Engine Mode: FULL PERFORMANCE (no legacy fallbacks)');
     }
 
-    async validateCode(code, language = 'javascript') {
+    async validateCode(code, language = 'javascript', allowFallback = false) {
         const results = { violations: [], warnings: [], suggestions: [] };
         if (this.parserStudy) {
             try {
@@ -2539,32 +3454,58 @@ class ValidationEngine {
                 results.violations.push(...astViolations);
                 console.log('SUCCESS: AST Analysis completed successfully');
             } catch (astError) {
-                console.error('ERROR: AST Analysis failed:', astError.message);
-                console.warn('FALLBACK: Using regex-based analysis');
-                results.violations.push(...this.analyzeWithRegex(code));
+                // ! FIX: ตามกฎ NO_SILENT_FALLBACKS - Log error อย่างชัดเจน
+                console.error('CRITICAL ERROR: AST Analysis failed completely:', astError.message);
+                console.error('Stack trace:', astError.stack);
+                console.error('Possible causes: GrammarIndex integration issue, memory overflow, or parser corruption');
+                
+                // ! COMPLIANT FALLBACK: ให้ user เลือกว่าจะใช้ fallback หรือไม่
+                if (allowFallback) {
+                    console.warn('  WARNING: Using fallback regex-based analysis due to AST failure');
+                    console.warn('  Results may be less accurate than AST-based analysis');
+                    results.violations.push(...this.analyzeWithRegex(code));
+                    results.warnings.push({
+                        rule: 'SYSTEM_WARNING',
+                        message: 'Used fallback analysis due to AST engine failure',
+                        severity: 'WARNING'
+                    });
+                } else {
+                    // Default behavior: fail fast
+                    throw new Error(`ValidationEngine: AST Analysis failed - ${astError.message}. Use allowFallback=true for regex-based analysis.`);
+                }
             }
         } else {
-            results.violations.push(...this.analyzeWithRegex(code));
+            // ถ้าไม่มี parser เลย ให้ throw error
+            throw new Error('ValidationEngine: No parser available - cannot perform validation');
         }
         return results;
     }
     
     async analyzeWithAST(code) {
-        if (!this.parserStudy) throw new Error("ParserStudyModule not initialized.");
+        if (!this.parserStudy) throw new Error("Parser not initialized.");
         
-        const violations = [];
-        const patterns = this.parserStudy.studyRulePatterns(code);
-        
-        // ! FIX: ตรวจสอบว่ามีกฎอยู่จริงใน ABSOLUTE_RULES ก่อนเรียกใช้
-        if (this.rules.NO_MOCKING) this.checkMockingViolations(patterns, violations);
-        if (this.rules.NO_EMOJI) this.checkEmojiViolations(patterns, violations);
-        if (this.rules.NO_HARDCODE) this.checkHardcodeViolations(patterns, violations);
-        if (this.rules.NO_SILENT_FALLBACKS) this.checkSilentFallbackViolations(patterns, violations);
-        if (this.rules.NO_COMPLEX_FUNCTIONS) this.checkComplexityViolations(patterns, violations);
-        if (this.rules.NO_INTERNAL_CACHING) this.checkCachingViolations(patterns, violations);
-        if (this.rules.NO_DEEP_NESTING) this.checkDeepNestingViolations(patterns, violations);
+        // ! UPGRADE: ตรวจสอบว่าเป็น Smart Parser Engine หรือไม่
+        if (typeof this.parserStudy.analyzeCode === 'function') {
+            // ใช้ Smart Parser Engine (ระบบใหม่)
+            console.log(' Using Smart Parser Engine...');
+            return this.parserStudy.analyzeCode(code);
+        } else {
+            // ใช้ระบบเก่า (Fallback)
+            console.log(' Using legacy parser...');
+            const violations = [];
+            const patterns = this.parserStudy.studyRulePatterns(code);
+            
+            // ตรวจสอบว่ามีกฎอยู่จริงใน ABSOLUTE_RULES ก่อนเรียกใช้
+            if (this.rules.NO_MOCKING) this.checkMockingViolations(patterns, violations);
+            if (this.rules.NO_EMOJI) this.checkEmojiViolations(patterns, violations);
+            if (this.rules.NO_HARDCODE) this.checkHardcodeViolations(patterns, violations);
+            if (this.rules.NO_SILENT_FALLBACKS) this.checkSilentFallbackViolations(patterns, violations);
+            if (this.rules.NO_COMPLEX_FUNCTIONS) this.checkComplexityViolations(patterns, violations);
+            if (this.rules.NO_INTERNAL_CACHING) this.checkCachingViolations(patterns, violations);
+            if (this.rules.NO_DEEP_NESTING) this.checkDeepNestingViolations(patterns, violations);
 
-        return violations;
+            return violations;
+        }
     }
 
     analyzeWithRegex(code) {
@@ -2630,7 +3571,7 @@ class ValidationEngine {
 // ======================================================================
 // MODULE EXPORTS - ส่งออกทั้ง Rules และ Engine
 // ======================================================================
-module.exports = { ABSOLUTE_RULES, ValidationEngine };
+export { ABSOLUTE_RULES, ValidationEngine };
 
 
 
