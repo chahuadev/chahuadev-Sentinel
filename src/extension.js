@@ -1,26 +1,51 @@
 const vscode = require('vscode');
 const { ABSOLUTE_RULES, ValidationEngine } = require('./validator.js');
+const { SecurityMiddleware } = require('./security/security-middleware');
+const { createSecurityConfig } = require('./security/security-config');
 
 /**
  * VS Code Extension Entry Point for Chahuadev Sentinel
  * Provides subtle blue notifications with detailed hover information
+ * Enhanced with Fortress-level security protection
  */
 
 let diagnosticCollection;
 let validationEngine;
+let securityMiddleware;
 
 function activate(context) {
     console.log('🔵 Chahuadev Sentinel Extension activated');
     
-    // Initialize validation engine
-    validationEngine = new ValidationEngine();
-    validationEngine.initializeParserStudy().catch(console.error);
+    try {
+        // Initialize security system
+        const securityConfig = createSecurityConfig({
+            level: 'FORTRESS',
+            vscodeSettings: vscode.workspace.getConfiguration('chahuadev-sentinel')
+        });
+        
+        securityMiddleware = new SecurityMiddleware(securityConfig.policies);
+        console.log('🛡️  Security middleware initialized (Fortress level)');
+        
+        // Initialize validation engine
+        validationEngine = new ValidationEngine();
+        validationEngine.initializeParserStudy().catch(console.error);
+        
+        // Create diagnostic collection for subtle blue notifications
+        diagnosticCollection = vscode.languages.createDiagnosticCollection('chahuadev-sentinel');
+        context.subscriptions.push(diagnosticCollection);
+        
+        // Register security status command
+        context.subscriptions.push(
+            vscode.commands.registerCommand('chahuadev-sentinel.securityStatus', showSecurityStatus)
+        );
+        
+    } catch (error) {
+        console.error('🚨 Failed to initialize security system:', error);
+        vscode.window.showErrorMessage('Chahuadev Sentinel: Security initialization failed');
+        return;
+    }
     
-    // Create diagnostic collection for subtle blue notifications
-    diagnosticCollection = vscode.languages.createDiagnosticCollection('chahuadev-sentinel');
-    context.subscriptions.push(diagnosticCollection);
-    
-    // Real-time scanning on document change (throttled)
+    // Real-time scanning on document change (throttled with security)
     let scanTimeout;
     const documentChangeListener = vscode.workspace.onDidChangeTextDocument(async (event) => {
         const config = vscode.workspace.getConfiguration('chahuadev-sentinel');
@@ -28,18 +53,27 @@ function activate(context) {
         
         // Throttle scanning to avoid performance issues
         clearTimeout(scanTimeout);
-        scanTimeout = setTimeout(() => {
-            scanDocument(event.document);
+        scanTimeout = setTimeout(async () => {
+            try {
+                await secureDocumentScan(event.document);
+            } catch (error) {
+                console.error('🚨 Security error in document scan:', error.message);
+            }
         }, 500);
     });
     
-    // Scan on save
+    // Scan on save with security
     const saveListener = vscode.workspace.onDidSaveTextDocument(async (document) => {
         const config = vscode.workspace.getConfiguration('chahuadev-sentinel');
         if (!config.get('scanOnSave', true)) return;
         
-        await scanDocument(document);
-        showSubtleNotification('File scanned successfully');
+        try {
+            await secureDocumentScan(document);
+            await securityMiddleware.showSecureNotification('File scanned successfully');
+        } catch (error) {
+            console.error('🚨 Security error in save scan:', error.message);
+            await securityMiddleware.showSecureNotification('Security error during scan', 'error');
+        }
     });
     
     // Command: Scan Current File
@@ -330,11 +364,129 @@ function showSubtleNotification(message) {
     }
 }
 
+// ======================================================================
+// Security Enhanced Functions
+// ======================================================================
+
+/**
+ * Secure document scanning with comprehensive security validation
+ */
+async function secureDocumentScan(document) {
+    try {
+        // Validate document security
+        const readResult = await securityMiddleware.secureReadDocument(document);
+        
+        if (!readResult.success) {
+            throw new Error('Document security validation failed');
+        }
+        
+        // Perform content security scan
+        const securityScan = await securityMiddleware.secureWorkspaceOperation(
+            'SCAN', 
+            readResult.filePath
+        );
+        
+        // Regular validation scan
+        const validationResults = await scanDocument(document);
+        
+        // Add security issues to diagnostics if any
+        if (securityScan.securityIssues && securityScan.securityIssues.length > 0) {
+            const securityDiagnostics = securityScan.securityIssues.map(issue => 
+                securityMiddleware.createSecureDiagnostic(
+                    new vscode.Range(0, 0, 0, 0), // Top of file
+                    `Security Alert: ${issue.issue}`,
+                    vscode.DiagnosticSeverity.Warning
+                )
+            );
+            
+            // Merge with existing diagnostics
+            const existingDiagnostics = diagnosticCollection.get(document.uri) || [];
+            diagnosticCollection.set(document.uri, [...existingDiagnostics, ...securityDiagnostics]);
+        }
+        
+        return {
+            ...validationResults,
+            security: {
+                validated: true,
+                issues: securityScan.securityIssues || [],
+                scanTimestamp: securityScan.scanTimestamp
+            }
+        };
+        
+    } catch (error) {
+        console.error('🚨 Secure document scan failed:', error);
+        
+        // Show security alert to user
+        await securityMiddleware.showSecureNotification(
+            `Security scan failed: ${error.message}`,
+            'warning'
+        );
+        
+        throw error;
+    }
+}
+
+/**
+ * Show security status and statistics
+ */
+async function showSecurityStatus() {
+    try {
+        if (!securityMiddleware) {
+            vscode.window.showErrorMessage('Security middleware not initialized');
+            return;
+        }
+        
+        const stats = securityMiddleware.getStats();
+        const securityReport = securityMiddleware.securityManager.generateSecurityReport();
+        
+        const action = await vscode.window.showInformationMessage(
+            '🛡️ Security Status: FORTRESS LEVEL\n' +
+            `📊 Events: ${stats.totalEvents} | Violations: ${stats.violations}\n` +
+            `⏱️ Uptime: ${Math.round(stats.uptime / 1000)}s | Status: ${securityReport.status}`,
+            'View Report',
+            'Settings'
+        );
+        
+        if (action === 'View Report') {
+            await showDetailedSecurityReport(securityReport);
+        } else if (action === 'Settings') {
+            vscode.commands.executeCommand('workbench.action.openSettings', 'chahuadev-sentinel');
+        }
+        
+    } catch (error) {
+        console.error('Failed to show security status:', error);
+        vscode.window.showErrorMessage('Failed to retrieve security status');
+    }
+}
+
+/**
+ * Show detailed security report in new document
+ */
+async function showDetailedSecurityReport(report) {
+    try {
+        const reportContent = JSON.stringify(report, null, 2);
+        
+        const doc = await vscode.workspace.openTextDocument({
+            content: reportContent,
+            language: 'json'
+        });
+        
+        await vscode.window.showTextDocument(doc);
+        
+    } catch (error) {
+        console.error('Failed to show security report:', error);
+    }
+}
+
 function deactivate() {
     console.log('🔵 Chahuadev Sentinel Extension deactivated');
     
     if (diagnosticCollection) {
         diagnosticCollection.dispose();
+    }
+    
+    if (securityMiddleware) {
+        console.log('🛡️ Security middleware shutdown');
     }
 }
 

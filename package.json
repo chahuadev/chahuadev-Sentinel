@@ -46,6 +46,11 @@
         "command": "chahuadev-sentinel.toggleRules",
         "title": "Configure Rules",
         "category": "Chahuadev Sentinel"
+      },
+      {
+        "command": "chahuadev-sentinel.securityStatus",
+        "title": "🛡️ Security Status",
+        "category": "Chahuadev Sentinel"
       }
     ],
     "configuration": {
