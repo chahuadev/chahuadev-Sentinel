@@ -14,7 +14,7 @@ let validationEngine;
 let securityMiddleware;
 
 function activate(context) {
-    console.log('🔵 Chahuadev Sentinel Extension activated');
+    console.log(' Chahuadev Sentinel Extension activated');
     
     try {
         // Initialize security system
@@ -24,7 +24,7 @@ function activate(context) {
         });
         
         securityMiddleware = new SecurityMiddleware(securityConfig.policies);
-        console.log('🛡️  Security middleware initialized (Fortress level)');
+        console.log('  Security middleware initialized (Fortress level)');
         
         // Initialize validation engine
         validationEngine = new ValidationEngine();
@@ -40,7 +40,7 @@ function activate(context) {
         );
         
     } catch (error) {
-        console.error('🚨 Failed to initialize security system:', error);
+        console.error(' Failed to initialize security system:', error);
         vscode.window.showErrorMessage('Chahuadev Sentinel: Security initialization failed');
         return;
     }
@@ -57,7 +57,7 @@ function activate(context) {
             try {
                 await secureDocumentScan(event.document);
             } catch (error) {
-                console.error('🚨 Security error in document scan:', error.message);
+                console.error(' Security error in document scan:', error.message);
             }
         }, 500);
     });
@@ -71,7 +71,7 @@ function activate(context) {
             await secureDocumentScan(document);
             await securityMiddleware.showSecureNotification('File scanned successfully');
         } catch (error) {
-            console.error('🚨 Security error in save scan:', error.message);
+            console.error(' Security error in save scan:', error.message);
             await securityMiddleware.showSecureNotification('Security error during scan', 'error');
         }
     });
@@ -80,7 +80,7 @@ function activate(context) {
     const scanFileCommand = vscode.commands.registerCommand('chahuadev-sentinel.scanFile', async () => {
         const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor) {
-            vscode.window.showInformationMessage('📂 No active file to scan');
+            vscode.window.showInformationMessage(' No active file to scan');
             return;
         }
         
@@ -88,9 +88,9 @@ function activate(context) {
         const violationCount = results?.violations?.length || 0;
         
         if (violationCount === 0) {
-            showSubtleNotification('✨ File is clean - no violations found');
+            showSubtleNotification(' File is clean - no violations found');
         } else {
-            showSubtleNotification(`🔍 Found ${violationCount} quality issue${violationCount > 1 ? 's' : ''}`);
+            showSubtleNotification(` Found ${violationCount} quality issue${violationCount > 1 ? 's' : ''}`);
         }
     });
     
@@ -131,7 +131,7 @@ function activate(context) {
             
             if (!token.isCancellationRequested) {
                 showSubtleNotification(
-                    `🏁 Workspace scan completed: ${scannedCount} files, ${totalViolations} issues found`
+                    ` Workspace scan completed: ${scannedCount} files, ${totalViolations} issues found`
                 );
             }
         });
@@ -156,7 +156,7 @@ function activate(context) {
         scanDocument(vscode.window.activeTextEditor.document);
     }
     
-    console.log('🟢 Chahuadev Sentinel ready for action');
+    console.log(' Chahuadev Sentinel ready for action');
 }
 
 /**
@@ -232,7 +232,7 @@ async function scanDocument(document) {
         return results;
         
     } catch (error) {
-        console.error('🔴 Chahuadev Sentinel scan error:', error);
+        console.error(' Chahuadev Sentinel scan error:', error);
         
         // Show error as subtle notification
         const errorDiagnostic = new vscode.Diagnostic(
@@ -252,14 +252,14 @@ async function scanDocument(document) {
  */
 function getShortMessage(violation) {
     const shortMessages = {
-        'NO_MOCKING': '🚫 Mock',
-        'NO_HARDCODE': '🔧 Hardcode',
-        'NO_SILENT_FALLBACKS': '🔇 Silent fallback', 
-        'NO_INTERNAL_CACHING': '💾 Cache',
-        'NO_EMOJI': '😊 Emoji'
+        'NO_MOCKING': ' Mock',
+        'NO_HARDCODE': ' Hardcode',
+        'NO_SILENT_FALLBACKS': ' Silent fallback', 
+        'NO_INTERNAL_CACHING': ' Cache',
+        'NO_EMOJI': ' Emoji'
     };
     
-    return shortMessages[violation.ruleId] || '⚠️ Quality';
+    return shortMessages[violation.ruleId] || ' Quality';
 }
 
 /**
@@ -267,53 +267,53 @@ function getShortMessage(violation) {
  */
 function getFullMessage(violation) {
     const suggestions = {
-        'NO_MOCKING': `🧪 Testing Issue: ${violation.message}
+        'NO_MOCKING': ` Testing Issue: ${violation.message}
 
-💡 Better Approach:
+ Better Approach:
 • Use dependency injection for testable code
 • Create test doubles manually for better control  
 • Consider integration tests over mocked unit tests
 
-📚 Why: Mock frameworks create brittle tests that break when implementation details change, leading to false confidence and maintenance overhead.`,
+ Why: Mock frameworks create brittle tests that break when implementation details change, leading to false confidence and maintenance overhead.`,
 
-        'NO_HARDCODE': `🔧 Configuration Issue: ${violation.message}
+        'NO_HARDCODE': ` Configuration Issue: ${violation.message}
 
-💡 Better Approach:
+ Better Approach:
 • Move to environment variables (.env file)
 • Use configuration objects or JSON files
 • Consider feature flags for behavioral settings
 
-📚 Why: Hardcoded values make code inflexible, hard to deploy across environments, and create security risks for sensitive data.`,
+ Why: Hardcoded values make code inflexible, hard to deploy across environments, and create security risks for sensitive data.`,
 
-        'NO_SILENT_FALLBACKS': `🔇 Error Handling Issue: ${violation.message}
+        'NO_SILENT_FALLBACKS': ` Error Handling Issue: ${violation.message}
 
-💡 Better Approach:
+ Better Approach:
 • Add explicit error logging and handling
 • Throw meaningful errors instead of returning defaults
 • Use result objects with success/error states
 
-📚 Why: Silent failures hide bugs, make debugging impossible, and create unpredictable system behavior in production.`,
+ Why: Silent failures hide bugs, make debugging impossible, and create unpredictable system behavior in production.`,
 
-        'NO_INTERNAL_CACHING': `💾 Architecture Issue: ${violation.message}
+        'NO_INTERNAL_CACHING': ` Architecture Issue: ${violation.message}
 
-💡 Better Approach:
+ Better Approach:
 • Use external cache stores (Redis, Memcached)
 • Implement database-level caching
 • Consider CDN for static content caching
 
-📚 Why: Internal caching causes memory leaks, scaling issues, and cache invalidation problems in distributed systems.`,
+ Why: Internal caching causes memory leaks, scaling issues, and cache invalidation problems in distributed systems.`,
 
-        'NO_EMOJI': `😊 Text Encoding Issue: ${violation.message}
+        'NO_EMOJI': ` Text Encoding Issue: ${violation.message}
 
-💡 Better Approach:
+ Better Approach:
 • Use descriptive text: "SUCCESS", "ERROR", "WARNING"
 • Create constants for status indicators
 • Use icons from icon libraries if visual indicators needed
 
-📚 Why: Emoji can cause encoding issues, reduce accessibility, and create inconsistent rendering across different systems.`
+ Why: Emoji can cause encoding issues, reduce accessibility, and create inconsistent rendering across different systems.`
     };
     
-    return suggestions[violation.ruleId] || `Code Quality Issue: ${violation.message}\n\n💡 Follow Chahuadev coding standards for better maintainability.`;
+    return suggestions[violation.ruleId] || `Code Quality Issue: ${violation.message}\n\n Follow Chahuadev coding standards for better maintainability.`;
 }
 
 /**
@@ -354,12 +354,12 @@ function showSubtleNotification(message) {
             vscode.window.showWarningMessage(`Chahuadev Sentinel: ${message}`);
             break;
         case 'normal':
-            vscode.window.showInformationMessage(`🔵 ${message}`);
+            vscode.window.showInformationMessage(` ${message}`);
             break;
         case 'subtle':
         default:
             // Very subtle - just show in status bar briefly
-            vscode.window.setStatusBarMessage(`🔵 ${message}`, 3000);
+            vscode.window.setStatusBarMessage(` ${message}`, 3000);
             break;
     }
 }
@@ -414,7 +414,7 @@ async function secureDocumentScan(document) {
         };
         
     } catch (error) {
-        console.error('🚨 Secure document scan failed:', error);
+        console.error(' Secure document scan failed:', error);
         
         // Show security alert to user
         await securityMiddleware.showSecureNotification(
@@ -440,9 +440,9 @@ async function showSecurityStatus() {
         const securityReport = securityMiddleware.securityManager.generateSecurityReport();
         
         const action = await vscode.window.showInformationMessage(
-            '🛡️ Security Status: FORTRESS LEVEL\n' +
-            `📊 Events: ${stats.totalEvents} | Violations: ${stats.violations}\n` +
-            `⏱️ Uptime: ${Math.round(stats.uptime / 1000)}s | Status: ${securityReport.status}`,
+            ' Security Status: FORTRESS LEVEL\n' +
+            ` Events: ${stats.totalEvents} | Violations: ${stats.violations}\n` +
+            ` Uptime: ${Math.round(stats.uptime / 1000)}s | Status: ${securityReport.status}`,
             'View Report',
             'Settings'
         );
@@ -479,14 +479,14 @@ async function showDetailedSecurityReport(report) {
 }
 
 function deactivate() {
-    console.log('🔵 Chahuadev Sentinel Extension deactivated');
+    console.log(' Chahuadev Sentinel Extension deactivated');
     
     if (diagnosticCollection) {
         diagnosticCollection.dispose();
     }
     
     if (securityMiddleware) {
-        console.log('🛡️ Security middleware shutdown');
+        console.log(' Security middleware shutdown');
     }
 }
 

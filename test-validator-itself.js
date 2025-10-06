@@ -220,13 +220,13 @@ async function runMetaTest() {
 }
 
 // --- Main Execution & Graceful Shutdown ---
-log('🚀 Starting Meta-Test Execution...', 'START');
-log(`📂 Log file will be created at: ${logFilePath}`, 'INFO');
+log('Starting Meta-Test Execution...', 'START');
+log(`Log file will be created at: ${logFilePath}`, 'INFO');
 
 runMetaTest().then(() => {
-    log('✅ Meta-Test completed successfully!', 'SUCCESS');
+    log('Meta-Test completed successfully!', 'SUCCESS');
 }).catch(err => {
-    log('❌ A critical error occurred during the meta-test run:', 'CRITICAL');
+    log('A critical error occurred during the meta-test run:', 'CRITICAL');
     log(err.stack, 'CRITICAL');
     process.exitCode = 1;
 }).finally(() => {
@@ -239,9 +239,9 @@ runMetaTest().then(() => {
     setTimeout(() => {
         if (fs.existsSync(logFilePath)) {
             const size = fs.statSync(logFilePath).size;
-            console.log(`📄 Log file created successfully: ${logFilePath} (${size} bytes)`);
+            console.log(`Log file created successfully: ${logFilePath} (${size} bytes)`);
         } else {
-            console.log(`⚠️ Warning: Log file not found at ${logFilePath}`);
+            console.log(`Warning: Log file not found at ${logFilePath}`);
         }
     }, 100);
 });

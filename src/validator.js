@@ -3157,9 +3157,9 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
                  * @matches-pattern Check mark button (U+2705) - commonly misused
                  * @description Unicode checkmark in string
                  * @note CHANGED: เปลี่ยนจาก comment เป็น string literal เพราะ AST ไม่จับ comments
-                 * @original-code // ✅ Task completed successfully
+                 * @original-code //  Task completed successfully
                  */
-                const status = "✅ Task completed successfully";`,
+                const status = " Task completed successfully";`,
                 
                 `/**
                  * @example-for-rule NO_EMOJI
@@ -3191,9 +3191,9 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
                  * @matches-pattern Memo (U+1F4DD) - use "NOTE" or "TODO"
                  * @description Unicode memo in string
                  * @note CHANGED: เปลี่ยนจาก comment เป็น string literal เพราะ AST ไม่จับ comments
-                 * @original-code // 📝 TODO: Implement feature
+                 * @original-code //  TODO: Implement feature
                  */
-                const note = "📝 TODO: Implement feature";`,
+                const note = " TODO: Implement feature";`,
                 
                 `/**
                  * @example-for-rule NO_EMOJI
@@ -3219,7 +3219,7 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
                  * @note CHANGED: เปลี่ยนจาก block comment เป็น string literal เพราะ AST ไม่จับ comments
                  * @original-code function calculate() with fire emoji in comment
                  */
-                const msg = "🔥 Hot path optimization";`
+                const msg = " Hot path optimization";`
             ],
             th: [
                 `/**
