@@ -4,7 +4,7 @@
 // @license MIT
 // @contact chahuadev@gmail.com
 // ======================================================================
-// ChahuadevR Engine Gra        console.log(`Match: ${result.operator === test.expected ? 'PASS' : 'FAIL'}`);mar Dictionary - Core Language Support
+// ChahuadevR Engine Grammar Dictionary - Core Language Support
 // ============================================================================
 // Tokenizer Integration Helper
 // ตัวอย่างการใช้ Grammar Index System ใน Tokenizer/Parser
@@ -28,7 +28,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// 🔧 Load Configuration (NO MORE HARDCODE!)
+// Load Configuration (NO MORE HARDCODE!)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const CONFIG_PATH = join(__dirname, 'parser-config.json');
@@ -317,7 +317,7 @@ export function exampleOperatorLongestMatch() {
         console.log(`Input: "${test.input}" at position ${test.position}`);
         console.log(`Expected: "${test.expected}"`);
         console.log(`Found: "${result.operator}"`);
-        console.log(`Match: ${result.operator === test.expected ? '' : ''}`);
+        console.log(`Match: ${result.operator === test.expected ? 'PASS' : 'FAIL'}`);
         console.log(`Data:`, result.data);
         console.log();
     }

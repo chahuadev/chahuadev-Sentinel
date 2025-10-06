@@ -13,6 +13,9 @@ import { JAVASCRIPT_GRAMMAR } from '../javascript.grammar.js';
 import { TYPESCRIPT_GRAMMAR } from '../typescript.grammar.js';
 import { JAVA_GRAMMAR } from '../java.grammar.js';
 import { JSX_GRAMMAR } from '../jsx.grammar.js';
+import config from './parser-config.json' assert { type: 'json' };
+
+const VALIDATION_CONFIG = config.validationReporting;
 
 // ============================================================================
 // VALIDATION RULES
@@ -73,7 +76,7 @@ class ValidationError {
     }
 
     toString() {
-        const icon = this.severity === 'error' ? '' : this.severity === 'warning' ? '' : 'ℹ';
+        const icon = this.severity === 'error' ? 'ERROR' : this.severity === 'warning' ? 'WARN' : 'INFO';
         return `${icon} [${this.grammar}] "${this.keyword}" ${this.field ? `(${this.field})` : ''}: ${this.message}`;
     }
 }
@@ -307,19 +310,19 @@ class GrammarValidator {
         // Print warnings
         if (this.warnings.length > 0) {
             console.log('  WARNINGS:');
-            this.warnings.slice(0, 20).forEach(warning => console.log(`   ${warning.toString()}`));
-            if (this.warnings.length > 20) {
-                console.log(`   ... and ${this.warnings.length - 20} more warnings`);
+            this.warnings.slice(0, VALIDATION_CONFIG.maxWarnings).forEach(warning => console.log(`   ${warning.toString()}`));
+            if (this.warnings.length > VALIDATION_CONFIG.maxWarnings) {
+                console.log(`   ... and ${this.warnings.length - VALIDATION_CONFIG.maxWarnings} more warnings`);
             }
             console.log('');
         }
 
         // Print info
         if (this.info.length > 0) {
-            console.log('ℹ  INFO:');
-            this.info.slice(0, 10).forEach(info => console.log(`   ${info.toString()}`));
-            if (this.info.length > 10) {
-                console.log(`   ... and ${this.info.length - 10} more info messages`);
+            console.log('   INFO:');
+            this.info.slice(0, VALIDATION_CONFIG.maxInfoMessages).forEach(info => console.log(`   ${info.toString()}`));
+            if (this.info.length > VALIDATION_CONFIG.maxInfoMessages) {
+                console.log(`   ... and ${this.info.length - VALIDATION_CONFIG.maxInfoMessages} more info messages`);
             }
             console.log('');
         }

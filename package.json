@@ -30,7 +30,90 @@
     "onLanguage:typescriptreact"
   ],
   "main": "./src/extension.js",
-
+  "contributes": {
+    "commands": [
+      {
+        "command": "chahuadev-sentinel.scanFile",
+        "title": "Scan Current File",
+        "category": "Chahuadev Sentinel"
+      },
+      {
+        "command": "chahuadev-sentinel.scanWorkspace",
+        "title": "Scan Entire Workspace",
+        "category": "Chahuadev Sentinel"
+      },
+      {
+        "command": "chahuadev-sentinel.toggleRules",
+        "title": "Configure Rules",
+        "category": "Chahuadev Sentinel"
+      }
+    ],
+    "configuration": {
+      "title": "Chahuadev Sentinel",
+      "properties": {
+        "chahuadev-sentinel.enableRealTimeScanning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time scanning while typing"
+        },
+        "chahuadev-sentinel.scanOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically scan files when saved"
+        },
+        "chahuadev-sentinel.notificationStyle": {
+          "type": "string",
+          "enum": [
+            "subtle",
+            "normal",
+            "prominent"
+          ],
+          "default": "subtle",
+          "description": "Notification style (subtle = light blue, non-intrusive)"
+        },
+        "chahuadev-sentinel.rules.noMocking": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enforce NO_MOCKING rule"
+        },
+        "chahuadev-sentinel.rules.noHardcode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enforce NO_HARDCODE rule"
+        },
+        "chahuadev-sentinel.rules.noSilentFallbacks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enforce NO_SILENT_FALLBACKS rule"
+        },
+        "chahuadev-sentinel.rules.noInternalCaching": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enforce NO_INTERNAL_CACHING rule"
+        },
+        "chahuadev-sentinel.rules.noEmoji": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enforce NO_EMOJI rule"
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact",
+          "command": "chahuadev-sentinel.scanFile",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "chahuadev-sentinel.scanWorkspace",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
   "files": [
     "src/",
     "cli.js",
@@ -43,15 +126,24 @@
     "@babel/parser": "^7.28.4",
     "acorn": "^8.15.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^16.18.126",
+    "@types/vscode": "^1.104.0",
+    "typescript": "^4.9.4",
+    "vsce": "^2.15.0"
+  },
   "scripts": {
     "test": "node scan-real-files.js '*'",
     "lint": "node cli.js .",
     "clean-emoji": "node emoji-cleaner.js .",
     "validate-project": "node scan-real-files.js '*' && echo 'Project validation complete'",
     "install-parsers": "npm install acorn @babel/parser",
+    "vscode:prepublish": "npm run compile",
+    "compile": "echo 'No TypeScript compilation needed - using JavaScript'",
+    "watch": "echo 'Watch mode not needed for JavaScript'",
     "vscode-package": "vsce package",
-    "publish-vscode": "vsce publish",
+    "vscode-publish": "vsce publish",
+    "vscode-install": "code --install-extension chahuadev-sentinel-1.0.0.vsix",
     "publish-npm": "npm publish"
   },
   "repository": {

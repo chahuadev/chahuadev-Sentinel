@@ -8,6 +8,10 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 test-sample.js
+test-validator-itself.js
+test-*.js
+**/test-run.log
+EMOJI_DETECTION_LIMITATIONS.md
 docs/**
 icon.txt
 node_modules/**

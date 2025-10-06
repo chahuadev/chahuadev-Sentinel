@@ -25,7 +25,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// 🔧 Load Configuration (NO MORE HARDCODE!)
+// Load Configuration (NO MORE HARDCODE!)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const CONFIG_PATH = join(__dirname, 'parser-config.json');

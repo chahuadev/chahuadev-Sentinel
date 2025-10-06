@@ -40,17 +40,60 @@
         "maxDepth": 50,
         "circuitBreakerThreshold": 10000,
         "enableLogging": true,
-        "skipNodeTypes": ["Comment", "Directive"]
+        "skipNodeTypes": ["Comment", "Directive"],
+        "maxTokensToCheck": 1000,
+        "maxMatches": 20,
+        "maxEmojiMatches": 10,
+        "minHardcodedNumberThreshold": 10,
+        "maxSourcePreview": 100,
+        "minStringLengthForCredentialCheck": 20,
+        "minStringLengthForHardcodeCheck": 10,
+        "safeNumbers": [0, 1, -1, 2, 3, 4, 5, 10, 100, 200, 404, 500, 1000],
+        "suspiciousNumberThreshold": 1000,
+        "defaultLocation": { "line": 0, "column": 0 },
+        "defaultHealthThresholds": {}
     },
     "ruleChecking": {
         "strictMode": true,
         "enableAllRules": true,
+        "hardcodeIgnoreKeywords": [
+            "unicode", "emoji", "mock", "cache", "error(", 
+            "console.log", "alert(", "throw ", "test", "example",
+            "console", "error", "debug", "localhost", "127.0.0.1"
+        ],
+        "connectionStringKeywords": [
+            "connect", "prod.", "database", ".db.", "localhost", 
+            "127.0.0.1", "server=", "host=", "port=", "user=", 
+            "password=", "pwd=", "uid=", "mongodb://", "mysql://", 
+            "postgres://", "redis://", "jdbc:"
+        ],
         "customPatterns": {
             "emojiRegex": "[\\u{1F600}-\\u{1F64F}]|[\\u{1F300}-\\u{1F5FF}]|[\\u{1F680}-\\u{1F6FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]",
             "credentialKeywords": ["password", "secret", "token", "key", "api_key", "private_key"],
             "connectionStringPatterns": ["mongodb://", "mysql://", "postgresql://", "redis://"],
-            "mockingKeywords": ["mock", "stub", "spy", "spyOn", "mockImplementation", "mockResolvedValue"]
-        }
+            "mockingKeywords": ["mock", "stub", "spy", "spyOn", "mockImplementation", "mockResolvedValue"],
+            "suspiciousNumbers": [30000, 5000, 3000, 1000, 500, 100, 20],
+            "apiKeyMinLength": 8,
+            "hexMinLength": 32,
+            "alphanumericMinLength": 20
+        },
+        "intentAnalysisKeywords": {
+            "security": ["password", "token", "auth", "login", "secret", "key", "encrypt", "decrypt"],
+            "businessLogic": ["calculate", "process", "validate", "format", "transform"],
+            "algorithm": ["sort", "search", "optimize", "iterate", "recursive"],
+            "dataManagement": ["database", "query", "insert", "update", "delete", "select"],
+            "apiIntegration": ["http", "request", "response", "api", "fetch", "axios"]
+        },
+        "hardcodeDetectionPatterns": [
+            { "pattern": "https?:\\/\\/[^\\s\"']+", "flags": "i", "name": "HTTP URL" },
+            { "pattern": "sk_live_[a-zA-Z0-9]+", "flags": "i", "name": "Stripe API Key" },
+            { "pattern": "pk_live_[a-zA-Z0-9]+", "flags": "i", "name": "Stripe Publishable Key" },
+            { "pattern": "jwt[_-]?secret", "flags": "i", "name": "JWT Secret" },
+            { "pattern": "^\"[a-zA-Z0-9.-]+\\.(com|net|org|dev|local|server)\"", "flags": "i", "name": "Domain Name" },
+            { "pattern": "^\"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\"", "flags": "i", "name": "IP Address" },
+            { "pattern": "\"[^\"]*\\.db\\.[^\"]*\"", "flags": "i", "name": "Database Server" },
+            { "pattern": "\"admin\"", "flags": "i", "name": "Hardcoded Admin Credential" }
+        ]
     },
     "fuzzySearch": {
         "maxDistance": 3,

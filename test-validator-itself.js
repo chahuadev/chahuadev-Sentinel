@@ -12,11 +12,21 @@ const __dirname = dirname(__filename);
 
 // --- Logger Setup ---
 const logFilePath = path.join(process.cwd(), 'test-run.log');
+console.log(`📝 Initializing log system at: ${logFilePath}`);
+
 // ลบไฟล์ log เก่าทิ้งเมื่อเริ่มรันเทสใหม่
 if (fs.existsSync(logFilePath)) {
     fs.unlinkSync(logFilePath);
+    console.log('🗑️ Removed old log file');
 }
+
+// สร้าง log stream
 const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+
+// เขียน header ลงไฟล์ทันที
+const initMessage = `=== CHAHUADEV SENTINEL META-TEST LOG ===\nStarted at: ${new Date().toISOString()}\nNode version: ${process.version}\nPlatform: ${process.platform}\nCWD: ${process.cwd()}\n`;
+fs.writeFileSync(logFilePath, initMessage);
+console.log('📄 Log file initialized');
 
 const stripAnsiCodes = (str) => str.replace(/[\u001b\u009b][[()#;?]?[0-9]{1,4}(?:;[0-9]{0,4})?[0-9A-ORZcf-nqry=><]/g, '');
 
@@ -24,10 +34,16 @@ const log = (message, level = 'INFO') => {
     // แสดงผลบน Console เหมือนเดิม
     console.log(message);
     
-    // บันทึกลงไฟล์ Log
+    // บันทึกลงไฟล์ Log พร้อม force flush
     const timestamp = new Date().toISOString();
     const plainMessage = stripAnsiCodes(String(message)); // แปลงเป็น string เพื่อความปลอดภัย
-    logStream.write(`[${timestamp}] [${level}] ${plainMessage}\n`);
+    const logLine = `[${timestamp}] [${level}] ${plainMessage}\n`;
+    
+    // เขียนแบบ synchronous เพื่อให้แน่ใจว่าถูกบันทึก
+    fs.appendFileSync(logFilePath, logLine);
+    
+    // เขียนแบบ async ด้วยเพื่อ performance (backup)
+    logStream.write(logLine);
 };
 
 // --- Mini Assertion Library (อัปเดตให้ใช้ Logger) ---
@@ -41,10 +57,10 @@ const assert = {
         results.total++;
         if (condition) {
             results.passed++;
-            log(`\x1b[32m  ✓ PASS:\x1b[0m ${description}`);
+            log(`\x1b[32m  PASS:\x1b[0m ${description}`);
         } else {
             results.failed++;
-            log(`\x1b[31m  ✗ FAIL:\x1b[0m ${description}`);
+            log(`\x1b[31m  FAIL:\x1b[0m ${description}`);
             if (expected !== undefined) {
                 log(`\x1b[33m     Expected:\x1b[0m ${JSON.stringify(expected)}`);
                 log(`\x1b[33m     Actual:  \x1b[0m ${JSON.stringify(actual)}`);
@@ -204,13 +220,30 @@ async function runMetaTest() {
 }
 
 // --- Main Execution & Graceful Shutdown ---
-runMetaTest().catch(err => {
-    log('A critical error occurred during the meta-test run:', 'CRITICAL');
+log('🚀 Starting Meta-Test Execution...', 'START');
+log(`📂 Log file will be created at: ${logFilePath}`, 'INFO');
+
+runMetaTest().then(() => {
+    log('✅ Meta-Test completed successfully!', 'SUCCESS');
+}).catch(err => {
+    log('❌ A critical error occurred during the meta-test run:', 'CRITICAL');
     log(err.stack, 'CRITICAL');
     process.exitCode = 1;
 }).finally(() => {
-    log('--- Test run finished. Closing log stream. ---');
+    log('--- Test run finished. Closing log stream. ---', 'SHUTDOWN');
+    
+    // Force flush และปิด stream
     logStream.end();
+    
+    // ตรวจสอบว่าไฟล์ถูกสร้างหรือไม่
+    setTimeout(() => {
+        if (fs.existsSync(logFilePath)) {
+            const size = fs.statSync(logFilePath).size;
+            console.log(`📄 Log file created successfully: ${logFilePath} (${size} bytes)`);
+        } else {
+            console.log(`⚠️ Warning: Log file not found at ${logFilePath}`);
+        }
+    }, 100);
 });
 
 // ดักจับ Error ที่ไม่คาดคิด เพื่อให้แน่ใจว่าจะถูกบันทึกลง Log ก่อนโปรแกรมปิด
