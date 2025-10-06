@@ -2514,11 +2514,20 @@ class ValidationEngine {
 
     async initializeParserStudy() {
         try {
-            const { ParserStudyModule } = require('./grammars/shared/parser-study.js');
-            this.parserStudy = new ParserStudyModule();
-            console.log('SUCCESS: Parser Study Module initialized');
+            // ! UPGRADE: ใช้ Smart Parser Engine แทน ParserStudyModule
+            const { SmartParserEngine } = require('./grammars/shared/smart-parser-engine.js');
+            this.parserStudy = new SmartParserEngine();
+            console.log('SUCCESS: Smart Parser Engine initialized 🚀');
         } catch (error) {
-            console.warn('ERROR: Parser Study Module not available:', error.message);
+            console.warn('ERROR: Smart Parser Engine not available:', error.message);
+            // Fallback to old system if needed
+            try {
+                const { ParserStudyModule } = require('./grammars/shared/parser-study.js');
+                this.parserStudy = new ParserStudyModule();
+                console.log('FALLBACK: Using old Parser Study Module');
+            } catch (fallbackError) {
+                console.warn('ERROR: Both parsers failed:', fallbackError.message);
+            }
         }
     }
 
