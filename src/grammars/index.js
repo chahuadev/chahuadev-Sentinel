@@ -298,6 +298,34 @@ export async function searchAllGrammars(query) {
     };
 }
 
+/**
+ * Create SmartParserEngine with Complete Grammar Setup
+ * @param {Object} absoluteRules - ABSOLUTE_RULES from validator
+ * @returns {Promise<SmartParserEngine>} Configured engine
+ */
+export async function createSmartParserEngine(absoluteRules) {
+    console.log(' Creating SmartParserEngine with complete grammar setup...');
+    
+    // โหลด grammar ทุกภาษาผ่านระบบค้นหา
+    const completeGrammar = await getCompleteGrammar();
+    
+    // รวม ABSOLUTE_RULES กับ grammar ทุกภาษา
+    const combinedGrammar = {
+        ...completeGrammar.javascript,
+        ...completeGrammar.typescript,
+        ...completeGrammar.java,
+        ...completeGrammar.jsx,
+        ...absoluteRules
+    };
+    
+    // สร้าง SmartParserEngine พร้อม combined grammar
+    const { SmartParserEngine } = await import('./shared/smart-parser-engine.js');
+    return new SmartParserEngine(combinedGrammar);
+}
+
 // Re-export search system components
 export { GrammarIndex, Trie, findClosestMatch, levenshteinDistance };
+
+// Re-export SmartParserEngine class for direct use
+export { SmartParserEngine } from './shared/smart-parser-engine.js';
 

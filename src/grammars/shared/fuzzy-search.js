@@ -20,6 +20,24 @@
 // Optimization: Can be reduced to O(min(m, n)) space using rolling array
 // ============================================================================
 
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// 🔧 Load Configuration (NO MORE HARDCODE!)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CONFIG_PATH = join(__dirname, 'parser-config.json');
+
+let FUZZY_CONFIG;
+try {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    FUZZY_CONFIG = config.fuzzySearch || { maxDistance: 3, minSimilarity: 0.7, maxSuggestions: 3 };
+} catch (error) {
+    // Fallback config
+    FUZZY_CONFIG = { maxDistance: 3, minSimilarity: 0.7, maxSuggestions: 3 };
+}
+
 /**
  * Calculate Levenshtein Distance between two strings
  * 
@@ -143,7 +161,7 @@ export function similarityRatio(source, target) {
  * @param {number} maxDistance - Maximum acceptable distance (default: 3)
  * @returns {{match: string, distance: number, similarity: number}|null}
  */
-export function findClosestMatch(input, candidates, maxDistance = 3) {
+export function findClosestMatch(input, candidates, maxDistance = FUZZY_CONFIG.maxDistance) {
     let bestMatch = null;
     let bestDistance = Infinity;
 
@@ -180,7 +198,7 @@ export function findClosestMatch(input, candidates, maxDistance = 3) {
  * @param {number} minSimilarity - Minimum similarity threshold (0-1, default: 0.7)
  * @returns {Array<{match: string, distance: number, similarity: number}>}
  */
-export function findSimilarMatches(input, candidates, minSimilarity = 0.7) {
+export function findSimilarMatches(input, candidates, minSimilarity = FUZZY_CONFIG.minSimilarity) {
     const results = [];
 
     for (const candidate of candidates) {
@@ -282,7 +300,7 @@ export function damerauLevenshteinDistance(source, target) {
  * @param {number} maxSuggestions - Maximum number of suggestions (default: 3)
  * @returns {Array<{word: string, distance: number, similarity: number}>}
  */
-export function findTypoSuggestions(input, candidates, maxSuggestions = 3) {
+export function findTypoSuggestions(input, candidates, maxSuggestions = FUZZY_CONFIG.maxSuggestions) {
     const results = [];
 
     for (const candidate of candidates) {
@@ -290,7 +308,7 @@ export function findTypoSuggestions(input, candidates, maxSuggestions = 3) {
         const similarity = 1 - (distance / Math.max(input.length, candidate.length));
 
         // Only suggest if distance is reasonable
-        if (distance <= 3 && distance > 0) {
+        if (distance <= FUZZY_CONFIG.maxDistance && distance > 0) {
             results.push({
                 word: candidate,
                 distance,

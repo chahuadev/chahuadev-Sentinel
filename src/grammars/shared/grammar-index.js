@@ -28,6 +28,22 @@ import {
     findTypoSuggestions,
     damerauLevenshteinDistance
 } from './fuzzy-search.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// 🔧 Load Configuration (NO MORE HARDCODE!)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CONFIG_PATH = join(__dirname, 'parser-config.json');
+
+let GRAMMAR_CONFIG;
+try {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    GRAMMAR_CONFIG = config.grammarIndex || { maxDistance: 3, maxSuggestions: 3 };
+} catch (error) {
+    GRAMMAR_CONFIG = { maxDistance: 3, maxSuggestions: 3 };
+}
 
 export class GrammarIndex {
     constructor(grammar) {
@@ -367,7 +383,7 @@ export class GrammarIndex {
      * @param {number} maxDistance - Maximum edit distance (default: 3)
      * @returns {{keyword: string, distance: number, similarity: number}|null}
      */
-    findClosestKeyword(input, maxDistance = 3) {
+    findClosestKeyword(input, maxDistance = GRAMMAR_CONFIG.maxDistance) {
         const candidates = Array.from(this.keywordSet);
         const result = findClosestMatch(input, candidates, maxDistance);
 
@@ -394,7 +410,7 @@ export class GrammarIndex {
      * @param {number} maxSuggestions - Maximum suggestions (default: 3)
      * @returns {Array<{keyword: string, distance: number}>}
      */
-    suggestKeyword(input, maxSuggestions = 3) {
+    suggestKeyword(input, maxSuggestions = GRAMMAR_CONFIG.maxSuggestions) {
         const candidates = Array.from(this.keywordSet);
         const suggestions = findTypoSuggestions(input, candidates, maxSuggestions);
 

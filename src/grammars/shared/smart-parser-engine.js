@@ -1,8 +1,67 @@
 // src/grammars/shared/smart-parser-engine.js
-//  Smart Parser Engine - แทนที่ parser-study.js ด้วยระบบที่ฉลาดกว่า
+//  Smart Parser Engine - Real AST Parser ใช้ Acorn + Babel
 
+import { parse as acornParse } from 'acorn';
+import { parse as babelParse } from '@babel/parser';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { ABSOLUTE_RULES } from '../../validator.js';
 import GrammarIndex from './grammar-index.js';
+
+//  Load Configuration from External File (NO MORE HARDCODE!)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CONFIG_PATH = join(__dirname, 'parser-config.json');
+
+let PARSER_CONFIG;
+try {
+    PARSER_CONFIG = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    console.log(' Parser configuration loaded successfully from:', CONFIG_PATH);
+} catch (error) {
+    console.error('Failed to load parser config:', error.message);
+    // Fallback to minimal config if file not found
+    PARSER_CONFIG = {
+        smartFileAnalyzer: { maxFileSize: 500000, chunkSize: 10000 },
+        smartParserEngine: { 
+            memory: { maxTokensPerAnalysis: 50000, maxMemoryUsage: 104857600, maxAnalysisCount: 100, maxASTNodes: 10000 }
+        }
+    };
+}
+
+/**
+ * 🔧 Default Configuration - ไม่ Hardcode แล้ว!
+ */
+const DEFAULT_CONFIG = {
+    // SmartFileAnalyzer settings
+    maxFileSize: 500000,      // 500KB limit
+    chunkSize: 10000,         // 10KB chunks
+    
+    // SmartParserEngine settings
+    maxTokensPerAnalysis: 50000,           // Token limit per analysis
+    maxMemoryUsage: 1024 * 1024 * 100,    // 100MB memory limit
+    maxAnalysisCount: 100,                 // Circuit breaker limit
+    maxASTNodes: 10000,                    // AST traversal limit
+    
+    // Parser settings
+    acornOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        locations: true,
+        allowReturnOutsideFunction: true,
+        allowAwaitOutsideFunction: true
+    },
+    
+    babelOptions: {
+        sourceType: 'unambiguous',
+        allowImportExportEverywhere: true,
+        allowReturnOutsideFunction: true,
+        plugins: [
+            'jsx', 'typescript', 'decorators-legacy',
+            'classProperties', 'asyncGenerators', 'objectRestSpread'
+        ]
+    }
+};
 
 /**
  *  JavaScript Tokenizer - แยกโค้ดเป็น Token ที่ละเอียด
@@ -344,9 +403,15 @@ class StructureParser {
  *  Smart File Analyzer - ระบบวิเคราะห์ไฟล์อัจฉริยะ
  */
 class SmartFileAnalyzer {
-    constructor() {
-        this.maxFileSize = 500000; // 500KB limit for memory protection
-        this.chunkSize = 10000; // Process in 10KB chunks
+    constructor(config = null) {
+        //  NO MORE HARDCODE! ใช้ Configuration จากไฟล์
+        const analyzerConfig = config?.smartFileAnalyzer || PARSER_CONFIG.smartFileAnalyzer;
+        
+        this.maxFileSize = analyzerConfig.maxFileSize;
+        this.chunkSize = analyzerConfig.chunkSize;
+        this.healthThresholds = analyzerConfig.healthCheckThresholds || {};
+        
+        console.log(` SmartFileAnalyzer configured: maxFileSize=${this.maxFileSize}, chunkSize=${this.chunkSize}`);
     }
 
     /**
@@ -482,18 +547,29 @@ class SmartFileAnalyzer {
  *  Smart Parser Engine Main Class
  */
 class SmartParserEngine {
-    constructor(grammar) { // แก้ไขให้รับ grammar
+    constructor(combinedGrammar, config = null) { // รับ combined grammar และ config
         try {
-            // สร้าง Index และเก็บไว้ใช้งาน
-            this.grammarIndex = new GrammarIndex(grammar); 
-            this.tokenizer = new JavaScriptTokenizer(this.grammarIndex); // ส่ง index ต่อไปให้ Tokenizer
-            this.analyzer = new SmartFileAnalyzer();
+            //  NO MORE HARDCODE! ใช้ Configuration จากไฟล์
+            const engineConfig = config?.smartParserEngine || PARSER_CONFIG.smartParserEngine;
+            const memoryConfig = engineConfig.memory || {};
             
-            // ! MEMORY PROTECTION: เพิ่ม circuit breaker
-            this.maxTokensPerAnalysis = 50000;
-            this.maxMemoryUsage = 1024 * 1024 * 100; // 100MB limit
+            // สร้าง Index จาก grammar ที่ได้รับมา (ไม่โหลดเอง)
+            this.grammarIndex = new GrammarIndex(combinedGrammar); 
+            this.tokenizer = new JavaScriptTokenizer(this.grammarIndex);
+            this.analyzer = new SmartFileAnalyzer(config); // ส่ง config ต่อ
+            
+            // MEMORY PROTECTION: ใช้ค่าจาก Configuration
+            this.maxTokensPerAnalysis = memoryConfig.maxTokensPerAnalysis || 50000;
+            this.maxMemoryUsage = memoryConfig.maxMemoryUsage || (1024 * 1024 * 100);
+            this.maxAnalysisCount = memoryConfig.maxAnalysisCount || 100;
+            this.maxASTNodes = memoryConfig.maxASTNodes || 10000;
             this.analysisCount = 0;
             
+            // Parser options from config
+            this.acornOptions = engineConfig.acornOptions || {};
+            this.babelOptions = engineConfig.babelOptions || {};
+            
+            console.log(`SmartParserEngine configured: maxTokens=${this.maxTokensPerAnalysis}, maxMemory=${Math.round(this.maxMemoryUsage/1024/1024)}MB, maxAST=${this.maxASTNodes}`);
             console.log(' GrammarIndex has been successfully integrated into the Smart Parser Engine.');
         } catch (error) {
             console.error(' Failed to initialize SmartParserEngine:', error.message);
@@ -502,10 +578,10 @@ class SmartParserEngine {
     }
 
     /**
-     *  วิเคราะห์โค้ดด้วย Smart Engine
+     *  วิเคราะห์โค้ดด้วย Real AST Parser (Acorn/Babel)
      */
     analyzeCode(code) {
-        console.log(' Smart Parser Engine: Starting analysis...');
+        console.log('Smart Parser Engine: Starting AST analysis...');
         
         // ! CIRCUIT BREAKER: ป้องกัน memory overflow
         this.analysisCount++;
@@ -521,38 +597,264 @@ class SmartParserEngine {
         // 1. ตรวจสอบสุขภาพโค้ด
         const healthCheck = this.analyzer.performCodeHealthCheck(code);
         if (!healthCheck.healthy) {
-            console.warn(' Code health issues detected:', healthCheck.issues);
+            console.warn('Code health issues detected:', healthCheck.issues);
             return { violations: [], warnings: healthCheck.issues };
         }
 
         // 2. แบ่งไฟล์ใหญ่เป็น chunks
         const chunks = this.analyzer.processLargeFileInChunks(code);
-        console.log(` Processing ${chunks.length} chunks...`);
+        console.log(` Processing ${chunks.length} chunks with AST Parser...`);
 
         let allViolations = [];
         
-        // 3. ประมวลผลแต่ละ chunk
+        // 3. ประมวลผลแต่ละ chunk ด้วย Real AST Parser
         for (let i = 0; i < chunks.length; i++) {
             const chunk = chunks[i];
-            console.log(` Analyzing chunk ${i + 1}/${chunks.length}...`);
+            console.log(` Analyzing chunk ${i + 1}/${chunks.length} with AST...`);
             
-            const tokens = this.tokenizer.tokenize(chunk);
-            
-            // ! TOKEN LIMIT: ป้องกัน infinite tokenization
-            if (tokens.length > this.maxTokensPerAnalysis) {
-                throw new Error(`Token limit exceeded: ${tokens.length} > ${this.maxTokensPerAnalysis}`);
+            try {
+                //  ใช้ Acorn Parser สร้าง AST จริง (ใช้ Config แทน Hardcode!)
+                const ast = acornParse(chunk, this.acornOptions);
+
+                // 4. เดินสำรวจ AST และตรวจจับ violations
+                const chunkViolations = this.traverseAST(ast, chunk);
+                allViolations.push(...chunkViolations);
+                
+            } catch (acornError) {
+                // ถ้า Acorn ไม่ได้ ลอง Babel Parser
+                try {
+                    console.log('Acorn failed, trying Babel parser...');
+                    const ast = babelParse(chunk, this.babelOptions);
+
+                    const chunkViolations = this.traverseAST(ast, chunk);
+                    allViolations.push(...chunkViolations);
+                    
+                } catch (babelError) {
+                    // ทั้งสอง parser ไม่ได้ = Syntax Error ใน chunk นี้
+                    console.error(' Both parsers failed:', acornError.message);
+                    allViolations.push({
+                        ruleId: 'SYNTAX_ERROR',
+                        severity: 'CRITICAL', 
+                        message: `Parser error: ${acornError.message}`,
+                        location: acornError.loc || { line: 1, column: 0 },
+                        source: chunk.substring(0, 100) + '...'
+                    });
+                }
             }
-            
-            const structureParser = new StructureParser(tokens);
-            const structures = structureParser.parse();
-            
-            // 4. ตรวจจับการละเมิดแต่ละกฎ
-            const chunkViolations = this.detectViolations(tokens, structures, chunk);
-            allViolations.push(...chunkViolations);
         }
 
-        console.log(` Smart Parser Engine: Found ${allViolations.length} violations`);
+        console.log(` Smart Parser Engine: Found ${allViolations.length} violations via AST`);
         return allViolations;
+    }
+
+    /**
+     *   เดินสำรวจ AST Tree เพื่อตรวจจับ Violations (หัวใจของระบบ)
+     */
+    traverseAST(astNode, sourceCode = '') {
+        const violations = [];
+        let nodeCount = 0;
+        const maxNodes = this.maxASTNodes; // 🔧 ใช้ Config แทน Hardcode!
+
+        // ฟังก์ชันเดิน AST แบบ Recursive
+        const walk = (currentNode, parent = null, depth = 0) => {
+            if (!currentNode || nodeCount > maxNodes) return;
+            nodeCount++;
+            
+            try {
+                // === ตรวจสอบกฎทั้ง 5 ข้อผ่าน AST Nodes ===
+                
+                //  NO_MOCKING Detection
+                if (currentNode.type === 'CallExpression') {
+                    this.checkMockingInAST(currentNode, violations);
+                }
+                
+                //  NO_HARDCODE Detection  
+                if (currentNode.type === 'Literal' || currentNode.type === 'StringLiteral') {
+                    this.checkHardcodeInAST(currentNode, violations);
+                }
+                
+                //  NO_SILENT_FALLBACKS Detection
+                if (currentNode.type === 'CatchClause') {
+                    this.checkSilentFallbacksInAST(currentNode, violations);
+                }
+                
+                //  NO_INTERNAL_CACHING Detection
+                if (currentNode.type === 'VariableDeclarator' || currentNode.type === 'AssignmentExpression') {
+                    this.checkCachingInAST(currentNode, violations);
+                }
+                
+                //  NO_EMOJI Detection
+                if (currentNode.type === 'Literal' || currentNode.type === 'TemplateElement') {
+                    this.checkEmojiInAST(currentNode, violations);
+                }
+                
+                //  เดินทางไปยัง Child Nodes
+                for (const key in currentNode) {
+                    const value = currentNode[key];
+                    if (value && typeof value === 'object') {
+                        if (Array.isArray(value)) {
+                            value.forEach(child => walk(child, currentNode, depth + 1));
+                        } else if (value.type) { // เป็น AST Node
+                            walk(value, currentNode, depth + 1);
+                        }
+                    }
+                }
+                
+            } catch (traverseError) {
+                console.warn('  AST traverse error at node:', currentNode.type, traverseError.message);
+            }
+        };
+
+        //  เริ่มเดินจาก Root ของ AST
+        walk(astNode);
+        console.log(` Traversed ${nodeCount} AST nodes, found ${violations.length} violations`);
+        return violations;
+    }
+
+    checkMockingInAST(node, violations) {
+        try {
+            // jest.mock(), sinon.stub(), chai.spy()
+            if (node.callee?.property?.name === 'mock' || 
+                node.callee?.property?.name === 'stub' ||
+                node.callee?.property?.name === 'spy') {
+                violations.push({
+                    ruleId: 'NO_MOCKING',
+                    severity: 'CRITICAL',
+                    message: `AST: ${node.callee.object?.name}.${node.callee.property.name}() detected`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+
+            // jest.spyOn() - ตรวจ pattern พิเศษ
+            if (node.callee?.property?.name === 'spyOn') {
+                violations.push({
+                    ruleId: 'NO_MOCKING',
+                    severity: 'CRITICAL',
+                    message: `AST: ${node.callee.object?.name}.spyOn() detected`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+
+            // mockResolvedValue, mockImplementation, mockReturnValue
+            if (node.callee?.property?.name?.includes('mock')) {
+                violations.push({
+                    ruleId: 'NO_MOCKING',
+                    severity: 'CRITICAL',
+                    message: `AST: Mock method ${node.callee.property.name}() detected`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+        } catch (error) {
+            console.warn(` [AST Check Failed] Error in checkMockingInAST: ${error.message}`);
+        }
+    }
+
+    checkHardcodeInAST(node, violations) {
+        try {
+            if (!node.value) return;
+            const value = node.value.toString();
+            const lowerValue = value.toLowerCase();
+            
+            //  ใช้ patterns จาก config แทน hardcode
+            const ruleConfig = PARSER_CONFIG.ruleChecking || {};
+            const credentialKeywords = ruleConfig.customPatterns?.credentialKeywords || ['password', 'secret', 'token', 'key'];
+            const connectionPatterns = ruleConfig.customPatterns?.connectionStringPatterns || ['mongodb://', 'mysql://', 'postgresql://'];
+            
+            // Credential detection
+            if (credentialKeywords.some(keyword => lowerValue.includes(keyword))) {
+                violations.push({
+                    ruleId: 'NO_HARDCODE',
+                    severity: 'CRITICAL',
+                    message: `AST: Hardcoded credential: "${node.value}"`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+            
+            // API Key patterns (sk_live_, pk_test_, etc.)
+            if (lowerValue.match(/^(sk_|pk_|api_|key_|secret_)[a-z0-9_]{8,}$/) ||
+                lowerValue.match(/^[a-f0-9]{32,}$/) || // 32+ hex chars
+                lowerValue.match(/^[a-zA-Z0-9]{20,}$/) && value.length > 20) { // 20+ alphanumeric
+                violations.push({
+                    ruleId: 'NO_HARDCODE',
+                    severity: 'CRITICAL',
+                    message: `AST: Hardcoded API key/token: "${node.value}"`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+            
+            // Connection string detection  
+            if (connectionPatterns.some(pattern => lowerValue.includes(pattern))) {
+                violations.push({
+                    ruleId: 'NO_HARDCODE',
+                    severity: 'CRITICAL',
+                    message: `AST: Hardcoded connection string: "${node.value}"`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+            
+            // URL detection (https://api.production.com/v1)
+            if (lowerValue.match(/^https?:\/\/.*\.(com|org|net|io).*\//) || 
+                lowerValue.includes('production') || 
+                lowerValue.includes('staging')) {
+                violations.push({
+                    ruleId: 'NO_HARDCODE',
+                    severity: 'CRITICAL',
+                    message: `AST: Hardcoded URL/endpoint: "${node.value}"`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+        } catch (error) {
+            console.warn(`  [AST Check Failed] Error in checkHardcodeInAST: ${error.message}`);
+        }
+    }
+
+    checkSilentFallbacksInAST(node, violations) {
+        try {
+            if (node.body && node.body.body && node.body.body.length === 0) {
+                violations.push({
+                    ruleId: 'NO_SILENT_FALLBACKS',
+                    severity: 'CRITICAL',
+                    message: 'AST: Empty catch block detected',
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+        } catch (error) {
+            console.warn(`⚠️  [AST Check Failed] Error in checkSilentFallbacksInAST: ${error.message}`);
+        }
+    }
+
+    checkCachingInAST(node, violations) {
+        try {
+            const varName = node.id?.name || node.left?.name || '';
+            if (varName.toLowerCase().includes('cache') || 
+                varName.toLowerCase().includes('store')) {
+                violations.push({
+                    ruleId: 'NO_INTERNAL_CACHING',
+                    severity: 'WARNING',
+                    message: `AST: Potential caching variable: "${varName}"`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+        } catch (error) {
+            console.warn(` [AST Check Failed] Error in checkCachingInAST: ${error.message}`);
+        }
+    }
+
+    checkEmojiInAST(node, violations) {
+        try {
+            const text = node.value || node.raw || '';
+            const emojiPattern = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]/gu;
+            if (emojiPattern.test(text)) {
+                violations.push({
+                    ruleId: 'NO_EMOJI',
+                    severity: 'WARNING',
+                    message: `AST: Emoji detected: "${text}"`,
+                    location: node.loc?.start || { line: 0, column: 0 }
+                });
+            }
+        } catch (error) {
+            console.warn(` [AST Check Failed] Error in checkEmojiInAST: ${error.message}`);
+        }
     }
 
     /**

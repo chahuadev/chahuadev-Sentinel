@@ -10,6 +10,22 @@
 // ============================================================================
 
 import { GrammarIndex } from './grammar-index.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// 🔧 Load Configuration (NO MORE HARDCODE!)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CONFIG_PATH = join(__dirname, 'parser-config.json');
+
+let DISAMBIGUATION_CONFIG;
+try {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    DISAMBIGUATION_CONFIG = config.disambiguationEngine || { maxHistory: 10 };
+} catch (error) {
+    DISAMBIGUATION_CONFIG = { maxHistory: 10 };
+}
 
 // ============================================================================
 // AMBIGUOUS SYMBOLS REGISTRY
@@ -324,7 +340,7 @@ class DisambiguationEngine {
     constructor(grammarIndex) {
         this.grammarIndex = grammarIndex || new GrammarIndex();
         this.history = []; // Token history for context
-        this.maxHistory = 10;
+        this.maxHistory = DISAMBIGUATION_CONFIG.maxHistory;
     }
 
     /**

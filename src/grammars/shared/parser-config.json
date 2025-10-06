@@ -1,0 +1,80 @@
+{
+    "smartFileAnalyzer": {
+        "maxFileSize": 500000,
+        "chunkSize": 10000,
+        "healthCheckThresholds": {
+            "maxBraceImbalance": 10,
+            "maxNestingDepth": 20,
+            "maxLineLength": 1000
+        }
+    },
+    "smartParserEngine": {
+        "memory": {
+            "maxTokensPerAnalysis": 50000,
+            "maxMemoryUsage": 104857600,
+            "maxAnalysisCount": 100,
+            "maxASTNodes": 10000
+        },
+        "acornOptions": {
+            "ecmaVersion": "latest",
+            "sourceType": "module", 
+            "locations": true,
+            "allowReturnOutsideFunction": true,
+            "allowAwaitOutsideFunction": true
+        },
+        "babelOptions": {
+            "sourceType": "unambiguous",
+            "allowImportExportEverywhere": true,
+            "allowReturnOutsideFunction": true,
+            "plugins": [
+                "jsx", 
+                "typescript", 
+                "decorators-legacy",
+                "classProperties", 
+                "asyncGenerators", 
+                "objectRestSpread"
+            ]
+        }
+    },
+    "astTraversal": {
+        "maxDepth": 50,
+        "circuitBreakerThreshold": 10000,
+        "enableLogging": true,
+        "skipNodeTypes": ["Comment", "Directive"]
+    },
+    "ruleChecking": {
+        "strictMode": true,
+        "enableAllRules": true,
+        "customPatterns": {
+            "emojiRegex": "[\\u{1F600}-\\u{1F64F}]|[\\u{1F300}-\\u{1F5FF}]|[\\u{1F680}-\\u{1F6FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]",
+            "credentialKeywords": ["password", "secret", "token", "key", "api_key", "private_key"],
+            "connectionStringPatterns": ["mongodb://", "mysql://", "postgresql://", "redis://"],
+            "mockingKeywords": ["mock", "stub", "spy", "spyOn", "mockImplementation", "mockResolvedValue"]
+        }
+    },
+    "fuzzySearch": {
+        "maxDistance": 3,
+        "minSimilarity": 0.7,
+        "maxSuggestions": 3
+    },
+    "tokenizer": {
+        "benchmarkIterations": 1000
+    },
+    "performanceBenchmarks": {
+        "defaultSize": 100,
+        "defaultIterations": 100,
+        "intensiveIterations": 10000
+    },
+    "grammarIndex": {
+        "maxDistance": 3,
+        "maxSuggestions": 3
+    },
+    "disambiguationEngine": {
+        "maxHistory": 10
+    },
+    "validationReporting": {
+        "maxWarnings": 20,
+        "maxInfoMessages": 10,
+        "useTextSymbols": true
+    }
+}

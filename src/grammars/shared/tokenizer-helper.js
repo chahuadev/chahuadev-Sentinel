@@ -4,7 +4,7 @@
 // @license MIT
 // @contact chahuadev@gmail.com
 // ======================================================================
-// ChahuadevR Engine Grammar Dictionary - Core Language Support
+// ChahuadevR Engine Gra        console.log(`Match: ${result.operator === test.expected ? 'PASS' : 'FAIL'}`);mar Dictionary - Core Language Support
 // ============================================================================
 // Tokenizer Integration Helper
 // ตัวอย่างการใช้ Grammar Index System ใน Tokenizer/Parser
@@ -24,6 +24,22 @@
 // ============================================================================
 
 import { GrammarIndex } from './grammar-index.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// 🔧 Load Configuration (NO MORE HARDCODE!)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CONFIG_PATH = join(__dirname, 'parser-config.json');
+
+let TOKENIZER_CONFIG;
+try {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    TOKENIZER_CONFIG = config.tokenizer || { benchmarkIterations: 1000 };
+} catch (error) {
+    TOKENIZER_CONFIG = { benchmarkIterations: 1000 };
+}
 
 /**
  * Example Tokenizer using Grammar Index
@@ -219,7 +235,7 @@ export class ExampleTokenizer {
 /**
  * Compare OLD vs NEW tokenizer performance
  */
-export function benchmarkTokenizer(grammar, testCode, iterations = 1000) {
+export function benchmarkTokenizer(grammar, testCode, iterations = TOKENIZER_CONFIG.benchmarkIterations) {
     console.log('='.repeat(80));
     console.log('TOKENIZER PERFORMANCE BENCHMARK');
     console.log('='.repeat(80));

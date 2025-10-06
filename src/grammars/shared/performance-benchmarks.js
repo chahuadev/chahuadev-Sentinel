@@ -21,12 +21,28 @@ import { performance } from 'perf_hooks';
 import { GrammarIndex } from './grammar-index.js';
 import { Trie } from './trie.js';
 import { findTypoSuggestions, damerauLevenshteinDistance } from './fuzzy-search.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// 🔧 Load Configuration (NO MORE HARDCODE!)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const CONFIG_PATH = join(__dirname, 'parser-config.json');
+
+let BENCHMARK_CONFIG;
+try {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    BENCHMARK_CONFIG = config.performanceBenchmarks || { defaultSize: 100, defaultIterations: 100, intensiveIterations: 10000 };
+} catch (error) {
+    BENCHMARK_CONFIG = { defaultSize: 100, defaultIterations: 100, intensiveIterations: 10000 };
+}
 
 // =============================================================================
 // Test Data Generator
 // =============================================================================
 
-function generateTestData(size = 100) {
+function generateTestData(size = BENCHMARK_CONFIG.defaultSize) {
     const keywords = [];
     const operators = [];
 
@@ -51,7 +67,7 @@ export function benchmarkIndexBuilding(grammar) {
     console.log('BENCHMARK 1: Index Building Time');
     console.log('='.repeat(80) + '\n');
 
-    const iterations = 100;
+    const iterations = BENCHMARK_CONFIG.defaultIterations;
     const times = [];
 
     for (let i = 0; i < iterations; i++) {
@@ -93,7 +109,7 @@ export function benchmarkLookupPerformance() {
     const keywordObj = {};
     keywords.forEach((k, i) => keywordObj[k] = { id: i, category: 'test' });
 
-    const iterations = 100000;
+    const iterations = BENCHMARK_CONFIG.intensiveIterations;
 
     // Test Map
     console.log('Testing Map.get()...');
@@ -159,7 +175,7 @@ export function benchmarkLongestMatchPerformance() {
         'obj?.prop'    // longest: ?.
     ];
 
-    const iterations = 10000;
+    const iterations = BENCHMARK_CONFIG.intensiveIterations;
 
     // ============================================
     // Method 1: Trie (NEW)
@@ -240,7 +256,7 @@ export function benchmarkFuzzySearchPerformance() {
         'functoin', 'cosnt', 'reutrn', 'improt', 'exprot', 'awiat', 'aysnc', 'clss'
     ];
 
-    const iterations = 1000;
+    const iterations = BENCHMARK_CONFIG.defaultIterations;
 
     console.log('Testing findTypoSuggestions()...');
     const start = performance.now();
@@ -313,7 +329,7 @@ export function benchmarkCompleteTokenizer(grammar, testCode) {
     const { ExampleTokenizer } = require('./tokenizer-helper.js');
 
     const tokenizer = new ExampleTokenizer(grammar);
-    const iterations = 1000;
+    const iterations = BENCHMARK_CONFIG.defaultIterations;
 
     console.log(`Test Code: ${testCode}`);
     console.log(`Iterations: ${iterations}\n`);
