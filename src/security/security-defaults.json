@@ -1,0 +1,70 @@
+{
+  "SECURITY_CONFIG": {
+    "MAX_PATH_LENGTH": 260,
+    "FORBIDDEN_PATHS_PATTERNS": [
+      "^[A-Z]:\\\\Windows\\\\",
+      "^[A-Z]:\\\\Program Files\\\\",
+      "^[A-Z]:\\\\Program Files \\(x86\\)\\\\",
+      "^[A-Z]:\\\\System Volume Information\\\\",
+      "^/etc/",
+      "^/usr/bin/",
+      "^/bin/",
+      "^/sbin/", 
+      "^/root/",
+      "^/boot/",
+      "^/proc/",
+      "^/sys/",
+      "^/System/",
+      "^/Library/",
+      "node_modules",
+      "\\.git",
+      "\\.ssh",
+      "\\.aws",
+      "\\.config"
+    ],
+    "MAX_FILE_SIZE": 52428800,
+    "ALLOWED_EXTENSIONS": [
+      ".js", ".ts", ".jsx", ".tsx", ".json", ".html", ".css", ".scss", ".sass",
+      ".py", ".java", ".cpp", ".c", ".cs", ".php", ".go", ".rs", ".rb", ".pl", 
+      ".sh", ".yml", ".yaml", ".xml", ".md", ".sql", ".lua", ".swift", ".kt"
+    ],
+    "MAX_PROCESSING_TIME": 30000,
+    "MAX_FILES_BATCH": 100,
+    "ENABLE_REDOS_PROTECTION": true,
+    "MAX_REGEX_EXECUTION_TIME": 1000,
+    "ALLOW_SYMLINKS": false,
+    "MAX_SYMLINK_DEPTH": 3,
+    "DANGEROUS_CHARS_PATTERN": "[<>\"|?*\\x00-\\x1f]",
+    "PATH_TRAVERSAL_PATTERN": "\\.\\.[\\\\/]",
+    "MAX_REQUESTS_PER_MINUTE": 60,
+    "ENABLE_SECURITY_LOGGING": true,
+    "LOG_SENSITIVE_DATA": false
+  },
+  "securityLevels": {
+    "MINIMAL": {
+      "fileValidation": false,
+      "pathValidation": false,
+      "regexProtection": false,
+      "auditLogging": false
+    },
+    "STANDARD": {
+      "fileValidation": true,
+      "pathValidation": true,
+      "regexProtection": false,
+      "auditLogging": true
+    },
+    "FORTRESS": {
+      "fileValidation": true,
+      "pathValidation": true,
+      "regexProtection": true,
+      "auditLogging": true
+    }
+  },
+  "errorMessages": {
+    "pathTraversal": "Path traversal attempt detected",
+    "fileTooBig": "File size exceeds security limit",
+    "invalidExtension": "File extension not allowed",
+    "regexTimeout": "Regular expression execution timeout",
+    "blockedPattern": "Blocked security pattern detected"
+  }
+}

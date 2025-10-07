@@ -29,7 +29,7 @@
     "onLanguage:javascriptreact",
     "onLanguage:typescriptreact"
   ],
-  "main": "./src/extension.js",
+  "main": "./extension-wrapper.js",
   "contributes": {
     "commands": [
       {
@@ -100,6 +100,41 @@
           "type": "boolean",
           "default": true,
           "description": "Enforce NO_EMOJI rule"
+        },
+        "chahuadev-sentinel.securityLevel": {
+          "type": "string",
+          "enum": [
+            "MINIMAL",
+            "STANDARD",
+            "FORTRESS"
+          ],
+          "default": "FORTRESS",
+          "description": "Security protection level"
+        },
+        "chahuadev-sentinel.scanPatterns.include": {
+          "type": "string",
+          "default": "**/*.{js,ts,jsx,tsx}",
+          "description": "File patterns to include in scans"
+        },
+        "chahuadev-sentinel.scanPatterns.exclude": {
+          "type": "string",
+          "default": "**/node_modules/**",
+          "description": "File patterns to exclude from scans"
+        },
+        "chahuadev-sentinel.scanThrottleMs": {
+          "type": "number",
+          "default": 500,
+          "description": "Throttle delay for real-time scanning (milliseconds)"
+        },
+        "chahuadev-sentinel.ui.highlightLength": {
+          "type": "number",
+          "default": 15,
+          "description": "Length of code to highlight for violations"
+        },
+        "chahuadev-sentinel.statusMessageDurationMs": {
+          "type": "number",
+          "default": 3000,
+          "description": "Duration to show status bar messages (milliseconds)"
         }
       }
     },
@@ -153,10 +188,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/chahuadev/chahuadev-vscode-extension.git"
+    "url": "https://github.com/chahuadev/chahuadev-sentinel.git"
   },
   "bugs": {
-    "url": "https://github.com/chahuadev/chahuadev-vscode-extension/issues"
+    "url": "https://github.com/chahuadev/chahuadev-sentinel/issues"
   },
-  "homepage": "https://github.com/chahuadev/chahuadev-vscode-extension#readme"
+  "homepage": "https://github.com/chahuadev/chahuadev-sentinel#readme"
 }

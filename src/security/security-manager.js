@@ -1,8 +1,10 @@
-// ======================================================================
-// Chahuadev Sentinel Security Manager
-// ======================================================================
-// @author บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// @version 1.0.0
+//======================================================================
+// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// Version: 1.0.0
+// License: MIT
+// Contact: chahuadev@gmail.com
+//======================================================================
 // @description Advanced security management system for VS Code extension
 // @security_level FORTRESS - Maximum Security Protection
 // ======================================================================
@@ -10,6 +12,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import securityDefaults from './security-defaults.json' assert { type: 'json' };
 
 // ======================================================================
 // Security Error Classes - Custom Security Exceptions
@@ -72,76 +75,16 @@ class InputValidationError extends SecurityError {
 // ======================================================================
 // Security Configuration - Fortress Level Settings
 // ======================================================================
-
-const SECURITY_CONFIG = {
-    // Path Security
-    MAX_PATH_LENGTH: 260,
-    FORBIDDEN_PATHS: [
-        // Windows System Directories
-        /^[A-Z]:\\Windows\\/i,
-        /^[A-Z]:\\Program Files\\/i,
-        /^[A-Z]:\\Program Files \(x86\)\\/i,
-        /^[A-Z]:\\System Volume Information\\/i,
-        // Linux/Unix System Directories  
-        /^\/etc\//,
-        /^\/usr\/bin\//,
-        /^\/bin\//,
-        /^\/sbin\//,
-        /^\/root\//,
-        /^\/boot\//,
-        /^\/proc\//,
-        /^\/sys\//,
-        // macOS System Directories
-        /^\/System\//,
-        /^\/Library\//,
-        // Common Sensitive Directories
-        /node_modules/,
-        /\.git/,
-        /\.ssh/,
-        /\.aws/,
-        /\.config/
-    ],
-    
-    // File Security
-    MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
-    ALLOWED_EXTENSIONS: [
-        '.js', '.ts', '.jsx', '.tsx', '.json', '.html', '.css', '.scss', '.sass',
-        '.py', '.java', '.cpp', '.c', '.cs', '.php', '.go', '.rs', '.rb', '.pl',
-        '.sh', '.yml', '.yaml', '.xml', '.md', '.sql', '.lua', '.swift', '.kt'
-    ],
-    
-    // Performance Security
-    MAX_PROCESSING_TIME: 30000, // 30 seconds
-    MAX_FILES_BATCH: 100,
-    
-    // ReDoS Protection
-    ENABLE_REDOS_PROTECTION: true,
-    MAX_REGEX_EXECUTION_TIME: 1000, // 1 second
-    
-    // Symlink Security
-    ALLOW_SYMLINKS: false,
-    MAX_SYMLINK_DEPTH: 3,
-    
-    // Input Validation
-    DANGEROUS_CHARS_REGEX: /[<>"|?*\x00-\x1f]/,
-    PATH_TRAVERSAL_REGEX: /\.\.[\\\/]/,
-    
-    // Rate Limiting
-    MAX_REQUESTS_PER_MINUTE: 60,
-    
-    // Logging Security
-    ENABLE_SECURITY_LOGGING: true,
-    LOG_SENSITIVE_DATA: false
-};
-
-// ======================================================================
 // Security Manager Class - Main Security Controller
 // ======================================================================
 
 class SecurityManager {
     constructor(options = {}) {
+        // Load configuration from external file instead of hardcoded values
+        const baseConfig = this.convertPattersToRegex(securityDefaults.SECURITY_CONFIG);
+        
         // Merge configurations with deep merge for nested objects
-        this.config = this.deepMergeConfig(SECURITY_CONFIG, options);
+        this.config = this.deepMergeConfig(baseConfig, options);
         this.securityLog = [];
         this.requestCounts = new Map();
         this.workingDirectory = process.cwd();
@@ -157,6 +100,36 @@ class SecurityManager {
             configLevel: this.config.SECURITY_LEVEL || 'FORTRESS',
             workingDir: this.workingDirectory
         });
+    }
+
+    /**
+     * Convert string patterns to RegExp objects for runtime use
+     */
+    convertPattersToRegex(config) {
+        const converted = { ...config };
+        
+        // Convert forbidden paths patterns to RegExp objects
+        if (config.FORBIDDEN_PATHS_PATTERNS) {
+            converted.FORBIDDEN_PATHS = config.FORBIDDEN_PATHS_PATTERNS.map(pattern => {
+                // Handle Windows paths with case insensitive flag
+                const flags = pattern.includes('[A-Z]') ? 'i' : '';
+                return new RegExp(pattern, flags);
+            });
+            delete converted.FORBIDDEN_PATHS_PATTERNS;
+        }
+        
+        // Convert other string patterns to RegExp
+        if (config.DANGEROUS_CHARS_PATTERN) {
+            converted.DANGEROUS_CHARS_REGEX = new RegExp(config.DANGEROUS_CHARS_PATTERN);
+            delete converted.DANGEROUS_CHARS_PATTERN;
+        }
+        
+        if (config.PATH_TRAVERSAL_PATTERN) {
+            converted.PATH_TRAVERSAL_REGEX = new RegExp(config.PATH_TRAVERSAL_PATTERN);
+            delete converted.PATH_TRAVERSAL_PATTERN;
+        }
+        
+        return converted;
     }
     
     /**

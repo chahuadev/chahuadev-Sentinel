@@ -1,9 +1,10 @@
-// ======================================================================
-// @author บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// @version 1.0.0
-// @license MIT
-// @contact chahuadev@gmail.com
-// ======================================================================
+//======================================================================
+// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// Version: 1.0.0
+// License: MIT
+// Contact: chahuadev@gmail.com
+//======================================================================
 // ChahuadevR Engine Grammar Dictionary - Core Language Support
 // - Java Language Specification (JLS) SE 21
 // ============================================================================

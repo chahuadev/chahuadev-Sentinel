@@ -1,8 +1,10 @@
-// ======================================================================
-// Chahuadev Sentinel Security Middleware
-// ======================================================================
-// @author บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// @version 1.0.0
+//======================================================================
+// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// Version: 1.0.0
+// License: MIT
+// Contact: chahuadev@gmail.com
+//======================================================================
 // @description Security middleware for VS Code extension operations
 // ======================================================================
 

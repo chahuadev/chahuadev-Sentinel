@@ -1,0 +1,54 @@
+{
+  "messages": {
+    "cliInitialized": "Chahuadev Sentinel CLI initialized",
+    "initializationFailed": "Failed to initialize:",
+    "errorScanning": "Error scanning",
+    "noViolations": "No violations",
+    "scanningFiles": "Scanning files...", 
+    "summaryHeader": "Summary:",
+    "filesScanned": "Files scanned:",
+    "totalViolations": "Total violations:",
+    "qualityCheckFailed": "Quality check failed. Please fix the violations above.",
+    "qualityCheckPassed": "All files passed quality check!",
+    "cliExecutionFailed": "CLI execution failed:",
+    "fileNotFound": "File not found:",
+    "noFilesFound": "No files found matching pattern:",
+    "fatalError": "Fatal error:"
+  },
+  "severityLabels": {
+    "CRITICAL": "[CRITICAL]",
+    "ERROR": "[ERROR]", 
+    "WARNING": "[WARNING]",
+    "INFO": "[INFO]"
+  },
+  "defaultPatterns": {
+    "include": "**/*.{js,ts,jsx,tsx}",
+    "exclude": "**/node_modules/**"
+  },
+  "projectInfo": {
+    "repository": "https://github.com/chahuadev/chahuadev-Sentinel.git",
+    "author": "บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)",
+    "version": "1.0.0", 
+    "license": "MIT",
+    "contact": "chahuadev@gmail.com"
+  },
+  "helpText": {
+    "header": "Chahuadev Sentinel - Code Quality Checker",
+    "usage": "Usage: chahuadev-sentinel [options] <files...>",
+    "options": [
+      "--help, -h          Show this help message",
+      "--version, -v       Show version number", 
+      "--quiet, -q         Show only errors and summary",
+      "--verbose           Show detailed output",
+      "--json              Output results in JSON format",
+      "--config <file>     Use custom configuration file"
+    ],
+    "examples": [
+      "chahuadev-sentinel src/                    # Scan src directory",
+      "chahuadev-sentinel **/*.js                 # Scan all JS files", 
+      "chahuadev-sentinel --json src/ > report.json    # JSON output",
+      "chahuadev-sentinel --quiet **/*.ts         # Quiet mode"
+    ],
+    "footer": "For more information, visit: https://github.com/chahuadev/chahuadev-vscode-extension"
+  }
+}

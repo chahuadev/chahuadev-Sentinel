@@ -1,4 +1,10 @@
-// src/grammars/shared/constants.js
+//======================================================================
+// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// Version: 1.0.0
+// License: MIT
+// Contact: chahuadev@gmail.com
+//======================================================================
 // ! NO_HARDCODE: Central repository for all rule IDs and constant values
 // ! ป้องกันการพิมพ์ผิด ruleId และจัดการ constants จากที่เดียว
 

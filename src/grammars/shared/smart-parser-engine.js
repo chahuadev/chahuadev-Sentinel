@@ -1,4 +1,10 @@
-// src/grammars/shared/smart-parser-engine.js
+//======================================================================
+// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// Version: 1.0.0
+// License: MIT
+// Contact: chahuadev@gmail.com
+//======================================================================
 //  Smart Parser Engine - Real AST Parser ใช้ Acorn + Babel
 
 import { RULE_IDS, ERROR_TYPES, SEVERITY_LEVELS, TOKEN_TYPES, DEFAULT_LOCATION } from './constants.js';
@@ -544,7 +550,8 @@ class SmartParserEngine {
                 throw new Error('SmartParserEngine requires valid configuration with smartParserEngine section');
             }
             
-            // Store engine config for later use
+            // Store configs for later use (NO_HARDCODE compliance)
+            this.config = actualConfig; // Store full config for accessing patterns
             this.engineConfig = engineConfig;
             
             const memoryConfig = engineConfig.memory;
@@ -1120,12 +1127,28 @@ class SmartParserEngine {
 
     checkEmojiInAST(node, violations) {
         try {
-            const text = node.value || node.raw || '';
+            const rawText = node.value || node.raw || '';
+            
+            // Convert to string to handle numbers and other types
+            const text = String(rawText);
+            
+            // Skip non-string content for emoji checking
+            if (!text || typeof rawText !== 'string') {
+                return; // Only check actual string literals
+            }
+            
             // ! KNOWN LIMITATION: AST-based emoji detection จับได้เฉพาะ STRING LITERALS เท่านั้น
             // ! COMMENTS จะไม่เข้า AST parsing (Acorn/Babel ไม่ include comments โดยปกติ)
             // ! ดังนั้น emoji ใน comments จึงต้องพึ่ง token-based detection แต่ยังไม่ implement
             // ! วิธีแก้: ใช้ string literals สำหรับ test cases แทน comments
-            const emojiPattern = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{2702}-\u{27B0}]|[\u{2194}-\u{21AA}]|[\u{231A}-\u{23FA}]|[\u{FE00}-\u{FE0F}]/gu;
+            
+            // Read emoji pattern from configuration (NO_HARDCODE compliance)
+            const emojiRegexStr = this.config?.ruleChecking?.customPatterns?.emojiRegex || '';
+            if (!emojiRegexStr) {
+                return; // Skip if no configuration
+            }
+            
+            const emojiPattern = new RegExp(emojiRegexStr, 'gu');
             
             emojiPattern.lastIndex = 0; // Reset regex state
             let match;

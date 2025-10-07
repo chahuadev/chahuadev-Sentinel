@@ -1,7 +1,10 @@
-// ======================================================================
-// @author บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Rules Validator - Grammar-Based Context-Aware Analysis
-// ======================================================================
+//======================================================================
+// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// Version: 1.0.0
+// License: MIT
+// Contact: chahuadev@gmail.com
+//======================================================================
 
 // ======================================================================
 // ABSOLUTE RULES CONFIGURATION
@@ -2916,13 +2919,13 @@ SEPARATION OF CONCERNS:
 10) FONT DEPENDENCY: Different fonts render emoji differently or not at all, causing confusion
 
 SOLUTION: Use clear, descriptive English words and variable names. Example:
-BAD:  const status = isComplete ? '\\u2705' : '\\u274C';  // checkmark and cross emoji
+BAD:  const status = isComplete ? 'CHECK_MARK_EMOJI' : 'CROSS_MARK_EMOJI';  // Unicode symbols
 GOOD: const status = isComplete ? 'SUCCESS' : 'FAILED';
 
 This validator catches ALL emoji forms including:
-- Direct emoji characters (U+1F600 grinning face, U+1F680 rocket, U+2705 checkmark)
-- ZWJ sequences (family emoji, profession emoji)
-- Skin tone modifiers (U+1F3FB-U+1F3FF)
+- Direct emoji characters (grinning face, rocket, checkmark symbols)
+- ZWJ sequences (family emoji, profession emoji) 
+- Skin tone modifiers (various skin tone variations)
 - Regional indicators (flag emoji like U+1F1F9 U+1F1ED for Thailand)
 - Variation selectors (text vs emoji presentation)
 - HTML entities (, )
@@ -3167,7 +3170,7 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
                  * @matches-pattern Cross mark (U+274C) - commonly misused
                  * @description Unicode symbols in string
                  */
-                const status = isComplete ? "\u2713" : "\u274C";`,
+                const status = isComplete ? "" : "";`,
                 
                 `/**
                  * @example-for-rule NO_EMOJI
@@ -3175,7 +3178,7 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
                  * @matches-pattern Rocket (U+1F680) - unprofessional
                  * @description Unicode rocket in message
                  */
-                console.log("\u{1F680} Deployment started!");`,
+                console.log(" Deployment started!");`,
                 
                 `/**
                  * @example-for-rule NO_EMOJI
@@ -3183,7 +3186,7 @@ Validator นี้จับอิโมจิทุกรูปแบบ รว
                  * @matches-pattern Bug (U+1F41B) - use "BUG" or "FIXME"
                  * @description Unicode bug in error message
                  */
-                throw new Error("\u{1F41B} Critical bug found");`,
+                throw new Error(" Critical bug found");`,
                 
                 `/**
                  * @example-for-rule NO_EMOJI

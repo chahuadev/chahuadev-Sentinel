@@ -1,7 +1,14 @@
+//======================================================================
+// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// Version: 1.0.0
+// License: MIT
+// Contact: chahuadev@gmail.com
+//======================================================================
 // test-validator-itself.js (v3 - with Logging)
 // Meta-Test with a robust logging system to capture all outputs.
 
-import { ValidationEngine, ABSOLUTE_RULES } from './src/validator.js';
+import { ValidationEngine, ABSOLUTE_RULES } from '../src/validator.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,12 +19,12 @@ const __dirname = dirname(__filename);
 
 // --- Logger Setup ---
 const logFilePath = path.join(process.cwd(), 'test-run.log');
-console.log(`📝 Initializing log system at: ${logFilePath}`);
+console.log(` Initializing log system at: ${logFilePath}`);
 
 // ลบไฟล์ log เก่าทิ้งเมื่อเริ่มรันเทสใหม่
 if (fs.existsSync(logFilePath)) {
     fs.unlinkSync(logFilePath);
-    console.log('🗑️ Removed old log file');
+    console.log(' Removed old log file');
 }
 
 // สร้าง log stream
@@ -26,7 +33,7 @@ const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 // เขียน header ลงไฟล์ทันที
 const initMessage = `=== CHAHUADEV SENTINEL META-TEST LOG ===\nStarted at: ${new Date().toISOString()}\nNode version: ${process.version}\nPlatform: ${process.platform}\nCWD: ${process.cwd()}\n`;
 fs.writeFileSync(logFilePath, initMessage);
-console.log('📄 Log file initialized');
+console.log('Log file initialized');
 
 const stripAnsiCodes = (str) => str.replace(/[\u001b\u009b][[()#;?]?[0-9]{1,4}(?:;[0-9]{0,4})?[0-9A-ORZcf-nqry=><]/g, '');
 

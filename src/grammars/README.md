@@ -1,3 +1,10 @@
+# //======================================================================
+#  - บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+#  - Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+#  - Version: 1.0.0
+#  - License: MIT
+#  - Contact: chahuadev@gmail.com
+# //======================================================================
 # Grammar Dictionaries
 
 Complete grammar vocabularies for JavaScript, TypeScript, Java, and JSX - compiled from **REAL authoritative sources**.
