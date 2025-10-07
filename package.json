@@ -49,7 +49,7 @@
       },
       {
         "command": "chahuadev-sentinel.securityStatus",
-        "title": "🛡️ Security Status",
+        "title": "Security Status",
         "category": "Chahuadev Sentinel"
       }
     ],
