@@ -3,8 +3,11 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)![Issues](https://img.shields.io/badge/Report_Issues-GitHub_Issues-red?style=for-the-badge&logo=github)](https://github.com/chahuadev/chahuadev-Sentinel/issues)
-[![Discussions](https://img.shields.io/badge/Feature_Requests-GitHub_Discussions-blue?style=for-the-badge&logo=github)](https://github.com/chahuadev/chahuadev-Sentinel/discussions)
+
+
+[![Version](https://img.shields.io/badge/version-2.5.3-blue?style=for-the-badge)](https://github.com/chahuadev/chahuadev-emoji-cleaner-tool)
+[![Issues](https://img.shields.io/badge/Report_Issues-GitHub_Issues-red?style=for-the-badge&logo=github)](https://github.com/chahuadev/chahuadev-emoji-cleaner-tool/issues)
+[![Discussions](https://img.shields.io/badge/Feature_Requests-GitHub_Discussions-blue?style=for-the-badge&logo=github)](https://github.com/chahuadev/chahuadev-emoji-cleaner-tool/discussions)
 [![Contact](https://img.shields.io/badge/Contact-chahuadev@gmail.com-green?style=for-the-badge&logo=gmail)](mailto:chahuadev@gmail.com)
 
 </div>
@@ -133,7 +136,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 We are committed to creating high-quality, secure, and maintainable software solutions. Our tools and standards reflect our dedication to excellence in software development.
 
-- **Website**: https://chahuadev.com/
+- **Website**: https://chahuadev.com
 - **Email**: chahuadev@gmail.com
 - **Repository**: https://github.com/chahuadev/chahuadev-Sentinel.git
 
