@@ -1,19 +1,22 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
 
-// ======================================================================
-// ABSOLUTE RULES CONFIGURATION
-//  กฎเหล็กทั้ง 5 ข้อ พร้อมรายละเอียดครบถ้วน
-// ======================================================================
+// ! ======================================================================
+// ! ABSOLUTE RULES CONFIGURATION
+// ! กฎเหล็กทั้ง 5 ข้อ พร้อมรายละเอียดครบถ้วน
+// ! ======================================================================
+// ! ======================================================================
+// ! ABSOLUTE RULES DEFINITION - 5 กฎเหล็กของ Chahuadev
+// ! ======================================================================
 const ABSOLUTE_RULES = {
-// ======================================================================
-// NO_MOCKING - ห้ามใช้ Mock/Stub/Spy
-// ======================================================================   
+            // ! ======================================================================
+            // !  กฎเหล็กข้อที่ 1: NO_MOCKING - ห้ามใช้ Mock/Stub/Spy
+            // ! ======================================================================  
     NO_MOCKING: {
         id: 'NO_MOCKING',
         name: {
@@ -25,495 +28,534 @@ const ABSOLUTE_RULES = {
             th: 'ห้ามใช้ jest.mock(), sinon.stub() หรือไลบรารี Mock ใดๆ โดยเด็ดขาด ให้ใช้ Dependency Injection แทน'
         },
         explanation: {
-            en: `ABSOLUTE PHILOSOPHY: "MOCKING IS EVIDENCE OF ARCHITECTURAL FAILURE"
+            en: 
+            // ! ======================================================================            
+                 `ABSOLUTE PHILOSOPHY: "MOCKING IS EVIDENCE OF ARCHITECTURAL FAILURE"
+            // ! ======================================================================
+            This rule doesn't exist to oppose "Unit Testing" - it exists to REDEFINE what a "Unit" actually means. In complex software systems, a meaningful business "Unit" is NOT a single isolated function, but rather a "Component that delivers complete behavior."
+            Real testing means testing the "CONTRACT" of that Component: when I send Input A, I expect Output or Side Effect B ALWAYS, regardless of internal implementation details.
+            Mocking is BETRAYAL of that contract. It's us interfering with internal mechanisms and forcing them to behave according to our assumptions, which completely destroys the purpose of testing. The urge to mock is the LOUDEST alarm signal that your Component has excessive tight coupling. This is not a testing problem - it's an architectural problem.
+            DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
+            FLAWED LOGIC: "But I need to isolate tests from Database/External APIs!"
+            REAL ANSWER: Correct, but you're isolating it WRONG. The correct way is using Dependency Injection with Test Doubles (Fakes/Stubs) that are "real things in test version" (like In-memory Database), not using Mocks to "pretend" connections happen. Mocking doesn't test connections AT ALL.
+            FLAWED LOGIC: "But Integration Tests are slow!"
+            REAL ANSWER: A test that passes in 1ms but catches zero bugs is COMPLETELY WORTHLESS. Good architecture (like Test Containers, In-memory Fakes) makes Integration Tests fast enough AND 100% reliable. Speed should never be traded for reliability.
+            GOLDEN RULE FOR VERIFICATION:
+            "If a bug occurs in Production but all your Unit Tests still pass 100%... your test suite is a LIE."
+
+            // ! ======================================================================
+                 CONCLUSION WITHOUT EXCEPTIONS:
+            // ! ======================================================================
+            Every time you type jest.mock, ask yourself: "Am I about to test real behavior, or am I about to lie to myself that my code works correctly?" Fix the architecture, don't distort reality with Mocks.
+
+            // ! ======================================================================
+                 ENGINEERING CULTURE DESTRUCTION:
+            // ! ======================================================================
+            - Erosion of Accountability: When tests pass but production fails, teams start blame-shifting ("My tests pass, must be your part"). Mocking creates "silo culture" where everyone only cares about their own component, not system outcomes.
+            - Loss of Refactoring Courage: When test suite is unreliable, teams fear code improvements. Technical Debt accumulates until system collapses. Velocity for new features approaches zero.
+            - Creates "Not-Real-World" Mentality: Teams become comfortable with artificial scenarios instead of demanding robust, real integrations.
+
+            // ! ======================================================================
+                 BUSINESS IMPACT:
+            // ! ======================================================================
+            - Slower Time-to-Market: Every bug that should've been caught in tests means development cycles slow down due to Hotfixes, Rollbacks, and post-mortem meetings.
+            - Opportunity Cost: Time engineers spend debugging integration issues that should be automatically detected is time they're NOT spending building revenue-generating features.
+            - Customer Trust Erosion: Frequent production issues erode customer confidence, leading to churn and negative reviews.
+            - Competitive Disadvantage: While competitors ship reliable software quickly, mocked teams are stuck in debug-fix-deploy cycles.
+
+            // ! ======================================================================
+                 LEGACY PHILOSOPHY & DEEPER RATIONALE:
+            // ! ======================================================================
+            This rule enforces the principle that tests should validate BEHAVIOR, not IMPLEMENTATION DETAILS. When we mock dependencies, we're telling our tests "when function A is called with value B, pretend it returns C" - this couples our tests to HOW something works internally, rather than WHAT the end result should be.
+            Mocking is fundamentally about making assumptions about how code SHOULD work internally, rather than verifying how it ACTUALLY works when integrated. This creates a dangerous disconnect between test success and real-world functionality.
+
+            // ! ======================================================================
+                HIDDEN DANGERS:
+            // ! ======================================================================
+            1) FALSE CONFIDENCE (จอมปลอม): Tests passing 100% doesn't mean the system works when components connect, because tests never validate real integration
+            2) ARCHITECTURAL CORROSION (กัดกร่อนสถาปัตยกรรม): Developers start writing code to be "easily mockable" instead of "good and correct" - this is called "Test-Induced Design Damage"
+            3) REFACTORING NIGHTMARE (ฝันร้ายการ Refactor): Code improvement becomes terrifying because any internal change might break dozens of tests, preventing developers from improving code (Technical Debt increases)
+            4) INTEGRATION BLIND SPOTS (จุดบอด Integration): Bugs from component interactions (wrong data format, wrong API version calls) are never detected until Production
+            5) DEBUGGING HELL (นรกการ Debug): When production fails, there are no traces pointing to root cause because tests never exercised real paths
+            6) MAINTENANCE EXPLOSION (ระเบิดการดูแล): Every internal refactor requires updating multiple mock configurations across the codebase
+            7) ZOMBIE SYSTEM CREATION (ระบบซอมบี้): System appears to work (tests green) while internally riddled with integration failures
+            8) TEMPORAL COUPLING BUGS (บั๊กการเรียงลำดับ): Mocks don't capture timing, ordering, or concurrency issues that happen in real integration
+            9) VERSION DRIFT (ความแตกต่างเวอร์ชัน): Mocked APIs don't reflect real API changes, creating silent contract violations
+            10) PRODUCTION-TEST MISMATCH (ไม่ตรงกับ Production): Test environment behavior fundamentally differs from production due to artificial mock responses
+ 
+            // ! ======================================================================
+                LITMUS TEST:
+            // ! ======================================================================
+            Ask yourself: "If I refactor the internal code of this module without changing its public API, should my tests still pass?"
+            - If answer is "NO" (tests break): You're violating NO_MOCKING because your tests are coupled to implementation
+            - If answer is "YES" (tests still pass): You're testing behavior correctly
+ 
+            // ! ======================================================================
+                THE ABSOLUTE SOLUTION:
+            // ! ======================================================================
+            Use Dependency Injection (DI) ONLY:
+
+            Functions: Pass dependencies through parameters ALWAYS
+            // BAD: Mocking 'database'
+            jest.mock('./database');
+
+            // GOOD: Pass 'database' directly
+            function createUser(userData, database) {
+                return database.save(userData);
+            }
+
+            // In tests:
+            const fakeDatabase = { save: async (data) => ({ id: 1, ...data }) };
+            const result = await createUser({ name: 'Test' }, fakeDatabase);
+
+            Classes: Pass dependencies through Constructor
+            class UserService {
+                // BAD: this.database = require('./database');
+  
+                // GOOD: Receive database from outside
+                constructor(database, emailService) {
+                    this.database = database;
+                    this.emailService = emailService;
+                }
+            }
+
+            // ! ======================================================================
+                 CLOSING ALL LOOPHOLES:
+            // ! ======================================================================
+            1) "BUT WHAT ABOUT UNIT TESTS?" LOOPHOLE:
+               - WRONG: "I need to test my function in isolation, so I must mock dependencies"
+               - RIGHT: True isolation comes from PURE FUNCTIONS with injected dependencies
+               - SOLUTION: Write functions that are PURE by design, test with real lightweight implementations
+
+            2) "BUT EXTERNAL API CALLS ARE SLOW" LOOPHOLE:
+               - WRONG: "I'll mock the API calls to make tests faster"
+               - RIGHT: Fast tests come from good architecture, not mocks
+               - SOLUTION: Use TEST DOUBLES (in-memory implementations) that implement same interface
+
+            3) "BUT I CAN'T CONTROL THIRD-PARTY SERVICES" LOOPHOLE:
+               - WRONG: "I have to mock axios/fetch because I can't control external services"
+               - RIGHT: Wrap external dependencies in YOUR OWN interfaces
+               - SOLUTION: Create HttpClient abstraction, inject TestHttpClient for tests
+
+            4) "BUT SOME THINGS CAN'T BE INJECTED" LOOPHOLE:
+               - WRONG: "File system, database, network calls are built-in, I must mock them"
+               - RIGHT: EVERYTHING can be abstracted and injected
+               - SOLUTION: Create adapters for ALL external dependencies
+
+            5) "BUT MOCKS ARE JUST FOR TESTING" LOOPHOLE:
+               - WRONG: "Mocks don't affect production code"
+               - RIGHT: Mocks DESTROY production code architecture by creating artificial dependencies
+               - SOLUTION: If you need to mock it, your architecture is wrong
+
+               6) "BUT I'M ONLY MOCKING SIMPLE THINGS" LOOPHOLE:
+                  - WRONG: "Just mocking Date.now() or Math.random() is harmless"
+                  - RIGHT: Even simple mocks create temporal coupling and non-deterministic behavior
+                  - SOLUTION: Inject clock service, random number generator as dependencies
+
+               7) "BUT INTEGRATION TESTS ARE TOO COMPLEX" LOOPHOLE:
+                  - WRONG: "I'll use unit tests with mocks instead of integration tests"
+                  - RIGHT: Complexity comes from bad architecture, not integration testing
+                  - SOLUTION: Build architecture that makes integration testing simple
+
+               8) "BUT LEGACY CODE FORCES ME TO MOCK" LOOPHOLE:
+                  - WRONG: "Old code is too coupled, I have to mock to test it"
+                  - RIGHT: Mocks perpetuate bad architecture instead of fixing it  
+                  - SOLUTION: Refactor to dependency injection incrementally
+
+               9) "BUT FRAMEWORKS REQUIRE MOCKING" LOOPHOLE:
+                  - WRONG: "React/Angular/Express testing guides use mocks, so it's standard"
+                  - RIGHT: Framework testing guides often show BAD practices for simplicity
+                  - SOLUTION: Use framework-appropriate dependency injection patterns
+
+               10) "BUT TIME/DATE MOCKING IS NECESSARY" LOOPHOLE:
+                   - WRONG: "Testing time-dependent code requires mocking Date/setTimeout"
+                   - RIGHT: Time should be a dependency, not a global side effect
+                   - SOLUTION: Inject Clock interface with real/test implementations
+            // ! ======================================================================
+                ARCHITECTURAL SOLUTIONS TO COMMON "UNMOCKABLE" SCENARIOS:
+            // ! ======================================================================
+               DATABASE → Repository Pattern with interface
+               FILE SYSTEM → FileSystem abstraction service  
+               HTTP CALLS → HttpClient interface with implementations
+               RANDOM/CRYPTO → RandomGenerator/CryptoProvider services
+               TIME/DATE → Clock/TimeProvider services
+               ENVIRONMENT → Configuration provider
+               LOGGING → Logger interface
+               CACHING → Cache interface
+               MESSAGING → MessageBus interface
+               AUTHENTICATION → AuthProvider interface
+            // ! ======================================================================
+                 NO EXCEPTIONS:
+            // ! ======================================================================               
+            If you think something "can't be injected", you haven't found the right abstraction yet.
             
-This rule doesn't exist to oppose "Unit Testing" - it exists to REDEFINE what a "Unit" actually means. In complex software systems, a meaningful business "Unit" is NOT a single isolated function, but rather a "Component that delivers complete behavior."
-
-Real testing means testing the "CONTRACT" of that Component: when I send Input A, I expect Output or Side Effect B ALWAYS, regardless of internal implementation details.
-
-Mocking is BETRAYAL of that contract. It's us interfering with internal mechanisms and forcing them to behave according to our assumptions, which completely destroys the purpose of testing. The urge to mock is the LOUDEST alarm signal that your Component has excessive tight coupling. This is not a testing problem - it's an architectural problem.
-
-DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
-
-FLAWED LOGIC: "But I need to isolate tests from Database/External APIs!"
-REAL ANSWER: Correct, but you're isolating it WRONG. The correct way is using Dependency Injection with Test Doubles (Fakes/Stubs) that are "real things in test version" (like In-memory Database), not using Mocks to "pretend" connections happen. Mocking doesn't test connections AT ALL.
-
-FLAWED LOGIC: "But Integration Tests are slow!"
-REAL ANSWER: A test that passes in 1ms but catches zero bugs is COMPLETELY WORTHLESS. Good architecture (like Test Containers, In-memory Fakes) makes Integration Tests fast enough AND 100% reliable. Speed should never be traded for reliability.
-
-GOLDEN RULE FOR VERIFICATION:
-"If a bug occurs in Production but all your Unit Tests still pass 100%... your test suite is a LIE."
-
-CONCLUSION WITHOUT EXCEPTIONS:
-Every time you type jest.mock, ask yourself: "Am I about to test real behavior, or am I about to lie to myself that my code works correctly?" Fix the architecture, don't distort reality with Mocks.
-
-*** ORGANIZATIONAL IMPACT: THE COST OF LOST TRUST ***
-
-ENGINEERING CULTURE DESTRUCTION:
-- Erosion of Accountability: When tests pass but production fails, teams start blame-shifting ("My tests pass, must be your part"). Mocking creates "silo culture" where everyone only cares about their own component, not system outcomes.
-- Loss of Refactoring Courage: When test suite is unreliable, teams fear code improvements. Technical Debt accumulates until system collapses. Velocity for new features approaches zero.
-- Creates "Not-Real-World" Mentality: Teams become comfortable with artificial scenarios instead of demanding robust, real integrations.
-
-BUSINESS IMPACT:
-- Slower Time-to-Market: Every bug that should've been caught in tests means development cycles slow down due to Hotfixes, Rollbacks, and post-mortem meetings.
-- Opportunity Cost: Time engineers spend debugging integration issues that should be automatically detected is time they're NOT spending building revenue-generating features.
-- Customer Trust Erosion: Frequent production issues erode customer confidence, leading to churn and negative reviews.
-- Competitive Disadvantage: While competitors ship reliable software quickly, mocked teams are stuck in debug-fix-deploy cycles.
-
-LEGACY PHILOSOPHY & DEEPER RATIONALE:
-This rule enforces the principle that tests should validate BEHAVIOR, not IMPLEMENTATION DETAILS. When we mock dependencies, we're telling our tests "when function A is called with value B, pretend it returns C" - this couples our tests to HOW something works internally, rather than WHAT the end result should be.
-
-Mocking is fundamentally about making assumptions about how code SHOULD work internally, rather than verifying how it ACTUALLY works when integrated. This creates a dangerous disconnect between test success and real-world functionality.
-
-HIDDEN DANGERS:
-1) FALSE CONFIDENCE (จอมปลอม): Tests passing 100% doesn't mean the system works when components connect, because tests never validate real integration
-2) ARCHITECTURAL CORROSION (กัดกร่อนสถาปัตยกรรม): Developers start writing code to be "easily mockable" instead of "good and correct" - this is called "Test-Induced Design Damage"
-3) REFACTORING NIGHTMARE (ฝันร้ายการ Refactor): Code improvement becomes terrifying because any internal change might break dozens of tests, preventing developers from improving code (Technical Debt increases)
-4) INTEGRATION BLIND SPOTS (จุดบอด Integration): Bugs from component interactions (wrong data format, wrong API version calls) are never detected until Production
-5) DEBUGGING HELL (นรกการ Debug): When production fails, there are no traces pointing to root cause because tests never exercised real paths
-6) MAINTENANCE EXPLOSION (ระเบิดการดูแล): Every internal refactor requires updating multiple mock configurations across the codebase
-7) ZOMBIE SYSTEM CREATION (ระบบซอมบี้): System appears to work (tests green) while internally riddled with integration failures
-8) TEMPORAL COUPLING BUGS (บั๊กการเรียงลำดับ): Mocks don't capture timing, ordering, or concurrency issues that happen in real integration
-9) VERSION DRIFT (ความแตกต่างเวอร์ชัน): Mocked APIs don't reflect real API changes, creating silent contract violations
-10) PRODUCTION-TEST MISMATCH (ไม่ตรงกับ Production): Test environment behavior fundamentally differs from production due to artificial mock responses
-
-LITMUS TEST:
-Ask yourself: "If I refactor the internal code of this module without changing its public API, should my tests still pass?"
-- If answer is "NO" (tests break): You're violating NO_MOCKING because your tests are coupled to implementation
-- If answer is "YES" (tests still pass): You're testing behavior correctly
-
-THE ABSOLUTE SOLUTION:
-Use Dependency Injection (DI) ONLY:
-
-Functions: Pass dependencies through parameters ALWAYS
-// BAD: Mocking 'database'
-jest.mock('./database');
-
-// GOOD: Pass 'database' directly
-function createUser(userData, database) {
-  return database.save(userData);
-}
-
-// In tests:
-const fakeDatabase = { save: async (data) => ({ id: 1, ...data }) };
-const result = await createUser({ name: 'Test' }, fakeDatabase);
-
-Classes: Pass dependencies through Constructor
-class UserService {
-  // BAD: this.database = require('./database');
-  
-  // GOOD: Receive database from outside
-  constructor(database, emailService) {
-    this.database = database;
-    this.emailService = emailService;
-  }
-}
-
-CLOSING ALL LOOPHOLES:
-
-1) "BUT WHAT ABOUT UNIT TESTS?" LOOPHOLE:
-   - WRONG: "I need to test my function in isolation, so I must mock dependencies"
-   - RIGHT: True isolation comes from PURE FUNCTIONS with injected dependencies
-   - SOLUTION: Write functions that are PURE by design, test with real lightweight implementations
-
-2) "BUT EXTERNAL API CALLS ARE SLOW" LOOPHOLE:
-   - WRONG: "I'll mock the API calls to make tests faster"
-   - RIGHT: Fast tests come from good architecture, not mocks
-   - SOLUTION: Use TEST DOUBLES (in-memory implementations) that implement same interface
-
-3) "BUT I CAN'T CONTROL THIRD-PARTY SERVICES" LOOPHOLE:
-   - WRONG: "I have to mock axios/fetch because I can't control external services"
-   - RIGHT: Wrap external dependencies in YOUR OWN interfaces
-   - SOLUTION: Create HttpClient abstraction, inject TestHttpClient for tests
-
-4) "BUT SOME THINGS CAN'T BE INJECTED" LOOPHOLE:
-   - WRONG: "File system, database, network calls are built-in, I must mock them"
-   - RIGHT: EVERYTHING can be abstracted and injected
-   - SOLUTION: Create adapters for ALL external dependencies
-
-5) "BUT MOCKS ARE JUST FOR TESTING" LOOPHOLE:
-   - WRONG: "Mocks don't affect production code"
-   - RIGHT: Mocks DESTROY production code architecture by creating artificial dependencies
-   - SOLUTION: If you need to mock it, your architecture is wrong
-
-6) "BUT I'M ONLY MOCKING SIMPLE THINGS" LOOPHOLE:
-   - WRONG: "Just mocking Date.now() or Math.random() is harmless"
-   - RIGHT: Even simple mocks create temporal coupling and non-deterministic behavior
-   - SOLUTION: Inject clock service, random number generator as dependencies
-
-7) "BUT INTEGRATION TESTS ARE TOO COMPLEX" LOOPHOLE:
-   - WRONG: "I'll use unit tests with mocks instead of integration tests"
-   - RIGHT: Complexity comes from bad architecture, not integration testing
-   - SOLUTION: Build architecture that makes integration testing simple
-
-8) "BUT LEGACY CODE FORCES ME TO MOCK" LOOPHOLE:
-   - WRONG: "Old code is too coupled, I have to mock to test it"
-   - RIGHT: Mocks perpetuate bad architecture instead of fixing it  
-   - SOLUTION: Refactor to dependency injection incrementally
-
-9) "BUT FRAMEWORKS REQUIRE MOCKING" LOOPHOLE:
-   - WRONG: "React/Angular/Express testing guides use mocks, so it's standard"
-   - RIGHT: Framework testing guides often show BAD practices for simplicity
-   - SOLUTION: Use framework-appropriate dependency injection patterns
-
-10) "BUT TIME/DATE MOCKING IS NECESSARY" LOOPHOLE:
-    - WRONG: "Testing time-dependent code requires mocking Date/setTimeout"
-    - RIGHT: Time should be a dependency, not a global side effect
-    - SOLUTION: Inject Clock interface with real/test implementations
-
-ARCHITECTURAL SOLUTIONS TO COMMON "UNMOCKABLE" SCENARIOS:
-
-DATABASE → Repository Pattern with interface
-FILE SYSTEM → FileSystem abstraction service  
-HTTP CALLS → HttpClient interface with implementations
-RANDOM/CRYPTO → RandomGenerator/CryptoProvider services
-TIME/DATE → Clock/TimeProvider services
-ENVIRONMENT → Configuration provider
-LOGGING → Logger interface
-CACHING → Cache interface
-MESSAGING → MessageBus interface
-AUTHENTICATION → AuthProvider interface
-
-NO EXCEPTIONS: If you think something "can't be injected", you haven't found the right abstraction yet.
-
-Example:
-BAD:  jest.mock('./database'); // Tests don't validate real database integration
-GOOD: function createUser(userData, database) { return database.save(userData); } // Tests can pass real or test database`,
-            th: `ปรัชญาและเหตุผลเชิงลึก:
-กฎนี้บังคับหลักการที่ว่า test ควรตรวจสอบ BEHAVIOR ไม่ใช่ IMPLEMENTATION DETAILS เมื่อเรา mock dependencies เราจะบอก test ว่า "เมื่อฟังก์ชัน A ถูกเรียกด้วยค่า B ให้ทำเป็นว่าได้ผลลัพธ์ C" สิ่งนี้ทำให้ test ผูกติดกับ วิธีการทำงานภายใน แทนที่จะเป็น ผลลัพธ์สุดท้าย ที่ควรได้รับ
-
-Mock คือการสร้างสมมติฐานเกี่ยวกับวิธีการทำงานภายใน แทนที่จะตรวจสอบว่าทำงานจริงอย่างไรเมื่อรวมกัน สิ่งนี้สร้างช่องว่างอันตรายระหว่างความสำเร็จของ test กับการทำงานจริง
-
-กฎนี้บังคับให้ปฏิบัติตาม Inversion of Control (IoC) และ Dependency Injection (DI) อย่างเคร่งครัด ซึ่งเป็นรากฐานของสถาปัตยกรรมซอฟต์แวร์ที่ยืดหยุ่นและทดสอบได้
-
-อันตรายที่ซ่อนอยู่:
-1) ความมั่นใจจอมปลอม: Test ผ่าน 100% ไม่ได้หมายความว่าระบบทำงานได้เมื่อ component เชื่อมต่อกัน เพราะ test ไม่เคยทดสอบ integration จริง
-2) การกัดกร่อนสถาปัตยกรรม: นักพัฒนาเขียนโค้ดเพื่อให้ "mock ได้ง่าย" แทนที่จะ "ดีและถูกต้อง" เรียกว่า "Test-Induced Design Damage"
-3) ฝันร้ายการ Refactor: การปรับปรุงโค้ดกลายเป็นเรื่องน่ากลัว เพราะการเปลี่ยนแปลงภายในอาจทำให้ test พังเป็นสิบๆ ตัว ป้องกันการปรับปรุงโค้ด (Technical Debt เพิ่ม)
-4) จุดบอด Integration: บั๊กจากการโต้ตอบระหว่าง component (format ข้อมูลผิด, เรียก API version ผิด) ไม่ถูกตรวจพบจนถึง Production
-5) นรกการ Debug: เมื่อ production พัง ไม่มีร่องรอยชี้ไปต้นตอปัญหา เพราะ test ไม่เคยใช้เส้นทางจริง
-6) ระเบิดการดูแล: การ refactor ภายในต้องอัปเดต mock หลายที่ทั่ว codebase
-7) สร้างระบบซอมบี้: ระบบดูเหมือนทำงาน (test เขียว) แต่ภายในเต็มไปด้วย integration failure
-8) บั๊กการเรียงลำดับ: Mock ไม่จับเวลา ลำดับ หรือปัญหา concurrency ที่เกิดใน integration จริง
-9) ความแตกต่างเวอร์ชัน: Mock API ไม่สะท้อนการเปลี่ยนแปลง API จริง สร้างการละเมิด contract แบบเงียบ
-10) ไม่ตรงกับ Production: Test environment แตกต่างจาก production เนื่องจาก mock response เทียม
-
-วิธีทดสอบความคิด (Litmus Test):
-ถามตัวเอง: "ถ้าฉัน refactor โค้ดภายในของ module นี้โดยไม่เปลี่ยน public API test ควรผ่านหรือไม่?"
-- ถ้าตอบ "ไม่" (test พัง): คุณละเมิด NO_MOCKING เพราะ test ผูกติดกับ implementation  
-- ถ้าตอบ "ใช่" (test ยังผ่าน): คุณทดสอบ behavior ถูกต้อง
-
-วิธีแก้ไขสมบูรณ์:
-ใช้ Dependency Injection (DI) เท่านั้น:
-
-ฟังก์ชัน: ส่ง dependencies ผ่าน parameter เสมอ
-// ไม่ดี: Mock 'database'
-jest.mock('./database');
-
-// ดี: ส่ง 'database' เข้ามาตรงๆ
-function createUser(userData, database) {
-  return database.save(userData);
-}
-
-// ใน test:
-const fakeDatabase = { save: async (data) => ({ id: 1, ...data }) };
-const result = await createUser({ name: 'Test' }, fakeDatabase);
-
-คลาส: ส่ง dependencies ผ่าน Constructor
-class UserService {
-  // ไม่ดี: this.database = require('./database');
-  
-  // ดี: รับ database จากภายนอก
-  constructor(database, emailService) {
-    this.database = database;
-    this.emailService = emailService;
-  }
-}
-
-ADVANCED VIOLATION PATTERNS:
-1) PARTIAL MOCKING: Mocking only parts of modules while keeping others real
-   BAD: jest.mock('./userService', () => ({ validateEmail: jest.fn(), ...jest.requireActual('./userService') }));
-   
-2) SPY CHAINING: Using spies to track internal function calls
-   BAD: const spy = jest.spyOn(service.database, 'connect'); expect(spy).toHaveBeenCalled();
-   
-3) DYNAMIC MOCKING: Runtime mocking based on conditions
-   BAD: if (isTestMode) { UserService.prototype.save = jest.fn(); }
-   
-4) MOCK MODULES WITH REAL LOGIC: Mocks that replicate real implementation
-   BAD: jest.mock('./calculator', () => ({ add: (a, b) => a + b })); // Still mocking!
-   
-5) GLOBAL MOCKING: Mocking global objects or built-ins
-   BAD: global.fetch = jest.fn(); window.localStorage = { getItem: jest.fn() };
-   
-6) CONSTRUCTOR MOCKING: Mocking class constructors and instances
-   BAD: jest.mock('./UserService'); const MockedUserService = UserService as jest.MockedClass;
-   
-7) ASYNC MOCKING: Mocking promises, callbacks, and async operations
-   BAD: jest.mock('fs', () => ({ readFile: jest.fn((path, cb) => cb(null, 'fake data')) }));
-   
-8) MOCK TIMERS: Mocking time-based operations
-   BAD: jest.useFakeTimers(); jest.advanceTimersByTime(1000); // Time should be injected
-   
-9) HTTP MOCKING: Mocking network requests instead of using test servers
-   BAD: nock('https://api.com').get('/users').reply(200, { users: [] });
-   
-10) PROCESS MOCKING: Mocking Node.js process or environment
-    BAD: jest.spyOn(process, 'exit').mockImplementation(() => {}); 
-
-SOPHISTICATED ALTERNATIVES (The Right Way):
-Instead of mocking, use these patterns:
-
-1) TEST DOUBLES via DI:
-// Create real implementations for testing
-const testDatabase = new InMemoryDatabase();
-const testEmailService = new LoggingEmailService();
-const userService = new UserService(testDatabase, testEmailService);
-
-2) ADAPTER PATTERN:
-// Wrap external dependencies
-class FileSystemAdapter {
-  constructor(fs = require('fs')) { this.fs = fs; }
-  readFile(path) { return this.fs.promises.readFile(path); }
-}
-
-3) FACTORY INJECTION:
-// Inject factories instead of instances
-function createUserService(dbFactory, emailFactory) {
-  return new UserService(dbFactory(), emailFactory());
-}
-
-4) CONFIGURATION INJECTION:
-// Make behavior configurable instead of mocked
-function processPayment(amount, config = { timeout: 5000, retries: 3 }) {
-  // Use config instead of hardcoded values that need mocking
-}
-
-5) EVENT-DRIVEN TESTING:
-// Test through events instead of mocking internal calls
-emitter.emit('user-created', userData);
-expect(await waitForEvent('email-sent')).toBeTruthy();
-
-ไม่มีข้อยกเว้น: แม้ external library ควรถูกห่อใน Adapter และ inject ผ่าน DI, ไม่ใช่ mock
-
-ตัวอย่าง:
-ไม่ดี: jest.mock('./database'); // Test ไม่ validate integration database จริง
-ดี: function createUser(userData, database) { return database.save(userData); } // Test ส่ง database จริงหरือ test database ได้
-
-*** การปิดช่องโหว่ทุกรูปแบบ - LOOPHOLE CLOSURE ***
-
-เหตุผลที่คนอยากใช้ mocking และการปิดช่องโหว่:
-
-1. "เฮ้ย! แต่ unit test ต้องเร็วนี่!"
-   → ไม่ยอมรับ! ความเร็วมาจาก architecture ที่ดี ไม่ใช่การ mock
-   → แก้ถูก: ใช้ in-memory database หรือ test containers สำหรับ integration tests
-   → เพราะอะไร: Mock ทำให้ test ไม่ validate real integration behavior
-
-2. "อะ! แต่ external API มันช้าแล้วก็ไม่เสถียร!"
-   → ไม่ยอมรับ! External API ต้องห่อใน service layer และใช้ test environment
-   → แก้ถูก: API Gateway pattern พร้อม test endpoint หรือ staging environment
-   → เพราะอะไร: Mock API response ไม่ test real network errors และ API contract changes
-
-3. "เฮ้ย! แต่ database connection มันหนักเกินไป!"
-   → ไม่ยอมรับ! Database testing ต้องใช้ proper test isolation
-   → แก้ถูก: Docker test containers, transaction rollback หรือ dedicated test database
-   → เพราะอะไร: Mock database ไม่ validate SQL syntax, constraints และ data integrity
-
-4. "อะ! แต่ file system I/O มันช้า!"
-   → ไม่ยอมรับ! File operations ต้องถูกออกแบบให้ testable
-   → แก้ถูก: Abstraction layer สำหรับ file operations พร้อม in-memory implementation
-   → เพราะอะไร: Mock file operations ไม่ test real file permissions และ disk space issues
-
-5. "เฮ้ย! แต่ time/date testing ทำไงล่ะ!"
-   → ไม่ยอมรับ! Time dependencies ต้อง inject เป็น parameter
-   → แก้ถุก: Clock abstraction ที่ inject เข้า function แทน Date.now() ตรงๆ
-   → เพราะอะไร: Mock time ไม่ test timezone issues และ daylight saving time
-
-6. "อะ! แต่ third-party library มันใช้ยาก!"
-   → ไม่ยอมรับ! Third-party ต้องห่อใน adapter pattern
-   → แก้ถูก: Wrapper class ที่ implement interface ชัดเจนแล้วทดสอบ adapter นั้น
-   → เพราะอะไร: Mock library ไม่ validate API compatibility และ version changes
-
-7. "เฮ้ย! แต่ email/SMS service มันต้องใช้เงิน!"
-   → ไม่ยอมรับ! Communication service ต้องมี test mode
-   → แก้ถูก: Service configuration ที่มี test mode หรือ sandbox environment
-   → เพราะอะไร: Mock communication ไม่ validate message formatting และ delivery constraints
-
-8. "อะ! แต่ authentication มันซับซ้อน!"
-   → ไม่ยอมรับ! Authentication ต้องออกแบบให้มี test user
-   → แก้ถูก: Test authentication token หรือ development-only auth bypass
-   → เพราะอะไร: Mock auth ไม่ validate permission logic และ security policies
-
-9. "เฮ้ย! แต่ legacy code มันแก้ไม่ได้!"
-   → ไม่ยอมรับ! Legacy integration ต้องค่อยๆ refactor
-   → แก้ถูก: Strangler Fig pattern - wrap legacy ใน interface ใหม่แล้วทดสอบ interface นั้น
-   → เพราะอะไร: Mock legacy ทำให้ไม่สามารถ validate การทำงานจริงของระบบเก่า
-
-10. "อะ! แต่ performance testing ต้องใช้ mock!"
-    → ไม่ยอมรับ! Performance testing ต้องใช้ representative data
-    → แก้ถูก: Load testing พร้อม realistic test data และ proper test environment
-    → เพราะอะไร: Mock performance ไม่ reflect real bottlenecks และ resource constraints
-
-กฎทองสำหรับตรวจสอบ: 
-ถ้า production bug เกิดขึ้นแล้ว unit test ยัง pass = test suite ไม่ validate behavior จริง
-ถ้าต้อง mock เพื่อให้ test ผ่าน = architecture coupling too tight
-
-ไม่มีข้อยกเว้น ไม่มีเหตุผลพิเศษ - ZERO MOCKING, REAL TESTING ONLY`
+            // ! ======================================================================
+                 Example:
+            // ! ======================================================================
+            BAD:  jest.mock('./database'); // Tests don't validate real database integration
+            GOOD: function createUser(userData, database) { return database.save(userData); } // Tests can pass real or test database`,
+                     
+
+               th: `
+            // ! ======================================================================
+                 ปรัชญาและเหตุผลเชิงลึก:
+            // ! ======================================================================
+               กฎนี้บังคับหลักการที่ว่า test ควรตรวจสอบ BEHAVIOR ไม่ใช่ IMPLEMENTATION DETAILS เมื่อเรา mock dependencies เราจะบอก test ว่า "เมื่อฟังก์ชัน A ถูกเรียกด้วยค่า B ให้ทำเป็นว่าได้ผลลัพธ์ C" สิ่งนี้ทำให้ test ผูกติดกับ วิธีการทำงานภายใน แทนที่จะเป็น ผลลัพธ์สุดท้าย ที่ควรได้รับ
+               Mock คือการสร้างสมมติฐานเกี่ยวกับวิธีการทำงานภายใน แทนที่จะตรวจสอบว่าทำงานจริงอย่างไรเมื่อรวมกัน สิ่งนี้สร้างช่องว่างอันตรายระหว่างความสำเร็จของ test กับการทำงานจริง
+               กฎนี้บังคับให้ปฏิบัติตาม Inversion of Control (IoC) และ Dependency Injection (DI) อย่างเคร่งครัด ซึ่งเป็นรากฐานของสถาปัตยกรรมซอฟต์แวร์ที่ยืดหยุ่นและทดสอบได้
+            // ! ======================================================================
+                อันตรายที่ซ่อนอยู่:
+            // ! ======================================================================
+               1) ความมั่นใจจอมปลอม: Test ผ่าน 100% ไม่ได้หมายความว่าระบบทำงานได้เมื่อ component เชื่อมต่อกัน เพราะ test ไม่เคยทดสอบ integration จริง
+               2) การกัดกร่อนสถาปัตยกรรม: นักพัฒนาเขียนโค้ดเพื่อให้ "mock ได้ง่าย" แทนที่จะ "ดีและถูกต้อง" เรียกว่า "Test-Induced Design Damage"
+               3) ฝันร้ายการ Refactor: การปรับปรุงโค้ดกลายเป็นเรื่องน่ากลัว เพราะการเปลี่ยนแปลงภายในอาจทำให้ test พังเป็นสิบๆ ตัว ป้องกันการปรับปรุงโค้ด (Technical Debt เพิ่ม)
+               4) จุดบอด Integration: บั๊กจากการโต้ตอบระหว่าง component (format ข้อมูลผิด, เรียก API version ผิด) ไม่ถูกตรวจพบจนถึง Production
+               5) นรกการ Debug: เมื่อ production พัง ไม่มีร่องรอยชี้ไปต้นตอปัญหา เพราะ test ไม่เคยใช้เส้นทางจริง
+               6) ระเบิดการดูแล: การ refactor ภายในต้องอัปเดต mock หลายที่ทั่ว codebase
+               7) สร้างระบบซอมบี้: ระบบดูเหมือนทำงาน (test เขียว) แต่ภายในเต็มไปด้วย integration failure
+               8) บั๊กการเรียงลำดับ: Mock ไม่จับเวลา ลำดับ หรือปัญหา concurrency ที่เกิดใน integration จริง
+               9) ความแตกต่างเวอร์ชัน: Mock API ไม่สะท้อนการเปลี่ยนแปลง API จริง สร้างการละเมิด contract แบบเงียบ
+               10) ไม่ตรงกับ Production: Test environment แตกต่างจาก production เนื่องจาก mock response เทียม
+
+            // ! ======================================================================
+                วิธีทดสอบความคิด (Litmus Test):
+            // ! ======================================================================
+                ถามตัวเอง: "ถ้าฉัน refactor โค้ดภายในของ module นี้โดยไม่เปลี่ยน public API test ควรผ่านหรือไม่?"
+               - ถ้าตอบ "ไม่" (test พัง): คุณละเมิด NO_MOCKING เพราะ test ผูกติดกับ implementation  
+               - ถ้าตอบ "ใช่" (test ยังผ่าน): คุณทดสอบ behavior ถูกต้อง
+
+            // ! ======================================================================
+                วิธีแก้ไขสมบูรณ์:
+            // ! ======================================================================
+                ใช้ Dependency Injection (DI) เท่านั้น:
+            // ! ======================================================================
+                ฟังก์ชัน: 
+            // ! ======================================================================
+                 DEPENDENCY INJECTION PATTERNS (CORRECT APPROACH):
+            // ! ======================================================================
+            
+            // Functions: ส่ง dependencies ผ่าน parameter เสมอ
+            // ไม่ดี: Mock 'database'
+            jest.mock('./database');
+
+            // ดี: ส่ง 'database' เข้ามาตรงๆ
+            function createUser(userData, database) {
+              return database.save(userData);
+            }
+
+            // ใน test:
+            const fakeDatabase = { save: async (data) => ({ id: 1, ...data }) };
+            const result = await createUser({ name: 'Test' }, fakeDatabase);
+
+            // Classes: ส่ง dependencies ผ่าน Constructor
+            class UserService {
+              // ไม่ดี: this.database = require('./database');
+              
+              // ดี: รับ database จากภายนอก
+              constructor(database, emailService) {
+                this.database = database;
+                this.emailService = emailService;
+              }
+            }
+            // ! ======================================================================
+                 ADVANCED VIOLATION PATTERNS:
+            // ! ======================================================================
+            
+            1) PARTIAL MOCKING: Mocking only parts of modules while keeping others real
+               BAD: jest.mock('./userService', () => ({ validateEmail: jest.fn(), ...jest.requireActual('./userService') }));
+               
+            2) SPY CHAINING: Using spies to track internal function calls
+               BAD: const spy = jest.spyOn(service.database, 'connect'); expect(spy).toHaveBeenCalled();
+               
+            3) DYNAMIC MOCKING: Runtime mocking based on conditions
+               BAD: if (isTestMode) { UserService.prototype.save = jest.fn(); }
+               
+            4) MOCK MODULES WITH REAL LOGIC: Mocks that replicate real implementation
+               BAD: jest.mock('./calculator', () => ({ add: (a, b) => a + b })); // Still mocking!
+               
+            5) GLOBAL MOCKING: Mocking global objects or built-ins
+               BAD: global.fetch = jest.fn(); window.localStorage = { getItem: jest.fn() };
+               
+            6) CONSTRUCTOR MOCKING: Mocking class constructors and instances
+               BAD: jest.mock('./UserService'); const MockedUserService = UserService as jest.MockedClass;
+               
+            7) ASYNC MOCKING: Mocking promises, callbacks, and async operations
+               BAD: jest.mock('fs', () => ({ readFile: jest.fn((path, cb) => cb(null, 'fake data')) }));
+               
+            8) MOCK TIMERS: Mocking time-based operations
+               BAD: jest.useFakeTimers(); jest.advanceTimersByTime(1000); // Time should be injected
+               
+            9) HTTP MOCKING: Mocking network requests instead of using test servers
+               BAD: nock('https://api.com').get('/users').reply(200, { users: [] });
+               
+            10) PROCESS MOCKING: Mocking Node.js process or environment
+                BAD: jest.spyOn(process, 'exit').mockImplementation(() => {}); 
+
+            // ! ======================================================================
+                 SOPHISTICATED ALTERNATIVES (The Right Way):
+            // ! ======================================================================
+            Instead of mocking, use these patterns:
+
+            1) TEST DOUBLES via DI:
+            // Create real implementations for testing
+            const testDatabase = new InMemoryDatabase();
+            const testEmailService = new LoggingEmailService();
+            const userService = new UserService(testDatabase, testEmailService);
+
+            2) ADAPTER PATTERN:
+            // Wrap external dependencies
+            class FileSystemAdapter {
+              constructor(fs = require('fs')) { this.fs = fs; }
+              readFile(path) { return this.fs.promises.readFile(path); }
+            }
+
+            3) FACTORY INJECTION:
+            // Inject factories instead of instances
+            function createUserService(dbFactory, emailFactory) {
+              return new UserService(dbFactory(), emailFactory());
+            }
+
+            4) CONFIGURATION INJECTION:
+            // Make behavior configurable instead of mocked
+            function processPayment(amount, config = { timeout: 5000, retries: 3 }) {
+              // Use config instead of hardcoded values that need mocking
+            }
+
+            5) EVENT-DRIVEN TESTING:
+            // Test through events instead of mocking internal calls
+            emitter.emit('user-created', userData);
+            expect(await waitForEvent('email-sent')).toBeTruthy();
+
+            // ! ======================================================================
+                 ตัวอย่าง:
+            // ! ======================================================================
+            ไม่ดี: jest.mock('./database'); // Test ไม่ validate integration database จริง
+            ดี: function createUser(userData, database) { return database.save(userData); } // Test ส่ง database จริงหรือตัวทดสอบ database ได้
+ 
+            // ! ======================================================================
+                 เหตุผลที่คนอยากใช้ mocking และการปิดช่องโหว่:
+            // ! ======================================================================
+            1. "เฮ้ย! แต่ unit test ต้องเร็วนี่!"
+               → ไม่ยอมรับ! ความเร็วมาจาก architecture ที่ดี ไม่ใช่การ mock
+               → แก้ถูก: ใช้ in-memory database หรือ test containers สำหรับ integration tests
+               → เพราะอะไร: Mock ทำให้ test ไม่ validate real integration behavior
+
+            2. "อะ! แต่ external API มันช้าแล้วก็ไม่เสถียร!"
+               → ไม่ยอมรับ! External API ต้องห่อใน service layer และใช้ test environment
+               → แก้ถูก: API Gateway pattern พร้อม test endpoint หรือ staging environment
+               → เพราะอะไร: Mock API response ไม่ test real network errors และ API contract changes
+
+            3. "เฮ้ย! แต่ database connection มันหนักเกินไป!"
+               → ไม่ยอมรับ! Database testing ต้องใช้ proper test isolation
+               → แก้ถูก: Docker test containers, transaction rollback หรือ dedicated test database
+               → เพราะอะไร: Mock database ไม่ validate SQL syntax, constraints และ data integrity
+
+            4. "อะ! แต่ file system I/O มันช้า!"
+               → ไม่ยอมรับ! File operations ต้องถูกออกแบบให้ testable
+               → แก้ถูก: Abstraction layer สำหรับ file operations พร้อม in-memory implementation
+               → เพราะอะไร: Mock file operations ไม่ test real file permissions และ disk space issues
+
+            5. "เฮ้ย! แต่ time/date testing ทำไงล่ะ!"
+               → ไม่ยอมรับ! Time dependencies ต้อง inject เป็น parameter
+               → แก้ถุก: Clock abstraction ที่ inject เข้า function แทน Date.now() ตรงๆ
+               → เพราะอะไร: Mock time ไม่ test timezone issues และ daylight saving time
+
+            6. "อะ! แต่ third-party library มันใช้ยาก!"
+               → ไม่ยอมรับ! Third-party ต้องห่อใน adapter pattern
+               → แก้ถูก: Wrapper class ที่ implement interface ชัดเจนแล้วทดสอบ adapter นั้น
+               → เพราะอะไร: Mock library ไม่ validate API compatibility และ version changes
+
+            7. "เฮ้ย! แต่ email/SMS service มันต้องใช้เงิน!"
+               → ไม่ยอมรับ! Communication service ต้องมี test mode
+               → แก้ถูก: Service configuration ที่มี test mode หรือ sandbox environment
+               → เพราะอะไร: Mock communication ไม่ validate message formatting และ delivery constraints
+
+            8. "อะ! แต่ authentication มันซับซ้อน!"
+               → ไม่ยอมรับ! Authentication ต้องออกแบบให้มี test user
+               → แก้ถูก: Test authentication token หรือ development-only auth bypass
+               → เพราะอะไร: Mock auth ไม่ validate permission logic และ security policies
+
+            9. "เฮ้ย! แต่ legacy code มันแก้ไม่ได้!"
+               → ไม่ยอมรับ! Legacy integration ต้องค่อยๆ refactor
+               → แก้ถูก: Strangler Fig pattern - wrap legacy ใน interface ใหม่แล้วทดสอบ interface นั้น
+               → เพราะอะไร: Mock legacy ทำให้ไม่สามารถ validate การทำงานจริงของระบบเก่า
+
+            10. "อะ! แต่ performance testing ต้องใช้ mock!"
+                → ไม่ยอมรับ! Performance testing ต้องใช้ representative data
+                → แก้ถูก: Load testing พร้อม realistic test data และ proper test environment
+                → เพราะอะไร: Mock performance ไม่ reflect real bottlenecks และ resource constraints
+
+            // ! ======================================================================
+                 กฎทองสำหรับตรวจสอบ:
+            // ! ======================================================================
+            ถ้า production bug เกิดขึ้นแล้ว unit test ยัง pass = test suite ไม่ validate behavior จริง
+            ถ้าต้อง mock เพื่อให้ test ผ่าน = architecture coupling too tight
+
+            ไม่มีข้อยกเว้น ไม่มีเหตุผลพิเศษ - ZERO MOCKING, REAL TESTING ONLY`
+          
         },
+        // ! ======================================================================
+        // ! violationExamples - ตัวอย่างการละเมิดกฎ NO_MOCKING
+        // ! ======================================================================
         violationExamples: {
+            // ! ------------------------------------------------------------------
+            // ! ENGLISH VIOLATION EXAMPLES
+            // ! ------------------------------------------------------------------
             en: [
-                `/**
-                 * @example-for-rule NO_MOCKING
-                 * @type violation
-                 * @matches-pattern jest.mock() usage
-                 */
-jest.mock('./emailService');
-const emailService = require('./emailService');
-emailService.send.mockResolvedValue(true);
+                `// @example-for-rule NO_MOCKING
+                // @type violation
+                // @matches-pattern jest.mock() usage
+                jest.mock('./emailService');
+                const emailService = require('./emailService');
+                emailService.send.mockResolvedValue(true);
 
-test('should send notification', async () => {
-  await sendNotification('user@example.com', 'Hello');
-  expect(emailService.send).toHaveBeenCalledWith('user@example.com', 'Hello');
-});`,
+                test('should send notification', async () => {
+                  await sendNotification('user@example.com', 'Hello');
+                  expect(emailService.send).toHaveBeenCalledWith('user@example.com', 'Hello');
+                });`,
 
-                `/**
-                 * @example-for-rule NO_MOCKING
-                 * @type violation
-                 * @matches-pattern sinon.stub() usage
-                 */
-const sinon = require('sinon');
-const fs = require('fs');
-const stub = sinon.stub(fs, 'readFileSync').returns('fake data');
+                `// @example-for-rule NO_MOCKING
+                // @type violation
+                // @matches-pattern sinon.stub() usage
+                const sinon = require('sinon');
+                const fs = require('fs');
+                const stub = sinon.stub(fs, 'readFileSync').returns('fake data');
 
-test('should read config', () => {
-  const config = readConfig('./config.json');
-  expect(config).toBe('fake data');
-});`,
+                test('should read config', () => {
+                  const config = readConfig('./config.json');
+                  expect(config).toBe('fake data');
+                });`,
 
-                `/**
-                 * @example-for-rule NO_MOCKING
-                 * @type violation
-                 * @matches-pattern jest.spyOn() usage
-                 */
-const spy = jest.spyOn(userService, 'validateEmail');
-await createUser({email: 'test@test.com'});
-expect(spy).toHaveBeenCalledTimes(1);`
+                `// @example-for-rule NO_MOCKING
+                // @type violation
+                // @matches-pattern jest.spyOn() usage
+                const spy = jest.spyOn(userService, 'validateEmail');
+                await createUser({email: 'test@test.com'});
+                expect(spy).toHaveBeenCalledTimes(1);`
             ],
+            // ! ------------------------------------------------------------------
+            // ! THAI VIOLATION EXAMPLES (ตัวอย่างการละเมิดภาษาไทย)
+            // ! ------------------------------------------------------------------
             th: [
-                `/**
-                 * @example-for-rule NO_MOCKING
-                 * @type violation
-                 * @matches-pattern jest.mock() usage
-                 */
-jest.mock('./emailService');
-const emailService = require('./emailService');
-emailService.send.mockResolvedValue(true);
+                `// @example-for-rule NO_MOCKING
+                // @type violation
+                // @matches-pattern jest.mock() usage
+                jest.mock('./emailService');
+                const emailService = require('./emailService');
+                emailService.send.mockResolvedValue(true);
 
-test('ควรส่งการแจ้งเตือน', async () => {
-  await sendNotification('user@example.com', 'สวัสดี');
-  expect(emailService.send).toHaveBeenCalledWith('user@example.com', 'สวัสดี');
-});`,
+                test('ควรส่งการแจ้งเตือน', async () => {
+                  await sendNotification('user@example.com', 'สวัสดี');
+                  expect(emailService.send).toHaveBeenCalledWith('user@example.com', 'สวัสดี');
+                });`,
 
-                `/**
-                 * @example-for-rule NO_MOCKING
-                 * @type violation
-                 * @matches-pattern sinon.stub() usage
-                 */
-const sinon = require('sinon');
-const fs = require('fs');
-const stub = sinon.stub(fs, 'readFileSync').returns('ข้อมูลปลอม');
+                `// @example-for-rule NO_MOCKING
+                // @type violation
+                // @matches-pattern sinon.stub() usage
+                const sinon = require('sinon');
+                const fs = require('fs');
+                const stub = sinon.stub(fs, 'readFileSync').returns('ข้อมูลปลอม');
 
-test('ควรอ่าน config', () => {
-  const config = readConfig('./config.json');
-  expect(config).toBe('ข้อมูลปลอม');
-});`,
+                test('ควรอ่าน config', () => {
+                  const config = readConfig('./config.json');
+                  expect(config).toBe('ข้อมูลปลอม');
+                });`,
 
-                `/**
-                 * @example-for-rule NO_MOCKING
-                 * @type violation
-                 * @matches-pattern jest.spyOn() usage
-                 */
-const spy = jest.spyOn(userService, 'validateEmail');
-await createUser({email: 'test@test.com'});
-expect(spy).toHaveBeenCalledTimes(1);`
+                `// @example-for-rule NO_MOCKING
+                // @type violation
+                // @matches-pattern jest.spyOn() usage
+                const spy = jest.spyOn(userService, 'validateEmail');
+                await createUser({email: 'test@test.com'});
+                expect(spy).toHaveBeenCalledTimes(1);`
             ]
+            // ! ======================================================================
+            // ! END OF violationExamples - All violation patterns above
+            // ! ======================================================================
         },
+        // ! ======================================================================
+        // ! correctExamples - ตัวอย่างการใช้งานที่ถูกต้อง (NO MOCKING)
+        // ! ======================================================================
         correctExamples: {
+            // ! ------------------------------------------------------------------
+            // ! ENGLISH CORRECT EXAMPLES
+            // ! ------------------------------------------------------------------
             en: [
-                `/**
-                 * @example-for-rule NO_MOCKING
-                 * @type correct
-                 */
-function sendNotification(email, message, emailService = defaultEmailService) {
-  return emailService.send(email, message);
-}
+                `// @example-for-rule NO_MOCKING
+                // @type correct
+                function sendNotification(email, message, emailService = defaultEmailService) {
+                  return emailService.send(email, message);
+                }
 
-test('should send notification', async () => {
-  const testEmailService = { 
-    send: async (email, msg) => ({ success: true, email, msg })
-  };
-  const result = await sendNotification('user@example.com', 'Hello', testEmailService);
-  expect(result.success).toBe(true);
-});`,
+                test('should send notification', async () => {
+                  const testEmailService = { 
+                    send: async (email, msg) => ({ success: true, email, msg })
+                  };
+                  const result = await sendNotification('user@example.com', 'Hello', testEmailService);
+                  expect(result.success).toBe(true);
+                });`,
 
-                `/**
-                 * @example-for-rule NO_MOCKING
-                 * @type correct
-                 */
-class UserService {
-  constructor(database, emailService, logger) {
-    this.database = database;
-    this.emailService = emailService;
-    this.logger = logger;
-  }
-  
-  async createUser(userData) {
-    const user = await this.database.save(userData);
-    await this.emailService.sendWelcome(user.email);
-    this.logger.info('User created', user.id);
-    return user;
-  }
-}
+                `// @example-for-rule NO_MOCKING
+                // @type correct
+                class UserService {
+                  constructor(database, emailService, logger) {
+                    this.database = database;
+                    this.emailService = emailService;
+                    this.logger = logger;
+                  }
+                  
+                  async createUser(userData) {
+                    const user = await this.database.save(userData);
+                    await this.emailService.sendWelcome(user.email);
+                    this.logger.info('User created', user.id);
+                    return user;
+                  }
+                }
 
-const userService = new UserService(realDatabase, realEmailService, realLogger);`
+                const userService = new UserService(realDatabase, realEmailService, realLogger);`
             ],
+            // ! ------------------------------------------------------------------
+            // ! THAI CORRECT EXAMPLES (ตัวอย่างที่ถูกต้องภาษาไทย)
+            // ! ------------------------------------------------------------------
             th: [
                 `// ดี: Dependency Injection อนุญาตให้ใช้ implementation จริงและ test
-function sendNotification(email, message, emailService = defaultEmailService) {
-  return emailService.send(email, message);
-}
+                function sendNotification(email, message, emailService = defaultEmailService) {
+                  return emailService.send(email, message);
+                }
 
-// Test ด้วย implementation จริงหรือ test double
-test('ควรส่งการแจ้งเตือน', async () => {
-  const testEmailService = { 
-    send: async (email, msg) => ({ success: true, email, msg })
-  };
-  const result = await sendNotification('user@example.com', 'สวัสดี', testEmailService);
-  expect(result.success).toBe(true);
-});`,
+                // Test ด้วย implementation จริงหรือ test double
+                test('ควรส่งการแจ้งเตือน', async () => {
+                  const testEmailService = { 
+                    send: async (email, msg) => ({ success: true, email, msg })
+                  };
+                  const result = await sendNotification('user@example.com', 'สวัสดี', testEmailService);
+                  expect(result.success).toBe(true);
+                });`,
 
                 `// ดี: Dependencies แบบ configuration-based
-class UserService {
-  constructor(database, emailService, logger) {
-    this.database = database;
-    this.emailService = emailService;
-    this.logger = logger;
-  }
-  
-  async createUser(userData) {
-    const user = await this.database.save(userData);
-    await this.emailService.sendWelcome(user.email);
-    this.logger.info('สร้างผู้ใช้แล้ว', user.id);
-    return user;
-  }
-}
+                class UserService {
+                  constructor(database, emailService, logger) {
+                    this.database = database;
+                    this.emailService = emailService;
+                    this.logger = logger;
+                  }
 
-// การใช้งานจริง
-const userService = new UserService(realDatabase, realEmailService, realLogger);
+                  async createUser(userData) {
+                    const user = await this.database.save(userData);
+                    await this.emailService.sendWelcome(user.email);
+                    this.logger.info('สร้างผู้ใช้แล้ว', user.id);
+                    return user;
+                  }
+                }
 
-// การใช้งานใน test  
-const userService = new UserService(testDatabase, testEmailService, testLogger);`
+                // การใช้งานจริง
+                const userService = new UserService(realDatabase, realEmailService, realLogger);
+
+                // การใช้งานใน test  
+                const userService = new UserService(testDatabase, testEmailService, testLogger);`
             ]
+            // ! ======================================================================
+            // ! END OF correctExamples - All correct implementation patterns above
+            // ! ======================================================================
         },
         patterns: [
             // Jest mocking patterns (all variants)
@@ -974,10 +1016,14 @@ const userService = new UserService(testDatabase, testEmailService, testLogger);
             en: 'Remove mocking and use Dependency Injection: Pass dependencies as function parameters.',
             th: 'ลบ mock ออกและใช้ Dependency Injection: ส่ง dependencies เป็น parameter ของฟังก์ชัน'
         }
+        // ═══════════════════════════════════════════════════════════════════════════════════════════════════
+        // END OF NO_MOCKING RULE - All patterns, examples, and fixes completed above
+        // ═══════════════════════════════════════════════════════════════════════════════════════════════════
     },
-// ======================================================================
-// NO_HARDCODE Rule: Detects hardcoded URLs, API keys, and configuration values in code.
-// ======================================================================
+
+    // ! ======================================================================
+    // ! NO_HARDCODE - ห้าม Hardcode ค่าใดๆ (กฎเหล็กข้อที่ 2)
+    // ! ======================================================================
     NO_HARDCODE: {
         id: 'NO_HARDCODE',
         name: {
@@ -989,315 +1035,357 @@ const userService = new UserService(testDatabase, testEmailService, testLogger);
             th: 'ห้าม Hardcode URL, API Key หรือค่าคงที่ใดๆ ที่ควรอยู่ใน Configuration ให้ใช้ไฟล์ config หรือ parameter'
         },
         explanation: {
-            en: `ABSOLUTE PHILOSOPHY: "HARDCODE IS EMBEDDING TECHNICAL DEBT WAITING TO EXPLODE"
+            en: 
+            // ! ======================================================================            
+                 `ABSOLUTE PHILOSOPHY: "HARDCODE IS EMBEDDING TECHNICAL DEBT WAITING TO EXPLODE"
+            // ! ======================================================================
+            This rule enforces THE SACRED BOUNDARY between "Code (Behavior)" and "Config (Environment)". Code written once should be able to run in ANY environment (Development, Staging, Production, Customer machines) without modifying even a single character.
+
+            Every time any value is hardcoded, that's creating a "specialized version" of software tied to that specific environment. It's deliberately creating software that is FRAGILE, INSECURE, and NON-SCALABLE.
+
+            // ! ======================================================================
+                 DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
+            // ! ======================================================================
+            FLAWED LOGIC: "But it's just localhost for my own machine!"
+            REAL ANSWER: Tomorrow there might be a new developer joining the team who uses Docker and their localhost is host.docker.internal. Your hardcode has instantly created problems for others. Good code must not make assumptions about anyone's environment.
+
+            FLAWED LOGIC: "But it's just a constant that never changes, like retry count!"
+            REAL ANSWER: On high-load Production, you might need 5 retries with Exponential Backoff, but on Development you might want it to fail immediately for faster debugging. Values that seem "constant" are actually "policy variables" that need to be adjustable.
+
+            // ! ======================================================================
+                 GOLDEN RULE FOR VERIFICATION:
+            // ! ======================================================================
+            "If someone without an IDE (like DevOps team, SRE, or even managers) wants to change this value, can they do it themselves through a Dashboard or config file without touching code at all?"
+
+            // ! ======================================================================
+                 CONCLUSION WITHOUT EXCEPTIONS:
+            // ! ======================================================================
+            Every character in your code should describe "LOGIC", not "ADDRESSES" or "SPECIFIC DATA". If it's not logic, it's config, and must be external to code without any exceptions.
+
+            // ! ======================================================================
+                 LEGACY PHILOSOPHY & DEEPER RATIONALE:
+            // ! ======================================================================
+            Code should define BEHAVIOR (what the system does), while Configuration should define ENVIRONMENT (where and how it runs). Embedding values that should be in configuration into source code destroys the separation between these two concerns, making code NON-PORTABLE (cannot move to different environments) and INSECURE (secrets exposed).
+
+            Every hardcoded value is an "assumption" embedded in code, such as "the database will always be at this IP", "this API key will work forever". In reality, these assumptions are false and will create problems eventually.
+
+            The rule enforces the principle of EXTERNALIZATION OF CONFIGURATION - all environment-specific, security-sensitive, or deployment-dependent values must be injected from outside the codebase.
+
+            // ! ======================================================================
+                 HIDDEN DANGERS:
+            // ! ======================================================================
+            1) SECRET LEAKS (ความลับรั่วไหล): API Keys, passwords in code = open door for hackers. Just one code leak to public repo = instant disaster
+            2) DEPLOYMENT FAILURES (การ Deploy ล้มเหลว): Code works on Development but crashes on Staging/Production because URLs, ports, paths don't match
+            3) HIGH COST OF CHANGE (ค่าใช้จ่ายสูงในการเปลี่ยน): Changing small values like timeout or API URL becomes full code modification + code review + build + deploy cycle instead of just changing environment variable
+            4) MAGIC NUMBERS (ตัวเลขลึกลับ): Using floating numbers in code (like if (user.role === 3)) makes code unreadable and extremely difficult to modify
+            5) ENVIRONMENT COUPLING (ผูกติดสภาพแวดล้อม): Code becomes coupled to specific environment, preventing horizontal scaling and multi-environment deployment
+            6) SECURITY AUDIT NIGHTMARE (ฝันร้ายการตรวจสอบความปลอดภัย): Security teams cannot scan for exposed secrets because they're scattered throughout codebase instead of centralized configuration
+            7) DISASTER RECOVERY IMPOSSIBILITY (ฟื้นฟูหายนะไม่ได้): Cannot quickly change endpoints during outages because values are buried in code requiring full deployment
+            8) COMPLIANCE VIOLATIONS (ละเมิดมาตรฐาน): Regulations like SOX, PCI-DSS, GDPR require separation of configuration from code - hardcoded values violate compliance
+            9) TESTING HELL (นรกการทดสอบ): Cannot test against different environments/configurations without code changes
+            10) VENDOR LOCK-IN (ผูกติดผู้ขาย): Hardcoded service URLs prevent switching to alternative providers
+
+            // ! ======================================================================
+                 LITMUS TEST:
+            // ! ======================================================================
+            Ask yourself: "If DevOps/SRE team needs to change this value for new environment (like new K8s cluster, new region), do they need to ask programmers to modify this source file?"
+            - If answer is "YES": You're violating NO_HARDCODE
+            - If answer is "NO" (they can change via ENV, .env, or Config Map): You're doing it right
+
+            // ! ======================================================================
+                 THE ABSOLUTE SOLUTION:
+            // ! ======================================================================
+            Use Configuration Hierarchy that's clear:
+
+            1. Read from Environment Variables first: (like process.env.DATABASE_URL) - standard for Production and CI/CD
+            2. If not available, read from .env file: For local development
+            3. If still not available, read from config.js/config.json: For non-secret defaults that don't change per environment
+            4. NEVER have secret defaults: If Environment Variable for secret value (like API Key) doesn't exist, FAIL FAST with clear error message
+
+            // config.js
+            const config = {
+              database: {
+                host: process.env.DB_HOST || 'localhost',
+                port: process.env.DB_PORT || 5432
+              },
+              apiKey: process.env.API_KEY // NO default for secrets
+            };
+
+            if (!config.apiKey) {
+              throw new Error('FATAL: API_KEY is not defined in environment variables.');
+            }
+
+            module.exports = config;
+
+            // ! ======================================================================
+                 ADVANCED VIOLATION PATTERNS:
+            // ! ======================================================================
             
-This rule enforces THE SACRED BOUNDARY between "Code (Behavior)" and "Config (Environment)". Code written once should be able to run in ANY environment (Development, Staging, Production, Customer machines) without modifying even a single character.
-
-Every time any value is hardcoded, that's creating a "specialized version" of software tied to that specific environment. It's deliberately creating software that is FRAGILE, INSECURE, and NON-SCALABLE.
-
-DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
-
-FLAWED LOGIC: "But it's just localhost for my own machine!"
-REAL ANSWER: Tomorrow there might be a new developer joining the team who uses Docker and their localhost is host.docker.internal. Your hardcode has instantly created problems for others. Good code must not make assumptions about anyone's environment.
-
-FLAWED LOGIC: "But it's just a constant that never changes, like retry count!"
-REAL ANSWER: On high-load Production, you might need 5 retries with Exponential Backoff, but on Development you might want it to fail immediately for faster debugging. Values that seem "constant" are actually "policy variables" that need to be adjustable.
-
-GOLDEN RULE FOR VERIFICATION:
-"If someone without an IDE (like DevOps team, SRE, or even managers) wants to change this value, can they do it themselves through a Dashboard or config file without touching code at all?"
-
-CONCLUSION WITHOUT EXCEPTIONS:
-Every character in your code should describe "LOGIC", not "ADDRESSES" or "SPECIFIC DATA". If it's not logic, it's config, and must be external to code without any exceptions.
-
-LEGACY PHILOSOPHY & DEEPER RATIONALE:
-Code should define BEHAVIOR (what the system does), while Configuration should define ENVIRONMENT (where and how it runs). Embedding values that should be in configuration into source code destroys the separation between these two concerns, making code NON-PORTABLE (cannot move to different environments) and INSECURE (secrets exposed).
-
-Every hardcoded value is an "assumption" embedded in code, such as "the database will always be at this IP", "this API key will work forever". In reality, these assumptions are false and will create problems eventually.
-
-The rule enforces the principle of EXTERNALIZATION OF CONFIGURATION - all environment-specific, security-sensitive, or deployment-dependent values must be injected from outside the codebase.
-
-HIDDEN DANGERS:
-1) SECRET LEAKS (ความลับรั่วไหล): API Keys, passwords in code = open door for hackers. Just one code leak to public repo = instant disaster
-2) DEPLOYMENT FAILURES (การ Deploy ล้มเหลว): Code works on Development but crashes on Staging/Production because URLs, ports, paths don't match
-3) HIGH COST OF CHANGE (ค่าใช้จ่ายสูงในการเปลี่ยน): Changing small values like timeout or API URL becomes full code modification + code review + build + deploy cycle instead of just changing environment variable
-4) MAGIC NUMBERS (ตัวเลขลึกลับ): Using floating numbers in code (like if (user.role === 3)) makes code unreadable and extremely difficult to modify
-5) ENVIRONMENT COUPLING (ผูกติดสภาพแวดล้อม): Code becomes coupled to specific environment, preventing horizontal scaling and multi-environment deployment
-6) SECURITY AUDIT NIGHTMARE (ฝันร้ายการตรวจสอบความปลอดภัย): Security teams cannot scan for exposed secrets because they're scattered throughout codebase instead of centralized configuration
-7) DISASTER RECOVERY IMPOSSIBILITY (ฟื้นฟูหายนะไม่ได้): Cannot quickly change endpoints during outages because values are buried in code requiring full deployment
-8) COMPLIANCE VIOLATIONS (ละเมิดมาตรฐาน): Regulations like SOX, PCI-DSS, GDPR require separation of configuration from code - hardcoded values violate compliance
-9) TESTING HELL (นรกการทดสอบ): Cannot test against different environments/configurations without code changes
-10) VENDOR LOCK-IN (ผูกติดผู้ขาย): Hardcoded service URLs prevent switching to alternative providers
-
-LITMUS TEST:
-Ask yourself: "If DevOps/SRE team needs to change this value for new environment (like new K8s cluster, new region), do they need to ask programmers to modify this source file?"
-- If answer is "YES": You're violating NO_HARDCODE
-- If answer is "NO" (they can change via ENV, .env, or Config Map): You're doing it right
-
-THE ABSOLUTE SOLUTION:
-Use Configuration Hierarchy that's clear:
-
-1. Read from Environment Variables first: (like process.env.DATABASE_URL) - standard for Production and CI/CD
-2. If not available, read from .env file: For local development
-3. If still not available, read from config.js/config.json: For non-secret defaults that don't change per environment
-4. NEVER have secret defaults: If Environment Variable for secret value (like API Key) doesn't exist, FAIL FAST with clear error message
-
-// config.js
-const config = {
-  database: {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432
-  },
-  apiKey: process.env.API_KEY // NO default for secrets
-};
-
-if (!config.apiKey) {
-  throw new Error('FATAL: API_KEY is not defined in environment variables.');
-}
-
-module.exports = config;
-
-ADVANCED VIOLATION PATTERNS:
-1) FAKE/TEST HARDCODING: Hardcoding fake values to make tests pass without real integration
-   BAD: const mockUserId = 12345; // Always returns same fake ID
-   BAD: if (process.env.NODE_ENV === 'test') return { success: true }; // Fake success in tests
-
-2) CONDITIONAL HARDCODING: Different hardcoded values for different environments
-   BAD: const timeout = isProd ? 30000 : 5000; // Environment-specific magic numbers
-   BAD: const dbHost = isStaging ? 'staging-db.com' : 'prod-db.com'; // Hardcoded hosts
-
-3) ALGORITHM PARAMETER HARDCODING: Business logic parameters that should be configurable
-   BAD: const MAX_RETRY_ATTEMPTS = 3; // Should be configurable per environment
-   BAD: const CACHE_TTL_SECONDS = 3600; // Should vary by environment load
-
-4) FEATURE FLAGS HARDCODING: Feature toggles hardcoded instead of dynamic
-   BAD: const ENABLE_NEW_ALGORITHM = true; // Should be runtime configurable
-   BAD: if (userId === 'admin') enableBetaFeature(); // Hardcoded special cases
-
-5) SECURITY BYPASS HARDCODING: Hardcoded backdoors or test bypasses left in production
-   BAD: if (password === 'dev123') return { authenticated: true }; // Test backdoor
-   BAD: const skipAuth = process.env.NODE_ENV === 'development'; // Auth bypass
-
-6) BUSINESS RULE HARDCODING: Domain-specific rules that should be configurable
-   BAD: const MIN_PASSWORD_LENGTH = 8; // Should be policy-configurable
-   BAD: const TAX_RATE = 0.07; // Should be jurisdiction-configurable
-
-7) INTEGRATION ENDPOINT HARDCODING: Service discovery hardcoded instead of dynamic
-   BAD: const userService = 'http://user-service:3001'; // Should use service discovery
-   BAD: const paymentGateway = 'https://payments.stripe.com'; // Should be env-specific
-
-8) RESOURCE LIMIT HARDCODING: System resource limits hardcoded instead of tunable
-   BAD: const MAX_CONCURRENT_REQUESTS = 100; // Should be tunable based on system capacity
-   BAD: const MEMORY_LIMIT_MB = 512; // Should be configurable per deployment
-
-9) TIMING/SCHEDULE HARDCODING: Cron schedules, timeouts, intervals hardcoded
-   BAD: setInterval(cleanup, 60000); // Should be configurable
-   BAD: const MAINTENANCE_WINDOW = '02:00-04:00'; // Should be timezone/region specific
-
-10) COMPLIANCE/AUDIT HARDCODING: Audit trails, retention periods hardcoded
-    BAD: const LOG_RETENTION_DAYS = 90; // Should be compliance-configurable
-    BAD: const AUDIT_ENABLED = true; // Should be policy-driven
-
-SOPHISTICATED DETECTION: This rule catches not just obvious hardcoding but also:
-- Ternary operators with environment-specific values
-- Switch statements with hardcoded environment cases
-- Default function parameters hiding configuration
-- Class constants that should be injected
-- Enum values that should be configurable
-- Regular expressions with hardcoded patterns
-- Mathematical constants used in business logic
-- Hardcoded user IDs, roles, permissions
-- Test data generators with fixed values
-- Mock responses that bypass real integration
-
-ZERO TOLERANCE: No hardcoded URLs, API keys, database connections, file paths, timeouts, business rules, feature flags, security bypasses, resource limits, schedules, compliance settings, or ANY environment/deployment/business-specific values in source code.`,
-            th: `ปรัชญาและเหตุผลเชิงลึก:
-โค้ดควรกำหนด BEHAVIOR (พฤติกรรมที่ระบบทำ) ส่วน Configuration ควรกำหนด ENVIRONMENT (สภาพแวดล้อมที่ทำงาน) การฝังค่าที่ควรอยู่ใน configuration ลงใน source code ทำลายการแยกระหว่างสองสิ่งนี้ ทำให้โค้ด NON-PORTABLE (ย้ายไป environment อื่นไม่ได้) และ INSECURE (ความลับเปิดเผย)
-
-ค่า hardcode ทุกตัวคือ "สมมติฐาน" ที่ฝังใน code เช่น "database จะอยู่ที่ IP นี้เสมอ", "API key นี้ใช้ได้ตลอดไป" ในความเป็นจริง สมมติฐานเหล่านี้เป็นเท็จและจะสร้างปัญหาในที่สุด
-
-กฎนี้บังคับหลักการ EXTERNALIZATION OF CONFIGURATION - ค่าทั้งหมดที่เกี่ยวกับ environment, security, deployment ต้องถูก inject จากภายนอก codebase
-
-อันตรายที่ซ่อนอยู่:
-1) ความลับรั่วไหล: API Keys, passwords ในโค้ด = เปิดประตูให้แฮกเกอร์ แค่โค้ดหลุดไป public repo = หายนะทันที
-2) การ Deploy ล้มเหลว: โค้ดทำงานใน Development แต่พังใน Staging/Production เพราะ URLs, ports, paths ไม่ตรง
-3) ค่าใช้จ่ายสูงในการเปลี่ยน: เปลี่ยนค่าเล็กๆ เช่น timeout หรือ API URL กลายเป็นการแก้โค้ด + code review + build + deploy แทนที่จะแค่เปลี่ยน environment variable
-4) ตัวเลขลึกลับ: ใช้ตัวเลขลอยๆ ในโค้ด (เช่น if (user.role === 3)) ทำให้โค้ดอ่านไม่รู้เรื่องและแก้ยากมาก
-5) ผูกติดสภาพแวดล้อม: โค้ดผูกติดกับ environment เฉพาะ ป้องกันการ scale และ deploy หลาย environment
-6) ฝันร้ายการตรวจสอบความปลอดภัย: Security team ไม่สามารถ scan หาความลับที่เปิดเผยได้ เพราะกระจายทั่ว codebase แทนที่จะรวมใน configuration
-7) ฟื้นฟูหายนะไม่ได้: ไม่สามารถเปลี่ยน endpoint อย่างรวดเร็วเมื่อเกิดปัญหา เพราะค่าฝังอยู่ในโค้ดต้อง deploy ใหม่
-8) ละเมิดมาตรฐาน: กฎหมายอย่าง SOX, PCI-DSS, GDPR ต้องการแยก configuration จากโค้ด - hardcode ละเมิดมาตรฐาน
-9) นรกการทดสอบ: ไม่สามารถทดสอบกับ environment/configuration ต่างๆ ได้โดยไม่แก้โค้ด
-10) ผูกติดผู้ขาย: Hardcode service URL ป้องกันการเปลี่ยนไป alternative provider
-
-วิธีทดสอบความคิด (Litmus Test):
-ถามตัวเอง: "ถ้าทีม DevOps/SRE ต้องการเปลี่ยนค่านี้สำหรับ environment ใหม่ (เช่น K8s cluster ใหม่, region ใหม่) เขาต้องมาขอให้โปรแกรมเมอร์แก้ไฟล์ source นี้หรือไม่?"
-- ถ้าตอบ "ใช่": คุณละเมิด NO_HARDCODE
-- ถ้าตอบ "ไม่" (แก้ผ่าน ENV, .env, Config Map ได้): คุณทำถูกต้อง
-
-วิธีแก้ไขสมบูรณ์:
-ใช้ Configuration Hierarchy ที่ชัดเจน:
-
-1. อ่านจาก Environment Variables ก่อน: (เช่น process.env.DATABASE_URL) - มาตรฐานสำหรับ Production และ CI/CD
-2. ถ้าไม่มี อ่านจากไฟล์ .env: สำหรับการพัฒนาในเครื่อง
-3. ถ้ายังไม่มี อ่านจาก config.js/config.json: สำหรับค่า default ที่ไม่เป็นความลับและไม่เปลี่ยนตาม environment
-4. ห้ามมีค่า default ที่เป็นความลับ: ถ้า Environment Variable สำหรับค่าลับ (เช่น API Key) ไม่มี ให้ FAIL FAST พร้อมข้อความ error ชัดเจน
-
-// config.js
-const config = {
-  database: {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432
-  },
-  apiKey: process.env.API_KEY // ไม่มีค่า default สำหรับความลับ
-};
-
-if (!config.apiKey) {
-  throw new Error('FATAL: API_KEY is not defined in environment variables.');
-}
-
-module.exports = config;
-
-ไม่ยอมรับข้อยกเว้น: ไม่มี hardcode URLs, API keys, database connections, file paths, timeouts หรือค่า environment-specific ใดๆ ใน source code
-
-*** LOOPHOLE CLOSURE - การปิดช่องโหว่ทุกรูปแบบ ***
-
-เหตุผลที่คนอยากใช้ hardcode และการปิดช่องโหว่:
-
-1. "OMG BUT IT'S JUST A LOCALHOST URL FOR DEVELOPMENT!"
-   → ไม่ยอมรับ! ทันทีที่เขียน localhost แล้ว Junior Developer คนอื่นจะคิดว่าต่อจากนี้ localhost ทั้งหมดใส่ hardcode ได้
-   → แก้ถูก: DEFAULT_DEV_URL = process.env.DEV_URL || 'http://localhost:3000'
-   → เพราะอะไร: โครงการใหญ่มักมี multiple localhost environments ที่ต่าง port กัน
-
-2. "DUDE! IT'S JUST FOR UNIT TESTS!"
-   → ไม่ยอมรับ! Test fixtures และ mock data ต้องอยู่ในไฟล์แยก หรือ test-specific configuration
-   → แก้ถูก: fixtures/test-urls.json, test-config.js หรือใช้ jest.setupFiles
-   → เพราะอะไร: Hardcode ใน test ทำให้เปลี่ยน test environment ไม่ได้
-
-3. "BRO, IT'S JUST A TIMEOUT CONSTANT!"
-   → ไม่ยอมรับ! Timeout behavior ต้องเปลี่ยนได้ตาม network conditions ของแต่ละ environment
-   → แก้ถูก: config.timeouts.httpRequest ที่มี default แต่ override ได้
-   → เพราะอะไร: Production might need 30 seconds, Development needs 5 seconds, Testing needs 1 second
-
-4. "OMG BUT IT'S JUST A DATABASE SCHEMA NAME!"
-   → ไม่ยอมรับ! Database naming convention ต่างกันใน environment ต่างๆ
-   → แก้ถูก: DB_SCHEMA environment variable with tenant-specific or environment-specific naming
-   → เพราะอะไร: Multi-tenant และ environment isolation
-
-5. "DUDE! IT'S A THIRD-PARTY OAUTH REDIRECT URL!"
-   → ไม่ยอมรับ! OAuth configuration เปลี่ยนตาม domain และ environment
-   → แก้ถูก: OAUTH_REDIRECT_BASE + computed path based on current domain
-   → เพราะอะไร: Staging, QA, Production มี different domains
-
-6. "BRO, IT'S JUST A SIMPLE FILE PATH!"
-   → ไม่ยอมรับ! File paths ต่างกันใน Windows/Linux และ container environments
-   → แก้ถูก: path.join(process.env.DATA_DIR || './data', filename)
-   → เพราะอะไร: Development: ./data, Production: /app/data, Docker: /var/app/data
-
-7. "OMG BUT THESE ARE INDUSTRY-STANDARD PORTS!"
-   → ไม่ยอมรับ! "Standard" ports อาจถูกใช้โดย service อื่น หรือ blocked โดย firewall
-   → แก้ถูก: PORT configuration ที่มี default แต่ override ได้
-   → เพราะอะไร: Production ใช้ port 8080, Development ใช้ 3000, Docker ใช้ 80
-
-8. "DUDE! IT'S JUST MAGIC NUMBERS FOR BUSINESS LOGIC!"
-   → ไม่ยอมรับ! Business rules เปลี่ยนและต้อง externalize เพื่อให้ business team แก้ได้โดยไม่ผ่าน engineering
-   → แก้ถูก: BUSINESS_RULES configuration หรือ feature flags
-   → เพราะอะไร: "Free shipping จาก 500 บาท" อาจเปลี่ยนเป็น 800 บาทโดยไม่แก้โค้ด
-
-9. "BRO, THESE ARE JUST REGEX VALIDATION PATTERNS!"
-   → ไม่ยอมรับ! Validation rules เปลี่ยนตาม country, regulations และ business requirements
-   → แก้ถูก: validation-rules.json configuration
-   → เพราะอะไร: Email regex สำหรับ international vs Thailand, Phone number formats
-
-10. "OMG BUT IT'S JUST CSS/STYLE CONSTANTS!"
-    → ไม่ยอมรับ! Design systems และ theme ต้องเปลี่ยนได้ตาม brand guidelines หรือ A/B testing
-    → แก้ถูก: CSS variables, theme configuration, design tokens
-    → เพราะอะไร: White-label applications, dark/light themes, accessibility variants
-
-11. "DUDE! IT'S JUST ERROR MESSAGE STRINGS!"
-    → ไม่ยอมรับ! Error messages ต้องแปลได้และเปลี่ยนตาม user persona
-    → แก้ถูก: i18n configuration หรือ error-messages.json
-    → เพราะอะไร: Multi-language, user-friendly vs technical messages
-
-12. "BRO, IT'S JUST FEATURE FLAG BOOLEAN VALUES!"
-    → ไม่ยอมรับ! Feature flags ต้องควบคุมจาก runtime configuration
-    → แก้ถูก: Feature flag service หรือ FEATURE_* environment variables
-    → เพราะอะไร: Progressive rollout, A/B testing, instant rollback without deployment
-
-GOLDEN RULE สำหรับตรวจสอบ: 
-ถ้า DevOps, QA, Security, Business, หรือ Customer Support team ต้องการเปลี่ยนค่านี้โดยไม่ต้องรอ developer แก้โค้ด + code review + build + deploy ใหม่ 
-= ค่านั้นต้องเป็น configuration ไม่ใช่ hardcode
-
-ไม่มีข้อยกเว้น ไม่มีเหตุผลพิเศษ ไม่มี "แต่มันแค่..." - ZERO HARDCODED VALUES
-
-*** การปิดช่องโหว่ทุกรูปแบบ - LOOPHOLE CLOSURE ***
-
-เหตุผลที่คนอยากใช้ hardcode และการปิดช่องโหว่ (เวอร์ชันภาษาไทย):
-
-1. "เฮ้ย! แต่มันแค่ localhost URL สำหรับพัฒนานะ!"
-   → ไม่ยอมรับ! ทันทีที่เขียน localhost แล้ว Junior Developer คนอื่นจะคิดว่าต่อจากนี้ localhost ทั้งหมดใส่ hardcode ได้
-   → แก้ถูก: DEFAULT_DEV_URL = process.env.DEV_URL || 'http://localhost:3000'
-   → เพราะอะไร: โครงการใหญ่มักมี multiple localhost environments ที่ต่าง port กัน
-
-2. "อะ! แต่มันแค่สำหรับ unit testing นี่!"
-   → ไม่ยอมรับ! Test fixtures และ mock data ต้องอยู่ในไฟล์แยก หรือ test-specific configuration
-   → แก้ถูก: fixtures/test-urls.json, test-config.js หรือใช้ jest.setupFiles
-   → เพราะอะไร: Hardcode ใน test ทำให้เปลี่ยน test environment ไม่ได้
-
-3. "เฮ้ย! แต่มันแค่ timeout constant นะ!"
-   → ไม่ยอมรับ! Timeout behavior ต้องเปลี่ยนได้ตาม network conditions ของแต่ละ environment
-   → แก้ถูก: config.timeouts.httpRequest ที่มี default แต่ override ได้
-   → เพราะอะไร: Production อาจต้อง 30 วินาที, Development ต้อง 5 วินาที, Testing ต้อง 1 วินาที
-
-4. "อะ! แต่มันแค่ database schema name!"
-   → ไม่ยอมรับ! Database naming convention ต่างกันใน environment ต่างๆ
-   → แก้ถูก: DB_SCHEMA environment variable with tenant-specific หรือ environment-specific naming
-   → เพราะอะไร: Multi-tenant และ environment isolation
-
-5. "เฮ้ย! แต่มันแค่ third-party OAuth redirect URL!"
-   → ไม่ยอมรับ! OAuth configuration เปลี่ยนตาม domain และ environment
-   → แก้ถูก: OAUTH_REDIRECT_BASE + computed path based on current domain
-   → เพราะอะไร: Staging, QA, Production มี different domains
-
-6. "อะ! แต่มันแค่ file path ธรรมดา!"
-   → ไม่ยอมรับ! File paths ต่างกันใน Windows/Linux และ container environments
-   → แก้ถูก: path.join(process.env.DATA_DIR || './data', filename)
-   → เพราะอะไร: Development: ./data, Production: /app/data, Docker: /var/app/data
-
-7. "เฮ้ย! แต่มันแค่ industry-standard ports!"
-   → ไม่ยอมรับ! "Standard" ports อาจถูกใช้โดย service อื่น หรือ blocked โดย firewall
-   → แก้ถูก: PORT configuration ที่มี default แต่ override ได้
-   → เพราะอะไร: Production ใช้ port 8080, Development ใช้ 3000, Docker ใช้ 80
-
-8. "อะ! แต่มันแค่ magic numbers สำหรับ business logic!"
-   → ไม่ยอมรับ! Business rules เปลี่ยนและต้อง externalize เพื่อให้ business team แก้ได้โดยไม่ผ่าน engineering
-   → แก้ถูก: BUSINESS_RULES configuration หรือ feature flags
-   → เพราะอะไร: "ส่งฟรีจาก 500 บาท" อาจเปลี่ยนเป็น 800 บาทโดยไม่แก้โค้ด
-
-9. "เฮ้ย! แต่มันแค่ regex validation patterns!"
-   → ไม่ยอมรับ! Validation rules เปลี่ยนตาม country, regulations และ business requirements
-   → แก้ถูก: validation-rules.json configuration
-   → เพราะอะไร: Email regex สำหรับ international vs Thailand, Phone number formats
-
-10. "อะ! แต่มันแค่ CSS/style constants!"
-    → ไม่ยอมรับ! Design systems และ theme ต้องเปลี่ยนได้ตาม brand guidelines หรือ A/B testing
-    → แก้ถูก: CSS variables, theme configuration, design tokens
-    → เพราะอะไร: White-label applications, dark/light themes, accessibility variants
-
-11. "เฮ้ย! แต่มันแค่ error message strings!"
-    → ไม่ยอมรับ! Error messages ต้องแปลได้และเปลี่ยนตาม user persona
-    → แก้ถูก: i18n configuration หรือ error-messages.json
-    → เพราะอะไร: Multi-language, user-friendly vs technical messages
-
-12. "อะ! แต่มันแค่ feature flag boolean values!"
-    → ไม่ยอมรับ! Feature flags ต้องควบคุมจาก runtime configuration
-    → แก้ถูก: Feature flag service หรือ FEATURE_* environment variables
-    → เพราะอะไร: Progressive rollout, A/B testing, instant rollback without deployment
-
-กฎทองสำหรับตรวจสอบ (ภาษาไทย): 
-ถ้าทีม DevOps, QA, Security, Business, หรือ Customer Support ต้องการเปลี่ยนค่านี้โดยไม่ต้องรอนักพัฒนาแก้โค้ด + code review + build + deploy ใหม่ 
-= ค่านั้นต้องเป็น configuration ไม่ใช่ hardcode
-
-ไม่มีข้อยกเว้น ไม่มีเหตุผลพิเศษ ไม่มี "แต่มันแค่..." - ห้าม HARDCODE เด็ดขาด`
+            1) FAKE/TEST HARDCODING: Hardcoding fake values to make tests pass without real integration
+               BAD: const mockUserId = 12345; // Always returns same fake ID
+               BAD: if (process.env.NODE_ENV === 'test') return { success: true }; // Fake success in tests
+
+            2) CONDITIONAL HARDCODING: Different hardcoded values for different environments
+               BAD: const timeout = isProd ? 30000 : 5000; // Environment-specific magic numbers
+               BAD: const dbHost = isStaging ? 'staging-db.com' : 'prod-db.com'; // Hardcoded hosts
+
+            3) ALGORITHM PARAMETER HARDCODING: Business logic parameters that should be configurable
+               BAD: const MAX_RETRY_ATTEMPTS = 3; // Should be configurable per environment
+               BAD: const CACHE_TTL_SECONDS = 3600; // Should vary by environment load
+
+            4) FEATURE FLAGS HARDCODING: Feature toggles hardcoded instead of dynamic
+               BAD: const ENABLE_NEW_ALGORITHM = true; // Should be runtime configurable
+               BAD: if (userId === 'admin') enableBetaFeature(); // Hardcoded special cases
+
+            5) SECURITY BYPASS HARDCODING: Hardcoded backdoors or test bypasses left in production
+               BAD: if (password === 'dev123') return { authenticated: true }; // Test backdoor
+               BAD: const skipAuth = process.env.NODE_ENV === 'development'; // Auth bypass
+
+            6) BUSINESS RULE HARDCODING: Domain-specific rules that should be configurable
+               BAD: const MIN_PASSWORD_LENGTH = 8; // Should be policy-configurable
+               BAD: const TAX_RATE = 0.07; // Should be jurisdiction-configurable
+
+            7) INTEGRATION ENDPOINT HARDCODING: Service discovery hardcoded instead of dynamic
+               BAD: const userService = 'http://user-service:3001'; // Should use service discovery
+               BAD: const paymentGateway = 'https://payments.stripe.com'; // Should be env-specific
+
+            8) RESOURCE LIMIT HARDCODING: System resource limits hardcoded instead of tunable
+               BAD: const MAX_CONCURRENT_REQUESTS = 100; // Should be tunable based on system capacity
+               BAD: const MEMORY_LIMIT_MB = 512; // Should be configurable per deployment
+
+            9) TIMING/SCHEDULE HARDCODING: Cron schedules, timeouts, intervals hardcoded
+               BAD: setInterval(cleanup, 60000); // Should be configurable
+               BAD: const MAINTENANCE_WINDOW = '02:00-04:00'; // Should be timezone/region specific
+
+            10) COMPLIANCE/AUDIT HARDCODING: Audit trails, retention periods hardcoded
+                BAD: const LOG_RETENTION_DAYS = 90; // Should be compliance-configurable
+                BAD: const AUDIT_ENABLED = true; // Should be policy-driven
+
+            // ! ======================================================================
+                 SOPHISTICATED DETECTION:
+            // ! ======================================================================
+            This rule catches not just obvious hardcoding but also:
+            - Ternary operators with environment-specific values
+            - Switch statements with hardcoded environment cases
+            - Default function parameters hiding configuration
+            - Class constants that should be injected
+            - Enum values that should be configurable
+            - Regular expressions with hardcoded patterns
+            - Mathematical constants used in business logic
+            - Hardcoded user IDs, roles, permissions
+            - Test data generators with fixed values
+            - Mock responses that bypass real integration
+
+            // ! ======================================================================
+                 ZERO TOLERANCE:
+            // ! ======================================================================
+            No hardcoded URLs, API keys, database connections, file paths, timeouts, business rules, feature flags, security bypasses, resource limits, schedules, compliance settings, or ANY environment/deployment/business-specific values in source code.`,
+            th: 
+            // ! ======================================================================            
+                 `ปรัชญาและเหตุผลเชิงลึก:
+            // ! ======================================================================
+            โค้ดควรกำหนด BEHAVIOR (พฤติกรรมที่ระบบทำ) ส่วน Configuration ควรกำหนด ENVIRONMENT (สภาพแวดล้อมที่ทำงาน) การฝังค่าที่ควรอยู่ใน configuration ลงใน source code ทำลายการแยกระหว่างสองสิ่งนี้ ทำให้โค้ด NON-PORTABLE (ย้ายไป environment อื่นไม่ได้) และ INSECURE (ความลับเปิดเผย)
+
+            ค่า hardcode ทุกตัวคือ "สมมติฐาน" ที่ฝังใน code เช่น "database จะอยู่ที่ IP นี้เสมอ", "API key นี้ใช้ได้ตลอดไป" ในความเป็นจริง สมมติฐานเหล่านี้เป็นเท็จและจะสร้างปัญหาในที่สุด
+
+            // ! ======================================================================
+                 หลักการสำคัญ:
+            // ! ======================================================================
+            ไม่มี hardcode ใดๆ ที่ยอมรับได้ - ไม่ว่าจะเป็น URL, API key, การเชื่อมต่อฐานข้อมูล, เส้นทางไฟล์, timeout, กฎธุรกิจ, feature flag, การข้าม security, ขีดจำกัดทรัพยากร, ตารางเวลา, การตั้งค่าการปฏิบัติตาม compliance หรือค่าใดๆ ที่เกี่ยวข้องกับ environment/deployment/business ใน source code
+
+            กฎนี้บังคับหลักการ EXTERNALIZATION OF CONFIGURATION - ค่าทั้งหมดที่เกี่ยวกับ environment, security, deployment ต้องถูก inject จากภายนอก codebase
+
+            // ! ======================================================================
+                 อันตรายที่ซ่อนอยู่:
+            // ! ======================================================================
+            1) ความลับรั่วไหล: API Keys, passwords ในโค้ด = เปิดประตูให้แฮกเกอร์ แค่โค้ดหลุดไป public repo = หายนะทันที
+            2) การ Deploy ล้มเหลว: โค้ดทำงานใน Development แต่พังใน Staging/Production เพราะ URLs, ports, paths ไม่ตรง
+            3) ค่าใช้จ่ายสูงในการเปลี่ยน: เปลี่ยนค่าเล็กๆ เช่น timeout หรือ API URL กลายเป็นการแก้โค้ด + code review + build + deploy แทนที่จะแค่เปลี่ยน environment variable
+            4) ตัวเลขลึกลับ: ใช้ตัวเลขลอยๆ ในโค้ด (เช่น if (user.role === 3)) ทำให้โค้ดอ่านไม่รู้เรื่องและแก้ยากมาก
+            5) ผูกติดสภาพแวดล้อม: โค้ดผูกติดกับ environment เฉพาะ ป้องกันการ scale และ deploy หลาย environment
+            6) ฝันร้ายการตรวจสอบความปลอดภัย: Security team ไม่สามารถ scan หาความลับที่เปิดเผยได้ เพราะกระจายทั่ว codebase แทนที่จะรวมใน configuration
+            7) ฟื้นฟูหายนะไม่ได้: ไม่สามารถเปลี่ยน endpoint อย่างรวดเร็วเมื่อเกิดปัญหา เพราะค่าฝังอยู่ในโค้ดต้อง deploy ใหม่
+            8) ละเมิดมาตรฐาน: กฎหมายอย่าง SOX, PCI-DSS, GDPR ต้องการแยก configuration จากโค้ด - hardcode ละเมิดมาตรฐาน
+            9) นรกการทดสอบ: ไม่สามารถทดสอบกับ environment/configuration ต่างๆ ได้โดยไม่แก้โค้ด
+            10) ผูกติดผู้ขาย: Hardcode service URL ป้องกันการเปลี่ยนไป alternative provider
+
+            // ! ======================================================================
+                 วิธีทดสอบความคิด (Litmus Test):
+            // ! ======================================================================
+            ถามตัวเอง: "ถ้าทีม DevOps/SRE ต้องการเปลี่ยนค่านี้สำหรับ environment ใหม่ (เช่น K8s cluster ใหม่, region ใหม่) เขาต้องมาขอให้โปรแกรมเมอร์แก้ไฟล์ source นี้หรือไม่?"
+            - ถ้าตอบ "ใช่": คุณละเมิด NO_HARDCODE
+            - ถ้าตอบ "ไม่" (แก้ผ่าน ENV, .env, Config Map ได้): คุณทำถูกต้อง
+
+            // ! ======================================================================
+                 วิธีแก้ไขสมบูรณ์:
+            // ! ======================================================================
+            ใช้ Configuration Hierarchy ที่ชัดเจน:
+
+            1. อ่านจาก Environment Variables ก่อน: (เช่น process.env.DATABASE_URL) - มาตรฐานสำหรับ Production และ CI/CD
+            2. ถ้าไม่มี อ่านจากไฟล์ .env: สำหรับการพัฒนาในเครื่อง
+            3. ถ้ายังไม่มี อ่านจาก config.js/config.json: สำหรับค่า default ที่ไม่เป็นความลับและไม่เปลี่ยนตาม environment
+            4. ห้ามมีค่า default ที่เป็นความลับ: ถ้า Environment Variable สำหรับค่าลับ (เช่น API Key) ไม่มี ให้ FAIL FAST พร้อมข้อความ error ชัดเจน
+
+            // config.js
+            const config = {
+              database: {
+                host: process.env.DB_HOST || 'localhost',
+                port: process.env.DB_PORT || 5432
+              },
+              apiKey: process.env.API_KEY // ไม่มีค่า default สำหรับความลับ
+            };
+
+            if (!config.apiKey) {
+              throw new Error('FATAL: API_KEY is not defined in environment variables.');
+            }
+
+            module.exports = config;
+
+            ไม่ยอมรับข้อยกเว้น: ไม่มี hardcode URLs, API keys, database connections, file paths, timeouts หรือค่า environment-specific ใดๆ ใน source code
+
+            // ! ======================================================================
+                 *** LOOPHOLE CLOSURE - การปิดช่องโหว่ทุกรูปแบบ ***
+            // ! ======================================================================
+
+            // ! ======================================================================
+                 เหตุผลที่คนอยากใช้ hardcode และการปิดช่องโหว่:
+            // ! ======================================================================
+
+            1. "OMG BUT IT'S JUST A LOCALHOST URL FOR DEVELOPMENT!"
+               → ไม่ยอมรับ! ทันทีที่เขียน localhost แล้ว Junior Developer คนอื่นจะคิดว่าต่อจากนี้ localhost ทั้งหมดใส่ hardcode ได้
+               → แก้ถูก: DEFAULT_DEV_URL = process.env.DEV_URL || 'http://localhost:3000'
+               → เพราะอะไร: โครงการใหญ่มักมี multiple localhost environments ที่ต่าง port กัน
+
+            2. "DUDE! IT'S JUST FOR UNIT TESTS!"
+               → ไม่ยอมรับ! Test fixtures และ mock data ต้องอยู่ในไฟล์แยก หรือ test-specific configuration
+               → แก้ถูก: fixtures/test-urls.json, test-config.js หรือใช้ jest.setupFiles
+               → เพราะอะไร: Hardcode ใน test ทำให้เปลี่ยน test environment ไม่ได้
+
+            3. "BRO, IT'S JUST A TIMEOUT CONSTANT!"
+               → ไม่ยอมรับ! Timeout behavior ต้องเปลี่ยนได้ตาม network conditions ของแต่ละ environment
+               → แก้ถูก: config.timeouts.httpRequest ที่มี default แต่ override ได้
+               → เพราะอะไร: Production might need 30 seconds, Development needs 5 seconds, Testing needs 1 second
+
+            4. "OMG BUT IT'S JUST A DATABASE SCHEMA NAME!"
+               → ไม่ยอมรับ! Database naming convention ต่างกันใน environment ต่างๆ
+               → แก้ถูก: DB_SCHEMA environment variable with tenant-specific or environment-specific naming
+               → เพราะอะไร: Multi-tenant และ environment isolation
+
+            5. "DUDE! IT'S A THIRD-PARTY OAUTH REDIRECT URL!"
+               → ไม่ยอมรับ! OAuth configuration เปลี่ยนตาม domain และ environment
+               → แก้ถูก: OAUTH_REDIRECT_BASE + computed path based on current domain
+               → เพราะอะไร: Staging, QA, Production มี different domains
+
+            6. "BRO, IT'S JUST A SIMPLE FILE PATH!"
+               → ไม่ยอมรับ! File paths ต่างกันใน Windows/Linux และ container environments
+               → แก้ถูก: path.join(process.env.DATA_DIR || './data', filename)
+               → เพราะอะไร: Development: ./data, Production: /app/data, Docker: /var/app/data
+
+            7. "OMG BUT THESE ARE INDUSTRY-STANDARD PORTS!"
+               → ไม่ยอมรับ! "Standard" ports อาจถูกใช้โดย service อื่น หรือ blocked โดย firewall
+               → แก้ถูก: PORT configuration ที่มี default แต่ override ได้
+               → เพราะอะไร: Production ใช้ port 8080, Development ใช้ 3000, Docker ใช้ 80
+
+            8. "DUDE! IT'S JUST MAGIC NUMBERS FOR BUSINESS LOGIC!"
+               → ไม่ยอมรับ! Business rules เปลี่ยนและต้อง externalize เพื่อให้ business team แก้ได้โดยไม่ผ่าน engineering
+               → แก้ถูก: BUSINESS_RULES configuration หรือ feature flags
+               → เพราะอะไร: "Free shipping จาก 500 บาท" อาจเปลี่ยนเป็น 800 บาทโดยไม่แก้โค้ด
+
+            9. "BRO, THESE ARE JUST REGEX VALIDATION PATTERNS!"
+               → ไม่ยอมรับ! Validation rules เปลี่ยนตาม country, regulations และ business requirements
+               → แก้ถูก: validation-rules.json configuration
+               → เพราะอะไร: Email regex สำหรับ international vs Thailand, Phone number formats
+
+            10. "OMG BUT IT'S JUST CSS/STYLE CONSTANTS!"
+                → ไม่ยอมรับ! Design systems และ theme ต้องเปลี่ยนได้ตาม brand guidelines หรือ A/B testing
+                → แก้ถูก: CSS variables, theme configuration, design tokens
+                → เพราะอะไร: White-label applications, dark/light themes, accessibility variants
+
+            11. "DUDE! IT'S JUST ERROR MESSAGE STRINGS!"
+                → ไม่ยอมรับ! Error messages ต้องแปลได้และเปลี่ยนตาม user persona
+                → แก้ถูก: i18n configuration หรือ error-messages.json
+                → เพราะอะไร: Multi-language, user-friendly vs technical messages
+
+            12. "BRO, IT'S JUST FEATURE FLAG BOOLEAN VALUES!"
+                → ไม่ยอมรับ! Feature flags ต้องควบคุมจาก runtime configuration
+                → แก้ถูก: Feature flag service หรือ FEATURE_* environment variables
+                → เพราะอะไร: Progressive rollout, A/B testing, instant rollback without deployment
+
+            // ! ======================================================================
+               GOLDEN RULE สำหรับตรวจสอบ: 
+            // ! ======================================================================
+               ถ้า DevOps, QA, Security, Business, หรือ Customer Support team ต้องการเปลี่ยนค่านี้โดยไม่ต้องรอ developer แก้โค้ด + code review + build + deploy ใหม่ 
+               = ค่านั้นต้องเป็น configuration ไม่ใช่ hardcode
+
+            // ! ======================================================================
+                เหตุผลที่คนอยากใช้ hardcode และการปิดช่องโหว่ (เวอร์ชันภาษาไทย):
+            // ! ======================================================================
+            1. "เฮ้ย! แต่มันแค่ localhost URL สำหรับพัฒนานะ!"
+                → ไม่ยอมรับ! ทันทีที่เขียน localhost แล้ว Junior Developer คนอื่นจะคิดว่าต่อจากนี้ localhost ทั้งหมดใส่ hardcode ได้
+                → แก้ถูก: DEFAULT_DEV_URL = process.env.DEV_URL || 'http://localhost:3000'
+                → เพราะอะไร: โครงการใหญ่มักมี multiple localhost environments ที่ต่าง port กัน
+
+            2. "อะ! แต่มันแค่สำหรับ unit testing นี่!"
+               → ไม่ยอมรับ! Test fixtures และ mock data ต้องอยู่ในไฟล์แยก หรือ test-specific configuration
+               → แก้ถูก: fixtures/test-urls.json, test-config.js หรือใช้ jest.setupFiles
+               → เพราะอะไร: Hardcode ใน test ทำให้เปลี่ยน test environment ไม่ได้
+
+            3. "เฮ้ย! แต่มันแค่ timeout constant นะ!"
+               → ไม่ยอมรับ! Timeout behavior ต้องเปลี่ยนได้ตาม network conditions ของแต่ละ environment
+               → แก้ถูก: config.timeouts.httpRequest ที่มี default แต่ override ได้
+               → เพราะอะไร: Production อาจต้อง 30 วินาที, Development ต้อง 5 วินาที, Testing ต้อง 1 วินาที
+
+            4. "อะ! แต่มันแค่ database schema name!"
+               → ไม่ยอมรับ! Database naming convention ต่างกันใน environment ต่างๆ
+               → แก้ถูก: DB_SCHEMA environment variable with tenant-specific หรือ environment-specific naming
+               → เพราะอะไร: Multi-tenant และ environment isolation
+
+            5. "เฮ้ย! แต่มันแค่ third-party OAuth redirect URL!"
+               → ไม่ยอมรับ! OAuth configuration เปลี่ยนตาม domain และ environment
+               → แก้ถูก: OAUTH_REDIRECT_BASE + computed path based on current domain
+               → เพราะอะไร: Staging, QA, Production มี different domains
+
+            6. "อะ! แต่มันแค่ file path ธรรมดา!"
+               → ไม่ยอมรับ! File paths ต่างกันใน Windows/Linux และ container environments
+               → แก้ถูก: path.join(process.env.DATA_DIR || './data', filename)
+               → เพราะอะไร: Development: ./data, Production: /app/data, Docker: /var/app/data
+
+            7. "เฮ้ย! แต่มันแค่ industry-standard ports!"
+               → ไม่ยอมรับ! "Standard" ports อาจถูกใช้โดย service อื่น หรือ blocked โดย firewall
+               → แก้ถูก: PORT configuration ที่มี default แต่ override ได้
+               → เพราะอะไร: Production ใช้ port 8080, Development ใช้ 3000, Docker ใช้ 80
+
+            8. "อะ! แต่มันแค่ magic numbers สำหรับ business logic!"
+               → ไม่ยอมรับ! Business rules เปลี่ยนและต้อง externalize เพื่อให้ business team แก้ได้โดยไม่ผ่าน engineering
+               → แก้ถูก: BUSINESS_RULES configuration หรือ feature flags
+               → เพราะอะไร: "ส่งฟรีจาก 500 บาท" อาจเปลี่ยนเป็น 800 บาทโดยไม่แก้โค้ด
+
+            9. "เฮ้ย! แต่มันแค่ regex validation patterns!"
+               → ไม่ยอมรับ! Validation rules เปลี่ยนตาม country, regulations และ business requirements
+               → แก้ถูก: validation-rules.json configuration
+               → เพราะอะไร: Email regex สำหรับ international vs Thailand, Phone number formats
+
+            10. "อะ! แต่มันแค่ CSS/style constants!"
+                → ไม่ยอมรับ! Design systems และ theme ต้องเปลี่ยนได้ตาม brand guidelines หรือ A/B testing
+                → แก้ถูก: CSS variables, theme configuration, design tokens
+                → เพราะอะไร: White-label applications, dark/light themes, accessibility variants
+
+            11. "เฮ้ย! แต่มันแค่ error message strings!"
+                → ไม่ยอมรับ! Error messages ต้องแปลได้และเปลี่ยนตาม user persona
+                → แก้ถูก: i18n configuration หรือ error-messages.json
+                → เพราะอะไร: Multi-language, user-friendly vs technical messages
+
+            12. "อะ! แต่มันแค่ feature flag boolean values!"
+                → ไม่ยอมรับ! Feature flags ต้องควบคุมจาม runtime configuration
+                → แก้ถูก: Feature flag service หรือ FEATURE_* environment variables
+                → เพราะอะไร: Progressive rollout, A/B testing, instant rollback without deployment
+            // ! ======================================================================
+                กฎทองสำหรับตรวจสอบ (ภาษาไทย): 
+            // ! ======================================================================                
+                ถ้าทีม DevOps, QA, Security, Business, หรือ Customer Support ต้องการเปลี่ยนค่านี้โดยไม่ต้องรอนักพัฒนาแก้โค้ด + code review + build + deploy ใหม่ 
+                = ค่านั้นต้องเป็น configuration ไม่ใช่ hardcode
+
+                ไม่มีข้อยกเว้น ไม่มีเหตุผลพิเศษ ไม่มี "แต่มันแค่..." - ห้าม HARDCODE เด็ดขาด`
         },
         patterns: [
             // HTTP/HTTPS URLs (all variants)
@@ -2531,176 +2619,128 @@ GOLDEN RULE สำหรับตรวจสอบ:
         ],
         violationExamples: {
             en: [
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern HTTP/HTTPS URL hardcoded
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern HTTP/HTTPS URL hardcoded
                 const API_URL = "https://api.production.com/v1";`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Stripe Live Secret Key
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Stripe Live Secret Key
                 const apiKey = "sk_live_12345abcdef";`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Hardcoded password
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Hardcoded password
                 const dbPassword = "mySecretPassword123";`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Slack webhook URL
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Slack webhook URL
                 axios.post("https://hooks.slack.com/services/T00/B00/XXX");`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Numeric constants without context
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Numeric constants without context
                 const timeout = 30000;`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern JWT Secret Key
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern JWT Secret Key
                 const JWT_SECRET = "my-super-secret-key";`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern MySQL/MariaDB connection string
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern MySQL/MariaDB connection string
                 mysqli_connect("prod.db.server.com", "admin", "password123");`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Stripe Publishable Key
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Stripe Publishable Key
                 const STRIPE_KEY = "pk_live_AbCdEf123456";`
             ],
             th: [
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern HTTP/HTTPS URL hardcoded
-                 * @description hardcode URL production
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern HTTP/HTTPS URL hardcoded
+                // @description hardcode URL production
                 const API_URL = "https://api.production.com/v1";`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Stripe Live Secret Key
-                 * @description hardcode API key
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Stripe Live Secret Key
+                // @description hardcode API key
                 const apiKey = "sk_live_12345abcdef";`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Hardcoded password
-                 * @description hardcode รหัสผ่าน database
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Hardcoded password
+                // @description hardcode รหัสผ่าน database
                 const dbPassword = "mySecretPassword123";`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Slack webhook URL
-                 * @description hardcode webhook
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Slack webhook URL
+                // @description hardcode webhook
                 axios.post("https://hooks.slack.com/services/T00/B00/XXX");`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Numeric constants without context
-                 * @description hardcode timeout 30 วินาที
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Numeric constants without context
+                // @description hardcode timeout 30 วินาที
                 const timeout = 30000;`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern JWT Secret Key
-                 * @description hardcode JWT secret
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern JWT Secret Key
+                // @description hardcode JWT secret
                 const JWT_SECRET = "my-super-secret-key";`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern MySQL/MariaDB connection string
-                 * @description hardcode DB connection
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern MySQL/MariaDB connection string
+                // @description hardcode DB connection
                 mysqli_connect("prod.db.server.com", "admin", "password123");`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type violation
-                 * @matches-pattern Stripe Publishable Key
-                 * @description hardcode Stripe key
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type violation
+                // @matches-pattern Stripe Publishable Key
+                // @description hardcode Stripe key
                 const STRIPE_KEY = "pk_live_AbCdEf123456";`
             ]
         },
         correctExamples: {
             en: [
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type correct
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type correct
                 const API_URL = process.env.API_URL || config.api.baseUrl;`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type correct
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type correct
                 const apiKey = process.env.STRIPE_SECRET_KEY;`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type correct
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type correct
                 const dbPassword = process.env.DB_PASSWORD;`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type correct
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type correct
                 axios.post(config.webhooks.slack);`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type correct
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type correct
                 const timeout = config.network.requestTimeout;`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type correct
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type correct
                 const JWT_SECRET = process.env.JWT_SECRET;`,
-                
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_HARDCODE
+                // @type correct
                 mysqli_connect(config.db.host, config.db.user, config.db.password);`,
                 
-                `/**
-                 * @example-for-rule NO_HARDCODE
-                 * @type correct
-                 */
+                `// @example-for-rule NO_HARDCODE
+                // @type correct
                 const STRIPE_KEY = process.env.STRIPE_PUBLISHABLE_KEY;`
             ],
             th: [
@@ -2718,10 +2758,14 @@ GOLDEN RULE สำหรับตรวจสอบ:
             en: 'Move to config file or environment variable: process.env.API_URL or import from config.js',
             th: 'ย้ายไปไฟล์ config หรือ environment variable: process.env.API_URL หรือ import จาก config.js'
         }
+    // ! ======================================================================
+    // ! END NO_HARDCODE RULE
+    // ! ======================================================================
     },
-// ====================================================================== 
-// NO_SILENT_FALLBACKS Rule: Detects silent fallbacks in error handling and default values.
-// ====================================================================== 
+
+    // ! ======================================================================
+    // ! NO_SILENT_FALLBACKS - ห้ามใช้ Fallback ที่ซ่อนปัญหา (กฎเหล็กข้อที่ 3)
+    // ! ======================================================================
     NO_SILENT_FALLBACKS: {
         id: 'NO_SILENT_FALLBACKS',
         name: {
@@ -2732,284 +2776,325 @@ GOLDEN RULE สำหรับตรวจสอบ:
             en: 'DO NOT return default values in catch blocks without logging. Always throw or log errors.',
             th: 'ห้าม return ค่า default ใน catch โดยไม่จัดการ Error ให้ throw error ต่อไปหรือ log เสมอ'
         },
+        
         explanation: {
-            en: `ABSOLUTE PHILOSOPHY: "SILENCE IS A FORM OF DAMAGE"
+            en: 
+            // ! ======================================================================            
+                 `ABSOLUTE PHILOSOPHY: "SILENCE IS A FORM OF DAMAGE"
+            // ! ======================================================================
+            In complex systems, "NO DATA" is better than "UNRELIABLE DATA". When a system crashes, that's a clear and useful signal. It creates Logs, Alerts and forces us to fix things. But when a system continues running silently with incorrect data or default values, that's creating Silent Catastrophe that will gradually destroy data and system reliability.
+
+            This rule forces us to acknowledge that Errors are not things to hide, but the MOST VALUABLE information a system can give us for improvement.
+
+            // ! ======================================================================
+                 DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
+            // ! ======================================================================
+            FLAWED LOGIC: "I just don't want the app to crash in front of users, so I return empty values first"
+            REAL ANSWER: You're not preventing crashes, you're just "postponing when it will crash" to a point far from the problem's source, making debugging 100x harder. The correct way is catching Errors at the top Layer, showing user-friendly "We apologize for the inconvenience" message, and sending aggressive Alerts to the development team immediately.
+
+            FLAWED LOGIC: "It's a predictable and unimportant Error, so I catch and let it pass"
+            REAL ANSWER: Errors that occur frequently but are ignored are signals of performance issues or design flaws. Logging every occurrence will help us see patterns and fix at root cause. NO Error is unimportant.
+
+            // ! ======================================================================
+                 GOLDEN RULE FOR VERIFICATION:
+            // ! ======================================================================
+            "If code in this catch block runs at 3 AM on Sunday night, will it make enough noise to wake someone on the team? If not, it's a bug waiting to grow."
+
+            // ! ======================================================================
+                 CONCLUSION WITHOUT EXCEPTIONS:
+            // ! ======================================================================
+            Every catch block must end with either throw or log.error() with complete details. Any return value that allows the next line of code to continue as if nothing happened is absolutely forbidden.
+
+            // ! ======================================================================
+                 LEGACY PHILOSOPHY & DEEPER RATIONALE:
+            // ! ======================================================================
+            Systems that fail incorrectly should "FAIL FAST, FAIL LOUD" (ล้มเร็ว ส่งเสียงดัง). Error swallowing or silently returning defaults creates "ZOMBIE SYSTEMS" - systems that appear to work externally but are internally corrupting data and malfunctioning continuously.
+
+            This rule forces us to accept the reality that "ERRORS HAPPEN" and our responsibility is to make errors DETECTABLE, LOGGED, and ALERTABLE - not to hide them under the carpet.
+
+            // ! ======================================================================
+                 HIDDEN DANGERS:
+            // ! ======================================================================
+            1) SILENT DATA CORRUPTION (ข้อมูลเสียหายแบบเงียบ): Functions that should fetch user data encounter errors but return null or {}, causing other parts of system to save empty/incorrect data to database
+            2) IMPOSSIBLE DEBUGGING (การ Debug เป็นไปไม่ได้): When major production issues occur, we find NO logs, NO stack traces, NO breadcrumbs pointing to root cause - complete investigative blindness
+            3) CASCADING FAILURES (ปัญหาลุกลามแบบลูกโซ่): Small hidden problems gradually affect other system parts until entire system collapses, with no way to trace back to original cause
+            4) MEANINGLESS MONITORING (การ Monitor ไร้ความหมาย): Dashboard monitoring shows system "healthy" (green) while internally hundreds of errors are occurring silently
+            5) SECURITY AUDIT FAILURES (ตรวจสอบความปลอดภัยล้มเหลว): Attack attempts, intrusions, unauthorized access hidden because errors not logged - compliance violations for SOX, PCI-DSS, HIPAA
+            6) FALSE SUCCESS METRICS (ตัวชี้วัดความสำเร็จเท็จ): Business metrics inflated because failures hidden - management makes decisions based on false data
+            7) CUSTOMER TRUST EROSION (ความไว้วางใจลูกค้าสึกกร่อน): Customers experience problems but system shows "everything working" - creates trust gap
+            8) DISASTER RECOVERY IMPOSSIBILITY (ฟื้นฟูหายนะไม่ได้): During outages, cannot determine failure patterns or root causes because error history was silently discarded
+            9) TECHNICAL DEBT EXPLOSION (หนี้เทคนิคระเบิด): Problems accumulate silently until system becomes unmaintainable, requiring complete rewrite
+            10) COMPLIANCE VIOLATIONS (ละเมิดกฎระเบียม): Regulations require audit trails of all errors - silent failures violate legal requirements
+
+            // ! ======================================================================
+                 LITMUS TEST:
+            // ! ======================================================================
+            Ask yourself: "If the code in this catch block or after this || executes at 3 AM on Saturday night, will I know about it (like getting PagerDuty/Slack alert)?"
+            - If answer is "NO": You're violating NO_SILENT_FALLBACKS
+            - If answer is "YES": You're doing it right
+
+            // ! ======================================================================
+                 THE ABSOLUTE SOLUTION:
+            // ! ======================================================================
+            Follow "Error Handling Contract" (สัญญาการจัดการข้อผิดพลาด):
+
+            Every catch MUST do exactly 2 things:
+            1. Log a structured error: Record error with full context
+               logger.error({ message: 'Failed to process user data', error, userId, timestamp });
+               
+            2. Throw or Propagate: Either throw error forward for higher layer to handle, or return explicit error representation
+               throw error; // OR return { success: false, error: 'Clear error message' };
+
+            NEVER return values that look like success:
+
+            // BAD: Hides that config might not exist
+            const timeout = config.timeout || 3000;
+
+            // GOOD: Check explicitly and fail loud if missing
+            const timeout = config.timeout;
+            if (timeout === undefined) {
+              logger.error('Configuration for "timeout" is missing.');
+              throw new Error('Missing required configuration: timeout');
+            }
+
+            Every Promise MUST have .catch(): Uncaught promises are time bombs (unhandledRejection)
+
+            Zero tolerance for || and ?? without explicit error checking when dealing with critical data.`,
             
-In complex systems, "NO DATA" is better than "UNRELIABLE DATA". When a system crashes, that's a clear and useful signal. It creates Logs, Alerts and forces us to fix things. But when a system continues running silently with incorrect data or default values, that's creating Silent Catastrophe that will gradually destroy data and system reliability.
-
-This rule forces us to acknowledge that Errors are not things to hide, but the MOST VALUABLE information a system can give us for improvement.
-
-DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
-
-FLAWED LOGIC: "I just don't want the app to crash in front of users, so I return empty values first"
-REAL ANSWER: You're not preventing crashes, you're just "postponing when it will crash" to a point far from the problem's source, making debugging 100x harder. The correct way is catching Errors at the top Layer, showing user-friendly "We apologize for the inconvenience" message, and sending aggressive Alerts to the development team immediately.
-
-FLAWED LOGIC: "It's a predictable and unimportant Error, so I catch and let it pass"
-REAL ANSWER: Errors that occur frequently but are ignored are signals of performance issues or design flaws. Logging every occurrence will help us see patterns and fix at root cause. NO Error is unimportant.
-
-GOLDEN RULE FOR VERIFICATION:
-"If code in this catch block runs at 3 AM on Sunday night, will it make enough noise to wake someone on the team? If not, it's a bug waiting to grow."
-
-CONCLUSION WITHOUT EXCEPTIONS:
-Every catch block must end with either throw or log.error() with complete details. Any return value that allows the next line of code to continue as if nothing happened is absolutely forbidden.
-
-LEGACY PHILOSOPHY & DEEPER RATIONALE:
-Systems that fail incorrectly should "FAIL FAST, FAIL LOUD" (ล้มเร็ว ส่งเสียงดัง). Error swallowing or silently returning defaults creates "ZOMBIE SYSTEMS" - systems that appear to work externally but are internally corrupting data and malfunctioning continuously.
-
-This rule forces us to accept the reality that "ERRORS HAPPEN" and our responsibility is to make errors DETECTABLE, LOGGED, and ALERTABLE - not to hide them under the carpet.
-
-HIDDEN DANGERS:
-1) SILENT DATA CORRUPTION (ข้อมูลเสียหายแบบเงียบ): Functions that should fetch user data encounter errors but return null or {}, causing other parts of system to save empty/incorrect data to database
-2) IMPOSSIBLE DEBUGGING (การ Debug เป็นไปไม่ได้): When major production issues occur, we find NO logs, NO stack traces, NO breadcrumbs pointing to root cause - complete investigative blindness
-3) CASCADING FAILURES (ปัญหาลุกลามแบบลูกโซ่): Small hidden problems gradually affect other system parts until entire system collapses, with no way to trace back to original cause
-4) MEANINGLESS MONITORING (การ Monitor ไร้ความหมาย): Dashboard monitoring shows system "healthy" (green) while internally hundreds of errors are occurring silently
-5) SECURITY AUDIT FAILURES (ตรวจสอบความปลอดภัยล้มเหลว): Attack attempts, intrusions, unauthorized access hidden because errors not logged - compliance violations for SOX, PCI-DSS, HIPAA
-6) FALSE SUCCESS METRICS (ตัวชี้วัดความสำเร็จเท็จ): Business metrics inflated because failures hidden - management makes decisions based on false data
-7) CUSTOMER TRUST EROSION (ความไว้วางใจลูกค้าสึกกร่อน): Customers experience problems but system shows "everything working" - creates trust gap
-8) DISASTER RECOVERY IMPOSSIBILITY (ฟื้นฟูหายนะไม่ได้): During outages, cannot determine failure patterns or root causes because error history was silently discarded
-9) TECHNICAL DEBT EXPLOSION (หนี้เทคนิคระเบิด): Problems accumulate silently until system becomes unmaintainable, requiring complete rewrite
-10) COMPLIANCE VIOLATIONS (ละเมิดกฎระเบียม): Regulations require audit trails of all errors - silent failures violate legal requirements
-
-LITMUS TEST:
-Ask yourself: "If the code in this catch block or after this || executes at 3 AM on Saturday night, will I know about it (like getting PagerDuty/Slack alert)?"
-- If answer is "NO": You're violating NO_SILENT_FALLBACKS
-- If answer is "YES": You're doing it right
-
-THE ABSOLUTE SOLUTION:
-Follow "Error Handling Contract" (สัญญาการจัดการข้อผิดพลาด):
-
-Every catch MUST do exactly 2 things:
-1. Log a structured error: Record error with full context
-   logger.error({ message: 'Failed to process user data', error, userId, timestamp });
-   
-2. Throw or Propagate: Either throw error forward for higher layer to handle, or return explicit error representation
-   throw error; // OR return { success: false, error: 'Clear error message' };
-
-NEVER return values that look like success:
-
-// BAD: Hides that config might not exist
-const timeout = config.timeout || 3000;
-
-// GOOD: Check explicitly and fail loud if missing
-const timeout = config.timeout;
-if (timeout === undefined) {
-  logger.error('Configuration for "timeout" is missing.');
-  throw new Error('Missing required configuration: timeout');
-}
-
-Every Promise MUST have .catch(): Uncaught promises are time bombs (unhandledRejection)
-
-Zero tolerance for || and ?? without explicit error checking when dealing with critical data.`,
-            th: `ปรัชญาที่เด็ดขาด: "ความเงียบคือรูปแบบหนึ่งของความเสียหาย"
+            th: `
+            // ! ======================================================================            
+                 ปรัชญาที่เด็ดขาด: "ความเงียบคือรูปแบบหนึ่งของความเสียหาย"
+            // ! ======================================================================
             
-ในระบบที่ซับซ้อน "ไม่มีข้อมูล" ยังดีกว่า "ข้อมูลที่ไม่น่าเชื่อถือ" การที่ระบบล่ม (Crash) คือสัญญาณที่ชัดเจนและมีประโยชน์ มันสร้าง Log, Alert และบังคับให้เราต้องแก้ไข แต่การที่ระบบทำงานต่อไปเงียบๆ ด้วยข้อมูลที่ไม่ถูกต้องหรือค่า Default คือ การสร้างหายนะแบบเงียบ (Silent Catastrophe) ที่จะค่อยๆ ทำลายข้อมูลและความน่าเชื่อถือของทั้งระบบ
+            ในระบบที่ซับซ้อน "ไม่มีข้อมูล" ยังดีกว่า "ข้อมูลที่ไม่น่าเชื่อถือ" การที่ระบบล่ม (Crash) คือสัญญาณที่ชัดเจนและมีประโยชน์ มันสร้าง Log, Alert และบังคับให้เราต้องแก้ไข แต่การที่ระบบทำงานต่อไปเงียบๆ ด้วยข้อมูลที่ไม่ถูกต้องหรือค่า Default คือ การสร้างหายนะแบบเงียบ (Silent Catastrophe) ที่จะค่อยๆ ทำลายข้อมูลและความน่าเชื่อถือของทั้งระบบ
 
-กฎนี้บังคับให้เรายอมรับว่า Error ไม่ใช่สิ่งที่ต้องซ่อน แต่เป็นข้อมูลที่มีค่าที่สุด ที่ระบบสามารถมอบให้เราได้เพื่อใช้ในการปรับปรุง
+            กฎนี้บังคับให้เรายอมรับว่า Error ไม่ใช่สิ่งที่ต้องซ่อน แต่เป็นข้อมูลที่มีค่าที่สุด ที่ระบบสามารถมอบให้เราได้เพื่อใช้ในการปรับปรุง
 
-ตรรกะวิบัติของนักพัฒนาและคำตอบที่แท้จริง:
+            // ! ======================================================================
+                 ตรรกะวิบัติของนักพัฒนาและคำตอบที่แท้จริง:
+            // ! ======================================================================
 
-ตรรกะวิบัติ: "ผมแค่ไม่อยากให้แอปพังต่อหน้าผู้ใช้ ผมเลยคืนค่าว่างๆ กลับไปก่อน"
-คำตอบที่แท้จริง: คุณไม่ได้ป้องกันแอปพัง คุณแค่ "เลื่อนเวลาที่มันจะพัง" ไปยังจุดที่ห่างไกลจากต้นตอของปัญหา ทำให้การดีบักยากขึ้นเป็นร้อยเท่า วิธีที่ถูกต้องคือการดักจับ Error ที่ Layer บนสุด, แสดงข้อความ "ขออภัยในความไม่สะดวก" ที่เป็นมิตรต่อผู้ใช้, และส่ง Alert ที่เกรี้ยวกราดไปยังทีมพัฒนาทันที
+            ตรรกะวิบัติ: "ผมแค่ไม่อยากให้แอปพังต่อหน้าผู้ใช้ ผมเลยคืนค่าว่างๆ กลับไปก่อน"
+            คำตอบที่แท้จริง: คุณไม่ได้ป้องกันแอปพัง คุณแค่ "เลื่อนเวลาที่มันจะพัง" ไปยังจุดที่ห่างไกลจากต้นตอของปัญหา ทำให้การดีบักยากขึ้นเป็นร้อยเท่า วิธีที่ถูกต้องคือการดักจับ Error ที่ Layer บนสุด, แสดงข้อความ "ขออภัยในความไม่สะดวก" ที่เป็นมิตรต่อผู้ใช้, และส่ง Alert ที่เกรี้ยวกราดไปยังทีมพัฒนาทันที
 
-ตรรกะวิบัติ: "มันเป็น Error ที่คาดเดาได้และไม่สำคัญ ผมเลย catch แล้วปล่อยผ่าน"
-คำตอบที่แท้จริง: Error ที่เกิดขึ้นบ่อยครั้งแต่ถูกเพิกเฉย คือสัญญาณของปัญหาเชิงประสิทธิภาพหรือการออกแบบที่ผิดพลาด การ Log ทุกครั้งที่มันเกิดขึ้นจะทำให้เราเห็นแพตเทิร์นและแก้ไขที่ต้นเหตุได้ ไม่มี Error ใดที่ไม่สำคัญ
+            ตรรกะวิบัติ: "มันเป็น Error ที่คาดเดาได้และไม่สำคัญ ผมเลย catch แล้วปล่อยผ่าน"
+            คำตอบที่แท้จริง: Error ที่เกิดขึ้นบ่อยครั้งแต่ถูกเพิกเฉย คือสัญญาณของปัญหาเชิงประสิทธิภาพหรือการออกแบบที่ผิดพลาด การ Log ทุกครั้งที่มันเกิดขึ้นจะทำให้เราเห็นแพตเทิร์นและแก้ไขที่ต้นเหตุได้ ไม่มี Error ใดที่ไม่สำคัญ
 
-กฎทองสำหรับตรวจสอบ:
-"ถ้าโค้ดในบล็อก catch นี้ทำงานตอนตีสามของคืนวันอาทิตย์ มันจะส่งเสียงดังพอที่จะปลุกใครสักคนในทีมได้หรือไม่? ถ้าไม่ มันคือบั๊กที่รอวันเติบโต"
+            // ! ======================================================================
+                 กฎทองสำหรับตรวจสอบ:
+            // ! ======================================================================
+            "ถ้าโค้ดในบล็อก catch นี้ทำงานตอนตีสามของคืนวันอาทิตย์ มันจะส่งเสียงดังพอที่จะปลุกใครสักคนในทีมได้หรือไม่? ถ้าไม่ มันคือบั๊กที่รอวันเติบโต"
 
-บทสรุปที่ไม่มีข้อยกเว้น:
-ทุกบล็อก catch ต้องจบด้วยการ throw หรือการ log.error() ที่มีรายละเอียดครบถ้วน การคืนค่าใดๆ ที่ทำให้โค้ดบรรทัดถัดไปทำงานต่อได้เสมือนว่าไม่มีอะไรเกิดขึ้น คือสิ่งต้องห้ามเด็ดขาด
+            // ! ======================================================================
+                 บทสรุปที่ไม่มีข้อยกเว้น:
+            // ! ======================================================================
+            ทุกบล็อก catch ต้องจบด้วยการ throw หรือการ log.error() ที่มีรายละเอียดครบถ้วน การคืนค่าใดๆ ที่ทำให้โค้ดบรรทัดถัดไปทำงานต่อได้เสมือนว่าไม่มีอะไรเกิดขึ้น คือสิ่งต้องห้ามเด็ดขาด
 
-ปรัชญาและเหตุผลเชิงลึกดั้งเดิม:
-ระบบที่ทำงานผิดควร "ล้มเร็ว ส่งเสียงดัง" (FAIL FAST, FAIL LOUD) การกลืน Error หรือคืนค่า default แบบเงียบๆ สร้าง "ระบบซอมบี้" - ระบบที่ดูเหมือนทำงานปกติภายนอก แต่ภายในกำลังทำลายข้อมูลและทำงานผิดพลาดต่อเนื่อง
+            // ! ======================================================================
+                 ปรัชญาและเหตุผลเชิงลึกดั้งเดิม:
+            // ! ======================================================================
+            ระบบที่ทำงานผิดควร "ล้มเร็ว ส่งเสียงดัง" (FAIL FAST, FAIL LOUD) การกลืน Error หรือคืนค่า default แบบเงียบๆ สร้าง "ระบบซอมบี้" - ระบบที่ดูเหมือนทำงานปกติภายนอก แต่ภายในกำลังทำลายข้อมูลและทำงานผิดพลาดต่อเนื่อง
 
-กฎนี้บังคับให้เรายอมรับความจริงว่า "ข้อผิดพลาดเกิดขึ้นได้" และหน้าที่ของเราคือทำให้ข้อผิดพลาดนั้น DETECTABLE (ตรวจจับได้), LOGGED (บันทึกไว้), และ ALERTABLE (แจ้งเตือนได้) - ไม่ใช่ซ่อนใต้พรม
+            กฎนี้บังคับให้เรายอมรับความจริงว่า "ข้อผิดพลาดเกิดขึ้นได้" และหน้าที่ของเราคือทำให้ข้อผิดพลาดนั้น DETECTABLE (ตรวจจับได้), LOGGED (บันทึกไว้), และ ALERTABLE (แจ้งเตือนได้) - ไม่ใช่ซ่อนใต้พรม
 
-อันตรายที่ซ่อนอยู่:
-1) ข้อมูลเสียหายแบบเงียบ: ฟังก์ชันที่ควรดึงข้อมูลผู้ใช้เจอ error แต่คืน null หรือ {} ทำให้ส่วนอื่นของระบบบันทึกข้อมูลเปล่า/ผิดลง database
-2) การ Debug เป็นไปไม่ได้: เมื่อเกิดปัญหาใหญ่ใน production ไม่เจอ logs, stack traces, breadcrumbs ที่ชี้ไปต้นตอปัญหา - ตาบอดในการสืบสวน
-3) ปัญหาลุกลามแบบลูกโซ่: ปัญหาเล็กที่ซ่อนอยู่ค่อยๆ ส่งผลต่อส่วนอื่นของระบบจนทั้งระบบล่ม โดยไม่สามารถตาม trace กลับไปต้นตอได้
-4) การ Monitor ไร้ความหมาย: Dashboard แสดงระบบ "สุขภาพดี" (สีเขียว) ขณะที่ภายในเกิด error หลายร้อยครั้งแบบเงียบ
-5) ตรวจสอบความปลอดภัยล้มเหลว: ความพยายามโจมตี, การบุกรุก, การเข้าถึงโดยไม่ได้รับอนุญาตถูกซ่อนเพราะไม่ log error - ละเมิดมาตรฐาน SOX, PCI-DSS, HIPAA
-6) ตัวชี้วัดความสำเร็จเท็จ: ตัวชี้วัดธุรกิจสูงเกินจริงเพราะความล้มเหลวถูกซ่อน - ผู้บริหารตัดสินใจด้วยข้อมูลเท็จ
-7) ความไว้วงใจลูกค้าสึกกร่อน: ลูกค้าประสบปัญหาแต่ระบบแสดง "ทุกอย่างทำงานปกติ" - สร้างช่องว่างความไว้วางใจ
-8) ฟื้นฟูหายนะไม่ได้: เมื่อเกิดเหตุขัดข้อง ไม่สามารถระบุรูปแบบความล้มเหลวหรือต้นตอได้เพราะประวัติ error ถูกทิ้งแบบเงียบ
-9) หนี้เทคนิคระเบิด: ปัญหาสะสมแบบเงียบจนระบบดูแลไม่ได้ ต้องเขียนใหม่ทั้งหมด
-10) ละเมิดกฎระเบียม: กฎหมายกำหนดให้มี audit trail ของ error ทั้งหมด - silent failure ละเมิดข้อกำหนดทางกฎหมาย
+            // ! ======================================================================
+                 อันตรายที่ซ่อนอยู่:
+            // ! ======================================================================
+            1) ข้อมูลเสียหายแบบเงียบ: ฟังก์ชันที่ควรดึงข้อมูลผู้ใช้เจอ error แต่คืน null หรือ {} ทำให้ส่วนอื่นของระบบบันทึกข้อมูลเปล่า/ผิดลง database
+            2) การ Debug เป็นไปไม่ได้: เมื่อเกิดปัญหาใหญ่ใน production ไม่เจอ logs, stack traces, breadcrumbs ที่ชี้ไปต้นตอปัญหา - ตาบอดในการสืบสวน
+            3) ปัญหาลุกลามแบบลูกโซ่: ปัญหาเล็กที่ซ่อนอยู่ค่อยๆ ส่งผลต่อส่วนอื่นของระบบจนทั้งระบบล่ม โดยไม่สามารถตาม trace กลับไปต้นตอได้
+            4) การ Monitor ไร้ความหมาย: Dashboard แสดงระบบ "สุขภาพดี" (สีเขียว) ขณะที่ภายในเกิด error หลายร้อยครั้งแบบเงียบ
+            5) ตรวจสอบความปลอดภัยล้มเหลว: ความพยายามโจมตี, การบุกรุก, การเข้าถึงโดยไม่ได้รับอนุญาตถูกซ่อนเพราะไม่ log error - ละเมิดมาตรฐาน SOX, PCI-DSS, HIPAA
+            6) ตัวชี้วัดความสำเร็จเท็จ: ตัวชี้วัดธุรกิจสูงเกินจริงเพราะความล้มเหลวถูกซ่อน - ผู้บริหารตัดสินใจด้วยข้อมูลเท็จ
+            7) ความไว้วงใจลูกค้าสึกกร่อน: ลูกค้าประสบปัญหาแต่ระบบแสดง "ทุกอย่างทำงานปกติ" - สร้างช่องว่างความไว้วางใจ
+            8) ฟื้นฟูหายนะไม่ได้: เมื่อเกิดเหตุขัดข้อง ไม่สามารถระบุรูปแบบความล้มเหลวหรือต้นตอได้เพราะประวัติ error ถูกทิ้งแบบเงียบ
+            9) หนี้เทคนิคระเบิด: ปัญหาสะสมแบบเงียบจนระบบดูแลไม่ได้ ต้องเขียนใหม่ทั้งหมด
+            10) ละเมิดกฎระเบียม: กฎหมายกำหนดให้มี audit trail ของ error ทั้งหมด - silent failure ละเมิดข้อกำหนดทางกฎหมาย
 
-วิธีทดสอบความคิด (Litmus Test):
-ถามตัวเอง: "ถ้าโค้ดใน catch block หรือหลัง || นี้ทำงานตอนตี 3 คืนวันเสาร์ ฉันจะรู้เรื่องหรือไม่ (เช่น มี alert วิ่งเข้า PagerDuty/Slack)?"
-- ถ้าตอบ "ไม่": คุณละเมิด NO_SILENT_FALLBACKS
-- ถ้าตอบ "ใช่": คุณทำถูกต้อง
+            // ! ======================================================================
+                 วิธีทดสอบความคิด (Litmus Test):
+            // ! ======================================================================
+            ถามตัวเอง: "ถ้าโค้ดใน catch block หรือหลัง || นี้ทำงานตอนตี 3 คืนวันเสาร์ ฉันจะรู้เรื่องหรือไม่ (เช่น มี alert วิ่งเข้า PagerDuty/Slack)?"
+            - ถ้าตอบ "ไม่": คุณละเมิด NO_SILENT_FALLBACKS
+            - ถ้าตอบ "ใช่": คุณทำถูกต้อง
 
-วิธีแก้ไขสมบูรณ์:
-ปฏิบัติตาม "สัญญาการจัดการข้อผิดพลาด":
+            // ! ======================================================================
+                 วิธีแก้ไขสมบูรณ์:
+            // ! ======================================================================
+            ปฏิบัติตาม "สัญญาการจัดการข้อผิดพลาด":
 
-ทุก catch ต้องทำ 2 อย่างเสมอ:
-1. Log structured error: บันทึก error พร้อม context เต็ม
-   logger.error({ message: 'Failed to process user data', error, userId, timestamp });
-   
-2. Throw หรือ Propagate: throw error ต่อไปให้ layer สูงกว่าจัดการ หรือคืนค่าแทน error ที่ชัดเจน
-   throw error; // หรือ return { success: false, error: 'ข้อความ error ชัดเจน' };
+            ทุก catch ต้องทำ 2 อย่างเสมอ:
+            1. Log structured error: บันทึก error พร้อม context เต็ม
+               logger.error({ message: 'Failed to process user data', error, userId, timestamp });
+               
+            2. Throw หรือ Propagate: throw error ต่อไปให้ layer สูงกว่าจัดการ หรือคืนค่าแทน error ที่ชัดเจน
+               throw error; // หรือ return { success: false, error: 'ข้อความ error ชัดเจน' };
 
-ห้ามคืนค่าที่ดูเหมือนสำเร็จ:
+            // ! ======================================================================
+                 ห้ามคืนค่าที่ดูเหมือนสำเร็จ:
+            // ! ======================================================================
 
-// ไม่ดี: ซ่อนว่า config อาจไม่มี
-const timeout = config.timeout || 3000;
+            // ไม่ดี: ซ่อนว่า config อาจไม่มี
+            const timeout = config.timeout || 3000;
 
-// ดี: เช็คชัดเจนและ fail loud ถ้าไม่มี
-const timeout = config.timeout;
-if (timeout === undefined) {
-  logger.error('Configuration for "timeout" is missing.');
-  throw new Error('Missing required configuration: timeout');
-}
+            // ดี: เช็คชัดเจนและ fail loud ถ้าไม่มี
+            const timeout = config.timeout;
+            if (timeout === undefined) {
+              logger.error('Configuration for "timeout" is missing.');
+              throw new Error('Missing required configuration: timeout');
+            }
 
-ทุก Promise ต้องมี .catch(): Promise ที่ไม่จับ error คือระเบิดเวลา (unhandledRejection)
+            ทุก Promise ต้องมี .catch(): Promise ที่ไม่จับ error คือระเบิดเวลา (unhandledRejection)
 
-ไม่ยอมรับ || และ ?? โดยไม่เช็ค error อย่างชัดเจนเมื่อจัดการข้อมูลสำคัญ
+            ไม่ยอมรับ || และ ?? โดยไม่เช็ค error อย่างชัดเจนเมื่อจัดการข้อมูลสำคัญ
 
-*** LOOPHOLE CLOSURE - การปิดช่องโหว่ทุกรูปแบบ ***
+            // ! ======================================================================
+                 LOOPHOLE CLOSURE - การปิดช่องโหว่ทุกรูปแบบ
+            // ! ======================================================================
+            เหตุผลที่คนอยากใช้ silent fallback และการปิดช่องโหว่:
 
-เหตุผลที่คนอยากใช้ silent fallback และการปิดช่องโหว่:
+            1. "OMG BUT IT'S JUST FOR GRACEFUL DEGRADATION!"
+               → ไม่ยอมรับ! Graceful degradation ต้อง OBSERVABLE และมี ALERTS ไม่ใช่ silent
+               → แก้ถูก: Log ทุก degradation พร้อม alert และ fallback indicator ให้ monitoring team เห็น
+               → เพราะอะไร: Silent degradation กลายเป็น technical debt และ production issue ที่ไม่มีใครสังเกต
 
-1. "OMG BUT IT'S JUST FOR GRACEFUL DEGRADATION!"
-   → ไม่ยอมรับ! Graceful degradation ต้อง OBSERVABLE และมี ALERTS ไม่ใช่ silent
-   → แก้ถูก: Log ทุก degradation พร้อม alert และ fallback indicator ให้ monitoring team เห็น
-   → เพราะอะไร: Silent degradation กลายเป็น technical debt และ production issue ที่ไม่มีใครสังเกต
+            2. "DUDE! IT'S JUST A DEFAULT VALUE FOR CONVENIENCE!"
+               → ไม่ยอมรับ! Default value ต้องมีเหตุผลที่ดีและถูก document อย่างชัดเจน
+               → แก้ถูก: Explicit defaults ใน configuration พร้อม validation ว่าค่านั้นเหมาะสมหรือไม่
+               → เพราะอะไร: Default ที่ implicit อาจไม่เหมาะกับ environment หรือ use case ปัจจุบัน
 
-2. "DUDE! IT'S JUST A DEFAULT VALUE FOR CONVENIENCE!"
-   → ไม่ยอมรับ! Default value ต้องมีเหตุผลที่ดีและถูก document อย่างชัดเจน
-   → แก้ถูก: Explicit defaults ใน configuration พร้อม validation ว่าค่านั้นเหมาะสมหรือไม่
-   → เพราะอะไร: Default ที่ implicit อาจไม่เหมาะกับ environment หรือ use case ปัจจุบัน
+            3. "BRO, IT'S JUST A RETRY MECHANISM!"
+               → ไม่ยอมรับ! Retry ต้องมี circuit breaker และ monitoring ไม่ใช่ retry แล้วปิดเงียบ
+               → แก้ถูก: Structured retry policy พร้อม exponential backoff และ fail after N attempts พร้อม alert
+               → เพราะอะไร: Infinite silent retry กิน resource และ mask serious infrastructure problems
 
-3. "BRO, IT'S JUST A RETRY MECHANISM!"
-   → ไม่ยอมรับ! Retry ต้องมี circuit breaker และ monitoring ไม่ใช่ retry แล้วปิดเงียบ
-   → แก้ถูก: Structured retry policy พร้อม exponential backoff และ fail after N attempts พร้อม alert
-   → เพราะอะไร: Infinite silent retry กิน resource และ mask serious infrastructure problems
+            4. "OMG BUT IT'S JUST FOR NON-CRITICAL FEATURES!"
+               → ไม่ยอมรับ! "Non-critical" เป็น business decision ไม่ใช่ engineering decision - ต้อง explicit
+               → แก้ถูก: Feature flag configuration พร้อม graceful disable notification ให้ user
+               → เพราะอะไร: Features ที่คิดว่า non-critical อาจ critical สำหรับ specific user segment
 
-4. "OMG BUT IT'S JUST FOR NON-CRITICAL FEATURES!"
-   → ไม่ยอมรับ! "Non-critical" เป็น business decision ไม่ใช่ engineering decision - ต้อง explicit
-   → แก้ถูก: Feature flag configuration พร้อม graceful disable notification ให้ user
-   → เพราะอะไร: Features ที่คิดว่า non-critical อาจ critical สำหรับ specific user segment
+            5. "DUDE! IT'S JUST FOR CACHE MISS SCENARIOS!"
+               → ไม่ยอมรับ! Cache miss ต้อง logged และ monitored เพื่อ tune cache strategy
+               → แก้ถูก: Cache miss พร้อม metrics และ fallback to primary data source with performance tracking
+               → เพราะอะไร: Silent cache miss ป้องกันการ optimize cache hit ratio
 
-5. "DUDE! IT'S JUST FOR CACHE MISS SCENARIOS!"
-   → ไม่ยอมรับ! Cache miss ต้อง logged และ monitored เพื่อ tune cache strategy
-   → แก้ถูก: Cache miss พร้อม metrics และ fallback to primary data source with performance tracking
-   → เพราะอะไร: Silent cache miss ป้องกันการ optimize cache hit ratio
+            6. "BRO, IT'S JUST A FALLBACK UI COMPONENT!"
+               → ไม่ยอมรับ! UI fallback ต้อง show error boundary พร้อม error reporting ไม่ใช่แสดง component ธรรมดา
+               → แก้ถูก: Error boundary component พร้อม user-friendly error message และ error reporting to monitoring
+               → เพราะอะไร: Silent UI fallback ทำให้ user confused และ developer ไม่รู้ว่ามี error
 
-6. "BRO, IT'S JUST A FALLBACK UI COMPONENT!"
-   → ไม่ยอมรับ! UI fallback ต้อง show error boundary พร้อม error reporting ไม่ใช่แสดง component ธรรมดา
-   → แก้ถูก: Error boundary component พร้อม user-friendly error message และ error reporting to monitoring
-   → เพราะอะไร: Silent UI fallback ทำให้ user confused และ developer ไม่รู้ว่ามี error
+            7. "OMG BUT IT'S JUST FOR OPTIONAL API FIELDS!"
+               → ไม่ยอมรับ! Optional fields ต้อง validate ว่าจริงๆ optional หรือเป็น breaking change ที่ไม่ได้ detect
+               → แก้ถูก: API schema validation พร้อม deprecation warnings สำหรับ missing optional fields
+               → เพราะอะไร: Fields ที่ควรจะมีแต่หายไป อาจเป็น API version mismatch หรือ data corruption
 
-7. "OMG BUT IT'S JUST FOR OPTIONAL API FIELDS!"
-   → ไม่ยอมรับ! Optional fields ต้อง validate ว่าจริงๆ optional หรือเป็น breaking change ที่ไม่ได้ detect
-   → แก้ถูก: API schema validation พร้อม deprecation warnings สำหรับ missing optional fields
-   → เพราะอะไร: Fields ที่ควรจะมีแต่หายไป อาจเป็น API version mismatch หรือ data corruption
+            8. "DUDE! IT'S JUST FOR BACKWARD COMPATIBILITY!"
+               → ไม่ยอมรับ! Backward compatibility ต้องมี deprecation timeline และ migration path ไม่ใช่ silent forever
+               → แก้ถูก: Versioned compatibility layer พร้อม deprecation warnings และ migration guidance
+               → เพราะอะไร: Silent backward compatibility ป้องกัน technology stack evolution และ security updates
 
-8. "DUDE! IT'S JUST FOR BACKWARD COMPATIBILITY!"
-   → ไม่ยอมรับ! Backward compatibility ต้องมี deprecation timeline และ migration path ไม่ใช่ silent forever
-   → แก้ถูก: Versioned compatibility layer พร้อม deprecation warnings และ migration guidance
-   → เพราะอะไร: Silent backward compatibility ป้องกัน technology stack evolution และ security updates
+            9. "BRO, IT'S JUST FOR A/B TESTING FALLBACK!"
+               → ไม่ยอมรับ! A/B test fallback ต้อง tracked เพื่อ measure control group ไม่ใช่ silent default
+               → แก้ถูก: A/B testing framework พร้อม explicit control group tracking และ experiment analytics
+               → เพราะอะไร: Silent fallback ทำให้ experiment results invalid และ statistical significance calculation ผิด
 
-9. "BRO, IT'S JUST FOR A/B TESTING FALLBACK!"
-   → ไม่ยอมรับ! A/B test fallback ต้อง tracked เพื่อ measure control group ไม่ใช่ silent default
-   → แก้ถูก: A/B testing framework พร้อม explicit control group tracking และ experiment analytics
-   → เพราะอะไร: Silent fallback ทำให้ experiment results invalid และ statistical significance calculation ผิด
+                → ไม่ยอมรับ! Third-party downtime ต้อง alert operations team และ consider circuit breaker
+                → แก้ถูก: Service health check พร้อม circuit breaker pattern และ escalation to operations
+                → เพราะอะไร: Silent third-party failure ป้องกัน proactive vendor management และ SLA enforcement
 
-10. "OMG BUT IT'S JUST FOR THIRD-PARTY SERVICE DOWNTIME!"
-    → ไม่ยอมรับ! Third-party downtime ต้อง alert operations team และ consider circuit breaker
-    → แก้ถูก: Service health check พร้อม circuit breaker pattern และ escalation to operations
-    → เพราะอะไร: Silent third-party failure ป้องกัน proactive vendor management และ SLA enforcement
+            11. "DUDE! IT'S JUST FOR DATABASE READ REPLICA FAILURES!"
+                → ไม่ยอมรับ! Replica failure ต้อง switch to primary พร้อม DBA notification
+                → แก้ถูก: Database connection pool พร้อม automatic failover และ database health monitoring
+                → เพราะอะไร: Silent replica failure อาจ indicate infrastructure problem ที่ต้อง urgent fix
 
-11. "DUDE! IT'S JUST FOR DATABASE READ REPLICA FAILURES!"
-    → ไม่ยอมรับ! Replica failure ต้อง switch to primary พร้อม DBA notification
-    → แก้ถูก: Database connection pool พร้อม automatic failover และ database health monitoring
-    → เพราะอะไร: Silent replica failure อาจ indicate infrastructure problem ที่ต้อง urgent fix
+            12. "BRO, IT'S JUST FOR RATE LIMITING SCENARIOS!"
+                → ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
+                → แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
+                → เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service overloaded
 
-12. "BRO, IT'S JUST FOR RATE LIMITING SCENARIOS!"
-    → ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
-    → แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
-    → เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service overloaded
+            // ! ======================================================================
+                 GOLDEN RULE สำหรับตรวจสอบ:
+            // ! ======================================================================
+            ถ้า error/fallback เกิดขึ้นตอน 3 AM วันอาทิตย์ และไม่มีคน on-call ได้รับ notification
+            = คุณกำลังซ่อนปัญหาที่อาจ cascade เป็น major incident ภายหลัง
 
-GOLDEN RULE สำหรับตรวจสอบ:
-ถ้า error/fallback เกิดขึ้นตอน 3 AM วันอาทิตย์ และไม่มีคน on-call ได้รับ notification
-= คุณกำลังซ่อนปัญหาที่อาจ cascade เป็น major incident ภายหลัง
+            ไม่มี "แต่มันไม่สำคัญ" - ทุก failure mode ต้อง observable และ actionable
+            ZERO SILENT FAILURES - FAIL LOUD OR DON'T FAIL
 
-ไม่มี "แต่มันไม่สำคัญ" - ทุก failure mode ต้อง observable และ actionable
-ZERO SILENT FAILURES - FAIL LOUD OR DON'T FAIL
+            // ! ======================================================================
+                 การปิดช่องโหว่ทุกรูปแบบ - LOOPHOLE CLOSURE (เวอร์ชันภาษาไทย)
+            // ! ======================================================================
+            เหตุผลที่คนอยากใช้ silent fallback และการปิดช่องโหว่:
 
-*** การปิดช่องโหว่ทุกรูปแบบ - LOOPHOLE CLOSURE (เวอร์ชันภาษาไทย) ***
+            1. "เฮ้ย! แต่มันแค่ graceful degradation นะ!"
+               → ไม่ยอมรับ! Graceful degradation ต้อง OBSERVABLE และมี ALERTS ไม่ใช่ silent
+               → แก้ถูก: Log ทุก degradation พร้อม alert และ fallback indicator ให้ monitoring team เห็น
+               → เพราะอะไร: Silent degradation กลายเป็น technical debt และ production issue ที่ไม่มีใครสังเกต
 
-เหตุผลที่คนอยากใช้ silent fallback และการปิดช่องโหว่:
+            2. "อะ! แต่มันแค่ default value เพื่อความสะดวก!"
+               → ไม่ยอมรับ! Default value ต้องมีเหตุผลที่ดีและถูก document อย่างชัดเจน
+               → แก้ถูก: Explicit defaults ใน configuration พร้อม validation ว่าค่านั้นเหมาะสมหรือไม่
+               → เพราะอะไร: Default ที่ implicit อาจไม่เหมาะกับ environment หรือ use case ปัจจุบัน
 
-1. "เฮ้ย! แต่มันแค่ graceful degradation นะ!"
-   → ไม่ยอมรับ! Graceful degradation ต้อง OBSERVABLE และมี ALERTS ไม่ใช่ silent
-   → แก้ถูก: Log ทุก degradation พร้อม alert และ fallback indicator ให้ monitoring team เห็น
-   → เพราะอะไร: Silent degradation กลายเป็น technical debt และ production issue ที่ไม่มีใครสังเกต
+            3. "เฮ้ย! แต่มันแค่ retry mechanism!"
+               → ไม่ยอมรับ! Retry ต้องมี circuit breaker และ monitoring ไม่ใช่ retry แล้วปิดเงียบ
+               → แก้ถูก: Structured retry policy พร้อม exponential backoff และ fail after N attempts พร้อม alert
+               → เพราะอะไร: Infinite silent retry กิน resource และ mask serious infrastructure problems
 
-2. "อะ! แต่มันแค่ default value เพื่อความสะดวก!"
-   → ไม่ยอมรับ! Default value ต้องมีเหตุผลที่ดีและถูก document อย่างชัดเจน
-   → แก้ถูก: Explicit defaults ใน configuration พร้อม validation ว่าค่านั้นเหมาะสมหรือไม่
-   → เพราะอะไร: Default ที่ implicit อาจไม่เหมาะกับ environment หรือ use case ปัจจุบัน
+            4. "อะ! แต่มันแค่ feature ที่ไม่สำคัญ!"
+               → ไม่ยอมรับ! "ไม่สำคัญ" เป็น business decision ไม่ใช่ engineering decision - ต้อง explicit
+               → แก้ถูก: Feature flag configuration พร้อม graceful disable notification ให้ user
+               → เพราะอะไร: Features ที่คิดว่าไม่สำคัญ อาจสำคัญมากสำหรับ specific user segment
 
-3. "เฮ้ย! แต่มันแค่ retry mechanism!"
-   → ไม่ยอมรับ! Retry ต้องมี circuit breaker และ monitoring ไม่ใช่ retry แล้วปิดเงียบ
-   → แก้ถูก: Structured retry policy พร้อม exponential backoff และ fail after N attempts พร้อม alert
-   → เพราะอะไร: Infinite silent retry กิน resource และ mask serious infrastructure problems
+            5. "เฮ้ย! แต่มันแค่ cache miss scenarios!"
+               → แก้ถูก: Cache miss พร้อม metrics และ fallback to primary data source with performance tracking
+               → เพราะอะไร: Silent cache miss ป้องกันการ optimize cache hit ratio
 
-4. "อะ! แต่มันแค่ feature ที่ไม่สำคัญ!"
-   → ไม่ยอมรับ! "ไม่สำคัญ" เป็น business decision ไม่ใช่ engineering decision - ต้อง explicit
-   → แก้ถูก: Feature flag configuration พร้อม graceful disable notification ให้ user
-   → เพราะอะไร: Features ที่คิดว่าไม่สำคัญ อาจสำคัญมากสำหรับ specific user segment
+            6. "อะ! แต่มันแค่ fallback UI component!"
+               → ไม่ยอมรับ! UI fallback ต้อง show error boundary พร้อม error reporting ไม่ใช่แสดง component ธรรมดา
+               → แก้ถูก: Error boundary component พร้อม user-friendly error message และ error reporting to monitoring
+               → เพราะอะไร: Silent UI fallback ทำให้ user งงและ developer ไม่รู้ว่ามี error
 
-5. "เฮ้ย! แต่มันแค่ cache miss scenarios!"
-   → ไม่ยอมรับ! Cache miss ต้อง logged และ monitored เพื่อ tune cache strategy
-   → แก้ถูก: Cache miss พร้อม metrics และ fallback to primary data source with performance tracking
-   → เพราะอะไร: Silent cache miss ป้องกันการ optimize cache hit ratio
+            7. "เฮ้ย! แต่มันแค่ optional API fields!"
+               → ไม่ยอมรับ! Optional fields ต้อง validate ว่าจริงๆ optional หรือเป็น breaking change ที่ไม่ได้ detect
+               → แก้ถูก: API schema validation พร้อม deprecation warnings สำหรับ missing optional fields
+               → เพราะอะไร: Fields ที่ควรจะมีแต่หายไป อาจเป็น API version mismatch หรือ data corruption
 
-6. "อะ! แต่มันแค่ fallback UI component!"
-   → ไม่ยอมรับ! UI fallback ต้อง show error boundary พร้อม error reporting ไม่ใช่แสดง component ธรรมดา
-   → แก้ถูก: Error boundary component พร้อม user-friendly error message และ error reporting to monitoring
-   → เพราะอะไร: Silent UI fallback ทำให้ user งงและ developer ไม่รู้ว่ามี error
+            8. "อะ! แต่มันแค่ backward compatibility!"
+               → ไม่ยอมรับ! Backward compatibility ต้องมี deprecation timeline และ migration path ไม่ใช่ silent forever
+               → แก้ถูก: Versioned compatibility layer พร้อม deprecation warnings และ migration guidance
+               → เพราะอะไร: Silent backward compatibility ป้องกัน technology stack evolution และ security updates
 
-7. "เฮ้ย! แต่มันแค่ optional API fields!"
-   → ไม่ยอมรับ! Optional fields ต้อง validate ว่าจริงๆ optional หรือเป็น breaking change ที่ไม่ได้ detect
-   → แก้ถูก: API schema validation พร้อม deprecation warnings สำหรับ missing optional fields
-   → เพราะอะไร: Fields ที่ควรจะมีแต่หายไป อาจเป็น API version mismatch หรือ data corruption
+            9. "เฮ้ย! แต่มันแค่ A/B testing fallback!"
+               → ไม่ยอมรับ! A/B test fallback ต้อง tracked เพื่อ measure control group ไม่ใช่ silent default
+               → แก้ถูก: A/B testing framework พร้อม explicit control group tracking และ experiment analytics
+               → เพราะอะไร: Silent fallback ทำให้ experiment results invalid และ statistical significance calculation ผิด
 
-8. "อะ! แต่มันแค่ backward compatibility!"
-   → ไม่ยอมรับ! Backward compatibility ต้องมี deprecation timeline และ migration path ไม่ใช่ silent forever
-   → แก้ถูก: Versioned compatibility layer พร้อม deprecation warnings และ migration guidance
-   → เพราะอะไร: Silent backward compatibility ป้องกัน technology stack evolution และ security updates
+            10. "อะ! แต่มันแค่ third-party service downtime!"
+                → ไม่ยอมรับ! Third-party downtime ต้อง alert operations team และ consider circuit breaker
+                → แก้ถูก: Service health check พร้อม circuit breaker pattern และ escalation to operations
+                → เพราะอะไร: Silent third-party failure ป้องกัน proactive vendor management และ SLA enforcement
 
-9. "เฮ้ย! แต่มันแค่ A/B testing fallback!"
-   → ไม่ยอมรับ! A/B test fallback ต้อง tracked เพื่อ measure control group ไม่ใช่ silent default
-   → แก้ถูก: A/B testing framework พร้อม explicit control group tracking และ experiment analytics
-   → เพราะอะไร: Silent fallback ทำให้ experiment results invalid และ statistical significance calculation ผิด
+            11. "เฮ้ย! แต่มันแค่ database read replica failures!"
+                → ไม่ยอมรับ! Replica failure ต้อง switch to primary พร้อม DBA notification
+                → แก้ถูก: Database connection pool พร้อม automatic failover และ database health monitoring
+                → เพราะอะไร: Silent replica failure อาจ indicate infrastructure problem ที่ต้อง urgent fix
 
-10. "อะ! แต่มันแค่ third-party service downtime!"
-    → ไม่ยอมรับ! Third-party downtime ต้อง alert operations team และ consider circuit breaker
-    → แก้ถูก: Service health check พร้อม circuit breaker pattern และ escalation to operations
-    → เพราะอะไร: Silent third-party failure ป้องกัน proactive vendor management และ SLA enforcement
+            12. "อะ! แต่มันแค่ rate limiting scenarios!"
+                → ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
+                → แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
+                → เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service โอเวอร์โหลด            // ! ======================================================================
+                 กฎทองสำหรับตรวจสอบ (ภาษาไทย):
+            // ! ======================================================================
+            ถ้า error/fallback เกิดขึ้นตอน 3 ทุ่มวันอาทิตย์ และไม่มีคน on-call ได้รับ notification
+            = คุณกำลังซ่อนปัญหาที่อาจ cascade เป็น major incident ภายหลัง
 
-11. "เฮ้ย! แต่มันแค่ database read replica failures!"
-    → ไม่ยอมรับ! Replica failure ต้อง switch to primary พร้อม DBA notification
-    → แก้ถูก: Database connection pool พร้อม automatic failover และ database health monitoring
-    → เพราะอะไร: Silent replica failure อาจ indicate infrastructure problem ที่ต้อง urgent fix
+            ไม่มี "แต่มันไม่สำคัญ" - ทุก failure mode ต้อง observable และ actionable
+            ห้าม SILENT FAILURES - FAIL LOUD หรือไม่ต้อง FAIL`
 
-12. "อะ! แต่มันแค่ rate limiting scenarios!"
-    → ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
-    → แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
-    → เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service โอเวอร์โหลด
-
-กฎทองสำหรับตรวจสอบ (ภาษาไทย):
-ถ้า error/fallback เกิดขึ้นตอน 3 ทุ่มวันอาทิตย์ และไม่มีคน on-call ได้รับ notification
-= คุณกำลังซ่อนปัญหาที่อาจ cascade เป็น major incident ภายหลัง
-
-ไม่มี "แต่มันไม่สำคัญ" - ทุก failure mode ต้อง observable และ actionable
-ห้าม SILENT FAILURES - FAIL LOUD หรือไม่ต้อง FAIL`
         },
+        violationExamples: [],
+        correctExamples: [],
         patterns: [
             // ═══════════════════════════════════════════════════════════════════
             // || OPERATOR SILENT FALLBACKS - จับ || ที่ซ่อน error
@@ -3214,200 +3299,142 @@ ZERO SILENT FAILURES - FAIL LOUD OR DON'T FAIL
         checkCatchBlocks: true,
         violationExamples: {
             en: [
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @description Try-catch with silent return
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @description Try-catch with silent return
                 function riskyOperationWrapper() { try { riskyOperation(); } catch(e) { return null; } }`,
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @description Function call with silent fallback
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @description Function call with silent fallback
                 const data = fetchData() || [];`,
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @description Empty catch block
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @description Empty catch block
                 try {} catch(error) { /* ignore errors */ }`,
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @description Promise with empty catch
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @description Promise with empty catch
                 new Promise((res, rej) => rej()).catch(() => {});`,
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @description async function with await but no try-catch
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @description async function with await but no try-catch
                 async function getData() { await Promise.resolve(1); }`
             ],
             th: [
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Try-catch with silent return
-                 * @description กลืน error เงียบๆ
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @matches-pattern Try-catch with silent return
+                // @description กลืน error เงียบๆ
                 try { riskyOperation(); } catch(e) { return null; }`,
                 
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Function call with silent fallback
-                 * @description ซ่อนปัญหาด้วย ||
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @matches-pattern Function call with silent fallback
+                // @description ซ่อนปัญหาด้วย ||
                 const data = fetchData() || defaultData;`,
                 
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Empty catch block
-                 * @description เพิกเฉยต่อ error
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @matches-pattern Empty catch block
+                // @description เพิกเฉยต่อ error
                 catch(error) { /* ignore errors */ }`,
                 
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Promise with empty catch
-                 * @description catch ว่างเปล่า
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @matches-pattern Promise with empty catch
+                // @description catch ว่างเปล่า
                 promise.catch(() => {});`,
                 
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Try-catch with default return
-                 * @description return default โดยไม่ log
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @matches-pattern Try-catch with default return
+                // @description return default โดยไม่ log
                 try { parse(json); } catch(e) { return {}; }`,
                 
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Function call with silent fallback
-                 * @description ซ่อนการหาไม่เจอ
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @matches-pattern Function call with silent fallback
+                // @description ซ่อนการหาไม่เจอ
                 const user = users.find(u => u.id === id) || guestUser;`,
                 
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern Catch with console.log() (use console.error)
-                 * @description log ผิดวิธี
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @matches-pattern Catch with console.log() (use console.error)
+                // @description log ผิดวิธี
                 catch(err) { console.log("Error occurred"); return false; }`,
                 
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type violation
-                 * @matches-pattern async function with await but no try-catch
-                 * @description ไม่มี try-catch
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type violation
+                // @matches-pattern async function with await but no try-catch
+                // @description ไม่มี try-catch
                 async function getData() { await apiCall(); }`
             ]
         },
         correctExamples: {
             en: [
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 try { riskyOperation(); } catch(e) { logger.error("Operation failed:", e); throw e; }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 const data = fetchData(); if (!data) { logger.error("Fetch failed"); throw new Error("No data"); }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 catch(error) { logger.error("Critical error:", error); throw error; }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 promise.catch(err => { logger.error("Promise rejected:", err); throw err; });`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 try { parse(json); } catch(e) { logger.error("JSON parse failed:", e); throw new Error("Invalid JSON"); }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 const user = users.find(u => u.id === id); if (!user) { logger.warn("User not found:", id); throw new NotFoundError(); }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 catch(err) { logger.error("Unexpected error:", err); throw err; }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 async function getData() { try { return await apiCall(); } catch(e) { logger.error("API call failed:", e); throw e; } }`
             ],
             th: [
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 try { riskyOperation(); } catch(e) { logger.error("Operation failed:", e); throw e; }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 const data = fetchData(); if (!data) { logger.error("Fetch failed"); throw new Error("No data"); }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 catch(error) { logger.error("Critical error:", error); throw error; }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 promise.catch(err => { logger.error("Promise rejected:", err); throw err; });`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 try { parse(json); } catch(e) { logger.error("JSON parse failed:", e); throw new Error("Invalid JSON"); }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 const user = users.find(u => u.id === id); if (!user) { logger.warn("User not found:", id); throw new NotFoundError(); }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 catch(err) { logger.error("Unexpected error:", err); throw err; }`,
-                
-                `/**
-                 * @example-for-rule NO_SILENT_FALLBACKS
-                 * @type correct
-                 */
+
+                `// @example-for-rule NO_SILENT_FALLBACKS
+                // @type correct
                 async function getData() { try { return await apiCall(); } catch(e) { logger.error("API call failed:", e); throw e; } }`
             ]
         },
@@ -3415,10 +3442,14 @@ ZERO SILENT FAILURES - FAIL LOUD OR DON'T FAIL
             en: 'Add logger.error(error) before return, or throw error instead of returning default. NEVER silently swallow errors.',
             th: 'เพิ่ม logger.error(error) ก่อน return หรือ throw error แทนการ return ค่า default ห้ามกลืน error แบบเงียบๆ เด็ดขาด'
         }
+    // ! ======================================================================
+    // ! END NO_SILENT_FALLBACKS RULE
+    // ! ======================================================================
     },
-// ====================================================================== 
-// NO_INTERNAL_CACHING Rule: Detects internal caching/memoization in functions.
-// ====================================================================== 
+
+    // ! ======================================================================
+    // ! NO_INTERNAL_CACHING - ห้ามสร้าง Cache ภายในฟังก์ชัน (กฎเหล็กข้อที่ 4)
+    // ! ======================================================================
     NO_INTERNAL_CACHING: {
         id: 'NO_INTERNAL_CACHING',
         name: {
@@ -3430,307 +3461,355 @@ ZERO SILENT FAILURES - FAIL LOUD OR DON'T FAIL
             th: 'ห้ามสร้างตัวแปรเก็บผลลัพธ์หรือ memoization ภายในฟังก์ชัน ให้ Cache เป็นหน้าที่ของภายนอก'
         },
         explanation: {
-            en: `ABSOLUTE PHILOSOPHY: "CACHE IS STATE, AND STATE IS THE ENEMY OF RELIABILITY"
+            en: 
+            // ! ======================================================================            
+                 `ABSOLUTE PHILOSOPHY: "CACHE IS STATE, AND STATE IS THE ENEMY OF RELIABILITY"
+            // ! ======================================================================
             
-The best function is a Pure Function: Same Input always gives Same Output no matter how many times, where, or when it runs. Such functions are easy to test, predictable, and can run safely in parallel.
+            The best function is a Pure Function: Same Input always gives Same Output no matter how many times, where, or when it runs. Such functions are easy to test, predictable, and can run safely in parallel.
 
-Internal Cache is deliberately destroying function purity. It's creating "Hidden Memory" that makes the same function return different results depending on its "execution history". This transforms what should be a simple function into a mini-application with its own State, which is a maintenance nightmare.
+            Internal Cache is deliberately destroying function purity. It's creating "Hidden Memory" that makes the same function return different results depending on its "execution history". This transforms what should be a simple function into a mini-application with its own State, which is a maintenance nightmare.
 
-DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
+            // ! ======================================================================
+                 DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
+            // ! ======================================================================
 
-FLAWED LOGIC: "But it makes this function much faster!"
-REAL ANSWER: You're solving the performance problem in the wrong place. Caching is an "architecture" problem, not a "function" problem. The decision of what to cache, for how long, and when to clear should be managed from external layers (like Decorator, API Gateway, Redis) which allows us to control, monitor, and adjust caching strategies without touching Business Logic.
+            FLAWED LOGIC: "But it makes this function much faster!"
+            REAL ANSWER: You're solving the performance problem in the wrong place. Caching is an "architecture" problem, not a "function" problem. The decision of what to cache, for how long, and when to clear should be managed from external layers (like Decorator, API Gateway, Redis) which allows us to control, monitor, and adjust caching strategies without touching Business Logic.
 
-FLAWED LOGIC: "It's just simple memoization for repetitive calculations"
-REAL ANSWER: Memoization without invalidation strategy is a Memory Leak waiting to explode. In long-running applications, that cache will grow and grow until it consumes all memory.
+            FLAWED LOGIC: "It's just simple memoization for repetitive calculations"
+            REAL ANSWER: Memoization without invalidation strategy is a Memory Leak waiting to explode. In long-running applications, that cache will grow and grow until it consumes all memory.
 
-GOLDEN RULE FOR VERIFICATION:
-"If this application is scaled to run on 10 servers simultaneously, will the cache you created still be correct and consistent across all of them? If not, it's wrong design from the start."
+            // ! ======================================================================
+                 GOLDEN RULE FOR VERIFICATION:
+            // ! ======================================================================
+            "If this application is scaled to run on 10 servers simultaneously, will the cache you created still be correct and consistent across all of them? If not, it's wrong design from the start."
 
-CONCLUSION WITHOUT EXCEPTIONS:
-Your functions must have no memory. They must receive Input, process, and return Output - that's it. Let "state" and "performance" management be the responsibility of external architecture.
+            // ! ======================================================================
+                 CONCLUSION WITHOUT EXCEPTIONS:
+            // ! ======================================================================
+            Your functions must have no memory. They must receive Input, process, and return Output - that's it. Let "state" and "performance" management be the responsibility of external architecture.
 
-LEGACY PHILOSOPHY & DEEPER RATIONALE:
-Functions should have SINGLE RESPONSIBILITY (do one thing only). Creating cache inside a function combines TWO separate responsibilities: Business Logic + Caching Logic. This is a "Cross-Cutting Concern" (like Logging or Authentication) that should be handled separately.
+            // ! ======================================================================
+                 LEGACY PHILOSOPHY & DEEPER RATIONALE:
+            // ! ======================================================================
+            Functions should have SINGLE RESPONSIBILITY (do one thing only). Creating cache inside a function combines TWO separate responsibilities: Business Logic + Caching Logic. This is a "Cross-Cutting Concern" (like Logging or Authentication) that should be handled separately.
 
-Internal caching creates HIDDEN STATE within functions, making them NON-PURE. A Pure Function should always return the same output for the same input - but cached functions return different values based on internal cache state, violating functional programming principles and making testing/debugging extremely difficult.
+            Internal caching creates HIDDEN STATE within functions, making them NON-PURE. A Pure Function should always return the same output for the same input - but cached functions return different values based on internal cache state, violating functional programming principles and making testing/debugging extremely difficult.
 
-HIDDEN DANGERS:
-1) SHARED MUTABLE STATE (สถานะแชร์ที่เปลี่ยนแปลงได้): Cache becomes global variable accessible by multiple functions/threads, creating race conditions and unpredictable behavior in concurrent environments
-2) MEMORY LEAKS (หน่วยความจำรั่ว): Internal cache objects never get garbage collected because they're referenced by function closures, growing infinitely until Out of Memory (OOM) crashes
-3) STALE DATA FOREVER (ข้อมูลเก่าตลอดกาล): Function has no way to know when source data changes (in database/API), so it serves outdated cached values indefinitely, causing business logic errors
-4) FLAKY TESTS (เทสต์ไม่เสถียร): Tests interfere with each other through shared cache state - test order affects results, making CI/CD unpredictable and debugging impossible
-5) CONCURRENCY NIGHTMARES (ฝันร้าย Concurrency): Multiple threads/processes accessing same cache create race conditions, data corruption, and deadlocks - especially problematic in Node.js cluster mode or microservices
-6) DEBUGGING IMPOSSIBILITY (Debug ไม่ได้): Cannot inspect cache contents, hit/miss ratios, or performance metrics from outside - cache behavior is completely opaque
-7) CONFIGURATION HELL (นรกการตั้งค่า): Cannot adjust cache size, TTL, eviction policies based on runtime conditions or performance requirements - cache behavior is hardcoded
-8) TESTING ISOLATION VIOLATION (ละเมิดการแยก Test): Unit tests should be isolated, but cached functions carry state between tests, making test results dependent on execution order
-9) PRODUCTION MONITORING BLINDNESS (มองไม่เห็นใน Production): Cannot monitor cache performance, identify cache misses, or tune cache behavior in production environment
-10) SCALABILITY KILLER (ฆาตกร Scalability): When scaling to multiple servers/containers, each has separate internal caches, creating cache inconsistency and defeating caching purpose
+            // ! ======================================================================
+                 HIDDEN DANGERS:
+            // ! ======================================================================
+            1) SHARED MUTABLE STATE (สถานะแชร์ที่เปลี่ยนแปลงได้): Cache becomes global variable accessible by multiple functions/threads, creating race conditions and unpredictable behavior in concurrent environments
+            2) MEMORY LEAKS (หน่วยความจำรั่ว): Internal cache objects never get garbage collected because they're referenced by function closures, growing infinitely until Out of Memory (OOM) crashes
+            3) STALE DATA FOREVER (ข้อมูลเก่าตลอดกาล): Function has no way to know when source data changes (in database/API), so it serves outdated cached values indefinitely, causing business logic errors
+            4) FLAKY TESTS (เทสต์ไม่เสถียร): Tests interfere with each other through shared cache state - test order affects results, making CI/CD unpredictable and debugging impossible
+            5) CONCURRENCY NIGHTMARES (ฝันร้าย Concurrency): Multiple threads/processes accessing same cache create race conditions, data corruption, and deadlocks - especially problematic in Node.js cluster mode or microservices
+            6) DEBUGGING IMPOSSIBILITY (Debug ไม่ได้): Cannot inspect cache contents, hit/miss ratios, or performance metrics from outside - cache behavior is completely opaque
+            7) CONFIGURATION HELL (นรกการตั้งค่า): Cannot adjust cache size, TTL, eviction policies based on runtime conditions or performance requirements - cache behavior is hardcoded
+            8) TESTING ISOLATION VIOLATION (ละเมิดการแยก Test): Unit tests should be isolated, but cached functions carry state between tests, making test results dependent on execution order
+            9) PRODUCTION MONITORING BLINDNESS (มองไม่เห็นใน Production): Cannot monitor cache performance, identify cache misses, or tune cache behavior in production environment
+            10) SCALABILITY KILLER (ฆาตกร Scalability): When scaling to multiple servers/containers, each has separate internal caches, creating cache inconsistency and defeating caching purpose
 
-LITMUS TEST:
-Ask yourself: "If I need to clear this function's cache from another part of the application, can I do it without restarting the entire process?"
-- If answer is "NO": You're violating NO_INTERNAL_CACHING
-- If answer is "YES" (because cache is managed by Redis, Memcached, or external caching layer): You're doing it right
+            // ! ======================================================================
+                 LITMUS TEST:
+            // ! ======================================================================
+            Ask yourself: "If I need to clear this function's cache from another part of the application, can I do it without restarting the entire process?"
+            - If answer is "NO": You're violating NO_INTERNAL_CACHING
+            - If answer is "YES" (because cache is managed by Redis, Memcached, or external caching layer): You're doing it right
 
-THE ABSOLUTE SOLUTION:
-Use "Decorator Pattern" or "External Caching Layer":
+            // ! ======================================================================
+                 THE ABSOLUTE SOLUTION:
+            // ! ======================================================================
+            Use "Decorator Pattern" or "External Caching Layer":
 
-1. Create Pure Functions: Make functions do their logic only, without storing any state
-// Pure function: only fetches data
-async function getUserProfile(userId, db) {
-  return db.findUserById(userId);
-}
+            1. Create Pure Functions: Make functions do their logic only, without storing any state
+            // Pure function: only fetches data
+            async function getUserProfile(userId, db) {
+              return db.findUserById(userId);
+            }
 
-2. Create External Caching Layer: Create function/class that wraps our function to add caching capability
-// Caching Layer: receives function and cache client
-function withCache(fn, cacheClient, ttl) {
-  return async function(...args) {
-    const key = \`\${fn.name}:\${JSON.stringify(args)}\`;
-    const cachedResult = await cacheClient.get(key);
-    
-    if (cachedResult) {
-      return cachedResult;
-    }
-    
-    const result = await fn(...args);
-    await cacheClient.set(key, result, { ttl });
-    return result;
-  }
-}
+            2. Create External Caching Layer: Create function/class that wraps our function to add caching capability
+            // Caching Layer: receives function and cache client
+            function withCache(fn, cacheClient, ttl) {
+              return async function(...args) {
+                const key = \`\${fn.name}:\${JSON.stringify(args)}\`;
+                const cachedResult = await cacheClient.get(key);
+                
+                if (cachedResult) {
+                  return cachedResult;
+                }
+                
+                const result = await fn(...args);
+                await cacheClient.set(key, result, { ttl });
+                return result;
+              }
+            }
 
-// Usage:
-const cachedGetUserProfile = withCache(getUserProfile, redisClient, 3600);
-const user = await cachedGetUserProfile(123, database);
+            // Usage:
+            const cachedGetUserProfile = withCache(getUserProfile, redisClient, 3600);
+            const user = await cachedGetUserProfile(123, database);
 
-ZERO TOLERANCE: No Map(), WeakMap(), object literals ({}), arrays ([]), class properties (this.cache), closure variables, memoization, or any form of internal state storage for caching purposes.`,
-            th: `ปรัชญาที่เด็ดขาด: "Cache คือสถานะ และสถานะคือศัตรูของความน่าเชื่อถือ"
+            ZERO TOLERANCE: No Map(), WeakMap(), object literals ({}), arrays ([]), class properties (this.cache), closure variables, memoization, or any form of internal state storage for caching purposes.`,
+            th: `
+            // ! ======================================================================            
+                 ปรัชญาที่เด็ดขาด: "Cache คือสถานะ และสถานะคือศัตรูของความน่าเชื่อถือ"
+            // ! ======================================================================
             
-ฟังก์ชันที่ดีที่สุดคือ Pure Function: Input เดียวกัน ให้ Output เดียวกันเสมอ ไม่ว่าจะรันกี่ครั้ง ที่ไหน หรือเมื่อไหร่ก็ตาม ฟังก์ชันแบบนี้ทดสอบง่าย, คาดเดาได้, และทำงานคู่ขนานกันได้อย่างปลอดภัย
+            ฟังก์ชันที่ดีที่สุดคือ Pure Function: Input เดียวกัน ให้ Output เดียวกันเสมอ ไม่ว่าจะรันกี่ครั้ง ที่ไหน หรือเมื่อไหร่ก็ตาม ฟังก์ชันแบบนี้ทดสอบง่าย, คาดเดาได้, และทำงานคู่ขนานกันได้อย่างปลอดภัย
 
-Internal Cache คือการจงใจทำลายความบริสุทธิ์ของฟังก์ชัน มันคือการสร้าง "หน่วยความจำที่ซ่อนอยู่ (Hidden State)" ทำให้ฟังก์ชันเดียวกันให้ผลลัพธ์ต่างกันได้ขึ้นอยู่กับ "ประวัติการรัน" ของมันเอง สิ่งนี้เปลี่ยนฟังก์ชันที่ควรจะเรียบง่ายให้กลายเป็นมินิแอปพลิเคชันที่มี State ของตัวเอง ซึ่งเป็นฝันร้ายของการจัดการ
+            Internal Cache คือการจงใจทำลายความบริสุทธิ์ของฟังก์ชัน มันคือการสร้าง "หน่วยความจำที่ซ่อนอยู่ (Hidden State)" ทำให้ฟังก์ชันเดียวกันให้ผลลัพธ์ต่างกันได้ขึ้นอยู่กับ "ประวัติการรัน" ของมันเอง สิ่งนี้เปลี่ยนฟังก์ชันที่ควรจะเรียบง่ายให้กลายเป็นมินิแอปพลิเคชันที่มี State ของตัวเอง ซึ่งเป็นฝันร้ายของการจัดการ
 
-ตรรกะวิบัติของนักพัฒนาและคำตอบที่แท้จริง:
+            // ! ======================================================================
+                 ตรรกะวิบัติของนักพัฒนาและคำตอบที่แท้จริง:
+            // ! ======================================================================
 
-ตรรกะวิบัติ: "แต่มันทำให้ฟังก์ชันนี้เร็วขึ้นมาก!"
-คำตอบที่แท้จริง: คุณกำลังแก้ปัญหาประสิทธิภาพผิดที่ Caching เป็นปัญหาของ "สถาปัตยกรรม" ไม่ใช่ของ "ฟังก์ชัน" การตัดสินใจว่าจะ Cache อะไร, นานแค่ไหน, และจะล้างเมื่อไหร่ ควรถูกจัดการจาก Layer ภายนอก (เช่น Decorator, API Gateway, Redis) ซึ่งทำให้เราสามารถควบคุม, มอนิเตอร์, และปรับเปลี่ยนกลยุทธ์ Caching ได้โดยไม่ต้องแก้โค้ด Business Logic
+            ตรรกะวิบัติ: "แต่มันทำให้ฟังก์ชันนี้เร็วขึ้นมาก!"
+            คำตอบที่แท้จริง: คุณกำลังแก้ปัญหาประสิทธิภาพผิดที่ Caching เป็นปัญหาของ "สถาปัตยกรรม" ไม่ใช่ของ "ฟังก์ชัน" การตัดสินใจว่าจะ Cache อะไร, นานแค่ไหน, และจะล้างเมื่อไหร่ ควรถูกจัดการจาก Layer ภายนอก (เช่น Decorator, API Gateway, Redis) ซึ่งทำให้เราสามารถควบคุม, มอนิเตอร์, และปรับเปลี่ยนกลยุทธ์ Caching ได้โดยไม่ต้องแก้โค้ด Business Logic
 
-ตรรกะวิบัติ: "มันเป็นแค่ Memoization ง่ายๆ สำหรับการคำนวณซ้ำๆ"
-คำตอบที่แท้จริง: Memoization ที่ไม่มีกลยุทธ์การล้าง (Invalidation Strategy) คือ Memory Leak ที่รอวันระเบิด ในแอปพลิเคชันที่ทำงานต่อเนื่อง (Long-running service) Cache นั้นจะใหญ่ขึ้นเรื่อยๆ จนกินหน่วยความจำทั้งหมด
+            ตรรกะวิบัติ: "มันเป็นแค่ Memoization ง่ายๆ สำหรับการคำนวณซ้ำๆ"
+            คำตอบที่แท้จริง: Memoization ที่ไม่มีกลยุทธ์การล้าง (Invalidation Strategy) คือ Memory Leak ที่รอวันระเบิด ในแอปพลิเคชันที่ทำงานต่อเนื่อง (Long-running service) Cache นั้นจะใหญ่ขึ้นเรื่อยๆ จนกินหน่วยความจำทั้งหมด
 
-กฎทองสำหรับตรวจสอบ:
-"ถ้าแอปพลิเคชันนี้ถูกสเกลไปทำงานบน 10 Server พร้อมกัน Cache ที่คุณสร้างขึ้นจะยังคงถูกต้องและสอดคล้องกันทั้งหมดหรือไม่? ถ้าไม่ มันคือการออกแบบที่ผิดตั้งแต่ต้น"
+            // ! ======================================================================
+                 กฎทองสำหรับตรวจสอบ:
+            // ! ======================================================================
+            "ถ้าแอปพลิเคชันนี้ถูกสเกลไปทำงานบน 10 Server พร้อมกัน Cache ที่คุณสร้างขึ้นจะยังคงถูกต้องและสอดคล้องกันทั้งหมดหรือไม่? ถ้าไม่ มันคือการออกแบบที่ผิดตั้งแต่ต้น"
 
-บทสรุปที่ไม่มีข้อยกเว้น:
-ฟังก์ชันของคุณต้องไม่มีหน่วยความจำ มันต้องรับ Input, ประมวลผล, และคืน Output จบแค่นั้น ปล่อยให้การจัดการ "สถานะ" และ "ประสิทธิภาพ" เป็นหน้าที่ของสถาปัตยกรรมภายนอก
+            // ! ======================================================================
+                 บทสรุปที่ไม่มีข้อยกเว้น:
+            // ! ======================================================================
+            ฟังก์ชันของคุณต้องไม่มีหน่วยความจำ มันต้องรับ Input, ประมวลผล, และคืน Output จบแค่นั้น ปล่อยให้การจัดการ "สถานะ" และ "ประสิทธิภาพ" เป็นหน้าที่ของสถาปัตยกรรมภายนอก
 
-ปรัชญาและเหตุผลเชิงลึกดั้งเดิม:
-ฟังก์ชันควรมี SINGLE RESPONSIBILITY (ทำหน้าที่เพียงอย่างเดียว) การสร้าง cache ภายในฟังก์ชันรวมความรับผิดชอบ 2 อย่าง: Business Logic + Caching Logic นี่เป็น "Cross-Cutting Concern" (เหมือน Logging หรือ Authentication) ที่ควรจัดการแยกต่างหาก
+            // ! ======================================================================
+                 ปรัชญาและเหตุผลเชิงลึกดั้งเดิม:
+            // ! ======================================================================
+            ฟังก์ชันควรมี SINGLE RESPONSIBILITY (ทำหน้าที่เพียงอย่างเดียว) การสร้าง cache ภายในฟังก์ชันรวมความรับผิดชอบ 2 อย่าง: Business Logic + Caching Logic นี่เป็น "Cross-Cutting Concern" (เหมือน Logging หรือ Authentication) ที่ควรจัดการแยกต่างหาก
 
-Internal caching สร้าง HIDDEN STATE ในฟังก์ชัน ทำให้ไม่เป็น Pure Function อีกต่อไป ฟังก์ชัน Pure ควรคืนค่าเดียวกันสำหรับ input เดียวกันเสมอ - แต่ฟังก์ชันที่มี cache คืนค่าต่างกันตามสถานะ cache ภายใน ละเมิดหลัก functional programming และทำให้ test/debug ยากมาก
+            Internal caching สร้าง HIDDEN STATE ในฟังก์ชัน ทำให้ไม่เป็น Pure Function อีกต่อไป ฟังก์ชัน Pure ควรคืนค่าเดียวกันสำหรับ input เดียวกันเสมอ - แต่ฟังก์ชันที่มี cache คืนค่าต่างกันตามสถานะ cache ภายใน ละเมิดหลัก functional programming และทำให้ test/debug ยากมาก
 
-อันตรายที่ซ่อนอยู่:
-1) สถานะแชร์ที่เปลี่ยนแปลงได้: Cache กลายเป็น global variable ที่หลาฟังก์ชัน/thread เข้าถึงได้ สร้าง race condition และพฤติกรรมไม่แน่นอนใน concurrent environment
-2) หน่วยความจำรั่ว: Cache object ภายในไม่ถูก garbage collect เพราะถูก reference โดย function closure ขยายตัวไม่จำกัดจน Out of Memory (OOM) crash
-3) ข้อมูลเก่าตลอดกาล: ฟังก์ชันไม่มีทางรู้ว่าข้อมูลต้นทาง (ใน database/API) เปลี่ยนเมื่อไหร่ จึงส่งค่า cache เก่าไปเรื่อยๆ ทำให้ business logic ผิดพลาด
-4) เทสต์ไม่เสถียร: Test รบกวนกันผ่านสถานะ cache ที่แชร์กัน - ลำดับ test ส่งผลต่อผลลัพธ์ ทำให้ CI/CD ไม่แน่นอนและ debug ไม่ได้
-5) ฝันร้าย Concurrency: หลาย thread/process เข้าถึง cache เดียวกันสร้าง race condition, ข้อมูลเสียหาย, deadlock - เป็นปัญหาโดยเฉพาะใน Node.js cluster mode หรือ microservices
-6) Debug ไม่ได้: ไม่สามารถตรวจสอบเนื้อหา cache, hit/miss ratio, หรือ performance metric จากภายนอก - พฤติกรรม cache ทึบแสงหมด
-7) นรกการตั้งค่า: ไม่สามารถปรับ cache size, TTL, eviction policy ตามสภาพ runtime หรือความต้องการ performance - พฤติกรรม cache ถูก hardcode
-8) ละเมิดการแยก Test: Unit test ควรแยกกัน แต่ฟังก์ชันที่มี cache เก็บสถานะระหว่าง test ทำให้ผลลัพธ์ขึ้นกับลำดับการรัน
-9) มองไม่เห็นใน Production: ไม่สามารถ monitor performance cache, ระบุ cache miss, หรือปรับ cache behavior ใน production environment
-10) ฆาตกร Scalability: เมื่อ scale เป็นหลาย server/container แต่ละตัวมี internal cache แยกกัน สร้างความไม่สอดคล้องของ cache และทำลายจุดประสงค์ของการ cache
+            // ! ======================================================================
+                 อันตรายที่ซ่อนอยู่:
+            // ! ======================================================================
+            1) สถานะแชร์ที่เปลี่ยนแปลงได้: Cache กลายเป็น global variable ที่หลาฟังก์ชัน/thread เข้าถึงได้ สร้าง race condition และพฤติกรรมไม่แน่นอนใน concurrent environment
+            2) หน่วยความจำรั่ว: Cache object ภายในไม่ถูก garbage collect เพราะถูก reference โดย function closure ขยายตัวไม่จำกัดจน Out of Memory (OOM) crash
+            3) ข้อมูลเก่าตลอดกาล: ฟังก์ชันไม่มีทางรู้ว่าข้อมูลต้นทาง (ใน database/API) เปลี่ยนเมื่อไหร่ จึงส่งค่า cache เก่าไปเรื่อยๆ ทำให้ business logic ผิดพลาด
+            4) เทสต์ไม่เสถียร: Test รบกวนกันผ่านสถานะ cache ที่แชร์กัน - ลำดับ test ส่งผลต่อผลลัพธ์ ทำให้ CI/CD ไม่แน่นอนและ debug ไม่ได้
+            5) ฝันร้าย Concurrency: หลาย thread/process เข้าถึง cache เดียวกันสร้าง race condition, ข้อมูลเสียหาย, deadlock - เป็นปัญหาโดยเฉพาะใน Node.js cluster mode หรือ microservices
+            6) Debug ไม่ได้: ไม่สามารถตรวจสอบเนื้อหา cache, hit/miss ratio, หรือ performance metric จากภายนอก - พฤติกรรม cache ทึบแสงหมด
+            7) นรกการตั้งค่า: ไม่สามารถปรับ cache size, TTL, eviction policy ตามสภาพ runtime หรือความต้องการ performance - พฤติกรรม cache ถูก hardcode
+            8) ละเมิดการแยก Test: Unit test ควรแยกกัน แต่ฟังก์ชันที่มี cache เก็บสถานะระหว่าง test ทำให้ผลลัพธ์ขึ้นกับลำดับการรัน
+            9) มองไม่เห็นใน Production: ไม่สามารถ monitor performance cache, ระบุ cache miss, หรือปรับ cache behavior ใน production environment
+            10) ฆาตกร Scalability: เมื่อ scale เป็นหลาย server/container แต่ละตัวมี internal cache แยกกัน สร้างความไม่สอดคล้องของ cache และทำลายจุดประสงค์ของการ cache
 
-วิธีทดสอบความคิด (Litmus Test):
-ถามตัวเอง: "ถ้าฉันต้องการล้าง cache ของฟังก์ชันนี้จากส่วนอื่นของแอปพลิเคชัน ฉันทำได้โดยไม่ต้อง restart process ทั้งหมดหรือไม่?"
-- ถ้าตอบ "ไม่": คุณละเมิด NO_INTERNAL_CACHING
-- ถ้าตอบ "ใช่" (เพราะ cache จัดการโดย Redis, Memcached, หรือ external caching layer): คุณทำถูกต้อง
+            // ! ======================================================================
+                 วิธีทดสอบความคิด (Litmus Test):
+            // ! ======================================================================
+            ถามตัวเอง: "ถ้าฉันต้องการล้าง cache ของฟังก์ชันนี้จากส่วนอื่นของแอปพลิเคชัน ฉันทำได้โดยไม่ต้อง restart process ทั้งหมดหรือไม่?"
+            - ถ้าตอบ "ไม่": คุณละเมิด NO_INTERNAL_CACHING
+            - ถ้าตอบ "ใช่" (เพราะ cache จัดการโดย Redis, Memcached, หรือ external caching layer): คุณทำถูกต้อง
 
-วิธีแก้ไขสมบูรณ์:
-ใช้ "Decorator Pattern" หรือ "External Caching Layer":
+            // ! ======================================================================
+                 วิธีแก้ไขสมบูรณ์:
+            // ! ======================================================================
+            ใช้ "Decorator Pattern" หรือ "External Caching Layer":
 
-1. สร้าง Pure Function: ทำให้ฟังก์ชันทำ logic เท่านั้น ไม่เก็บ state ใดๆ
-// Pure function: ดึงข้อมูลอย่างเดียว
-async function getUserProfile(userId, db) {
-  return db.findUserById(userId);
-}
+            1. สร้าง Pure Function: ทำให้ฟังก์ชันทำ logic เท่านั้น ไม่เก็บ state ใดๆ
+            // Pure function: ดึงข้อมูลอย่างเดียว
+            async function getUserProfile(userId, db) {
+              return db.findUserById(userId);
+            }
 
-2. สร้าง External Caching Layer: สร้างฟังก์ชัน/คลาสที่ห่อฟังก์ชันของเราเพื่อเพิ่มความสามารถ cache
-// Caching Layer: รับฟังก์ชันและ cache client
-function withCache(fn, cacheClient, ttl) {
-  return async function(...args) {
-    const key = \`\${fn.name}:\${JSON.stringify(args)}\`;
-    const cachedResult = await cacheClient.get(key);
-    
-    if (cachedResult) {
-      return cachedResult;
-    }
-    
-    const result = await fn(...args);
-    await cacheClient.set(key, result, { ttl });
-    return result;
-  }
-}
+            2. สร้าง External Caching Layer: สร้างฟังก์ชัน/คลาสที่ห่อฟังก์ชันของเราเพื่อเพิ่มความสามารถ cache
+            // Caching Layer: รับฟังก์ชันและ cache client
+            function withCache(fn, cacheClient, ttl) {
+              return async function(...args) {
+                const key = \`\${fn.name}:\${JSON.stringify(args)}\`;
+                const cachedResult = await cacheClient.get(key);
+                
+                if (cachedResult) {
+                  return cachedResult;
+                }
+                
+                const result = await fn(...args);
+                await cacheClient.set(key, result, { ttl });
+                return result;
+              }
+            }
 
-// การใช้งาน:
-const cachedGetUserProfile = withCache(getUserProfile, redisClient, 3600);
-const user = await cachedGetUserProfile(123, database);
+            // การใช้งาน:
+            const cachedGetUserProfile = withCache(getUserProfile, redisClient, 3600);
+            const user = await cachedGetUserProfile(123, database);
 
-ไม่ยอมรับข้อยกเว้น: ไม่มี Map(), WeakMap(), object literal ({}), array ([]), class property (this.cache), closure variable, memoization หรือการเก็บ internal state ใดๆ เพื่อการ cache
+            ไม่ยอมรับข้อยกเว้น: ไม่มี Map(), WeakMap(), object literal ({}), array ([]), class property (this.cache), closure variable, memoization หรือการเก็บ internal state ใดๆ เพื่อการ cache
 
-*** LOOPHOLE CLOSURE - การปิดช่องโหว่ทุกรูปแบบ ***
+            // ! ======================================================================
+                 LOOPHOLE CLOSURE - การปิดช่องโหว่ทุกรูปแบบ
+            // ! ======================================================================
+            เหตุผลที่คนอยากใช้ internal caching และการปิดช่องโหว่:
 
-เหตุผลที่คนอยากใช้ internal caching และการปิดช่องโหว่:
+            1. "OMG BUT IT'S JUST FOR PERFORMANCE OPTIMIZATION!"
+               → ไม่ยอมรับ! Performance optimization ต้องทำแบบ centralized และ measurable ไม่ใช่ hidden internal cache
+               → แก้ถูก: External caching layer พร้อม monitoring และ cache hit/miss metrics
+               → เพราะอะไร: Internal cache ไม่สามารถ monitor, tune หรือ debug ได้ง่าย
 
-1. "OMG BUT IT'S JUST FOR PERFORMANCE OPTIMIZATION!"
-   → ไม่ยอมรับ! Performance optimization ต้องทำแบบ centralized และ measurable ไม่ใช่ hidden internal cache
-   → แก้ถูก: External caching layer พร้อม monitoring และ cache hit/miss metrics
-   → เพราะอะไร: Internal cache ไม่สามารถ monitor, tune หรือ debug ได้ง่าย
+            2. "DUDE! IT'S JUST A SIMPLE MEMOIZATION FOR EXPENSIVE CALCULATIONS!"
+               → ไม่ยอมรับ! Expensive calculations ต้องใช้ proper caching strategy พร้อม TTL และ invalidation
+               → แก้ถูก: Dedicated computation cache service หรือ memoization library with proper lifecycle
+               → เพราะอะไร: Manual memoization ไม่มี memory management และอาจ memory leak
 
-2. "DUDE! IT'S JUST A SIMPLE MEMOIZATION FOR EXPENSIVE CALCULATIONS!"
-   → ไม่ยอมรับ! Expensive calculations ต้องใช้ proper caching strategy พร้อม TTL และ invalidation
-   → แก้ถูก: Dedicated computation cache service หรือ memoization library with proper lifecycle
-   → เพราะอะไร: Manual memoization ไม่มี memory management และอาจ memory leak
+            3. "BRO, IT'S JUST FOR AVOIDING DUPLICATE API CALLS!"
+               → ไม่ยอมรับ! API call deduplication ต้องทำใน HTTP layer หรือ API client layer
+               → แก้ถูก: HTTP cache headers, API client with request deduplication หรือ GraphQL DataLoader pattern
+               → เพราะอะไร: Function-level deduplication ไม่ respect HTTP semantics และ cache invalidation
 
-3. "BRO, IT'S JUST FOR AVOIDING DUPLICATE API CALLS!"
-   → ไม่ยอมรับ! API call deduplication ต้องทำใน HTTP layer หรือ API client layer
-   → แก้ถูก: HTTP cache headers, API client with request deduplication หรือ GraphQL DataLoader pattern
-   → เพราะอะไร: Function-level deduplication ไม่ respect HTTP semantics และ cache invalidation
+            4. "OMG BUT IT'S JUST FOR STATIC DATA THAT NEVER CHANGES!"
+               → ไม่ยอมรับ! "Never changes" คือ assumption ที่อันตราย - data เปลี่ยนได้เสมอ
+               → แก้ถูก: Configuration store หรือ static assets loading พร้อม cache invalidation mechanism
+               → เพราะอะไร: Static assumptions break เมื่อ requirements เปลี่ยนและไม่มี invalidation strategy
 
-4. "OMG BUT IT'S JUST FOR STATIC DATA THAT NEVER CHANGES!"
-   → ไม่ยอมรับ! "Never changes" คือ assumption ที่อันตราย - data เปลี่ยนได้เสมอ
-   → แก้ถูก: Configuration store หรือ static assets loading พร้อม cache invalidation mechanism
-   → เพราะอะไร: Static assumptions break เมื่อ requirements เปลี่ยนและไม่มี invalidation strategy
+            5. "DUDE! IT'S JUST FOR DATABASE QUERY RESULT CACHING!"
+               → ไม่ยอมรับ! Database caching ต้องทำใน database layer หรือ dedicated cache layer
+               → แก้ถูก: Database query cache, Redis cache หรือ ORM-level caching พร้อม proper invalidation
+               → เพราะอะไร: Function-level DB caching bypass database transaction isolation และ data consistency
 
-5. "DUDE! IT'S JUST FOR DATABASE QUERY RESULT CACHING!"
-   → ไม่ยอมรับ! Database caching ต้องทำใน database layer หรือ dedicated cache layer
-   → แก้ถูก: Database query cache, Redis cache หรือ ORM-level caching พร้อม proper invalidation
-   → เพราะอะไร: Function-level DB caching bypass database transaction isolation และ data consistency
+            6. "BRO, IT'S JUST FOR PARSED CONFIGURATION DATA!"
+               → ไม่ยอมรับ! Configuration parsing ต้องทำครั้งเดียวตอน application startup
+               → แก้ถูก: Configuration loader ที่ parse ตอน bootstrap พร้อม hot-reload mechanism
+               → เพราะอะไร: Runtime config parsing cache ป้องกัน configuration updates และ environment changes
 
-6. "BRO, IT'S JUST FOR PARSED CONFIGURATION DATA!"
-   → ไม่ยอมรับ! Configuration parsing ต้องทำครั้งเดียวตอน application startup
-   → แก้ถูก: Configuration loader ที่ parse ตอน bootstrap พร้อม hot-reload mechanism
-   → เพราะอะไร: Runtime config parsing cache ป้องกัน configuration updates และ environment changes
+            7. "OMG BUT IT'S JUST FOR USER SESSION DATA!"
+               → ไม่ยอมรับ! User session ต้องเก็บใน session store ไม่ใช่ application memory
+               → แก้ถูก: Redis session store, database sessions หรือ JWT stateless sessions
+               → เพราะอะไร: In-memory session cache ไม่ work ใน multi-instance deployment และ horizontal scaling
 
-7. "OMG BUT IT'S JUST FOR USER SESSION DATA!"
-   → ไม่ยอมรับ! User session ต้องเก็บใน session store ไม่ใช่ application memory
-   → แก้ถูก: Redis session store, database sessions หรือ JWT stateless sessions
-   → เพราะอะไร: In-memory session cache ไม่ work ใน multi-instance deployment และ horizontal scaling
+            8. "DUDE! IT'S JUST FOR TEMPLATE RENDERING CACHE!"
+               → ไม่ยอมรับ! Template caching ต้องทำใน template engine layer
+               → แก้ถูก: Template engine built-in caching (เช่น Handlebars precompiled templates)
+               → เพราะอะไร: Custom template cache ไม่ integrate กับ template engine optimization และ debug tools
 
-8. "DUDE! IT'S JUST FOR TEMPLATE RENDERING CACHE!"
-   → ไม่ยอมรับ! Template caching ต้องทำใน template engine layer
-   → แก้ถูก: Template engine built-in caching (เช่น Handlebars precompiled templates)
-   → เพราะอะไร: Custom template cache ไม่ integrate กับ template engine optimization และ debug tools
+            9. "BRO, IT'S JUST FOR VALIDATION RULES PARSING!"
+               → ไม่ยอมรับ! Validation rules ต้อง compile ตอน application startup
+               → แก้ถูก: Pre-compiled validation schemas หรือ validation library with built-in compilation caching
+               → เพราะอะไร: Runtime validation parsing cache อาจ outdated เมื่อ rules เปลี่ยน
 
-9. "BRO, IT'S JUST FOR VALIDATION RULES PARSING!"
-   → ไม่ยอมรับ! Validation rules ต้อง compile ตอน application startup
-   → แก้ถูก: Pre-compiled validation schemas หรือ validation library with built-in compilation caching
-   → เพราะอะไร: Runtime validation parsing cache อาจ outdated เมื่อ rules เปลี่ยน
+            10. "OMG BUT IT'S JUST FOR TIMEZONE/LOCALE DATA!"
+                → ไม่ยอมรับ! Timezone/locale data ต้องใช้ standard library caching
+                → แก้ถูก: Intl API, moment.js timezone caching หรือ i18n library built-in cache
+                → เพราะอะไร: Custom timezone cache อาจ outdated เมื่อมี timezone rule changes
 
-10. "OMG BUT IT'S JUST FOR TIMEZONE/LOCALE DATA!"
-    → ไม่ยอมรับ! Timezone/locale data ต้องใช้ standard library caching
-    → แก้ถูก: Intl API, moment.js timezone caching หรือ i18n library built-in cache
-    → เพราะอะไร: Custom timezone cache อาจ outdated เมื่อมี timezone rule changes
+            11. "DUDE! IT'S JUST FOR FILE SYSTEM READ CACHE!"
+                → ไม่ยอมรับ! File system caching ต้องทำใน OS level หรือ application-level file cache
+                → แก้ถูก: OS file system cache, application file loader พร้อม file watcher
+                → เพราะอะไร: Custom file cache ไม่ detect file changes และ memory management issues
 
-11. "DUDE! IT'S JUST FOR FILE SYSTEM READ CACHE!"
-    → ไม่ยอมรับ! File system caching ต้องทำใน OS level หรือ application-level file cache
-    → แก้ถูก: OS file system cache, application file loader พร้อม file watcher
-    → เพราะอะไร: Custom file cache ไม่ detect file changes และ memory management issues
+            12. "BRO, IT'S JUST FOR CRYPTO/HASH COMPUTATION CACHE!"
+                → ไม่ยอมรับ! Crypto operations ต้องใช้ proper key derivation functions หรือ crypto library caching
+                → แก้ถูก: Proper PBKDF2/bcrypt/scrypt พร้อม built-in optimization หรือ dedicated crypto cache service
+                → เพราะอะไร: Custom crypto cache อาจ security vulnerability และไม่ follow crypto best practices
 
-12. "BRO, IT'S JUST FOR CRYPTO/HASH COMPUTATION CACHE!"
-    → ไม่ยอมรับ! Crypto operations ต้องใช้ proper key derivation functions หรือ crypto library caching
-    → แก้ถูก: Proper PBKDF2/bcrypt/scrypt พร้อม built-in optimization หรือ dedicated crypto cache service
-    → เพราะอะไร: Custom crypto cache อาจ security vulnerability และไม่ follow crypto best practices
+            // ! ======================================================================
+                 ARCHITECTURAL PRINCIPLE:
+            // ! ======================================================================
+            Caching เป็น CROSS-CUTTING CONCERN ไม่ใช่ business logic concern
+            - Business functions ต้อง pure และ stateless
+            - Caching ต้องทำใน infrastructure layer (Redis, database, HTTP, CDN)
+            - Performance optimization ต้อง measurable และ configurable
 
-ARCHITECTURAL PRINCIPLE:
-Caching เป็น CROSS-CUTTING CONCERN ไม่ใช่ business logic concern
-- Business functions ต้อง pure และ stateless
-- Caching ต้องทำใน infrastructure layer (Redis, database, HTTP, CDN)
-- Performance optimization ต้อง measurable และ configurable
+            // ! ======================================================================
+                 GOLDEN RULE สำหรับตรวจสอบ:
+            // ! ======================================================================
+            ถ้า function นี้ถูกเรียกใน different process/thread/instance แล้ว cache ไม่ shared
+            = คุณกำลัง optimize แค่ local scope แทนที่จะ solve ปัญหาที่ architecture level
 
-GOLDEN RULE สำหรับตรวจสอบ:
-ถ้า function นี้ถูกเรียกใน different process/thread/instance แล้ว cache ไม่ shared
-= คุณกำลัง optimize แค่ local scope แทนที่จะ solve ปัญหาที่ architecture level
+            ไม่มี "แต่มัน optimize แค่นิดเดียว" - ทุก optimization ต้อง global และ maintainable
+            ZERO INTERNAL STATE - PURE FUNCTIONS ONLY
 
-ไม่มี "แต่มัน optimize แค่นิดเดียว" - ทุก optimization ต้อง global และ maintainable
-ZERO INTERNAL STATE - PURE FUNCTIONS ONLY
+            // ! ======================================================================
+                 การปิดช่องโหว่ทุกรูปแบบ - LOOPHOLE CLOSURE (เวอร์ชันภาษาไทย)
+            // ! ======================================================================
 
-*** การปิดช่องโหว่ทุกรูปแบบ - LOOPHOLE CLOSURE (เวอร์ชันภาษาไทย) ***
+            เหตุผลที่คนอยากใช้ internal caching และการปิดช่องโหว่:
 
-เหตุผลที่คนอยากใช้ internal caching และการปิดช่องโหว่:
+            1. "เฮ้ย! แต่มันแค่ performance optimization นะ!"
+               → ไม่ยอมรับ! Performance optimization ต้องทำแบบ centralized และ measurable ไม่ใช่ซ่อนใน function
+               → แก้ถูก: External caching layer พร้อม monitoring และ cache hit/miss metrics
+               → เพราะอะไร: Internal cache ไม่สามารถ monitor, tune หรือ debug ได้ง่าย
 
-1. "เฮ้ย! แต่มันแค่ performance optimization นะ!"
-   → ไม่ยอมรับ! Performance optimization ต้องทำแบบ centralized และ measurable ไม่ใช่ซ่อนใน function
-   → แก้ถูก: External caching layer พร้อม monitoring และ cache hit/miss metrics
-   → เพราะอะไร: Internal cache ไม่สามารถ monitor, tune หรือ debug ได้ง่าย
+            2. "อะ! แต่มันแค่ memoization ธรรมดาสำหรับการคำนวณที่หนัก!"
+               → ไม่ยอมรับ! การคำนวณที่หนักต้องใช้ proper caching strategy พร้อม TTL และ invalidation
+               → แก้ถูก: Dedicated computation cache service หรือ memoization library ที่มี proper lifecycle
+               → เพราะอะไร: Manual memoization ไม่มี memory management และอาจ memory leak
 
-2. "อะ! แต่มันแค่ memoization ธรรมดาสำหรับการคำนวณที่หนัก!"
-   → ไม่ยอมรับ! การคำนวณที่หนักต้องใช้ proper caching strategy พร้อม TTL และ invalidation
-   → แก้ถูก: Dedicated computation cache service หรือ memoization library ที่มี proper lifecycle
-   → เพราะอะไร: Manual memoization ไม่มี memory management และอาจ memory leak
+            3. "เฮ้ย! แต่มันแค่หลีกเลี่ยง duplicate API calls!"
+               → ไม่ยอมรับ! API call deduplication ต้องทำใน HTTP layer หรือ API client layer
+               → แก้ถูก: HTTP cache headers, API client ที่มี request deduplication หรือ GraphQL DataLoader pattern
+               → เพราะอะไร: Function-level deduplication ไม่ respect HTTP semantics และ cache invalidation
 
-3. "เฮ้ย! แต่มันแค่หลีกเลี่ยง duplicate API calls!"
-   → ไม่ยอมรับ! API call deduplication ต้องทำใน HTTP layer หรือ API client layer
-   → แก้ถูก: HTTP cache headers, API client ที่มี request deduplication หรือ GraphQL DataLoader pattern
-   → เพราะอะไร: Function-level deduplication ไม่ respect HTTP semantics และ cache invalidation
+            4. "อะ! แต่มันแค่ static data ที่ไม่เปลี่ยน!"
+               → ไม่ยอมรับ! "ไม่เปลี่ยน" คือ assumption ที่อันตราย - data เปลี่ยนได้เสมอ
+               → แก้ถูก: Configuration store หรือ static assets loading พร้อม cache invalidation mechanism
+               → เพราะอะไร: Static assumptions พังเมื่อ requirements เปลี่ยนและไม่มี invalidation strategy
 
-4. "อะ! แต่มันแค่ static data ที่ไม่เปลี่ยน!"
-   → ไม่ยอมรับ! "ไม่เปลี่ยน" คือ assumption ที่อันตราย - data เปลี่ยนได้เสมอ
-   → แก้ถูก: Configuration store หรือ static assets loading พร้อม cache invalidation mechanism
-   → เพราะอะไร: Static assumptions พังเมื่อ requirements เปลี่ยนและไม่มี invalidation strategy
+            5. "เฮ้ย! แต่มันแค่ database query result caching!"
+               → ไม่ยอมรับ! Database caching ต้องทำใน database layer หรือ dedicated cache layer
+               → แก้ถูก: Database query cache, Redis cache หรือ ORM-level caching พร้อม proper invalidation
+               → เพราะอะไร: Function-level DB caching bypass database transaction isolation และ data consistency
 
-5. "เฮ้ย! แต่มันแค่ database query result caching!"
-   → ไม่ยอมรับ! Database caching ต้องทำใน database layer หรือ dedicated cache layer
-   → แก้ถูก: Database query cache, Redis cache หรือ ORM-level caching พร้อม proper invalidation
-   → เพราะอะไร: Function-level DB caching bypass database transaction isolation และ data consistency
+            6. "อะ! แต่มันแค่ parsed configuration data!"
+               → ไม่ยอมรับ! Configuration parsing ต้องทำครั้งเดียวตอน application startup
+               → แก้ถูก: Configuration loader ที่ parse ตอน bootstrap พร้อม hot-reload mechanism
+               → เพราะอะไร: Runtime config parsing cache ป้องกัน configuration updates และ environment changes
 
-6. "อะ! แต่มันแค่ parsed configuration data!"
-   → ไม่ยอมรับ! Configuration parsing ต้องทำครั้งเดียวตอน application startup
-   → แก้ถูก: Configuration loader ที่ parse ตอน bootstrap พร้อม hot-reload mechanism
-   → เพราะอะไร: Runtime config parsing cache ป้องกัน configuration updates และ environment changes
+            7. "เฮ้ย! แต่มันแค่ user session data!"
+               → ไม่ยอมรับ! User session ต้องเก็บใน session store ไม่ใช่ application memory
+               → แก้ถูก: Redis session store, database sessions หรือ JWT stateless sessions
+               → เพราะอะไร: In-memory session cache ไม่ work ใน multi-instance deployment และ horizontal scaling
 
-7. "เฮ้ย! แต่มันแค่ user session data!"
-   → ไม่ยอมรับ! User session ต้องเก็บใน session store ไม่ใช่ application memory
-   → แก้ถูก: Redis session store, database sessions หรือ JWT stateless sessions
-   → เพราะอะไร: In-memory session cache ไม่ work ใน multi-instance deployment และ horizontal scaling
+            8. "อะ! แต่มันแค่ template rendering cache!"
+               → ไม่ยอมรับ! Template caching ต้องทำใน template engine layer
+               → แก้ถูก: Template engine built-in caching (เช่น Handlebars precompiled templates)
+               → เพราะอะไร: Custom template cache ไม่ integrate กับ template engine optimization และ debug tools
 
-8. "อะ! แต่มันแค่ template rendering cache!"
-   → ไม่ยอมรับ! Template caching ต้องทำใน template engine layer
-   → แก้ถูก: Template engine built-in caching (เช่น Handlebars precompiled templates)
-   → เพราะอะไร: Custom template cache ไม่ integrate กับ template engine optimization และ debug tools
+            9. "เฮ้ย! แต่มันแค่ validation rules parsing!"
+               → ไม่ยอมรับ! Validation rules ต้อง compile ตอน application startup
+               → แก้ถูก: Pre-compiled validation schemas หรือ validation library with built-in compilation caching
+               → เพราะอะไร: Runtime validation parsing cache อาจ outdated เมื่อ rules เปลี่ยน
 
-9. "เฮ้ย! แต่มันแค่ validation rules parsing!"
-   → ไม่ยอมรับ! Validation rules ต้อง compile ตอน application startup
-   → แก้ถูก: Pre-compiled validation schemas หรือ validation library with built-in compilation caching
-   → เพราะอะไร: Runtime validation parsing cache อาจ outdated เมื่อ rules เปลี่ยน
+            10. "อะ! แต่มันแค่ timezone/locale data!"
+                → ไม่ยอมรับ! Timezone/locale data ต้องใช้ standard library caching
+                → แก้ถูก: Intl API, moment.js timezone caching หรือ i18n library built-in cache
+                → เพราะอะไร: Custom timezone cache อาจ outdated เมื่อมี timezone rule changes
 
-10. "อะ! แต่มันแค่ timezone/locale data!"
-    → ไม่ยอมรับ! Timezone/locale data ต้องใช้ standard library caching
-    → แก้ถูก: Intl API, moment.js timezone caching หรือ i18n library built-in cache
-    → เพราะอะไร: Custom timezone cache อาจ outdated เมื่อมี timezone rule changes
+            11. "เฮ้ย! แต่มันแค่ file system read cache!"
+                → ไม่ยอมรับ! File system caching ต้องทำใน OS level หรือ application-level file cache
+                → แก้ถูก: OS file system cache, application file loader พร้อม file watcher
+                → เพราะอะไร: Custom file cache ไม่ detect file changes และ memory management issues
 
-11. "เฮ้ย! แต่มันแค่ file system read cache!"
-    → ไม่ยอมรับ! File system caching ต้องทำใน OS level หรือ application-level file cache
-    → แก้ถูก: OS file system cache, application file loader พร้อม file watcher
-    → เพราะอะไร: Custom file cache ไม่ detect file changes และ memory management issues
+            12. "อะ! แต่มันแค่ crypto/hash computation cache!"
+                → ไม่ยอมรับ! Crypto operations ต้องใช้ proper key derivation functions หรือ crypto library caching
+                → แก้ถูก: Proper PBKDF2/bcrypt/scrypt พร้อม built-in optimization หรือ dedicated crypto cache service
+                → เพราะอะไร: Custom crypto cache อาจเป็น security vulnerability และไม่ follow crypto best practices
 
-12. "อะ! แต่มันแค่ crypto/hash computation cache!"
-    → ไม่ยอมรับ! Crypto operations ต้องใช้ proper key derivation functions หรือ crypto library caching
-    → แก้ถูก: Proper PBKDF2/bcrypt/scrypt พร้อม built-in optimization หรือ dedicated crypto cache service
-    → เพราะอะไร: Custom crypto cache อาจเป็น security vulnerability และไม่ follow crypto best practices
+            // ! ======================================================================
+                 หลักการสถาปัตยกรรม (ภาษาไทย):
+            // ! ======================================================================
+            Caching เป็น CROSS-CUTTING CONCERN ไม่ใช่ business logic concern
+            - Business functions ต้อง pure และ stateless
+            - Caching ต้องทำใน infrastructure layer (Redis, database, HTTP, CDN)  
+            - Performance optimization ต้อง measurable และ configurable
 
-หลักการสถาปัตยกรรม (ภาษาไทย):
-Caching เป็น CROSS-CUTTING CONCERN ไม่ใช่ business logic concern
-- Business functions ต้อง pure และ stateless
-- Caching ต้องทำใน infrastructure layer (Redis, database, HTTP, CDN)  
-- Performance optimization ต้อง measurable และ configurable
+            // ! ======================================================================
+                 กฎทองสำหรับตรวจสอบ (ภาษาไทย):
+            // ! ======================================================================
+            ถ้า function นี้ถูกเรียกใน different process/thread/instance แล้ว cache ไม่ shared
+            = คุณกำลัง optimize แค่ local scope แทนที่จะ solve ปัญหาที่ architecture level
 
-กฎทองสำหรับตรวจสอบ (ภาษาไทย):
-ถ้า function นี้ถูกเรียกใน different process/thread/instance แล้ว cache ไม่ shared
-= คุณกำลัง optimize แค่ local scope แทนที่จะ solve ปัญหาที่ architecture level
+            ไม่มี "แต่มัน optimize แค่นิดเดียว" - ทุก optimization ต้อง global และ maintainable
+            ห้าม INTERNAL STATE - PURE FUNCTIONS เท่านั้น`
 
-ไม่มี "แต่มัน optimize แค่นิดเดียว" - ทุก optimization ต้อง global และ maintainable
-ห้าม INTERNAL STATE - PURE FUNCTIONS เท่านั้น`
         },
+        violationExamples: [],
+        correctExamples: [],
         patterns: [
             // ═══════════════════════════════════════════════════════════════════
             // CACHE VARIABLE DECLARATIONS - จับการประกาศตัวแปร cache ที่ชัดเจน
@@ -4005,227 +4084,241 @@ Caching เป็น CROSS-CUTTING CONCERN ไม่ใช่ business logic con
         severity: 'WARNING',
         violationExamples: {
             en: [
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @description cache variable with Map/Object/Array
-                 */
-                function getData(id) { const cache = {}; if (cache[id]) return cache[id]; }`,
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @description memoize() function call
-                 */
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @description cache variable with Map/Object/Array
+                function getData(id) { 
+                    const cache = {}; 
+                    if (cache[id]) return cache[id]; 
+                }`,
+
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @description memoize() function call
                 const memoized = _.memoize(() => 1);`,
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @description this.cache property
-                 */
-                class Service { constructor() { this.cache = {}; } getData(id) { if (this.cache[id]) return this.cache[id]; } }`,
-                 `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @description useMemo() - React internal memoization
-                 */
+
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @description this.cache property
+                class Service { 
+                    constructor() { this.cache = {}; } 
+                    getData(id) { 
+                        if (this.cache[id]) return this.cache[id]; 
+                    } 
+                }`,
+
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @description useMemo() - React internal memoization
                 const memoizedValue = useMemo(() => expensiveCalculation(), [deps]);`
             ],
             th: [
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern cache variable with Map/Object/Array
-                 * @description cache ภายใน
-                 */
-                const cache = {}; function getData(id) { if (cache[id]) return cache[id]; cache[id] = fetch(id); return cache[id]; }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @matches-pattern cache variable with Map/Object/Array
+                // @description cache ภายใน
+                const cache = {}; 
+                function getData(id) { 
+                    if (cache[id]) return cache[id]; 
+                    cache[id] = fetch(id); 
+                    return cache[id]; 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern memoize() function call
-                 * @description memoization ภายใน
-                 */
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @matches-pattern memoize() function call
+                // @description memoization ภายใน
                 const memoized = _.memoize(expensiveFunction);`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern let result(s) storage
-                 * @description เก็บผลลัพธ์
-                 */
-                let lastResult; function compute() { if (lastResult) return lastResult; lastResult = calculate(); return lastResult; }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @matches-pattern let result(s) storage
+                // @description เก็บผลลัพธ์
+                let lastResult; 
+                function compute() { 
+                    if (lastResult) return lastResult; 
+                    lastResult = calculate(); 
+                    return lastResult; 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern cache.has() check
-                 * @description Map cache
-                 */
-                const results = new Map(); function process(key) { if (results.has(key)) return results.get(key); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @matches-pattern cache.has() check
+                // @description Map cache
+                const results = new Map(); 
+                function process(key) { 
+                    if (results.has(key)) return results.get(key); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern this.cache property
-                 * @description class cache
-                 */
-                class Service { constructor() { this.cache = {}; } getData(id) { if (this.cache[id]) return this.cache[id]; } }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @matches-pattern this.cache property
+                // @description class cache
+                class Service { 
+                    constructor() { this.cache = {}; } 
+                    getData(id) { 
+                        if (this.cache[id]) return this.cache[id]; 
+                    } 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern useMemo() - React internal memoization
-                 * @description React memoization
-                 */
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @matches-pattern useMemo() - React internal memoization
+                // @description React memoization
                 const useMemo(() => expensiveCalculation(), [deps]);`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern cache[key] = value assignment
-                 * @description function property cache
-                 */
-                function factorial(n) { if (!factorial.cache) factorial.cache = {}; if (factorial.cache[n]) return factorial.cache[n]; }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @matches-pattern cache[key] = value assignment
+                // @description function property cache
+                function factorial(n) { 
+                    if (!factorial.cache) factorial.cache = {}; 
+                    if (factorial.cache[n]) return factorial.cache[n]; 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type violation
-                 * @matches-pattern SWR hook (data caching)
-                 * @description SWR caching hook
-                 */
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type violation
+                // @matches-pattern SWR hook (data caching)
+                // @description SWR caching hook
                 const stored = useSWR(key, fetcher);`
             ]
         },
         correctExamples: {
             en: [
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern pure function without cache
-                 * @description Pure function, let caller add cache
-                 */
-                function getData(id) { return fetch(id); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern pure function without cache
+                // @description Pure function, let caller add cache
+                function getData(id) { 
+                    return fetch(id); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern external cache decorator
-                 * @description No memoization, use external cache decorator
-                 */
-                function expensiveFunction(input) { return calculate(input); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern external cache decorator
+                // @description No memoization, use external cache decorator
+                function expensiveFunction(input) { 
+                    return calculate(input); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern external caching layer
-                 * @description Always compute, external caching layer handles optimization
-                 */
-                function compute(params) { return calculate(params); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern external caching layer
+                // @description Always compute, external caching layer handles optimization
+                function compute(params) { 
+                    return calculate(params); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern pure transformation
-                 * @description Pure transformation, caching is external concern
-                 */
-                function process(key, data) { return transform(key, data); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern pure transformation
+                // @description Pure transformation, caching is external concern
+                function process(key, data) { 
+                    return transform(key, data); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern dependency injection pattern
-                 * @description Inject dependencies, no internal cache
-                 */
-                class Service { getData(id, database) { return database.find(id); } }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern dependency injection pattern
+                // @description Inject dependencies, no internal cache
+                class Service { 
+                    getData(id, database) { 
+                        return database.find(id); 
+                    } 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern component level memoization
-                 * @description Let React handle memoization at component level
-                 */
-                function expensiveCalculation(deps) { return result; }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern component level memoization
+                // @description Let React handle memoization at component level
+                function expensiveCalculation(deps) { 
+                    return result; 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern pure recursive function
-                 * @description Pure recursive, cache externally if needed
-                 */
-                function factorial(n) { if (n <= 1) return 1; return n * factorial(n - 1); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern pure recursive function
+                // @description Pure recursive, cache externally if needed
+                function factorial(n) { 
+                    if (n <= 1) return 1; 
+                    return n * factorial(n - 1); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern pure fetcher function
-                 * @description Pure fetcher, use external cache layer
-                 */
-                function fetcher(key) { return api.get(key); }`
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern pure fetcher function
+                // @description Pure fetcher, use external cache layer
+                function fetcher(key) { 
+                    return api.get(key); 
+                }`
             ],
             th: [
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern pure function without cache
-                 * @description ฟังก์ชันบริสุทธิ์ ให้ผู้เรียกใช้เพิ่ม cache
-                 */
-                function getData(id) { return fetch(id); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern pure function without cache
+                // @description ฟังก์ชันบริสุทธิ์ ให้ผู้เรียกใช้เพิ่ม cache
+                function getData(id) { 
+                    return fetch(id); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern external cache decorator
-                 * @description ไม่ใช้ memoization ใช้ cache decorator ภายนอก
-                 */
-                function expensiveFunction(input) { return calculate(input); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern external cache decorator
+                // @description ไม่ใช้ memoization ใช้ cache decorator ภายนอก
+                function expensiveFunction(input) { 
+                    return calculate(input); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern external caching layer
-                 * @description คำนวณเสมอ ให้ caching layer ภายนอกจัดการ
-                 */
-                function compute(params) { return calculate(params); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern external caching layer
+                // @description คำนวณเสมอ ให้ caching layer ภายนอกจัดการ
+                function compute(params) { 
+                    return calculate(params); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern pure transformation
-                 * @description transformation บริสุทธิ์ caching เป็นเรื่องภายนอก
-                 */
-                function process(key, data) { return transform(key, data); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern pure transformation
+                // @description transformation บริสุทธิ์ caching เป็นเรื่องภายนอก
+                function process(key, data) { 
+                    return transform(key, data); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern dependency injection pattern
-                 * @description ใช้ dependency injection ไม่มี cache ภายใน
-                 */
-                class Service { getData(id, database) { return database.find(id); } }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern dependency injection pattern
+                // @description ใช้ dependency injection ไม่มี cache ภายใน
+                class Service { 
+                    getData(id, database) { 
+                        return database.find(id); 
+                    } 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern component level memoization
-                 * @description ให้ React จัดการ memoization ในระดับ component
-                 */
-                function expensiveCalculation(deps) { return result; }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern component level memoization
+                // @description ให้ React จัดการ memoization ในระดับ component
+                function expensiveCalculation(deps) { 
+                    return result; 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern pure recursive function
-                 * @description recursion บริสุทธิ์ cache ภายนอกถ้าจำเป็น
-                 */
-                function factorial(n) { if (n <= 1) return 1; return n * factorial(n - 1); }`,
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern pure recursive function
+                // @description recursion บริสุทธิ์ cache ภายนอกถ้าจำเป็น
+                function factorial(n) { 
+                    if (n <= 1) return 1; 
+                    return n * factorial(n - 1); 
+                }`,
                 
-                `/**
-                 * @example-for-rule NO_INTERNAL_CACHING
-                 * @type correct
-                 * @matches-pattern pure fetcher function
-                 * @description fetcher บริสุทธิ์ ใช้ cache layer ภายนอก
-                 */
-                function fetcher(key) { return api.get(key); }`
+                `// @example-for-rule NO_INTERNAL_CACHING
+                // @type correct
+                // @matches-pattern pure fetcher function
+                // @description fetcher บริสุทธิ์ ใช้ cache layer ภายนอก
+                function fetcher(key) { 
+                    return api.get(key); 
+                }`
             ]
         },
         fix: {
@@ -4233,10 +4326,10 @@ Caching เป็น CROSS-CUTTING CONCERN ไม่ใช่ business logic con
             th: 'ลบ cache ภายใน ให้ผู้เรียกใช้จัดการ cache จากภายนอกด้วย Redis, Memcached หรือ caching decorator'
         }
     },
-// ======================================================================
-// NO_EMOJI - ห้ามใช้อิโมจิในโค้ด
-// ======================================================================
 
+    // ! ======================================================================
+    // ! NO_EMOJI - ห้ามใช้อิโมจิในโค้ด (กฎเหล็กข้อที่ 5)
+    // ! ======================================================================
     NO_EMOJI: {
         id: 'NO_EMOJI',
         name: {
@@ -4247,289 +4340,368 @@ Caching เป็น CROSS-CUTTING CONCERN ไม่ใช่ business logic con
             en: 'DO NOT use emoji characters in source code. Use plain text descriptions instead.',
             th: 'ห้ามใช้อักขระอิโมจิในซอร์สโค้ด ให้ใช้คำอธิบายแบบข้อความธรรมดาแทน'
         },
+        // ! ======================================================================
+        // ! EXPLANATION - NO_EMOJI Rule
+        // ! ======================================================================
         explanation: {
-            en: `ABSOLUTE PHILOSOPHY: "CODE IS ENGINEERING DOCUMENTATION, NOT EMOTIONAL EXPRESSION"
+            en: `// ! ======================================================================
+            // ! ABSOLUTE PHILOSOPHY: "CODE IS ENGINEERING DOCUMENTATION, NOT EMOTIONAL EXPRESSION"
+            // ! ======================================================================
             
-Source Code is the ultimate precision communication medium. It must be readable and processable with 100% accuracy by humans and machines from all cultures, all operating systems, and all tools - both today and 20 years from now.
+            Source Code is the ultimate precision communication medium. It must be readable and processable with 100% accuracy by humans and machines from all cultures, all operating systems, and all tools - both today and 20 years from now.
 
-Emoji destroys ALL of these qualities. It's AMBIGUOUS, inconsistently rendered, unsearchable, and platform-dependent. Using emoji in code is lowering engineering documentation to chat message level, which is unacceptable in professional environments.
+            Emoji destroys ALL of these qualities. It's AMBIGUOUS, inconsistently rendered, unsearchable, and platform-dependent. Using emoji in code is lowering engineering documentation to chat message level, which is unacceptable in professional environments.
 
-DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS:
+            // ! ======================================================================
+            // ! DEVASTATING DEVELOPER LOGIC AND THE REAL ANSWERS
+            // ! ======================================================================
 
-FLAWED LOGIC: "But it makes logs or commits easier to read!"
-REAL ANSWER: It makes it easier to read for YOU on YOUR machine TODAY only. For automated tools (Log Parser, grep, git log --grep) or for developers using basic Terminal, it's unreadable garbage. Standardized clarity is more valuable than group-specific prettiness.
+            FLAWED LOGIC: "But it makes logs or commits easier to read!"
+            REAL ANSWER: It makes it easier to read for YOU on YOUR machine TODAY only. For automated tools (Log Parser, grep, git log --grep) or for developers using basic Terminal, it's unreadable garbage. Standardized clarity is more value than group-specific prettiness.
 
-FLAWED LOGIC: "It's just jokes in comments!"
-REAL ANSWER: Comments are part of technical documentation. They must provide clear, searchable information. Adding emoji adds Noise and reduces the professionalism of that codebase.
+            FLAWED LOGIC: "It's just jokes in comments!"
+            REAL ANSWER: Comments are part of technical documentation. They must provide clear, searchable information. Adding emoji adds Noise and reduces the professionalism of that codebase.
 
-GOLDEN RULE FOR VERIFICATION:
-"Can I grep this concept on a GUI-less server via PuTTY with basic fonts and be 100% confident I'll find every related point?"
+            // ! ======================================================================
+            // ! GOLDEN RULE FOR VERIFICATION
+            // ! ======================================================================
+            "Can I grep this concept on a GUI-less server via PuTTY with basic fonts and be 100% confident I'll find every related point?"
 
-CONCLUSION WITHOUT EXCEPTIONS:
-Every character in your code should have technical purpose. Readability comes from clear naming and good structure, not visual decorations. International teams must collaborate without cultural/visual barriers.
+            // ! ======================================================================
+            // ! CONCLUSION WITHOUT EXCEPTIONS
+            // ! ======================================================================
+            Every character in your code should have technical purpose. Readability comes from clear naming and good structure, not visual decorations. International teams must collaborate without cultural/visual barriers.
 
-LEGACY PHILOSOPHY & DEEPER RATIONALE:
-Source Code is OFFICIAL TECHNICAL DOCUMENTATION designed for CLEAR, SEARCHABLE, and UNIVERSAL communication between humans and machines across all platforms. Emoji destroys ALL of these properties.
+            // ! ======================================================================
+            // ! LEGACY PHILOSOPHY & DEEPER RATIONALE
+            // ! ======================================================================
+            Source Code is OFFICIAL TECHNICAL DOCUMENTATION designed for CLEAR, SEARCHABLE, and UNIVERSAL communication between humans and machines across all platforms. Emoji destroys ALL of these properties.
 
-Using emoji might seem harmless, but it creates fundamental problems with Encoding, Searchability, Accessibility, and Portability that are completely unacceptable for professional software production.
+            Using emoji might seem harmless, but it creates fundamental problems with Encoding, Searchability, Accessibility, and Portability that are completely unacceptable for professional software production.
 
-HIDDEN DANGERS:
-1) ENCODING HELL (นรก Encoding): Files opened in different editors or OS may display emoji as garbage characters (Mojibake) or corrupt the entire file, making code unreadable or causing compilation errors
-2) TOOLCHAIN BREAKDOWN (เครื่องมือพัง): grep, git diff, git log in terminal or CI/CD tools cannot properly display or search emoji, making code inspection and debugging dramatically harder
-3) DATABASE DISASTERS (หายนะ Database): Databases using utf8 collation (not utf8mb4) cannot store emoji, causing ERROR exceptions or silent data truncation, destroying application data
-4) ACCESSIBILITY DISCRIMINATION (เลือกปฏิบัติผู้พิการ): Screen readers cannot read and interpret emoji meaningfully, preventing visually impaired developers from participating in the codebase, violating inclusion principles
-5) PROFESSIONAL CREDIBILITY LOSS (สูญเสียความน่าเชื่อถือ): No enterprise-grade production system uses emoji - it immediately signals "amateur project" or "toy code" to technical leaders, clients, and auditors
-6) CI/CD PIPELINE FAILURES (Pipeline ล้มเหลว): Many CI/CD systems, Docker containers, SSH sessions cannot display emoji properly, causing build logs to be unreadable and debugging impossible
-7) VERSION CONTROL CHAOS (Version Control วุ่นวาย): Git diffs display emoji as escape sequences (\u{1F600}), making code review completely illegible and merge conflict resolution impossible
-8) CROSS-PLATFORM INCOMPATIBILITY (ไม่เข้ากันข้าม Platform): Different operating systems render emoji differently or not at all, creating inconsistent developer experience and communication gaps
-9) SEARCH AND REPLACE IMPOSSIBILITY (ค้นหาและแทนที่ไม่ได้): Cannot reliably search for emoji in IDEs, text editors, or command-line tools, making refactoring and maintenance extremely difficult
-10) COMPLIANCE VIOLATIONS (ละเมิดมาตรฐาน): Many corporate coding standards, government regulations, and industry certifications explicitly prohibit non-ASCII characters in source code for auditability
+            // ! ======================================================================
+            // ! HIDDEN DANGERS
+            // ! ======================================================================
+            1) ENCODING HELL (นรก Encoding): Files opened in different editors or OS may display emoji as garbage characters (Mojibake) or corrupt the entire file, making code unreadable or causing compilation errors
+            2) TOOLCHAIN BREAKDOWN (เครื่องมือพัง): grep, git diff, git log in terminal or CI/CD tools cannot properly display or search emoji, making code inspection and debugging dramatically harder
+            3) DATABASE DISASTERS (หายนะ Database): Databases using utf8 collation (not utf8mb4) cannot store emoji, causing ERROR exceptions or silent data truncation, destroying application data
+            4) ACCESSIBILITY DISCRIMINATION (เลือกปฏิบัติผู้พิการ): Screen readers cannot read and interpret emoji meaningfully, preventing visually impaired developers from participating in the codebase, violating inclusion principles
+            5) PROFESSIONAL CREDIBILITY LOSS (สูญเสียความน่าเชื่อถือ): No enterprise-grade production system uses emoji - it immediately signals "amateur project" or "toy code" to technical leaders, clients, and auditors
+            6) CI/CD PIPELINE FAILURES (Pipeline ล้มเหลว): Many CI/CD systems, Docker containers, SSH sessions cannot display emoji properly, causing build logs to be unreadable and debugging impossible
+            7) VERSION CONTROL CHAOS (Version Control วุ่นวาย): Git diffs display emoji as escape sequences (\u{1F600}), making code review completely illegible and merge conflict resolution impossible
+            8) CROSS-PLATFORM INCOMPATIBILITY (ไม่เข้ากันข้าม Platform): Different operating systems render emoji differently or not at all, creating inconsistent developer experience and communication gaps
+            9) SEARCH AND REPLACE IMPOSSIBILITY (ค้นหาและแทนที่ไม่ได้): Cannot reliably search for emoji in IDEs, text editors, or command-line tools, making refactoring and maintenance extremely difficult
+            10) COMPLIANCE VIOLATIONS (ละเมิดมาตรฐาน): Many corporate coding standards, government regulations, and industry certifications explicitly prohibit non-ASCII characters in source code for auditability
 
-LITMUS TEST:
-Ask yourself: "Can I copy this code section into the oldest text editor on a Linux server via SSH and still understand its meaning and search for it 100%?"
-- If answer is "NO": You may be violating NO_EMOJI
-- If answer is "YES": You're doing it right
+            // ! ======================================================================
+            // ! LITMUS TEST
+            // ! ======================================================================
+            Ask yourself: "Can I copy this code section into the oldest text editor on a Linux server via SSH and still understand its meaning and search for it 100%?"
+            - If answer is "NO": You may be violating NO_EMOJI
+            - If answer is "YES": You're doing it right
 
-THE ABSOLUTE SOLUTION:
-Use Text-based Descriptions that are industry standard:
+            // ! ======================================================================
+            // ! THE ABSOLUTE SOLUTION
+            // ! ======================================================================
+            Use Text-based Descriptions that are industry standard:
 
-In Comments: Use clear prefixes like // TODO:, // FIXME:, // NOTE:, // PERF:, // SECURITY:
-
-In Log Messages: Use structured prefixes or structured data:
-logger.info('[DEPLOY] Deployment started.');
-logger.info({ event: 'deploy_start', message: 'Deployment started.' });
-
-In Status Variables: Use strings that are immediately understandable:
-const status = 'SUCCESS'; // instead of checkmark emoji
-const buildState = 'FAILED'; // instead of X emoji 
-const priority = 'HIGH'; // instead of fire emoji
-const type = 'BUG'; // instead of bug emoji
-const note = 'TODO'; // instead of memo emoji
-
-In Error Messages: Use clear text:
-throw new Error('CRITICAL: Database connection failed'); // instead of explosion emoji + text
-
-COMPREHENSIVE COVERAGE: This validator detects ALL forms of emoji including direct Unicode characters, ZWJ sequences, skin tone modifiers, regional indicators, variation selectors, HTML entities, tag characters, and all Unicode 15.1+ emoji blocks.
-
-ZERO TOLERANCE: No emoji, Unicode symbols, pictographs, or non-standard characters allowed in source code, comments, strings, variable names, or any part of the codebase.`,
-            th: `ปรัชญาที่เด็ดขาด: "โค้ดคือเอกสารทางวิศวกรรม ไม่ใช่การแสดงออกทางอารมณ์"
+            // ! ======================================================================
+            // ! In Comments
+            // ! ======================================================================
+            Use clear prefixes like // TODO:, // FIXME:, // NOTE:, // PERF:, // SECURITY:
             
-Source Code คือสื่อกลางการสื่อสารที่ต้องมีความแม่นยำสูงสุด มันต้องถูกอ่านและประมวลผลได้ถูกต้อง 100% โดยมนุษย์และเครื่องจักรจากทุกวัฒนธรรม, ทุกระบบปฏิบัติการ, และทุกเครื่องมือ ทั้งในปัจจุบันและอีก 20 ปีข้างหน้า
+            // ! ======================================================================
+            // ! In Log Messages
+            // ! ======================================================================
+            Use structured prefixes or structured data:
+            logger.info('[DEPLOY] Deployment started.');
+            logger.info({ event: 'deploy_start', message: 'Deployment started.' });
+            // ! ======================================================================
+            // ! In Status Variables
+            // ! ======================================================================
+            Use strings that are immediately understandable:
+            const status = 'SUCCESS'; // instead of checkmark emoji
+            const buildState = 'FAILED'; // instead of X emoji 
+            const priority = 'HIGH'; // instead of fire emoji
+            const type = 'BUG'; // instead of bug emoji
+            const note = 'TODO'; // instead of memo emoji
+            
+            // ! ======================================================================
+            // ! In Error Messages
+            // ! ======================================================================
+            Use clear text:
+            throw new Error('CRITICAL: Database connection failed'); // instead of explosion emoji + text
 
-Emoji ทำลายคุณสมบัติทั้งหมดนี้ มันคืออักขระที่ กำกวม, แสดงผลไม่แน่นอน, ค้นหาไม่ได้, และขึ้นอยู่กับแพลตฟอร์ม การใช้อิโมจิในโค้ดคือการลดระดับเอกสารทางวิศวกรรมให้กลายเป็นข้อความในแชท ซึ่งเป็นสิ่งที่ยอมรับไม่ได้ในสภาพแวดล้อมที่เป็นมืออาชีพ
+            // ! ======================================================================
+            // ! COMPREHENSIVE COVERAGE
+            // ! ======================================================================
+            This validator detects ALL forms of emoji including direct Unicode characters, ZWJ sequences, skin tone modifiers, regional indicators, variation selectors, HTML entities, tag characters, and all Unicode 15.1+ emoji blocks.
 
-ตรรกะวิบัติของนักพัฒนาและคำตอบที่แท้จริง:
+            // ! ======================================================================
+            // ! ZERO TOLERANCE
+            // ! ======================================================================
+            No emoji, Unicode symbols, pictographs, or non-standard characters allowed in source code, comments, strings, variable names, or any part of the codebase.`,
+            th: `// ! ======================================================================
+            // ! ปรัชญาที่เด็ดขาด: "โค้ดคือเอกสารทางวิศวกรรม ไม่ใช่การแสดงออกทางอารมณ์"
+            // ! ======================================================================
+            
+            Source Code คือสื่อกลางการสื่อสารที่ต้องมีความแม่นยำสูงสุด มันต้องถูกอ่านและประมวลผลได้ถูกต้อง 100% โดยมนุษย์และเครื่องจักรจากทุกวัฒนธรรม, ทุกระบบปฏิบัติการ, และทุกเครื่องมือ ทั้งในปัจจุบันและอีก 20 ปีข้างหน้า
 
-ตรรกะวิบัติ: "แต่มันทำให้ Log หรือ Commit อ่านง่ายขึ้น!"
-คำตอบที่แท้จริง: มันทำให้อ่านง่ายขึ้นสำหรับ คุณ บน เครื่องของคุณ ใน วันนี้ เท่านั้น สำหรับเครื่องมืออัตโนมัติ (Log Parser, grep, git log --grep) หรือสำหรับนักพัฒนาที่ใช้ Terminal แบบ Basic มันคือขยะที่อ่านไม่ออก ความชัดเจนที่เป็นมาตรฐาน มีค่ามากกว่าความสวยงามเฉพาะกลุ่ม
+            Emoji ทำลายคุณสมบัติทั้งหมดนี้ มันคืออักขระที่ กำกวม, แสดงผลไม่แน่นอน, ค้นหาไม่ได้, และขึ้นอยู่กับแพลตฟอร์ม การใช้อิโมจิในโค้ดคือการลดระดับเอกสารทางวิศวกรรมให้กลายเป็นข้อความในแชท ซึ่งเป็นสิ่งที่ยอมรับไม่ได้ในสภาพแวดล้อมที่เป็นมืออาชีพ
 
-ตรรกะวิบัติ: "มันเป็นแค่มุกตลกในคอมเมนต์!"
-คำตอบที่แท้จริง: คอมเมนต์คือส่วนหนึ่งของเอกสารทางเทคนิค มันต้องให้ข้อมูลที่ชัดเจนและค้นหาได้ การใส่อิโมจิเข้าไปเป็นการเพิ่ม Noise และลดทอนความเป็นมืออาชีพของโค้ดเบสนั้นๆ
+            // ! ======================================================================
+                 ตรรกะวิบัติของนักพัฒนาและคำตอบที่แท้จริง:
+            // ! ======================================================================
 
-กฎทองสำหรับตรวจสอบ:
-"ฉันสามารถ grep คอนเซ็ปต์นี้บน Server ที่ไม่มี GUI ผ่าน PuTTY ด้วยฟอนต์พื้นฐาน แล้วมั่นใจได้ 100% ว่าจะเจอทุกจุดที่เกี่ยวข้องหรือไม่?"
+            ตรรกะวิบัติ: "แต่มันทำให้ Log หรือ Commit อ่านง่ายขึ้น!"
+            คำตอบที่แท้จริง: มันทำให้อ่านง่ายขึ้นสำหรับ คุณ บน เครื่องของคุณ ใน วันนี้ เท่านั้น สำหรับเครื่องมืออัตโนมัติ (Log Parser, grep, git log --grep) หรือสำหรับนักพัฒนาที่ใช้ Terminal แบบ Basic มันคือขยะที่อ่านไม่ออก ความชัดเจนที่เป็นมาตรฐาน มีค่ามากกว่าความสวยงามเฉพาะกลุ่ม
 
-บทสรุปที่ไม่มีข้อยกเว้น:
-ทุกตัวอักษรในโค้ดของคุณควรมี technical purpose Readability มาจาก clear naming และ good structure ไม่ใช่ visual decorations International teams ต้อง collaborate ได้โดยไม่ติด cultural/visual barriers
+            ตรรกะวิบัติ: "มันเป็นแค่มุกตลกในคอมเมนต์!"
+            คำตอบที่แท้จริง: คอมเมนต์คือส่วนหนึ่งของเอกสารทางเทคนิค มันต้องให้ข้อมูลที่ชัดเจนและค้นหาได้ การใส่อิโมจิเข้าไปเป็นการเพิ่ม Noise และลดทอนความเป็นมืออาชีพของโค้ดเบสนั้นๆ
 
-ปรัชญาและเหตุผลเชิงลึกดั้งเดิม:
-Source Code คือ เอกสารทางเทคนิคที่เป็นทางการ ที่ออกแบบมาเพื่อการสื่อสาร ที่ชัดเจน ค้นหาได้ และเป็นสากล ระหว่างมนุษย์และเครื่องจักรบนทุกแพลตฟอร์ม Emoji ทำลายคุณสมบัติทั้งหมดนี้
+            // ! ======================================================================
+            // ! กฎทองสำหรับตรวจสอบ
+            // ! ======================================================================
+            "ฉันสามารถ grep คอนเซ็ปต์นี้บน Server ที่ไม่มี GUI ผ่าน PuTTY ด้วยฟอนต์พื้นฐาน แล้วมั่นใจได้ 100% ว่าจะเจอทุกจุดที่เกี่ยวข้องหรือไม่?"
 
-การใช้อิโมจิดูเหมือนไม่เป็นอันตราย แต่มันสร้างปัญหาพื้นฐานด้าน Encoding, Searchability, Accessibility และ Portability ที่ยอมรับไม่ได้สำหรับการผลิตซอฟต์แวร์มืออาชีพ
+            // ! ======================================================================
+            // ! บทสรุปที่ไม่มีข้อยกเว้น
+            // ! ======================================================================
+            ทุกตัวอักษรในโค้ดของคุณควรมี technical purpose Readability มาจาก clear naming และ good structure ไม่ใช่ visual decorations International teams ต้อง collaborate ได้โดยไม่ติด cultural/visual barriers
 
-อันตรายที่ซ่อนอยู่:
-1) นรก Encoding: ไฟล์ที่เปิดใน editor หรือ OS ต่างกันอาจแสดงอิโมจิเป็นตัวอักษรขยะ (Mojibake) หรือทำให้ไฟล์เสียหาย ทำให้โค้ดอ่านไม่ได้หรือ compile ไม่ได้
-2) เครื่องมือพัง: grep, git diff, git log ใน terminal หรือ CI/CD tools ไม่สามารถแสดงผลหรือค้นหาอิโมจิได้ถูกต้อง ทำให้ตรวจสอบโค้ดและ debug ยากขึ้นมาก
-3) หายนะ Database: Database ที่ใช้ utf8 collation (ไม่ใช่ utf8mb4) เก็บอิโมจิไม่ได้ ทำให้เกิด ERROR exception หรือข้อมูลถูกตัดแบบเงียบ ทำลายข้อมูลแอปพลิเคชัน
-4) เลือกปฏิบัติผู้พิการ: Screen reader ไม่สามารถอ่านและตีความอิโมจิได้อย่างมีความหมาย ป้องกันนักพัฒนาที่บกพร่องทางสายตาจากการร่วมงานใน codebase ละเมิดหลักการเท่าเทียม
-5) สูญเสียความน่าเชื่อถือ: ไม่มีระบบ production ระดับองค์กรใช้อิโมจิ - มันส่งสัญญาณว่าเป็น "โปรเจกต์สมัครเล่น" หรือ "โค้ดของเล่น" ไปยังผู้นำเทคนิค ลูกค้า และผู้ตรวจสอบทันที
-6) Pipeline ล้มเหลว: ระบบ CI/CD หลายตัว, Docker container, SSH session แสดงอิโมจิไม่ได้ ทำให้ build log อ่านไม่ได้และ debug ไม่ได้
-7) Version Control วุ่นวาย: Git diff แสดงอิโมจิเป็น escape sequence (\u{1F600}) ทำให้ code review อ่านไม่ได้และแก้ merge conflict ไม่ได้
-8) ไม่เข้ากันข้าม Platform: OS ต่างกัน render อิโมจิต่างกันหรือไม่แสดงเลย สร้างประสบการณ์นักพัฒนาไม่สอดคล้องและช่องว่างการสื่อสาร
-9) ค้นหาและแทนที่ไม่ได้: ไม่สามารถค้นหาอิโมจิใน IDE, text editor หรือ command-line tools ได้อย่างเชื่อถือได้ ทำให้ refactor และ maintain ยากมาก
-10) ละเมิดมาตรฐาน: มาตรฐานการเขียนโค้ดขององค์กรหลายแห่ง กฎระเบียมของรัฐ และการรับรองอุตสาหกรรมห้าม non-ASCII character ในโค้ดอย่างชัดเจน เพื่อการตรวจสอบได้
+            // ! ======================================================================
+            // ! ปรัชญาและเหตุผลเชิงลึกดั้งเดิม
+            // ! ======================================================================
+            Source Code คือ เอกสารทางเทคนิคที่เป็นทางการ ที่ออกแบบมาเพื่อการสื่อสาร ที่ชัดเจน ค้นหาได้ และเป็นสากล ระหว่างมนุษย์และเครื่องจักรบนทุกแพลตฟอร์ม Emoji ทำลายคุณสมบัติทั้งหมดนี้
 
-วิธีทดสอบความคิด (Litmus Test):
-ถามตัวเอง: "ฉันสามารถ copy โค้ดส่วนนี้ไปวางใน text editor ที่เก่าที่สุดบน Linux server ผ่าน SSH และยังเข้าใจความหมายและค้นหาได้ 100% หรือไม่?"
-- ถ้าตอบ "ไม่": คุณอาจละเมิด NO_EMOJI
-- ถ้าตอบ "ใช่": คุณทำถูกต้อง
+            การใช้อิโมจิดูเหมือนไม่เป็นอันตราย แต่มันสร้างปัญหาพื้นฐานด้าน Encoding, Searchability, Accessibility และ Portability ที่ยอมรับไม่ได้สำหรับการผลิตซอฟต์แวร์มืออาชีพ
 
-วิธีแก้ไขสมบูรณ์:
-ใช้คำอธิบายแบบข้อความที่เป็นมาตรฐานอุตสาหกรรม:
+            // ! ======================================================================
+            // ! อันตรายที่ซ่อนอยู่
+            // ! ======================================================================
+            1) นรก Encoding: ไฟล์ที่เปิดใน editor หรือ OS ต่างกันอาจแสดงอิโมจิเป็นตัวอักษรขยะ (Mojibake) หรือทำให้ไฟล์เสียหาย ทำให้โค้ดอ่านไม่ได้หรือ compile ไม่ได้
+            2) เครื่องมือพัง: grep, git diff, git log ใน terminal หรือ CI/CD tools ไม่สามารถแสดงผลหรือค้นหาอิโมจิได้ถูกต้อง ทำให้ตรวจสอบโค้ดและ debug ยากขึ้นมาก
+            3) หายนะ Database: Database ที่ใช้ utf8 collation (ไม่ใช่ utf8mb4) เก็บอิโมจิไม่ได้ ทำให้เกิด ERROR exception หรือข้อมูลถูกตัดแบบเงียบ ทำลายข้อมูลแอปพลิเคชัน
+            4) เลือกปฏิบัติผู้พิการ: Screen reader ไม่สามารถอ่านและตีความอิโมจิได้อย่างมีความหมาย ป้องกันนักพัฒนาที่บกพร่องทางสายตาจากการร่วมงานใน codebase ละเมิดหลักการเท่าเทียม
+            5) สูญเสียความน่าเชื่อถือ: ไม่มีระบบ production ระดับองค์กรใช้อิโมจิ - มันส่งสัญญาณว่าเป็น "โปรเจกต์สมัครเล่น" หรือ "โค้ดของเล่น" ไปยังผู้นำเทคนิค ลูกค้า และผู้ตรวจสอบทันที
+            6) Pipeline ล้มเหลว: ระบบ CI/CD หลายตัว, Docker container, SSH session แสดงอิโมจิไม่ได้ ทำให้ build log อ่านไม่ได้และ debug ไม่ได้
+            7) Version Control วุ่นวาย: Git diff แสดงอิโมจิเป็น escape sequence (\u{1F600}) ทำให้ code review อ่านไม่ได้และแก้ merge conflict ไม่ได้
+            8) ไม่เข้ากันข้าม Platform: OS ต่างกัน render อิโมจิต่างกันหรือไม่แสดงเลย สร้างประสบการณ์นักพัฒนาไม่สอดคล้องและช่องว่างการสื่อสาร
+            9) ค้นหาและแทนที่ไม่ได้: ไม่สามารถค้นหาอิโมจิใน IDE, text editor หรือ command-line tools ได้อย่างเชื่อถือได้ ทำให้ refactor และ maintain ยากมาก
+            10) ละเมิดมาตรฐาน: มาตรฐานการเขียนโค้ดขององค์กรหลายแห่ง กฎระเบียมของรัฐ และการรับรองอุตสาหกรรมห้าม non-ASCII character ในโค้ดอย่างชัดเจน เพื่อการตรวจสอบได้
 
-ใน Comment: ใช้ prefix ที่ชัดเจน เช่น // TODO:, // FIXME:, // NOTE:, // PERF:, // SECURITY:
+            // ! ======================================================================
+            // ! วิธีทดสอบความคิด (Litmus Test)
+            // ! ======================================================================
+            ถามตัวเอง: "ฉันสามารถ copy โค้ดส่วนนี้ไปวางใน text editor ที่เก่าที่สุดบน Linux server ผ่าน SSH และยังเข้าใจความหมายและค้นหาได้ 100% หรือไม่?"
+            - ถ้าตอบ "ไม่": คุณอาจละเมิด NO_EMOJI
+            - ถ้าตอบ "ใช่": คุณทำถูกต้อง
 
-ใน Log Message: ใช้ structured prefix หรือ structured data:
-logger.info('[DEPLOY] Deployment started.');
-logger.info({ event: 'deploy_start', message: 'Deployment started.' });
+            // ! ======================================================================
+            // ! วิธีแก้ไขสมบูรณ์
+            // ! ======================================================================
+            ใช้คำอธิบายแบบข้อความที่เป็นมาตรฐานอุตสาหกรรม:
 
-ในตัวแปร Status: ใช้ string ที่เข้าใจได้ทันที:
-const status = 'SUCCESS'; // แทนการใช้ checkmark emoji
-const buildState = 'FAILED'; // แทนการใช้ X emoji
-const priority = 'HIGH'; // แทนการใช้ fire emoji
-const type = 'BUG'; // แทนการใช้ bug emoji
-const note = 'TODO'; // แทนการใช้ memo emoji
+            // ! ======================================================================
+            // ! ใน Comment
+            // ! ======================================================================
+            ใช้ prefix ที่ชัดเจน เช่น // TODO:, // FIXME:, // NOTE:, // PERF:, // SECURITY:
 
-ใน Error Message: ใช้ข้อความชัดเจน:
-throw new Error('CRITICAL: Database connection failed'); // แทนการใช้ explosion emoji + text
+            // ! ======================================================================
+                 ใน Log Message:
+            // ! ======================================================================
+            ใช้ structured prefix หรือ structured data:
+            logger.info('[DEPLOY] Deployment started.');
+            logger.info({ event: 'deploy_start', message: 'Deployment started.' });
 
-ครอบคลุมทั่วถึง: Validator นี้ตรวจจับอิโมจิทุกรูปแบบ รวมถึง Unicode character ตรงๆ, ZWJ sequence, skin tone modifier, regional indicator, variation selector, HTML entity, tag character และ Unicode 15.1+ emoji block ทั้งหมด
+            // ! ======================================================================
+                 ในตัวแปร Status:
+            // ! ======================================================================
+            ใช้ string ที่เข้าใจได้ทันที:
+            const status = 'SUCCESS'; // แทนการใช้ checkmark emoji
+            const buildState = 'FAILED'; // แทนการใช้ X emoji
+            const priority = 'HIGH'; // แทนการใช้ fire emoji
+            const type = 'BUG'; // แทนการใช้ bug emoji
+            const note = 'TODO'; // แทนการใช้ memo emoji
 
-ไม่ยอมรับข้อยกเว้น: ไม่มีอิโมจิ Unicode symbol pictograph หรือ non-standard character ใน source code comment string variable name หรือส่วนใดๆ ของ codebase
+            // ! ======================================================================
+                 ใน Error Message:
+            // ! ======================================================================
+            ใช้ข้อความชัดเจน:
+            throw new Error('CRITICAL: Database connection failed'); // แทนการใช้ explosion emoji + text
 
-*** LOOPHOLE CLOSURE - การปิดช่องโหว่ทุกรูปแบบ ***
+            // ! ======================================================================
+                 ครอบคลุมทั่วถึง:
+            // ! ======================================================================
+            Validator นี้ตรวจจับอิโมจิทุกรูปแบบ รวมถึง Unicode character ตรงๆ, ZWJ sequence, skin tone modifier, regional indicator, variation selector, HTML entity, tag character และ Unicode 15.1+ emoji block ทั้งหมด
 
-เหตุผลที่คนอยากใช้ emoji และการปิดช่องโหว่:
+            ไม่ยอมรับข้อยกเว้น: ไม่มีอิโมจิ Unicode symbol pictograph หรือ non-standard character ใน source code comment string variable name หรือส่วนใดๆ ของ codebase
 
-1. "OMG BUT IT'S JUST FOR FUN AND TEAM MORALE!"
-   → ไม่ยอมรับ! Fun ไม่ใช่เหตุผลที่ดีในการทำลาย professional code standards
-   → แก้ถูก: Team morale ผ่าน proper documentation, meaningful code review และ knowledge sharing
-   → เพราะอะไร: Code คือ professional artifact ที่ต้อง maintainable โดย developers ทั่วโลก
+            // ! ======================================================================
+            // ! LOOPHOLE CLOSURE - การปิดช่องโหว่ทุกรูปแบบ
+            // ! ======================================================================
 
-2. "DUDE! IT'S JUST IN COMMENTS, NOT IN ACTUAL CODE!"
-   → ไม่ยอมรับ! Comments เป็นส่วนหนึ่งของ codebase และต้อง searchable และ parseable
-   → แก้ถูก: Structured comments พร้อม proper prefixes (// TODO:, // FIXME:, // NOTE:)
-   → เพราะอะไร: Emoji ใน comments ทำลาย text search, code indexing และ documentation generation
+            เหตุผลที่คนอยากใช้ emoji และการปิดช่องโหว่:
 
-3. "BRO, IT'S JUST FOR COMMIT MESSAGES!"
-   → ไม่ยอมรับ! Commit messages ต้อง machine-readable และ professional
-   → แก้ถูก: Conventional Commit format พร้อม clear type และ scope (feat:, fix:, docs:)
-   → เพราะอะไร: Git log parsing, changelog generation และ CI/CD automation ต้องการ structured format
+            1. "OMG BUT IT'S JUST FOR FUN AND TEAM MORALE!"
+               → ไม่ยอมรับ! Fun ไม่ใช่เหตุผลที่ดีในการทำลาย professional code standards
+               → แก้ถูก: Team morale ผ่าน proper documentation, meaningful code review และ knowledge sharing
+               → เพราะอะไร: Code คือ professional artifact ที่ต้อง maintainable โดย developers ทั่วโลก
 
-4. "OMG BUT IT'S JUST FOR STATUS INDICATORS!"
-   → ไม่ยอมรับ! Status indicators ต้องใช้ standard text ที่ universally understood
-   → แก้ถูก: Enum values (SUCCESS/FAILED/PENDING) หรือ standard status codes
-   → เพราะอะไร: Status indicators ต้อง machine-readable และ locale-independent
+            2. "DUDE! IT'S JUST IN COMMENTS, NOT IN ACTUAL CODE!"
+               → ไม่ยอมรับ! Comments เป็นส่วนหนึ่งของ codebase และต้อง searchable และ parseable
+               → แก้ถูก: Structured comments พร้อม proper prefixes (// TODO:, // FIXME:, // NOTE:)
+               → เพราะอะไร: Emoji ใน comments ทำลาย text search, code indexing และ documentation generation
 
-5. "DUDE! IT'S JUST FOR PRIORITY LEVELS!"
-   → ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
+            3. "BRO, IT'S JUST FOR COMMIT MESSAGES!"
+               → ไม่ยอมรับ! Commit messages ต้อง machine-readable และ professional
+               → แก้ถูก: Conventional Commit format พร้อม clear type และ scope (feat:, fix:, docs:)
+               → เพราะอะไร: Git log parsing, changelog generation และ CI/CD automation ต้องการ structured format
+
+            4. "OMG BUT IT'S JUST FOR STATUS INDICATORS!"
+               → ไม่ยอมรับ! Status indicators ต้องใช้ standard text ที่ universally understood
+               → แก้ถูก: Enum values (SUCCESS/FAILED/PENDING) หรือ standard status codes
+               → เพราะอะไร: Status indicators ต้อง machine-readable และ locale-independent
+
+            5. "DUDE! IT'S JUST FOR PRIORITY LEVELS!"
+               → ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
+               → แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
+               → เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
+
+            6. "BRO, IT'S JUST FOR USER-FACING STRINGS!"
+               → ไม่ยอมรับ! User-facing content ต้อง properly internationalized
+               → แก้ถูก: i18n framework พร้อม proper Unicode handling และ locale-specific rendering
+               → เพราะอะไร: Hardcoded emoji ไม่ support accessibility, screen readers และ cultural differences
+
+            7. "OMG BUT IT'S JUST FOR TEST DATA/FIXTURES!"
+               → ไม่ยอมรับ! Test data ต้อง predictable และ focused บน business logic ไม่ใช่ visual elements
+               → แก้ถูก: Meaningful test data ที่ reflect real-world scenarios
+               → เพราะอะไร: Emoji ใน test data distract จาก actual test logic และ make debugging harder
+
+            8. "DUDE! IT'S JUST FOR ERROR MESSAGES TO MAKE THEM FRIENDLY!"
+               → ไม่ยอมรับ! Error messages ต้อง structured และ actionable ไม่ใช่ "friendly"
+               → แก้ถูก: Clear error codes พร้อม actionable messages และ proper error categorization
+               → เพราะอะไร: Error handling systems ต้อง parseable และ alerting systems ต้องการ structured data
+
+            9. "BRO, IT'S JUST FOR LOG LEVEL INDICATORS!"
+               → ไม่ยอมรับ! Log levels ต้อง standard และ machine-parseable
+               → แก้ถูก: Standard log levels (DEBUG/INFO/WARN/ERROR/FATAL) พร้อม structured logging
+               → เพราะอะไร: Log aggregation systems และ monitoring tools ต้องการ standardized log formats
+
+            10. "OMG BUT IT'S PART OF THE BUSINESS DOMAIN (SOCIAL MEDIA APP)!"
+                → ไม่ยอมรับ! Business domain emoji ต้องเก็บใน database หรือ user content ไม่ใช่ source code
+                → แก้ถูก: Emoji handling library พร้อม proper Unicode normalization และ database storage
+                → เพราะอะไร: Business logic ต้องแยกจาก presentation layer และ support emoji evolution
+
+            11. "DUDE! IT'S JUST FOR FEATURE FLAGS OR CONFIGURATION!"
+                → ไม่ยอมรับ! Configuration values ต้อง machine-readable และ deployment-safe
+                → แก้ถูก: Boolean/string configuration values พร้อม proper validation
+                → เพราะอะไร: Configuration parsing ต้อง robust และ environment-independent
+
+            12. "BRO, OTHER POPULAR PROJECTS USE EMOJI IN CODE!"
+                → ไม่ยอมรับ! Popularity ไม่ใช่ technical merit - enterprise code ต้อง stricter standards
+                → แก้ถูก: Follow established enterprise coding standards และ industry best practices
+                → เพราะอะไร: Enterprise software ต้อง maintainable โดย global teams พร้อม different tooling และ environments
+
+            // ! ======================================================================
+            // ! PROFESSIONAL PRINCIPLE
+            // ! ======================================================================
+            Source code คือ TECHNICAL SPECIFICATION ไม่ใช่ creative expression
+            - ทุก character ใน source code ต้องมี technical purpose
+            - Readability มาจาก clear naming และ good structure ไม่ใช่ visual decorations
+            - International teams ต้อง collaborate ได้โดยไม่ติด cultural/visual barriers
+
+            // ! ======================================================================
+            // ! GOLDEN RULE สำหรับตรวจสอบ
+            // ! ======================================================================
+            ถ้า character นี้ถูก copy/paste ไ terminal ที่ไม่ support Unicode properly แล้วกลายเป็น garbled text
+            = ห้ามใช้ใน professional codebase
+
+            ไม่มี "แต่มันดูน่ารัก" หรือ "ทำให้ code สนุก" - CODE IS BUSINESS DOCUMENTATION
+            ZERO EMOJI - PROFESSIONAL CODE ONLY
+
+            // ! ======================================================================
+            // ! การปิดช่องโหว่ทุกรูปแบบ - LOOPHOLE CLOSURE (เวอร์ชันภาษาไทย)
+            // ! ======================================================================
+
+            เหตุผลที่คนอยากใช้ emoji และการปิดช่องโหว่:
+
+            1. "เฮ้ย! แต่มันแค่เพื่อความสนุกและสร้างขวัญทีม!"
+               → ไม่ยอมรับ! ความสนุกไม่ใช่เหตุผลที่ดีในการทำลาย professional code standards
+               → แก้ถูก: Team morale ผ่าน proper documentation, meaningful code review และ knowledge sharing
+               → เพราะอะไร: Code คือ professional artifact ที่ต้อง maintainable โดย developers ทั่วโลก
+
+            2. "อะ! แต่มันแค่ใน comments ไม่ใช่โค้ดจริงนะ!"
+               → ไม่ยอมรับ! Comments เป็นส่วนหนึ่งของ codebase และต้อง searchable และ parseable
+               → แก้ถูก: Structured comments พร้อม proper prefixes (// TODO:, // FIXME:, // NOTE:)
+               → เพราะอะไร: Emoji ใน comments ทำลาย text search, code indexing และ documentation generation
+
+            3. "เฮ้ย! แต่มันแค่ commit messages!"
+               → ไม่ยอมรับ! Commit messages ต้อง machine-readable และ professional
+               → แก้ถูก: Conventional Commit format พร้อม clear type และ scope (feat:, fix:, docs:)
+               → เพราะอะไร: Git log parsing, changelog generation และ CI/CD automation ต้องการ structured format
+
+            4. "อะ! แต่มันแค่ status indicators!"
+               → ไม่ยอมรับ! Status indicators ต้องใช้ standard text ที่ universally understood
+               → แก้ถูก: Enum values (SUCCESS/FAILED/PENDING) หรือ standard status codes
+               → เพราะอะไร: Status indicators ต้อง machine-readable และ locale-independent
+
+            5. "เฮ้ย! แต่มันแค่ priority levels!"
+               → ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
    → แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
    → เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
 
-6. "BRO, IT'S JUST FOR USER-FACING STRINGS!"
-   → ไม่ยอมรับ! User-facing content ต้อง properly internationalized
-   → แก้ถูก: i18n framework พร้อม proper Unicode handling และ locale-specific rendering
-   → เพราะอะไร: Hardcoded emoji ไม่ support accessibility, screen readers และ cultural differences
+            6. "อะ! แต่มันแค่ user-facing strings!"
+               → ไม่ยอมรับ! User-facing content ต้อง properly internationalized
+               → แก้ถูก: i18n framework พร้อม proper Unicode handling และ locale-specific rendering
+               → เพราะอะไร: Hardcoded emoji ไม่ support accessibility, screen readers และ cultural differences
 
-7. "OMG BUT IT'S JUST FOR TEST DATA/FIXTURES!"
-   → ไม่ยอมรับ! Test data ต้อง predictable และ focused บน business logic ไม่ใช่ visual elements
-   → แก้ถูก: Meaningful test data ที่ reflect real-world scenarios
-   → เพราะอะไร: Emoji ใน test data distract จาก actual test logic และ make debugging harder
+            7. "เฮ้ย! แต่มันแค่ test data/fixtures!"
+               → ไม่ยอมรับ! Test data ต้อง predictable และ focused บน business logic ไม่ใช่ visual elements
+               → แก้ถูก: Meaningful test data ที่ reflect real-world scenarios
+               → เพราะอะไร: Emoji ใน test data distract จาก actual test logic และ make debugging harder
 
-8. "DUDE! IT'S JUST FOR ERROR MESSAGES TO MAKE THEM FRIENDLY!"
-   → ไม่ยอมรับ! Error messages ต้อง structured และ actionable ไม่ใช่ "friendly"
-   → แก้ถูก: Clear error codes พร้อม actionable messages และ proper error categorization
-   → เพราะอะไร: Error handling systems ต้อง parseable และ alerting systems ต้องการ structured data
+            8. "อะ! แต่มันแค่ error messages เพื่อให้เป็นมิตร!"
+               → ไม่ยอมรับ! Error messages ต้อง structured และ actionable ไม่ใช่ "เป็นมิตร"
+               → แก้ถูก: Clear error codes พร้อม actionable messages และ proper error categorization
+               → เพราะอะไร: Error handling systems ต้อง parseable และ alerting systems ต้องการ structured data
 
-9. "BRO, IT'S JUST FOR LOG LEVEL INDICATORS!"
-   → ไม่ยอมรับ! Log levels ต้อง standard และ machine-parseable
-   → แก้ถูก: Standard log levels (DEBUG/INFO/WARN/ERROR/FATAL) พร้อม structured logging
-   → เพราะอะไร: Log aggregation systems และ monitoring tools ต้องการ standardized log formats
+            9. "เฮ้ย! แต่มันแค่ log level indicators!"
+               → ไม่ยอมรับ! Log levels ต้อง standard และ machine-parseable
+               → แก้ถูก: Standard log levels (DEBUG/INFO/WARN/ERROR/FATAL) พร้อม structured logging
+               → เพราะอะไร: Log aggregation systems และ monitoring tools ต้องการ standardized log formats
 
-10. "OMG BUT IT'S PART OF THE BUSINESS DOMAIN (SOCIAL MEDIA APP)!"
-    → ไม่ยอมรับ! Business domain emoji ต้องเก็บใน database หรือ user content ไม่ใช่ source code
-    → แก้ถูก: Emoji handling library พร้อม proper Unicode normalization และ database storage
-    → เพราะอะไร: Business logic ต้องแยกจาก presentation layer และ support emoji evolution
+            10. "อะ! แต่มันเป็นส่วนหนึ่งของ business domain (social media app)!"
+                → ไม่ยอมรับ! Business domain emoji ต้องเก็บใน database หรือ user content ไม่ใช่ source code
+                → แก้ถูก: Emoji handling library พร้อม proper Unicode normalization และ database storage
+                → เพราะอะไร: Business logic ต้องแยกจาก presentation layer และ support emoji evolution
 
-11. "DUDE! IT'S JUST FOR FEATURE FLAGS OR CONFIGURATION!"
-    → ไม่ยอมรับ! Configuration values ต้อง machine-readable และ deployment-safe
-    → แก้ถูก: Boolean/string configuration values พร้อม proper validation
-    → เพราะอะไร: Configuration parsing ต้อง robust และ environment-independent
+            11. "เฮ้ย! แต่มันแค่ feature flags หรือ configuration!"
+                → ไม่ยอมรับ! Configuration values ต้อง machine-readable และ deployment-safe
+                → แก้ถูก: Boolean/string configuration values พร้อม proper validation
+                → เพราะอะไร: Configuration parsing ต้อง robust และ environment-independent
 
-12. "BRO, OTHER POPULAR PROJECTS USE EMOJI IN CODE!"
-    → ไม่ยอมรับ! Popularity ไม่ใช่ technical merit - enterprise code ต้อง stricter standards
-    → แก้ถูก: Follow established enterprise coding standards และ industry best practices
-    → เพราะอะไร: Enterprise software ต้อง maintainable โดย global teams พร้อม different tooling และ environments
+            12. "อะ! แต่โปรเจ็กต์ดังๆ ก็ใช้ emoji ในโค้ด!"
+                → ไม่ยอมรับ! Popularity ไม่ใช่ technical merit - enterprise code ต้อง stricter standards
+                → แก้ถูก: Follow established enterprise coding standards และ industry best practices
+                → เพราะอะไร: Enterprise software ต้อง maintainable โดย global teams พร้อม different tooling และ environments
 
-PROFESSIONAL PRINCIPLE:
-Source code คือ TECHNICAL SPECIFICATION ไม่ใช่ creative expression
-- ทุก character ใน source code ต้องมี technical purpose
-- Readability มาจาก clear naming และ good structure ไม่ใช่ visual decorations
-- International teams ต้อง collaborate ได้โดยไม่ติด cultural/visual barriers
+            // ! ======================================================================
+            // ! หลักการมืออาชีพ (ภาษาไทย)
+            // ! ======================================================================
+            Source code คือ TECHNICAL SPECIFICATION ไม่ใช่ creative expression
+            - ทุก character ใน source code ต้องมี technical purpose
+            - Readability มาจาก clear naming และ good structure ไม่ใช่ visual decorations
+            - International teams ต้อง collaborate ได้โดยไม่ติด cultural/visual barriers
 
-GOLDEN RULE สำหรับตรวจสอบ:
-ถ้า character นี้ถูก copy/paste ไป terminal ที่ไม่ support Unicode properly แล้วกลายเป็น garbled text
-= ห้ามใช้ใน professional codebase
+            // ! ======================================================================
+            // ! กฎทองสำหรับตรวจสอบ (ภาษาไทย)
+            // ! ======================================================================
+            ถ้า character นี้ถูก copy/paste ไป terminal ที่ไม่ support Unicode properly แล้วกลายเป็น garbled text
+            = ห้ามใช้ใน professional codebase
 
-ไม่มี "แต่มันดูน่ารัก" หรือ "ทำให้ code สนุก" - CODE IS BUSINESS DOCUMENTATION
-ZERO EMOJI - PROFESSIONAL CODE ONLY
-
-*** การปิดช่องโหว่ทุกรูปแบบ - LOOPHOLE CLOSURE (เวอร์ชันภาษาไทย) ***
-
-เหตุผลที่คนอยากใช้ emoji และการปิดช่องโหว่:
-
-1. "เฮ้ย! แต่มันแค่เพื่อความสนุกและสร้างขวัญทีม!"
-   → ไม่ยอมรับ! ความสนุกไม่ใช่เหตุผลที่ดีในการทำลาย professional code standards
-   → แก้ถูก: Team morale ผ่าน proper documentation, meaningful code review และ knowledge sharing
-   → เพราะอะไร: Code คือ professional artifact ที่ต้อง maintainable โดย developers ทั่วโลก
-
-2. "อะ! แต่มันแค่ใน comments ไม่ใช่โค้ดจริงนะ!"
-   → ไม่ยอมรับ! Comments เป็นส่วนหนึ่งของ codebase และต้อง searchable และ parseable
-   → แก้ถูก: Structured comments พร้อม proper prefixes (// TODO:, // FIXME:, // NOTE:)
-   → เพราะอะไร: Emoji ใน comments ทำลาย text search, code indexing และ documentation generation
-
-3. "เฮ้ย! แต่มันแค่ commit messages!"
-   → ไม่ยอมรับ! Commit messages ต้อง machine-readable และ professional
-   → แก้ถูก: Conventional Commit format พร้อม clear type และ scope (feat:, fix:, docs:)
-   → เพราะอะไร: Git log parsing, changelog generation และ CI/CD automation ต้องการ structured format
-
-4. "อะ! แต่มันแค่ status indicators!"
-   → ไม่ยอมรับ! Status indicators ต้องใช้ standard text ที่ universally understood
-   → แก้ถูก: Enum values (SUCCESS/FAILED/PENDING) หรือ standard status codes
-   → เพราะอะไร: Status indicators ต้อง machine-readable และ locale-independent
-
-5. "เฮ้ย! แต่มันแค่ priority levels!"
-   → ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
-   → แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
-   → เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
-
-6. "อะ! แต่มันแค่ user-facing strings!"
-   → ไม่ยอมรับ! User-facing content ต้อง properly internationalized
-   → แก้ถูก: i18n framework พร้อม proper Unicode handling และ locale-specific rendering
-   → เพราะอะไร: Hardcoded emoji ไม่ support accessibility, screen readers และ cultural differences
-
-7. "เฮ้ย! แต่มันแค่ test data/fixtures!"
-   → ไม่ยอมรับ! Test data ต้อง predictable และ focused บน business logic ไม่ใช่ visual elements
-   → แก้ถูก: Meaningful test data ที่ reflect real-world scenarios
-   → เพราะอะไร: Emoji ใน test data distract จาก actual test logic และ make debugging harder
-
-8. "อะ! แต่มันแค่ error messages เพื่อให้เป็นมิตร!"
-   → ไม่ยอมรับ! Error messages ต้อง structured และ actionable ไม่ใช่ "เป็นมิตร"
-   → แก้ถูก: Clear error codes พร้อม actionable messages และ proper error categorization
-   → เพราะอะไร: Error handling systems ต้อง parseable และ alerting systems ต้องการ structured data
-
-9. "เฮ้ย! แต่มันแค่ log level indicators!"
-   → ไม่ยอมรับ! Log levels ต้อง standard และ machine-parseable
-   → แก้ถูก: Standard log levels (DEBUG/INFO/WARN/ERROR/FATAL) พร้อม structured logging
-   → เพราะอะไร: Log aggregation systems และ monitoring tools ต้องการ standardized log formats
-
-10. "อะ! แต่มันเป็นส่วนหนึ่งของ business domain (social media app)!"
-    → ไม่ยอมรับ! Business domain emoji ต้องเก็บใน database หรือ user content ไม่ใช่ source code
-    → แก้ถูก: Emoji handling library พร้อม proper Unicode normalization และ database storage
-    → เพราะอะไร: Business logic ต้องแยกจาก presentation layer และ support emoji evolution
-
-11. "เฮ้ย! แต่มันแค่ feature flags หรือ configuration!"
-    → ไม่ยอมรับ! Configuration values ต้อง machine-readable และ deployment-safe
-    → แก้ถูก: Boolean/string configuration values พร้อม proper validation
-    → เพราะอะไร: Configuration parsing ต้อง robust และ environment-independent
-
-12. "อะ! แต่โปรเจ็กต์ดังๆ ก็ใช้ emoji ในโค้ด!"
-    → ไม่ยอมรับ! Popularity ไม่ใช่ technical merit - enterprise code ต้อง stricter standards
-    → แก้ถูก: Follow established enterprise coding standards และ industry best practices
-    → เพราะอะไร: Enterprise software ต้อง maintainable โดย global teams พร้อม different tooling และ environments
-
-หลักการมืออาชีพ (ภาษาไทย):
-Source code คือ TECHNICAL SPECIFICATION ไม่ใช่ creative expression
-- ทุก character ใน source code ต้องมี technical purpose
-- Readability มาจาก clear naming และ good structure ไม่ใช่ visual decorations
-- International teams ต้อง collaborate ได้โดยไม่ติด cultural/visual barriers
-
-กฎทองสำหรับตรวจสอบ (ภาษาไทย):
-ถ้า character นี้ถูก copy/paste ไป terminal ที่ไม่ support Unicode properly แล้วกลายเป็น garbled text
-= ห้ามใช้ใน professional codebase
-
-ไม่มี "แต่มันดูน่ารัก" หรือ "ทำให้ code สนุก" - CODE คือ BUSINESS DOCUMENTATION
-ห้าม EMOJI - PROFESSIONAL CODE เท่านั้น`
+            ไม่มี "แต่มันดูน่ารัก" หรือ "ทำให้ code สนุก" - CODE คือ BUSINESS DOCUMENTATION
+            ห้าม EMOJI - PROFESSIONAL CODE เท่านั้น`
         },
         patterns: [
             // ═══════════════════════════════════════════════════════════════════
@@ -4725,276 +4897,241 @@ Source code คือ TECHNICAL SPECIFICATION ไม่ใช่ creative expres
             { regex: '[\\u{1F3AF}]', flags: 'gu', name: 'Direct hit (U+1F3AF) - use "TARGET"', severity: 'ERROR' },
         ],
         severity: 'ERROR',
+        // ! ======================================================================
+        // ! violationExamples - ตัวอย่างการละเมิดกฎ NO_EMOJI
+        // ! ======================================================================
         violationExamples: {
+            // ! ======================================================================
+            // ! English violation examples
+            // ! ------------------------------------------------------------------
+            // ! ENGLISH VIOLATION EXAMPLES
+            // ! ------------------------------------------------------------------
             en: [
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Check mark button (U+2705) - commonly misused
-                 * @description Unicode checkmark in string
-                 * @note CHANGED: เปลี่ยนจาก comment เป็น string literal เพราะ AST ไม่จับ comments
-                 * @original-code //  Task completed successfully
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Check mark button (U+2705) - commonly misused
+                // @description Unicode checkmark in string
+                // @note CHANGED: เปลี่ยนจาก comment เป็น string literal เพราะ AST ไม่จับ comments
+                // @original-code //  Task completed successfully
                 const status = " Task completed successfully";`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Cross mark (U+274C) - commonly misused
-                 * @description Unicode symbols in string
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Cross mark (U+274C) - commonly misused
+                // @description Unicode symbols in string
                 const status = isComplete ? "" : "";`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Rocket (U+1F680) - unprofessional
-                 * @description Unicode rocket in message
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Rocket (U+1F680) - unprofessional
+                // @description Unicode rocket in message
                 console.log(" Deployment started!");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Bug (U+1F41B) - use "BUG" or "FIXME"
-                 * @description Unicode bug in error message
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Bug (U+1F41B) - use "BUG" or "FIXME"
+                // @description Unicode bug in error message
                 throw new Error(" Critical bug found");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Memo (U+1F4DD) - use "NOTE" or "TODO"
-                 * @description Unicode memo in string
-                 * @note CHANGED: เปลี่ยนจาก comment เป็น string literal เพราะ AST ไม่จับ comments
-                 * @original-code //  TODO: Implement feature
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Memo (U+1F4DD) - use "NOTE" or "TODO"
+                // @description Unicode memo in string
+                // @note CHANGED: เปลี่ยนจาก comment เป็น string literal เพราะ AST ไม่จับ comments
+                // @original-code //  TODO: Implement feature
                 const note = " TODO: Implement feature";`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Warning sign (U+26A0) - use "WARNING"
-                 * @description Unicode warning sign
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Warning sign (U+26A0) - use "WARNING"
+                // @description Unicode warning sign
                 logger.warn("\u26A0\uFE0F Memory usage high");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Party popper (U+1F389) - unprofessional
-                 * @description Unicode party popper in result
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Party popper (U+1F389) - unprofessional
+                // @description Unicode party popper in result
                 const result = { success: true, message: "\u{1F389} Done!" };`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Fire (U+1F525) - unprofessional slang
-                 * @description Unicode fire in string
-                 * @note CHANGED: เปลี่ยนจาก block comment เป็น string literal เพราะ AST ไม่จับ comments
-                 * @original-code function calculate() with fire emoji in comment
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Fire (U+1F525) - unprofessional slang
+                // @description Unicode fire in string
+                // @note CHANGED: เปลี่ยนจาก block comment เป็น string literal เพราะ AST ไม่จับ comments
+                // @original-code function calculate() with fire emoji in comment
                 const msg = " Hot path optimization";`
             ],
+// ! ======================================================================
+// ! Thai violation examples 
+// ! ======================================================================
+            // ! ------------------------------------------------------------------
+            // ! THAI VIOLATION EXAMPLES
+            // ! ------------------------------------------------------------------
             th: [
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Check mark button (U+2705) - commonly misused
-                 * @description Unicode checkmark ในคอมเมนต์
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Check mark button (U+2705) - commonly misused
+                // @description Unicode checkmark ในคอมเมนต์
                 // \u2705 งานเสร็จสมบูรณ์`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Cross mark (U+274C) - commonly misused
-                 * @description Unicode symbols ในสตริง
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Cross mark (U+274C) - commonly misused
+                // @description Unicode symbols ในสตริง
                 const status = isComplete ? "\u2713" : "\u274C";`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Rocket (U+1F680) - unprofessional
-                 * @description Unicode rocket ในข้อความ
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Rocket (U+1F680) - unprofessional
+                // @description Unicode rocket ในข้อความ
                 console.log("\u{1F680} Deployment started!");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Bug (U+1F41B) - use "BUG" or "FIXME"
-                 * @description Unicode bug ใน error message
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Bug (U+1F41B) - use "BUG" or "FIXME"
+                // @description Unicode bug ใน error message
                 throw new Error("\u{1F41B} Critical bug found");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Memo (U+1F4DD) - use "NOTE" or "TODO"
-                 * @description Unicode memo ใน TODO
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Memo (U+1F4DD) - use "NOTE" or "TODO"
+                // @description Unicode memo ใน TODO
                 // \u{1F4DD} TODO: Implement feature`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Warning sign (U+26A0) - use "WARNING"
-                 * @description Unicode warning sign
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Warning sign (U+26A0) - use "WARNING"
+                // @description Unicode warning sign
                 logger.warn("\u26A0\uFE0F Memory usage high");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Party popper (U+1F389) - unprofessional
-                 * @description Unicode party popper ในผลลัพธ์
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Party popper (U+1F389) - unprofessional
+                // @description Unicode party popper ในผลลัพธ์
                 const result = { success: true, message: "\u{1F389} Done!" };`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type violation
-                 * @matches-pattern Fire (U+1F525) - unprofessional slang
-                 * @description Unicode fire ในคอมเมนต์
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type violation
+                // @matches-pattern Fire (U+1F525) - unprofessional slang
+                // @description Unicode fire ในคอมเมนต์
                 function calculate() { /* \u{1F525} Hot path optimization */ }`
             ]
         },
+// ! ======================================================================
+// ! correctExamples - ตัวอย่างที่ถูกต้องสำหรับ NO_EMOJI
+// ! ======================================================================
+        // ! ------------------------------------------------------------------
+        // ! CORRECT EXAMPLES
+        // ! ------------------------------------------------------------------
         correctExamples: {
+            // ! ------------------------------------------------------------------
+            // ! ENGLISH CORRECT EXAMPLES
+            // ! ------------------------------------------------------------------
             en: [
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern descriptive text instead of checkmark
-                 * @description Use clear text instead of emoji
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern descriptive text instead of checkmark
+                // @description Use clear text instead of emoji
                 // SUCCESS: Task completed successfully`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern clear status words
-                 * @description Use PASS/FAIL instead of symbols
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern clear status words
+                // @description Use PASS/FAIL instead of symbols
                 const status = isComplete ? "PASS" : "FAIL";`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern DEPLOY prefix
-                 * @description Use DEPLOY instead of rocket emoji
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern DEPLOY prefix
+                // @description Use DEPLOY instead of rocket emoji
                 console.log("DEPLOY: Deployment started!");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern BUG prefix
-                 * @description Use BUG instead of bug emoji
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern BUG prefix
+                // @description Use BUG instead of bug emoji
                 throw new Error("BUG: Critical bug found");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern standard TODO
-                 * @description Standard TODO without emoji
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern standard TODO
+                // @description Standard TODO without emoji
                 // TODO: Implement feature`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern WARNING prefix
-                 * @description Use WARNING text instead of warning emoji
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern WARNING prefix
+                // @description Use WARNING text instead of warning emoji
                 logger.warn("WARNING: Memory usage high");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern COMPLETED message
-                 * @description Use COMPLETED instead of party emoji
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern COMPLETED message
+                // @description Use COMPLETED instead of party emoji
                 const result = { success: true, message: "COMPLETED!" };`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern PERFORMANCE comment
-                 * @description Use PERFORMANCE instead of fire emoji
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern PERFORMANCE comment
+                // @description Use PERFORMANCE instead of fire emoji
                 function calculate() { /* PERFORMANCE: Hot path optimization */ }`
             ],
+            // ! ------------------------------------------------------------------
+            // ! THAI CORRECT EXAMPLES
+            // ! ------------------------------------------------------------------
             th: [
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern descriptive text instead of checkmark
-                 * @description ใช้คำแทนอิโมจิ
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern descriptive text instead of checkmark
+                // @description ใช้คำแทนอิโมจิ
                 // SUCCESS: งานเสร็จสมบูรณ์`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern clear status words
-                 * @description ใช้คำอังกฤษชัดเจน
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern clear status words
+                // @description ใช้คำอังกฤษชัดเจน
                 const status = isComplete ? "PASS" : "FAIL";`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern DEPLOY prefix
-                 * @description ใช้คำ DEPLOY แทนจรวด
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern DEPLOY prefix
+                // @description ใช้คำ DEPLOY แทนจรวด
                 console.log("DEPLOY: Deployment started!");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern BUG prefix
-                 * @description ใช้คำ BUG แทนแมลง
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern BUG prefix
+                // @description ใช้คำ BUG แทนแมลง
                 throw new Error("BUG: Critical bug found");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern standard TODO
-                 * @description TODO แบบปกติ
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern standard TODO
+                // @description TODO แบบปกติ
                 // TODO: Implement feature`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern WARNING prefix
-                 * @description ใช้คำ WARNING
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern WARNING prefix
+                // @description ใช้คำ WARNING
                 logger.warn("WARNING: Memory usage high");`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern COMPLETED message
-                 * @description ใช้คำ COMPLETED
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern COMPLETED message
+                // @description ใช้คำ COMPLETED
                 const result = { success: true, message: "COMPLETED!" };`,
                 
-                `/**
-                 * @example-for-rule NO_EMOJI
-                 * @type correct
-                 * @matches-pattern PERFORMANCE comment
-                 * @description ใช้คำ PERFORMANCE
-                 */
+                `// @example-for-rule NO_EMOJI
+                // @type correct
+                // @matches-pattern PERFORMANCE comment
+                // @description ใช้คำ PERFORMANCE
                 function calculate() { /* PERFORMANCE: Hot path optimization */ }`
             ]
         },
+        // ! ------------------------------------------------------------------
+        // ! FIX SUGGESTIONS
+        // ! ------------------------------------------------------------------
         fix: {
             en: 'Replace emoji with descriptive text. Examples: U+2705 checkmark -> "SUCCESS", U+274C cross -> "FAILED", U+1F680 rocket -> "DEPLOY", U+1F41B bug -> "BUG", U+1F4DD memo -> "NOTE", U+26A0 warning -> "WARNING"',
             th: 'แทนที่อิโมจิด้วยข้อความอธิบาย ตัวอย่าง: U+2705 เครื่องหมายถูก -> "SUCCESS", U+274C กากบาท -> "FAILED", U+1F680 จรวด -> "DEPLOY", U+1F41B แมลง -> "BUG", U+1F4DD บันทึก -> "NOTE", U+26A0 คำเตือน -> "WARNING"'
@@ -5002,10 +5139,11 @@ Source code คือ TECHNICAL SPECIFICATION ไม่ใช่ creative expres
     }
 };
 
+// ! ======================================================================
+// ! END OF NO_EMOJI Rule Definition
+// ! ======================================================================
+
 // ======================================================================
-// MODULE EXPORTS - ส่งออกทั้ง Rules และ Engine
+// MODULE EXPORTS - ส่งออกข้อมูลกฎเท่านั้น (เป็นหนังสือให้อ่าน)
 // ======================================================================
-export { ABSOLUTE_RULES, ValidationEngine };
-
-
-
+export { ABSOLUTE_RULES };

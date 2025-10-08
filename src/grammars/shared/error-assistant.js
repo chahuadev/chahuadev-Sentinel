@@ -1,20 +1,20 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// Error Assistant - Ultimate Error Messaging System
-// ============================================================================
-// ระบบแจ้งข้อผิดพลาดที่ดีที่สุด พร้อมคำแนะนำและตัวอย่าง
-// ============================================================================
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
+// !  Error Assistant - Ultimate Error Messaging System
+// !  ============================================================================
+// !  ระบบแจ้งข้อผิดพลาดที่ดีที่สุด พร้อมคำแนะนำและตัวอย่าง
+// !  ============================================================================
 
 import { GrammarIndex } from './grammar-index.js';
 
-// ============================================================================
-// ERROR TYPES
-// ============================================================================
+// !  ============================================================================
+// !  ERROR TYPES
+// !  ============================================================================
 
 const ERROR_TYPES = {
     UNEXPECTED_TOKEN: 'unexpected-token',
@@ -27,9 +27,9 @@ const ERROR_TYPES = {
     TYPE_ERROR: 'type-error'
 };
 
-// ============================================================================
-// ERROR ASSISTANT CLASS
-// ============================================================================
+// !  ============================================================================
+// !  ERROR ASSISTANT CLASS
+// !  ============================================================================
 
 class ErrorAssistant {
     constructor(grammarIndex) {
@@ -37,7 +37,7 @@ class ErrorAssistant {
     }
 
     /**
-     * Generate comprehensive error message with suggestions
+     * ! Generate comprehensive error message with suggestions
      */
     generateError(errorType, context = {}) {
         const {
@@ -50,10 +50,10 @@ class ErrorAssistant {
             language = 'javascript'
         } = context;
 
-        // Get grammar information
+        // !  Get grammar information
         const grammarInfo = this.grammarIndex.lookup(token);
 
-        // Build error object
+        // !  Build error object
         const error = {
             type: errorType,
             severity: 'error',
@@ -71,7 +71,7 @@ class ErrorAssistant {
     }
 
     /**
-     * Generate error message
+     * ! Generate error message
      */
     generateMessage(errorType, context, grammarInfo) {
         const { token, expected, actual } = context;
@@ -111,12 +111,12 @@ class ErrorAssistant {
     }
 
     /**
-     * Generate suggestions
+     * ! Generate suggestions
      */
     generateSuggestions(errorType, context, grammarInfo) {
         const suggestions = [];
 
-        // Check for common typos
+        // !  Check for common typos
         if (grammarInfo && grammarInfo.commonTypos) {
             const typos = grammarInfo.commonTypos;
             if (typos.includes(context.token)) {
@@ -129,7 +129,7 @@ class ErrorAssistant {
             }
         }
 
-        // Check for alternatives
+        // !  Check for alternatives
         if (grammarInfo && grammarInfo.alternatives) {
             grammarInfo.alternatives.forEach(alt => {
                 suggestions.push({
@@ -141,7 +141,7 @@ class ErrorAssistant {
             });
         }
 
-        // Context-specific suggestions
+        // !  Context-specific suggestions
         if (errorType === ERROR_TYPES.WRONG_CONTEXT) {
             if (grammarInfo && grammarInfo.requiredContext) {
                 suggestions.push({
@@ -152,7 +152,7 @@ class ErrorAssistant {
             }
         }
 
-        // Best practice suggestions
+        // !  Best practice suggestions
         if (grammarInfo && grammarInfo.bestPractice) {
             suggestions.push({
                 type: 'best-practice',
@@ -165,7 +165,7 @@ class ErrorAssistant {
     }
 
     /**
-     * Get documentation links
+     * ! Get documentation links
      */
     getDocumentation(token, grammarInfo) {
         const docs = {
@@ -177,32 +177,32 @@ class ErrorAssistant {
 
         if (!grammarInfo) return docs;
 
-        // MDN Documentation
+        // !  MDN Documentation
         if (grammarInfo.category === 'keyword' || grammarInfo.category === 'operator') {
-            docs.mdn = `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/${grammarInfo.category === 'keyword' ? 'Statements' : 'Operators'
+            docs.mdn = `https:// ! developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/${grammarInfo.category === 'keyword' ? 'Statements' : 'Operators'
                 }/${token}`;
         }
 
-        // ECMA Spec
+        // !  ECMA Spec
         if (grammarInfo.spec) {
-            docs.spec = `https://tc39.es/ecma262/${grammarInfo.spec}`;
+            docs.spec = `https:// ! tc39.es/ecma262/${grammarInfo.spec}`;
         }
 
-        // TypeScript Documentation
+        // !  TypeScript Documentation
         if (grammarInfo.source === 'TypeScript') {
-            docs.official = `https://www.typescriptlang.org/docs/handbook/2/everyday-types.html`;
+            docs.official = `https:// ! www.typescriptlang.org/docs/handbook/2/everyday-types.html`;
         }
 
-        // Java Documentation
+        // !  Java Documentation
         if (grammarInfo.source === 'Java') {
-            docs.official = `https://docs.oracle.com/javase/tutorial/java/nutsandbolts/keywords.html`;
+            docs.official = `https:// ! docs.oracle.com/javase/tutorial/java/nutsandbolts/keywords.html`;
         }
 
         return docs;
     }
 
     /**
-     * Get code examples
+     * ! Get code examples
      */
     getExamples(token, grammarInfo) {
         const examples = {
@@ -212,7 +212,7 @@ class ErrorAssistant {
 
         if (!grammarInfo) return examples;
 
-        // Good examples
+        // !  Good examples
         if (grammarInfo.example) {
             examples.good.push({
                 code: grammarInfo.example,
@@ -237,7 +237,7 @@ class ErrorAssistant {
             });
         }
 
-        // Bad examples (from quirks and common errors)
+        // !  Bad examples (from quirks and common errors)
         if (grammarInfo.quirks && Array.isArray(grammarInfo.quirks)) {
             grammarInfo.quirks.slice(0, 2).forEach(quirk => {
                 examples.bad.push({
@@ -246,7 +246,7 @@ class ErrorAssistant {
             });
         }
 
-        // Generate bad examples based on disambiguation
+        // !  Generate bad examples based on disambiguation
         if (grammarInfo.disambiguation && Array.isArray(grammarInfo.disambiguation)) {
             grammarInfo.disambiguation.forEach(dis => {
                 if (dis.invalid) {
@@ -262,12 +262,12 @@ class ErrorAssistant {
     }
 
     /**
-     * Generate quick fixes
+     * ! Generate quick fixes
      */
     generateQuickFixes(errorType, context, grammarInfo) {
         const fixes = [];
 
-        // Typo fix
+        // !  Typo fix
         if (grammarInfo && grammarInfo.commonTypos && grammarInfo.commonTypos.includes(context.token)) {
             fixes.push({
                 title: `Change '${context.token}' to '${grammarInfo.keyword || grammarInfo.operator}'`,
@@ -279,7 +279,7 @@ class ErrorAssistant {
             });
         }
 
-        // Missing semicolon
+        // !  Missing semicolon
         if (errorType === ERROR_TYPES.UNEXPECTED_TOKEN && context.expected === 'SEMICOLON') {
             fixes.push({
                 title: 'Add semicolon',
@@ -291,7 +291,7 @@ class ErrorAssistant {
             });
         }
 
-        // Add async keyword
+        // !  Add async keyword
         if (context.token === 'await' && grammarInfo && grammarInfo.requiresAsync) {
             fixes.push({
                 title: 'Add async to function',
@@ -300,7 +300,7 @@ class ErrorAssistant {
             });
         }
 
-        // Import missing module
+        // !  Import missing module
         if (errorType === ERROR_TYPES.MISSING_IMPORT) {
             fixes.push({
                 title: `Import '${context.token}'`,
@@ -316,14 +316,14 @@ class ErrorAssistant {
     }
 
     /**
-     * Get related errors
+     * ! Get related errors
      */
     getRelatedErrors(token, grammarInfo) {
         const related = [];
 
         if (!grammarInfo) return related;
 
-        // Common mistakes
+        // !  Common mistakes
         if (grammarInfo.quirks) {
             related.push({
                 title: 'Common Gotchas',
@@ -331,7 +331,7 @@ class ErrorAssistant {
             });
         }
 
-        // Related keywords
+        // !  Related keywords
         if (grammarInfo.relatedKeywords) {
             related.push({
                 title: 'Related Keywords',
@@ -343,20 +343,20 @@ class ErrorAssistant {
     }
 
     /**
-     * Format error for display
+     * ! Format error for display
      */
     formatError(error, options = {}) {
         const { color = true, verbose = false } = options;
 
         let output = '';
 
-        // Error header
+        // !  Error header
         output += `\n${'='.repeat(80)}\n`;
         output += ` ${error.message}\n`;
         output += `   at Line ${error.location.line}, Column ${error.location.column}\n`;
         output += `${'='.repeat(80)}\n\n`;
 
-        // Suggestions
+        // !  Suggestions
         if (error.suggestions.length > 0) {
             output += ` Suggestions:\n`;
             error.suggestions.forEach((sug, idx) => {
@@ -369,7 +369,7 @@ class ErrorAssistant {
             output += '\n';
         }
 
-        // Good examples
+        // !  Good examples
         if (error.examples.good.length > 0) {
             output += ` Correct Usage:\n`;
             error.examples.good.slice(0, 2).forEach(ex => {
@@ -377,13 +377,13 @@ class ErrorAssistant {
                     output += `   ${ex.code}\n`;
                 }
                 if (ex.description) {
-                    output += `   // ${ex.description}\n`;
+                    output += `   // !  ${ex.description}\n`;
                 }
             });
             output += '\n';
         }
 
-        // Bad examples
+        // !  Bad examples
         if (error.examples.bad.length > 0 && verbose) {
             output += ` Common Mistakes:\n`;
             error.examples.bad.slice(0, 2).forEach(ex => {
@@ -391,13 +391,13 @@ class ErrorAssistant {
                     output += `   ${ex.code}\n`;
                 }
                 if (ex.description) {
-                    output += `   // ${ex.description}\n`;
+                    output += `   // !  ${ex.description}\n`;
                 }
             });
             output += '\n';
         }
 
-        // Quick fixes
+        // !  Quick fixes
         if (error.quickFixes.length > 0) {
             output += ` Quick Fixes:\n`;
             error.quickFixes.forEach((fix, idx) => {
@@ -409,7 +409,7 @@ class ErrorAssistant {
             output += '\n';
         }
 
-        // Documentation
+        // !  Documentation
         if (error.documentation.mdn || error.documentation.official) {
             output += ` Learn More:\n`;
             if (error.documentation.mdn) {
@@ -430,24 +430,24 @@ class ErrorAssistant {
     }
 
     /**
-     * Export error to JSON
+     * ! Export error to JSON
      */
     exportError(error) {
         return JSON.stringify(error, null, 2);
     }
 }
 
-// ============================================================================
-// EXPORT
-// ============================================================================
+// !  ============================================================================
+// !  EXPORT
+// !  ============================================================================
 
 export { ErrorAssistant, ERROR_TYPES };
 
-// Demo if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// !  Demo if executed directly
+if (import.meta.url === `file:// ! ${process.argv[1]}`) {
     const assistant = new ErrorAssistant();
 
-    // Example error
+    // !  Example error
     const error = assistant.generateError(ERROR_TYPES.WRONG_CONTEXT, {
         token: 'await',
         line: 10,

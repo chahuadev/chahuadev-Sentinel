@@ -1,21 +1,21 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// Disambiguation Engine - Master of Ambiguous Syntax
-// ============================================================================
-// ระบบตัดสินคำกำกวมอัจฉริยะสำหรับสัญลักษณ์ที่มีความหมายหลายแบบ
-// ============================================================================
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
+// !  Disambiguation Engine - Master of Ambiguous Syntax
+// !  ============================================================================
+// !  ระบบตัดสินคำกำกวมอัจฉริยะสำหรับสัญลักษณ์ที่มีความหมายหลายแบบ
+// !  ============================================================================
 
 import { GrammarIndex } from './grammar-index.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// Load Configuration (NO MORE HARDCODE!)
+// !  Load Configuration (NO MORE HARDCODE!)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const CONFIG_PATH = join(__dirname, 'parser-config.json');
@@ -28,12 +28,12 @@ try {
     DISAMBIGUATION_CONFIG = { maxHistory: 10 };
 }
 
-// ============================================================================
-// AMBIGUOUS SYMBOLS REGISTRY
-// ============================================================================
+// !  ============================================================================
+// !  AMBIGUOUS SYMBOLS REGISTRY
+// !  ============================================================================
 
 const AMBIGUOUS_SYMBOLS = {
-    // Division vs RegExp vs JSX
+    // !  Division vs RegExp vs JSX
     '/': {
         patterns: [
             {
@@ -63,7 +63,7 @@ const AMBIGUOUS_SYMBOLS = {
         ]
     },
 
-    // Multiplication vs Generator vs Import Namespace
+    // !  Multiplication vs Generator vs Import Namespace
     '*': {
         patterns: [
             {
@@ -110,7 +110,7 @@ const AMBIGUOUS_SYMBOLS = {
         ]
     },
 
-    // Less than vs JSX vs Generic vs Template
+    // !  Less than vs JSX vs Generic vs Template
     '<': {
         patterns: [
             {
@@ -149,7 +149,7 @@ const AMBIGUOUS_SYMBOLS = {
         ]
     },
 
-    // Colon - multiple meanings
+    // !  Colon - multiple meanings
     ':': {
         patterns: [
             {
@@ -196,7 +196,7 @@ const AMBIGUOUS_SYMBOLS = {
         ]
     },
 
-    // Async - keyword vs identifier
+    // !  Async - keyword vs identifier
     'async': {
         patterns: [
             {
@@ -218,7 +218,7 @@ const AMBIGUOUS_SYMBOLS = {
         ]
     },
 
-    // Dot - property access vs spread vs decimal
+    // !  Dot - property access vs spread vs decimal
     '.': {
         patterns: [
             {
@@ -256,7 +256,7 @@ const AMBIGUOUS_SYMBOLS = {
         ]
     },
 
-    // Parentheses - function call vs grouping vs arrow params
+    // !  Parentheses - function call vs grouping vs arrow params
     '(': {
         patterns: [
             {
@@ -294,7 +294,7 @@ const AMBIGUOUS_SYMBOLS = {
         ]
     },
 
-    // Minus - subtraction vs negative vs decrement
+    // !  Minus - subtraction vs negative vs decrement
     '-': {
         patterns: [
             {
@@ -333,24 +333,24 @@ const AMBIGUOUS_SYMBOLS = {
     }
 };
 
-// ============================================================================
-// DISAMBIGUATION ENGINE
-// ============================================================================
+// !  ============================================================================
+// !  DISAMBIGUATION ENGINE
+// !  ============================================================================
 
 class DisambiguationEngine {
     constructor(grammarIndex) {
         this.grammarIndex = grammarIndex || new GrammarIndex();
-        this.history = []; // Token history for context
+        this.history = []; // !  Token history for context
         this.maxHistory = DISAMBIGUATION_CONFIG.maxHistory;
     }
 
     /**
-     * Disambiguate a symbol based on context
+     * ! Disambiguate a symbol based on context
      */
     disambiguate(symbol, context = {}) {
         const { precedingTokens = [], followingTokens = [], language = 'javascript' } = context;
 
-        // Get ambiguous patterns for this symbol
+        // !  Get ambiguous patterns for this symbol
         const patterns = AMBIGUOUS_SYMBOLS[symbol];
         if (!patterns) {
             return {
@@ -361,7 +361,7 @@ class DisambiguationEngine {
             };
         }
 
-        // Score each pattern
+        // !  Score each pattern
         const scores = patterns.patterns.map(pattern => {
             const score = this.scorePattern(pattern, precedingTokens, followingTokens, language);
             return {
@@ -370,10 +370,10 @@ class DisambiguationEngine {
             };
         });
 
-        // Sort by score (highest first)
+        // !  Sort by score (highest first)
         scores.sort((a, b) => b.score - a.score);
 
-        // Return best match
+        // !  Return best match
         const best = scores[0];
         return {
             symbol,
@@ -389,17 +389,17 @@ class DisambiguationEngine {
     }
 
     /**
-     * Score a pattern based on context
+     * ! Score a pattern based on context
      */
     scorePattern(pattern, precedingTokens, followingTokens, language) {
         let score = pattern.confidence || 0.5;
 
-        // Language check
+        // !  Language check
         if (pattern.language && pattern.language !== language) {
             return 0;
         }
 
-        // Check preceding tokens
+        // !  Check preceding tokens
         if (pattern.precededBy && precedingTokens.length > 0) {
             const lastToken = precedingTokens[precedingTokens.length - 1];
             if (pattern.precededBy.includes(lastToken.type)) {
@@ -407,7 +407,7 @@ class DisambiguationEngine {
             }
         }
 
-        // Check following tokens
+        // !  Check following tokens
         if (pattern.followedBy && followingTokens.length > 0) {
             const nextToken = followingTokens[0];
             if (pattern.followedBy.includes(nextToken.type)) {
@@ -415,7 +415,7 @@ class DisambiguationEngine {
             }
         }
 
-        // Context bonus
+        // !  Context bonus
         if (pattern.context && this.matchesContext(pattern.context)) {
             score += 0.1;
         }
@@ -424,10 +424,10 @@ class DisambiguationEngine {
     }
 
     /**
-     * Check if current context matches pattern context
+     * ! Check if current context matches pattern context
      */
     matchesContext(expectedContext) {
-        // Simple heuristic based on recent tokens
+        // !  Simple heuristic based on recent tokens
         const recentTypes = this.history.slice(-5).map(t => t.type);
 
         const contextMatches = {
@@ -442,7 +442,7 @@ class DisambiguationEngine {
     }
 
     /**
-     * Add token to history
+     * ! Add token to history
      */
     addToHistory(token) {
         this.history.push(token);
@@ -452,28 +452,28 @@ class DisambiguationEngine {
     }
 
     /**
-     * Clear history
+     * ! Clear history
      */
     clearHistory() {
         this.history = [];
     }
 
     /**
-     * Get all ambiguous symbols
+     * ! Get all ambiguous symbols
      */
     getAmbiguousSymbols() {
         return Object.keys(AMBIGUOUS_SYMBOLS);
     }
 
     /**
-     * Get patterns for a symbol
+     * ! Get patterns for a symbol
      */
     getPatternsForSymbol(symbol) {
         return AMBIGUOUS_SYMBOLS[symbol];
     }
 
     /**
-     * Generate disambiguation report
+     * ! Generate disambiguation report
      */
     generateReport() {
         console.log(' DISAMBIGUATION REPORT\n');
@@ -495,14 +495,14 @@ class DisambiguationEngine {
     }
 }
 
-// ============================================================================
-// EXPORT
-// ============================================================================
+// !  ============================================================================
+// !  EXPORT
+// !  ============================================================================
 
 export { DisambiguationEngine, AMBIGUOUS_SYMBOLS };
 
-// Run report if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// !  Run report if executed directly
+if (import.meta.url === `file:// ! ${process.argv[1]}`) {
     const engine = new DisambiguationEngine();
     engine.generateReport();
 }

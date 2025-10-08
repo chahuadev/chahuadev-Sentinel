@@ -1,35 +1,35 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// ChahuadevR Engine Grammar Dictionary - Core Language Support
-// ============================================================================
-// Tokenizer Integration Helper
-// ตัวอย่างการใช้ Grammar Index System ใน Tokenizer/Parser
-// ============================================================================
-// Performance Comparison:
-// ============================================================================
-// OLD METHOD (Loop through all operators):
-// - Try 3-character operators: ['===', '!==', '>>>', '...'] - O(n)
-// - Try 2-character operators: ['==', '!=', '>=', '<=', '<<', '>>', '&&', '||', '++', '--', ...] - O(n)
-// - Try 1-character operators: ['+', '-', '*', '/', '%', '&', '|', '^', '!', '~', '<', '>'] - O(n)
-// - Total: O(3n) worst case
-// ============================================================================
-// NEW METHOD (Trie longest match):
-// * - Walk through Trie: O(m) where m = longest operator length (usually  3)
-// * - Returns longest match immediately
-// * - Total: O(3) constant time for most operators
-// ============================================================================
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
+// !  ChahuadevR Engine Grammar Dictionary - Core Language Support
+// !  ============================================================================
+// !  Tokenizer Integration Helper
+// !  ตัวอย่างการใช้ Grammar Index System ใน Tokenizer/Parser
+// !  ============================================================================
+// !  Performance Comparison:
+// !  ============================================================================
+// !  OLD METHOD (Loop through all operators):
+// !  - Try 3-character operators: ['===', '!==', '>>>', '...'] - O(n)
+// !  - Try 2-character operators: ['==', '!=', '>=', '<=', '<<', '>>', '&&', '||', '++', '--', ...] - O(n)
+// !  - Try 1-character operators: ['+', '-', '*', '/', '%', '&', '|', '^', '!', '~', '<', '>'] - O(n)
+// !  - Total: O(3n) worst case
+// !  ============================================================================
+// !  NEW METHOD (Trie longest match):
+// !  * - Walk through Trie: O(m) where m = longest operator length (usually  3)
+// !  * - Returns longest match immediately
+// !  * - Total: O(3) constant time for most operators
+// !  ============================================================================
 
 import { GrammarIndex } from './grammar-index.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// Load Configuration (NO MORE HARDCODE!)
+// !  Load Configuration (NO MORE HARDCODE!)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const CONFIG_PATH = join(__dirname, 'parser-config.json');
@@ -47,15 +47,15 @@ try {
  */
 export class ExampleTokenizer {
     constructor(grammar) {
-        // Build indexes once
+        // !  Build indexes once
         this.index = new GrammarIndex(grammar);
         console.log('Index built:', this.index.getStats());
     }
 
     /**
-     * Tokenize input string
-     * @param {string} input - Source code
-     * @returns {Array<Token>}
+     * ! Tokenize input string
+     * ! @param {string} input - Source code
+     * ! @returns {Array<Token>}
      */
     tokenize(input) {
         const tokens = [];
@@ -64,15 +64,15 @@ export class ExampleTokenizer {
         while (position < input.length) {
             const char = input[position];
 
-            // Skip whitespace
+            // !  Skip whitespace
             if (/\s/.test(char)) {
                 position++;
                 continue;
             }
 
-            // =====================================================================
-            // 1. Try Operator (FAST: O(m) instead of O(n))
-            // =====================================================================
+            // !  =====================================================================
+            // !  1. Try Operator (FAST: O(m) instead of O(n))
+            // !  =====================================================================
             const operatorMatch = this.index.findLongestOperator(input, position);
             if (operatorMatch) {
                 tokens.push({
@@ -86,9 +86,9 @@ export class ExampleTokenizer {
                 continue;
             }
 
-            // =====================================================================
-            // 2. Try Punctuation (FAST: O(m))
-            // =====================================================================
+            // !  =====================================================================
+            // !  2. Try Punctuation (FAST: O(m))
+            // !  =====================================================================
             const punctMatch = this.index.findLongestPunctuation(input, position);
             if (punctMatch) {
                 tokens.push({
@@ -102,17 +102,17 @@ export class ExampleTokenizer {
                 continue;
             }
 
-            // =====================================================================
-            // 3. Try Identifier/Keyword
-            // =====================================================================
+            // !  =====================================================================
+            // !  3. Try Identifier/Keyword
+            // !  =====================================================================
             if (/[a-zA-Z_$]/.test(char)) {
                 const identifier = this._readIdentifier(input, position);
 
-                // Fast keyword check: O(1)
+                // !  Fast keyword check: O(1)
                 if (this.index.isKeyword(identifier)) {
                     const keywordData = this.index.getKeyword(identifier);
 
-                    // Check if deprecated
+                    // !  Check if deprecated
                     if (this.index.isDeprecated(identifier)) {
                         console.warn(`Deprecated keyword: ${identifier}`);
                     }
@@ -125,7 +125,7 @@ export class ExampleTokenizer {
                         metadata: keywordData
                     });
                 } else {
-                    // Not a keyword - might be typo?
+                    // !  Not a keyword - might be typo?
                     const closest = this.index.findClosestKeyword(identifier, 2);
 
                     if (closest && closest.distance <= 2) {
@@ -144,9 +144,9 @@ export class ExampleTokenizer {
                 continue;
             }
 
-            // =====================================================================
-            // 4. Try Number
-            // =====================================================================
+            // !  =====================================================================
+            // !  4. Try Number
+            // !  =====================================================================
             if (/[0-9]/.test(char)) {
                 const number = this._readNumber(input, position);
                 tokens.push({
@@ -159,9 +159,9 @@ export class ExampleTokenizer {
                 continue;
             }
 
-            // =====================================================================
-            // 5. Try String
-            // =====================================================================
+            // !  =====================================================================
+            // !  5. Try String
+            // !  =====================================================================
             if (char === '"' || char === "'" || char === '`') {
                 const string = this._readString(input, position);
                 tokens.push({
@@ -174,7 +174,7 @@ export class ExampleTokenizer {
                 continue;
             }
 
-            // Unknown character
+            // !  Unknown character
             throw new Error(`Unexpected character: ${char} at position ${position}`);
         }
 
@@ -182,8 +182,8 @@ export class ExampleTokenizer {
     }
 
     /**
-     * Read identifier/keyword
-     * @private
+     * ! Read identifier/keyword
+     * ! @private
      */
     _readIdentifier(input, position) {
         let end = position;
@@ -194,8 +194,8 @@ export class ExampleTokenizer {
     }
 
     /**
-     * Read number literal
-     * @private
+     * ! Read number literal
+     * ! @private
      */
     _readNumber(input, position) {
         let end = position;
@@ -206,8 +206,8 @@ export class ExampleTokenizer {
     }
 
     /**
-     * Read string literal
-     * @private
+     * ! Read string literal
+     * ! @private
      */
     _readString(input, position) {
         const quote = input[position];
@@ -215,7 +215,7 @@ export class ExampleTokenizer {
 
         while (end < input.length) {
             if (input[end] === '\\') {
-                end += 2; // Skip escaped character
+                end += 2; // !  Skip escaped character
                 continue;
             }
             if (input[end] === quote) {
@@ -229,9 +229,9 @@ export class ExampleTokenizer {
     }
 }
 
-// =============================================================================
-// Performance Benchmarks
-// =============================================================================
+// !  =============================================================================
+// !  Performance Benchmarks
+// !  =============================================================================
 
 /**
  * Compare OLD vs NEW tokenizer performance
@@ -243,12 +243,12 @@ export function benchmarkTokenizer(grammar, testCode, iterations = TOKENIZER_CON
 
     const tokenizer = new ExampleTokenizer(grammar);
 
-    // Warm-up
+    // !  Warm-up
     for (let i = 0; i < 10; i++) {
         tokenizer.tokenize(testCode);
     }
 
-    // Benchmark
+    // !  Benchmark
     const start = performance.now();
     for (let i = 0; i < iterations; i++) {
         tokenizer.tokenize(testCode);
@@ -270,9 +270,9 @@ export function benchmarkTokenizer(grammar, testCode, iterations = TOKENIZER_CON
     return { totalTime, avgTime, tokens };
 }
 
-// =============================================================================
-// Usage Examples
-// =============================================================================
+// !  =============================================================================
+// !  Usage Examples
+// !  =============================================================================
 
 /**
  * Example 1: Basic Tokenization
@@ -280,7 +280,7 @@ export function benchmarkTokenizer(grammar, testCode, iterations = TOKENIZER_CON
 export function exampleBasicTokenization() {
     console.log('\n===== Example 1: Basic Tokenization =====\n');
 
-    // Assume we have JAVASCRIPT_GRAMMAR
+    // !  Assume we have JAVASCRIPT_GRAMMAR
     const { JAVASCRIPT_GRAMMAR } = require('../javascript/javascript.grammar.js');
 
     const tokenizer = new ExampleTokenizer(JAVASCRIPT_GRAMMAR);
@@ -334,14 +334,14 @@ export function exampleTypoSuggestions() {
     const index = new GrammarIndex(JAVASCRIPT_GRAMMAR);
 
     const typos = [
-        'functoin',  //  function
-        'cosnt',     //  const
-        'reutrn',    //  return
-        'improt',    //  import
-        'exprot',    //  export
-        'awiat',     //  await
-        'aysnc',     //  async
-        'clss'       //  class
+        'functoin',  // !   function
+        'cosnt',     // !   const
+        'reutrn',    // !   return
+        'improt',    // !   import
+        'exprot',    // !   export
+        'awiat',     // !   await
+        'aysnc',     // !   async
+        'clss'       // !   class
     ];
 
     for (const typo of typos) {
@@ -420,9 +420,9 @@ export function exampleVersionQueries() {
     }
 }
 
-// =============================================================================
-// Integration with Real Parser
-// =============================================================================
+// !  =============================================================================
+// !  Integration with Real Parser
+// !  =============================================================================
 
 /**
  * Example integration pattern for real parser
@@ -433,17 +433,17 @@ export class ParserIntegration {
     }
 
     /**
-     * Check if identifier can start expression
+     * ! Check if identifier can start expression
      */
     canStartExpression(identifier) {
         const keyword = this.index.getKeyword(identifier);
-        if (!keyword) return true; // Not a keyword
+        if (!keyword) return true; // !  Not a keyword
 
         return keyword.startsExpr === true;
     }
 
     /**
-     * Get operator precedence
+     * ! Get operator precedence
      */
     getOperatorPrecedence(operator) {
         const opData = this.index.getOperator(operator);
@@ -451,7 +451,7 @@ export class ParserIntegration {
     }
 
     /**
-     * Get operator associativity
+     * ! Get operator associativity
      */
     getOperatorAssociativity(operator) {
         const opData = this.index.getOperator(operator);
@@ -459,7 +459,7 @@ export class ParserIntegration {
     }
 
     /**
-     * Check if operator is assignment
+     * ! Check if operator is assignment
      */
     isAssignmentOperator(operator) {
         const opData = this.index.getOperator(operator);
@@ -467,7 +467,7 @@ export class ParserIntegration {
     }
 
     /**
-     * Validate keyword usage in context
+     * ! Validate keyword usage in context
      */
     validateKeywordInContext(keyword, context) {
         const keywordData = this.index.getKeyword(keyword);
@@ -487,7 +487,7 @@ export class ParserIntegration {
             }
         }
 
-        // Check if deprecated
+        // !  Check if deprecated
         if (keywordData.deprecated) {
             return {
                 valid: true,

@@ -1,14 +1,14 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// Corpus Testing Tool - Real World Code Testing
-// ============================================================================
-// ทดสอบแกรมม่ากับโค้ดจริงจากโปรเจกต์ Open Source ขนาดใหญ่
-// ============================================================================
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
+// !  Corpus Testing Tool - Real World Code Testing
+// !  ============================================================================
+// !  ทดสอบแกรมม่ากับโค้ดจริงจากโปรเจกต์ Open Source ขนาดใหญ่
+// !  ============================================================================
 
 import fs from 'fs';
 import path from 'path';
@@ -18,9 +18,9 @@ import { GrammarIndex } from './grammar-index.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ============================================================================
-// CORPUS CONFIGURATION - Load from external config file
-// ============================================================================
+// !  ============================================================================
+// !  CORPUS CONFIGURATION - Load from external config file
+// !  ============================================================================
 
 function loadCorpusConfig() {
     try {
@@ -37,9 +37,9 @@ const config = loadCorpusConfig();
 const CORPUS_PROJECTS = config.corpusProjects;
 const TESTING_CONFIG = config.testingConfig;
 
-// ============================================================================
-// CORPUS TESTER CLASS
-// ============================================================================
+// !  ============================================================================
+// !  CORPUS TESTER CLASS
+// !  ============================================================================
 
 class CorpusTester {
     constructor() {
@@ -57,7 +57,7 @@ class CorpusTester {
     }
 
     /**
-     * Run corpus testing on all configured projects
+     * ! Run corpus testing on all configured projects
      */
     async testAll() {
         console.log(' Starting Corpus Testing...\n');
@@ -72,7 +72,7 @@ class CorpusTester {
     }
 
     /**
-     * Test a single project
+     * ! Test a single project
      */
     async testProject(project) {
         console.log(` Testing ${project.name}...`);
@@ -80,21 +80,21 @@ class CorpusTester {
 
         const projectPath = path.resolve(process.cwd(), project.path);
 
-        // Check if project exists
+        // !  Check if project exists
         if (!fs.existsSync(projectPath)) {
             console.log(`     Project not found at ${projectPath}`);
             console.log(`    Install with: npm install ${project.name.toLowerCase()}\n`);
             return;
         }
 
-        // Find all files
+        // !  Find all files
         const files = this.findFiles(projectPath, project.extensions);
         console.log(`   Found ${files.length} files`);
 
         let projectSuccess = 0;
         let projectFailed = 0;
 
-        // Test each file
+        // !  Test each file
         for (const file of files) {
             const result = await this.testFile(file, project.name);
             if (result.success) {
@@ -110,24 +110,24 @@ class CorpusTester {
     }
 
     /**
-     * Test a single file
+     * ! Test a single file
      */
     async testFile(filePath, projectName) {
         this.results.totalFiles++;
 
         try {
-            // Read file
+            // !  Read file
             const content = fs.readFileSync(filePath, 'utf-8');
 
-            // Skip empty files
+            // !  Skip empty files
             if (content.trim().length === 0) {
                 return { success: true, tokens: 0 };
             }
 
-            // Try to tokenize
+            // !  Try to tokenize
             const tokens = this.tokenize(content, filePath);
 
-            // Success
+            // !  Success
             this.results.successfulFiles++;
             this.results.totalTokens += tokens.length;
 
@@ -137,7 +137,7 @@ class CorpusTester {
             };
 
         } catch (error) {
-            // Failure
+            // !  Failure
             this.results.failedFiles++;
 
             const failedFile = {
@@ -152,7 +152,7 @@ class CorpusTester {
             this.failedFiles.push(failedFile);
             this.results.errors.push(failedFile);
 
-            // Detect edge cases
+            // !  Detect edge cases
             this.detectEdgeCase(content, error, filePath);
 
             return {
@@ -163,7 +163,7 @@ class CorpusTester {
     }
 
     /**
-     * Tokenize content (simple implementation)
+     * ! Tokenize content (simple implementation)
      */
     tokenize(content, filePath) {
         const tokens = [];
@@ -174,7 +174,7 @@ class CorpusTester {
             const words = line.split(/\s+/).filter(w => w.length > 0);
 
             for (const word of words) {
-                // Check if word is in grammar
+                // !  Check if word is in grammar
                 const grammarInfo = this.grammarIndex.lookup(word);
 
                 if (grammarInfo) {
@@ -185,7 +185,7 @@ class CorpusTester {
                         grammar: grammarInfo
                     });
                 } else {
-                    // Unknown token
+                    // !  Unknown token
                     tokens.push({
                         type: 'UNKNOWN',
                         value: word,
@@ -199,7 +199,7 @@ class CorpusTester {
     }
 
     /**
-     * Detect edge cases from failed parsing
+     * ! Detect edge cases from failed parsing
      */
     detectEdgeCase(content, error, filePath) {
         const patterns = [
@@ -226,7 +226,7 @@ class CorpusTester {
     }
 
     /**
-     * Find all files with given extensions
+     * ! Find all files with given extensions
      */
     findFiles(dir, extensions, fileList = []) {
         const files = fs.readdirSync(dir);
@@ -236,12 +236,12 @@ class CorpusTester {
             const stat = fs.statSync(filePath);
 
             if (stat.isDirectory()) {
-                // Skip node_modules and hidden directories
+                // !  Skip node_modules and hidden directories
                 if (!file.startsWith('.') && file !== 'node_modules') {
                     this.findFiles(filePath, extensions, fileList);
                 }
             } else {
-                // Check extension
+                // !  Check extension
                 const ext = path.extname(file);
                 if (extensions.includes(ext)) {
                     fileList.push(filePath);
@@ -253,14 +253,14 @@ class CorpusTester {
     }
 
     /**
-     * Print testing report
+     * ! Print testing report
      */
     printReport() {
         console.log('\n' + '='.repeat(80));
         console.log(' CORPUS TESTING REPORT');
         console.log('='.repeat(80) + '\n');
 
-        // Statistics
+        // !  Statistics
         console.log(' Statistics:');
         console.log(`   Total Files Tested: ${this.results.totalFiles}`);
         console.log(`    Successful: ${this.results.successfulFiles} (${this.getPercentage(this.results.successfulFiles, this.results.totalFiles)}%)`);
@@ -268,7 +268,7 @@ class CorpusTester {
         console.log(`    Total Tokens: ${this.results.totalTokens.toLocaleString()}`);
         console.log('');
 
-        // Failed files
+        // !  Failed files
         if (this.failedFiles.length > 0) {
             console.log(' Failed Files (showing first 10):');
             this.failedFiles.slice(0, 10).forEach((fail, idx) => {
@@ -284,7 +284,7 @@ class CorpusTester {
             console.log('');
         }
 
-        // Edge cases
+        // !  Edge cases
         if (this.results.edgeCases.length > 0) {
             console.log(' Detected Edge Cases:');
             const edgeCaseMap = new Map();
@@ -300,7 +300,7 @@ class CorpusTester {
             console.log('');
         }
 
-        // Recommendations
+        // !  Recommendations
         console.log(' Recommendations:');
         if (this.results.failedFiles === 0) {
             console.log('    Excellent! Grammar handles all tested files perfectly!');
@@ -315,7 +315,7 @@ class CorpusTester {
     }
 
     /**
-     * Calculate percentage
+     * ! Calculate percentage
      */
     getPercentage(value, total) {
         if (total === 0) return 0;
@@ -323,7 +323,7 @@ class CorpusTester {
     }
 
     /**
-     * Export results to JSON
+     * ! Export results to JSON
      */
     exportResults(outputPath) {
         const results = {
@@ -344,18 +344,18 @@ class CorpusTester {
     }
 }
 
-// ============================================================================
-// EXPORT
-// ============================================================================
+// !  ============================================================================
+// !  EXPORT
+// !  ============================================================================
 
 export { CorpusTester };
 
-// Run testing if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// !  Run testing if executed directly
+if (import.meta.url === `file:// ! ${process.argv[1]}`) {
     const tester = new CorpusTester();
     await tester.testAll();
 
-    // Export results
+    // !  Export results
     const outputPath = path.join(__dirname, 'corpus-test-results.json');
     tester.exportResults(outputPath);
 }

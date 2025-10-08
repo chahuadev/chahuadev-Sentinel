@@ -1,26 +1,26 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// ChahuadevR Engine Grammar Dictionary - Core Language Support
-// ============================================================================
-// Trie (Prefix Tree) Implementation
-// โครงสร้างข้อมูลสำหรับค้นหา Longest Match และ Prefix Search
-// ============================================================================
-// ใช้สำหรับ:
-// - Tokenizer: ค้นหา operators หลายตัวอักษร (!==, !=, !)
-// - Auto-completion: แนะนำคำตาม prefix
-// - Longest Match: หาคำที่ยาวที่สุดที่ตรงกัน
-// ============================================================================
-// Time Complexity:
-// - Insert: O(m) where m = length of word
-// - Search: O(m)
-// - Prefix Search: O(m + n) where n = number of matches
-// - Longest Match: O(m)
-// ============================================================================
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
+// !  ChahuadevR Engine Grammar Dictionary - Core Language Support
+// !  ============================================================================
+// !  Trie (Prefix Tree) Implementation
+// !  โครงสร้างข้อมูลสำหรับค้นหา Longest Match และ Prefix Search
+// !  ============================================================================
+// !  ใช้สำหรับ:
+// !  - Tokenizer: ค้นหา operators หลายตัวอักษร (!==, !=, !)
+// !  - Auto-completion: แนะนำคำตาม prefix
+// !  - Longest Match: หาคำที่ยาวที่สุดที่ตรงกัน
+// !  ============================================================================
+// !  Time Complexity:
+// !  - Insert: O(m) where m = length of word
+// !  - Search: O(m)
+// !  - Prefix Search: O(m + n) where n = number of matches
+// !  - Longest Match: O(m)
+// !  ============================================================================
 
 export class TrieNode {
     constructor() {
@@ -47,9 +47,9 @@ export class Trie {
     }
 
     /**
-     * Insert a word into the trie
-     * @param {string} word - The word to insert
-     * @param {any} data - Associated data (grammar metadata)
+     * ! Insert a word into the trie
+     * ! @param {string} word - The word to insert
+     * ! @param {any} data - Associated data (grammar metadata)
      */
     insert(word, data = null) {
         let current = this.root;
@@ -71,9 +71,9 @@ export class Trie {
     }
 
     /**
-     * Search for a word in the trie
-     * @param {string} word - The word to search
-     * @returns {any|null} - Associated data if found, null otherwise
+     * ! Search for a word in the trie
+     * ! @param {string} word - The word to search
+     * ! @returns {any|null} - Associated data if found, null otherwise
      */
     search(word) {
         const node = this._searchNode(word);
@@ -81,9 +81,9 @@ export class Trie {
     }
 
     /**
-     * Check if a word exists in the trie
-     * @param {string} word - The word to check
-     * @returns {boolean}
+     * ! Check if a word exists in the trie
+     * ! @param {string} word - The word to check
+     * ! @returns {boolean}
      */
     has(word) {
         const node = this._searchNode(word);
@@ -91,16 +91,16 @@ export class Trie {
     }
 
     /**
-     * Find the longest match from the beginning of input
-     * **Core algorithm for Tokenizer**
-     * 
-     * Example: Input "!=="
-     * - Checks: "!" (match), "!=" (match), "!==" (match)
-     * - Returns: "!==" (longest match)
-     * 
-     * @param {string} input - Input string to match
-     * @param {number} startIndex - Start position in input
-     * @returns {{word: string, data: any, length: number}|null}
+     * ! Find the longest match from the beginning of input
+     * ! **Core algorithm for Tokenizer**
+     * ! 
+     * ! Example: Input "!=="
+     * ! - Checks: "!" (match), "!=" (match), "!==" (match)
+     * ! - Returns: "!==" (longest match)
+     * ! 
+     * ! @param {string} input - Input string to match
+     * ! @param {number} startIndex - Start position in input
+     * ! @returns {{word: string, data: any, length: number}|null}
      */
     findLongestMatch(input, startIndex = 0) {
         let current = this.root;
@@ -111,13 +111,13 @@ export class Trie {
             const char = input[position];
 
             if (!current.children.has(char)) {
-                break; // No more matches
+                break; // !  No more matches
             }
 
             current = current.children.get(char);
             position++;
 
-            // If this is a valid word, save it as potential match
+            // !  If this is a valid word, save it as potential match
             if (current.isEndOfWord) {
                 lastMatch = {
                     word: current.word,
@@ -131,9 +131,9 @@ export class Trie {
     }
 
     /**
-     * Find all words with a given prefix
-     * @param {string} prefix - The prefix to search
-     * @returns {Array<{word: string, data: any}>}
+     * ! Find all words with a given prefix
+     * ! @param {string} prefix - The prefix to search
+     * ! @returns {Array<{word: string, data: any}>}
      */
     findWordsWithPrefix(prefix) {
         const node = this._searchNode(prefix);
@@ -145,8 +145,8 @@ export class Trie {
     }
 
     /**
-     * Get all words in the trie
-     * @returns {Array<{word: string, data: any}>}
+     * ! Get all words in the trie
+     * ! @returns {Array<{word: string, data: any}>}
      */
     getAllWords() {
         const results = [];
@@ -155,9 +155,9 @@ export class Trie {
     }
 
     /**
-     * Delete a word from the trie
-     * @param {string} word - The word to delete
-     * @returns {boolean} - True if deleted, false if not found
+     * ! Delete a word from the trie
+     * ! @param {string} word - The word to delete
+     * ! @returns {boolean} - True if deleted, false if not found
      */
     delete(word) {
         const deleted = this._deleteRecursive(this.root, word, 0);
@@ -168,20 +168,20 @@ export class Trie {
     }
 
     /**
-     * Clear all words from the trie
+     * ! Clear all words from the trie
      */
     clear() {
         this.root = new TrieNode();
         this.size = 0;
     }
 
-    // ============================================================================
-    // Private Helper Methods
-    // ============================================================================
+    // !  ============================================================================
+    // !  Private Helper Methods
+    // !  ============================================================================
 
     /**
-     * Search for a node corresponding to a word
-     * @private
+     * ! Search for a node corresponding to a word
+     * ! @private
      */
     _searchNode(word) {
         let current = this.root;
@@ -197,8 +197,8 @@ export class Trie {
     }
 
     /**
-     * Recursively collect all words from a node
-     * @private
+     * ! Recursively collect all words from a node
+     * ! @private
      */
     _collectWords(node, prefix, results) {
         if (node.isEndOfWord) {
@@ -214,25 +214,25 @@ export class Trie {
     }
 
     /**
-     * Recursively delete a word
-     * @private
+     * ! Recursively delete a word
+     * ! @private
      */
     _deleteRecursive(current, word, index) {
         if (index === word.length) {
             if (!current.isEndOfWord) {
-                return false; // Word not found
+                return false; // !  Word not found
             }
             current.isEndOfWord = false;
             current.data = null;
             current.word = null;
-            return current.children.size === 0; // Can delete if no children
+            return current.children.size === 0; // !  Can delete if no children
         }
 
         const char = word[index];
         const node = current.children.get(char);
 
         if (!node) {
-            return false; // Word not found
+            return false; // !  Word not found
         }
 
         const shouldDeleteChild = this._deleteRecursive(node, word, index + 1);
@@ -245,13 +245,13 @@ export class Trie {
         return false;
     }
 
-    // ============================================================================
-    // Statistics & Debugging
-    // ============================================================================
+    // !  ============================================================================
+    // !  Statistics & Debugging
+    // !  ============================================================================
 
     /**
-     * Get statistics about the trie
-     * @returns {{size: number, height: number, nodes: number}}
+     * ! Get statistics about the trie
+     * ! @returns {{size: number, height: number, nodes: number}}
      */
     getStats() {
         let nodes = 0;
@@ -276,8 +276,8 @@ export class Trie {
     }
 
     /**
-     * Visualize the trie structure (for debugging)
-     * @returns {string}
+     * ! Visualize the trie structure (for debugging)
+     * ! @returns {string}
      */
     visualize() {
         const lines = [];

@@ -33,7 +33,9 @@ async function deactivate() {
         const { deactivate: esDeactivate } = await import('./src/extension.js');
         return await esDeactivate();
     } catch (error) {
+        // COMPLIANCE: NO_SILENT_FALLBACKS - log and re-throw error
         console.error('Failed to deactivate ES Module extension:', error);
+        throw error; // Do not swallow deactivation errors
     }
 }
 

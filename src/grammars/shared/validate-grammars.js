@@ -1,14 +1,14 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// Grammar Validation & Linting Tool
-// ============================================================================
-// ตรวจสอบความถูกต้องและความสอดคล้องของไฟล์แกรมม่าทั้งหมด
-// ============================================================================
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
+// !  Grammar Validation & Linting Tool
+// !  ============================================================================
+// !  ตรวจสอบความถูกต้องและความสอดคล้องของไฟล์แกรมม่าทั้งหมด
+// !  ============================================================================
 
 import { JAVASCRIPT_GRAMMAR } from '../javascript.grammar.js';
 import { TYPESCRIPT_GRAMMAR } from '../typescript.grammar.js';
@@ -18,9 +18,9 @@ import config from './parser-config.json' assert { type: 'json' };
 
 const VALIDATION_CONFIG = config.validationReporting;
 
-// ============================================================================
-// VALIDATION RULES
-// ============================================================================
+// !  ============================================================================
+// !  VALIDATION RULES
+// !  ============================================================================
 
 const REQUIRED_KEYWORD_FIELDS = [
     'category',
@@ -62,9 +62,9 @@ const VALID_TOKEN_TYPES = [
     'JSXElement', 'JSXText', 'JSXExpression', 'Fragment'
 ];
 
-// ============================================================================
-// VALIDATION ERRORS
-// ============================================================================
+// !  ============================================================================
+// !  VALIDATION ERRORS
+// !  ============================================================================
 
 class ValidationError {
     constructor(type, grammar, keyword, field, message, severity = 'error') {
@@ -73,7 +73,7 @@ class ValidationError {
         this.keyword = keyword;
         this.field = field;
         this.message = message;
-        this.severity = severity; // 'error', 'warning', 'info'
+        this.severity = severity; // !  'error', 'warning', 'info'
     }
 
     toString() {
@@ -82,9 +82,9 @@ class ValidationError {
     }
 }
 
-// ============================================================================
-// VALIDATOR CLASS
-// ============================================================================
+// !  ============================================================================
+// !  VALIDATOR CLASS
+// !  ============================================================================
 
 class GrammarValidator {
     constructor() {
@@ -102,7 +102,7 @@ class GrammarValidator {
     }
 
     /**
-     * Validate all grammars
+     * ! Validate all grammars
      */
     validateAll() {
         console.log(' Starting Grammar Validation...\n');
@@ -116,12 +116,12 @@ class GrammarValidator {
     }
 
     /**
-     * Validate a single grammar
+     * ! Validate a single grammar
      */
     validateGrammar(name, grammar) {
         console.log(` Validating ${name} Grammar...`);
 
-        // Handle different grammar structures
+        // !  Handle different grammar structures
         if (name === 'JSX') {
             this.validateJSXGrammar(name, grammar);
         } else {
@@ -130,19 +130,19 @@ class GrammarValidator {
     }
 
     /**
-     * Validate standard grammar (JS, TS, Java)
+     * ! Validate standard grammar (JS, TS, Java)
      */
     validateStandardGrammar(grammarName, grammar) {
         const allKeywords = new Set();
 
-        // Iterate through all sections
+        // !  Iterate through all sections
         for (const [sectionName, section] of Object.entries(grammar)) {
             if (typeof section !== 'object' || section === null) continue;
 
             for (const [keyword, definition] of Object.entries(section)) {
                 this.stats.totalKeywords++;
 
-                // Check for duplicates
+                // !  Check for duplicates
                 if (allKeywords.has(keyword)) {
                     this.addError('duplicate', grammarName, keyword, null,
                         `Keyword "${keyword}" is declared multiple times`);
@@ -151,14 +151,14 @@ class GrammarValidator {
                     allKeywords.add(keyword);
                 }
 
-                // Validate keyword definition
+                // !  Validate keyword definition
                 this.validateKeywordDefinition(grammarName, keyword, definition);
             }
         }
     }
 
     /**
-     * Validate JSX grammar (different structure)
+     * ! Validate JSX grammar (different structure)
      */
     validateJSXGrammar(grammarName, grammar) {
         for (const [sectionName, section] of Object.entries(grammar)) {
@@ -172,12 +172,12 @@ class GrammarValidator {
     }
 
     /**
-     * Validate individual keyword definition
+     * ! Validate individual keyword definition
      */
     validateKeywordDefinition(grammarName, keyword, definition) {
         let hasErrors = false;
 
-        // 1. Check required fields
+        // !  1. Check required fields
         for (const field of REQUIRED_KEYWORD_FIELDS) {
             if (!(field in definition)) {
                 this.addWarning('missing-field', grammarName, keyword, field,
@@ -187,19 +187,19 @@ class GrammarValidator {
             }
         }
 
-        // 2. Validate category
+        // !  2. Validate category
         if (definition.category && !VALID_CATEGORIES.includes(definition.category)) {
             this.addWarning('invalid-category', grammarName, keyword, 'category',
                 `Invalid category: ${definition.category}`);
         }
 
-        // 3. Validate stage
+        // !  3. Validate stage
         if (definition.stage && !VALID_STAGES.includes(definition.stage)) {
             this.addWarning('invalid-stage', grammarName, keyword, 'stage',
                 `Invalid stage: ${definition.stage}`);
         }
 
-        // 4. Validate followedBy references
+        // !  4. Validate followedBy references
         if (definition.followedBy && Array.isArray(definition.followedBy)) {
             for (const token of definition.followedBy) {
                 if (!VALID_TOKEN_TYPES.includes(token)) {
@@ -209,7 +209,7 @@ class GrammarValidator {
             }
         }
 
-        // 5. Validate precededBy references
+        // !  5. Validate precededBy references
         if (definition.precededBy && Array.isArray(definition.precededBy)) {
             for (const token of definition.precededBy) {
                 if (!VALID_TOKEN_TYPES.includes(token)) {
@@ -219,40 +219,40 @@ class GrammarValidator {
             }
         }
 
-        // 6. Validate disambiguation array
+        // !  6. Validate disambiguation array
         if (definition.disambiguation && !Array.isArray(definition.disambiguation)) {
             this.addError('invalid-disambiguation', grammarName, keyword, 'disambiguation',
                 `disambiguation must be an array`);
             hasErrors = true;
         }
 
-        // 7. Validate commonTypos array
+        // !  7. Validate commonTypos array
         if (definition.commonTypos && !Array.isArray(definition.commonTypos)) {
             this.addError('invalid-typos', grammarName, keyword, 'commonTypos',
                 `commonTypos must be an array`);
             hasErrors = true;
         }
 
-        // 8. Validate quirks array
+        // !  8. Validate quirks array
         if (definition.quirks && !Array.isArray(definition.quirks)) {
             this.addError('invalid-quirks', grammarName, keyword, 'quirks',
                 `quirks must be an array`);
             hasErrors = true;
         }
 
-        // 9. Check for example
+        // !  9. Check for example
         if (!definition.example && !definition.examples) {
             this.addWarning('missing-example', grammarName, keyword, 'example',
                 `Missing example or examples field`);
         }
 
-        // 10. Validate useCases array
+        // !  10. Validate useCases array
         if (definition.useCases && !Array.isArray(definition.useCases)) {
             this.addWarning('invalid-usecases', grammarName, keyword, 'useCases',
                 `useCases should be an array`);
         }
 
-        // Update stats
+        // !  Update stats
         if (hasErrors) {
             this.stats.invalidKeywords++;
         } else {
@@ -261,7 +261,7 @@ class GrammarValidator {
     }
 
     /**
-     * Add error
+     * ! Add error
      */
     addError(type, grammar, keyword, field, message) {
         const error = new ValidationError(type, grammar, keyword, field, message, 'error');
@@ -269,7 +269,7 @@ class GrammarValidator {
     }
 
     /**
-     * Add warning
+     * ! Add warning
      */
     addWarning(type, grammar, keyword, field, message) {
         const warning = new ValidationError(type, grammar, keyword, field, message, 'warning');
@@ -277,7 +277,7 @@ class GrammarValidator {
     }
 
     /**
-     * Add info
+     * ! Add info
      */
     addInfo(type, grammar, keyword, field, message) {
         const info = new ValidationError(type, grammar, keyword, field, message, 'info');
@@ -285,14 +285,14 @@ class GrammarValidator {
     }
 
     /**
-     * Print validation report
+     * ! Print validation report
      */
     printReport() {
         console.log('\n' + '='.repeat(80));
         console.log(' VALIDATION REPORT');
         console.log('='.repeat(80) + '\n');
 
-        // Print stats
+        // !  Print stats
         console.log(' Statistics:');
         console.log(`   Total Keywords: ${this.stats.totalKeywords}`);
         console.log(`    Valid: ${this.stats.validKeywords}`);
@@ -301,14 +301,14 @@ class GrammarValidator {
         console.log(`    Duplicates: ${this.stats.duplicates}`);
         console.log('');
 
-        // Print errors
+        // !  Print errors
         if (this.errors.length > 0) {
             console.log(' ERRORS:');
             this.errors.forEach(error => console.log(`   ${error.toString()}`));
             console.log('');
         }
 
-        // Print warnings
+        // !  Print warnings
         if (this.warnings.length > 0) {
             console.log('  WARNINGS:');
             this.warnings.slice(0, VALIDATION_CONFIG.maxWarnings).forEach(warning => console.log(`   ${warning.toString()}`));
@@ -318,7 +318,7 @@ class GrammarValidator {
             console.log('');
         }
 
-        // Print info
+        // !  Print info
         if (this.info.length > 0) {
             console.log('   INFO:');
             this.info.slice(0, VALIDATION_CONFIG.maxInfoMessages).forEach(info => console.log(`   ${info.toString()}`));
@@ -328,7 +328,7 @@ class GrammarValidator {
             console.log('');
         }
 
-        // Final verdict
+        // !  Final verdict
         console.log('='.repeat(80));
         if (this.errors.length === 0 && this.warnings.length === 0) {
             console.log(' ALL GRAMMARS ARE VALID! ');
@@ -339,7 +339,7 @@ class GrammarValidator {
         }
         console.log('='.repeat(80) + '\n');
 
-        // Return validation result
+        // !  Return validation result
         return {
             valid: this.errors.length === 0,
             errors: this.errors.length,
@@ -350,14 +350,14 @@ class GrammarValidator {
     }
 }
 
-// ============================================================================
-// EXPORT
-// ============================================================================
+// !  ============================================================================
+// !  EXPORT
+// !  ============================================================================
 
 export { GrammarValidator, ValidationError };
 
-// Run validation if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// !  Run validation if executed directly
+if (import.meta.url === `file:// ! ${process.argv[1]}`) {
     const validator = new GrammarValidator();
     const result = validator.validateAll();
     process.exit(result.valid ? 0 : 1);

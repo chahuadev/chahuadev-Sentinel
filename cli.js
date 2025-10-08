@@ -11,7 +11,8 @@
  * Command-line interface for code quality checking
  */
 
-import { ValidationEngine } from './src/validator.js';
+import { ABSOLUTE_RULES } from './src/validator.js';
+import { createSmartParserEngine } from './src/grammars/index.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -32,8 +33,9 @@ class ChahuadevCLI {
 
     async initialize() {
         try {
-            this.engine = new ValidationEngine();
-            await this.engine.initializeParserStudy();
+            // อ่านกฎจาก validator.js (หนังสือ) และส่งต่อให้ parser engine
+            this.rules = ABSOLUTE_RULES;
+            this.engine = await createSmartParserEngine(ABSOLUTE_RULES);
             console.log(cliConfig.messages.cliInitialized);
             return true;
         } catch (error) {
@@ -83,7 +85,7 @@ ${cliConfig.helpText.footer}`);
             }
 
             const content = fs.readFileSync(filePath, 'utf8');
-            const results = await this.engine.validateCode(content, filePath);
+            const results = this.engine.analyzeCode(content, filePath);
             
             this.stats.processedFiles++;
             this.stats.totalViolations += results.violations.length;
@@ -192,9 +194,11 @@ ${cliConfig.helpText.footer}`);
 
     /**
      * Check if directory should be ignored
+     * COMPLIANCE: NO_HARDCODE - read patterns from config file
      */
     shouldIgnoreDirectory(name) {
-        const ignorePatterns = ['node_modules', '.git', '.vscode', 'dist', 'build', '.next'];
+        // COMPLIANCE: NO_HARDCODE - get ignore patterns from config
+        const ignorePatterns = cliConfig.ignoreDirectories || [];
         return ignorePatterns.includes(name) || name.startsWith('.');
     }
 

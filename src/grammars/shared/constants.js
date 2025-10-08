@@ -1,12 +1,12 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// ! NO_HARDCODE: Central repository for all rule IDs and constant values
-// ! ป้องกันการพิมพ์ผิด ruleId และจัดการ constants จากที่เดียว
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
+// !  ! NO_HARDCODE: Central repository for all rule IDs and constant values
+// !  ! ป้องกันการพิมพ์ผิด ruleId และจัดการ constants จากที่เดียว
 
 /**
  * Absolute Rule IDs - 5 กฎเหล็กของ Chahuadev
@@ -87,7 +87,7 @@ export const VALIDATION_THRESHOLDS = {
     MAX_LINE_LENGTH: 1000
 };
 
-// Freeze objects เพื่อป้องกันการแก้ไข
+// !  Freeze objects เพื่อป้องกันการแก้ไข
 Object.freeze(RULE_IDS);
 Object.freeze(ERROR_TYPES);  
 Object.freeze(SEVERITY_LEVELS);

@@ -1,22 +1,22 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// ChahuadevR Engine Grammar Dictionary - Core Language Support
-// ============================================================================
-// Performance Benchmark Tests
-// เปรียบเทียบประสิทธิภาพของ Grammar Index System
-// ============================================================================
-// Test Categories:
-// 1. Index Building Time
-// 2. Lookup Performance (Map vs Object)
-// 3. Longest Match Performance (Trie vs Loop)
-// 4. Fuzzy Search Performance
-// 5. Memory Usage
-// ============================================================================
+// ! ======================================================================
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ======================================================================
+// !  ChahuadevR Engine Grammar Dictionary - Core Language Support
+// !  ============================================================================
+// !  Performance Benchmark Tests
+// !  เปรียบเทียบประสิทธิภาพของ Grammar Index System
+// !  ============================================================================
+// !  Test Categories:
+// !  1. Index Building Time
+// !  2. Lookup Performance (Map vs Object)
+// !  3. Longest Match Performance (Trie vs Loop)
+// !  4. Fuzzy Search Performance
+// !  5. Memory Usage
+// !  ============================================================================
 
 import { performance } from 'perf_hooks';
 import { GrammarIndex } from './grammar-index.js';
@@ -26,7 +26,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// Load Configuration (NO MORE HARDCODE!)
+// !  Load Configuration (NO MORE HARDCODE!)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const CONFIG_PATH = join(__dirname, 'parser-config.json');
@@ -39,9 +39,9 @@ try {
     BENCHMARK_CONFIG = { defaultSize: 100, defaultIterations: 100, intensiveIterations: 10000 };
 }
 
-// =============================================================================
-// Test Data Generator
-// =============================================================================
+// !  =============================================================================
+// !  Test Data Generator
+// !  =============================================================================
 
 function generateTestData(size = BENCHMARK_CONFIG.defaultSize) {
     const keywords = [];
@@ -52,16 +52,16 @@ function generateTestData(size = BENCHMARK_CONFIG.defaultSize) {
         operators.push(`op${i}`);
     }
 
-    // Add realistic multi-char operators
+    // !  Add realistic multi-char operators
     operators.push('===', '!==', '==', '!=', '>=', '<=', '++', '--', '&&', '||',
         '<<', '>>', '>>>', '...', '=>', '**', '??', '?.', '??=');
 
     return { keywords, operators };
 }
 
-// =============================================================================
-// Benchmark 1: Index Building Time
-// =============================================================================
+// !  =============================================================================
+// !  Benchmark 1: Index Building Time
+// !  =============================================================================
 
 export function benchmarkIndexBuilding(grammar) {
     console.log('\n' + '='.repeat(80));
@@ -91,9 +91,9 @@ export function benchmarkIndexBuilding(grammar) {
     return { avg, min, max, times };
 }
 
-// =============================================================================
-// Benchmark 2: Lookup Performance (Map vs Object)
-// =============================================================================
+// !  =============================================================================
+// !  Benchmark 2: Lookup Performance (Map vs Object)
+// !  =============================================================================
 
 export function benchmarkLookupPerformance() {
     console.log('\n' + '='.repeat(80));
@@ -102,17 +102,17 @@ export function benchmarkLookupPerformance() {
 
     const { keywords } = generateTestData(10000);
 
-    // Build Map
+    // !  Build Map
     const keywordMap = new Map();
     keywords.forEach((k, i) => keywordMap.set(k, { id: i, category: 'test' }));
 
-    // Build Object
+    // !  Build Object
     const keywordObj = {};
     keywords.forEach((k, i) => keywordObj[k] = { id: i, category: 'test' });
 
     const iterations = BENCHMARK_CONFIG.intensiveIterations;
 
-    // Test Map
+    // !  Test Map
     console.log('Testing Map.get()...');
     let mapStart = performance.now();
     for (let i = 0; i < iterations; i++) {
@@ -122,7 +122,7 @@ export function benchmarkLookupPerformance() {
     let mapEnd = performance.now();
     const mapTime = mapEnd - mapStart;
 
-    // Test Object
+    // !  Test Object
     console.log('Testing Object property access...');
     let objStart = performance.now();
     for (let i = 0; i < iterations; i++) {
@@ -142,45 +142,45 @@ export function benchmarkLookupPerformance() {
     return { mapTime, objTime, speedup: objTime / mapTime };
 }
 
-// =============================================================================
-// Benchmark 3: Longest Match Performance (Trie vs Loop)
-// =============================================================================
+// !  =============================================================================
+// !  Benchmark 3: Longest Match Performance (Trie vs Loop)
+// !  =============================================================================
 
 export function benchmarkLongestMatchPerformance() {
     console.log('\n' + '='.repeat(80));
     console.log('BENCHMARK 3: Longest Match Performance (Trie vs Loop)');
     console.log('='.repeat(80) + '\n');
 
-    // Real operators
+    // !  Real operators
     const operators = [
         '===', '!==', '==', '!=', '>=', '<=', '++', '--', '&&', '||',
         '<<', '>>', '>>>', '...', '=>', '**', '??', '?.', '??=',
         '+', '-', '*', '/', '%', '&', '|', '^', '!', '~', '<', '>'
     ];
 
-    // Build Trie
+    // !  Build Trie
     const trie = new Trie();
     operators.forEach(op => trie.insert(op, { operator: op }));
 
-    // Test cases
+    // !  Test cases
     const testInputs = [
-        '!== 10',      // longest: !==
-        '!= 10',       // longest: !=
-        '! true',      // longest: !
-        'x === y',     // longest: ===
-        'x == y',      // longest: ==
-        '...rest',     // longest: ...
-        'x++',         // longest: ++
-        'x + y',       // longest: +
-        'a ?? b',      // longest: ??
-        'obj?.prop'    // longest: ?.
+        '!== 10',      // !  longest: !==
+        '!= 10',       // !  longest: !=
+        '! true',      // !  longest: !
+        'x === y',     // !  longest: ===
+        'x == y',      // !  longest: ==
+        '...rest',     // !  longest: ...
+        'x++',         // !  longest: ++
+        'x + y',       // !  longest: +
+        'a ?? b',      // !  longest: ??
+        'obj?.prop'    // !  longest: ?.
     ];
 
     const iterations = BENCHMARK_CONFIG.intensiveIterations;
 
-    // ============================================
-    // Method 1: Trie (NEW)
-    // ============================================
+    // !  ============================================
+    // !  Method 1: Trie (NEW)
+    // !  ============================================
     console.log('Testing Trie.findLongestMatch()...');
     const trieStart = performance.now();
 
@@ -193,9 +193,9 @@ export function benchmarkLongestMatchPerformance() {
     const trieEnd = performance.now();
     const trieTime = trieEnd - trieStart;
 
-    // ============================================
-    // Method 2: Loop (OLD)
-    // ============================================
+    // !  ============================================
+    // !  Method 2: Loop (OLD)
+    // !  ============================================
     console.log('Testing Loop through operators...');
     const loopStart = performance.now();
 
@@ -222,7 +222,7 @@ export function benchmarkLongestMatchPerformance() {
  * OLD METHOD: Loop through operators by length
  */
 function findLongestOperatorLoop(input, position, operators) {
-    // Sort by length (longest first)
+    // !  Sort by length (longest first)
     const sorted = operators.slice().sort((a, b) => b.length - a.length);
 
     for (const op of sorted) {
@@ -235,16 +235,16 @@ function findLongestOperatorLoop(input, position, operators) {
     return null;
 }
 
-// =============================================================================
-// Benchmark 4: Fuzzy Search Performance
-// =============================================================================
+// !  =============================================================================
+// !  Benchmark 4: Fuzzy Search Performance
+// !  =============================================================================
 
 export function benchmarkFuzzySearchPerformance() {
     console.log('\n' + '='.repeat(80));
     console.log('BENCHMARK 4: Fuzzy Search Performance');
     console.log('='.repeat(80) + '\n');
 
-    // Generate realistic keyword set
+    // !  Generate realistic keyword set
     const keywords = [
         'function', 'const', 'let', 'var', 'return', 'if', 'else', 'for', 'while',
         'import', 'export', 'class', 'extends', 'async', 'await', 'try', 'catch',
@@ -252,7 +252,7 @@ export function benchmarkFuzzySearchPerformance() {
         'this', 'super', 'static', 'get', 'set', 'yield', 'delete', 'void'
     ];
 
-    // Typos to test
+    // !  Typos to test
     const typos = [
         'functoin', 'cosnt', 'reutrn', 'improt', 'exprot', 'awiat', 'aysnc', 'clss'
     ];
@@ -277,7 +277,7 @@ export function benchmarkFuzzySearchPerformance() {
     console.log(`Total operations: ${(iterations * typos.length).toLocaleString()}`);
     console.log(`Operations/sec: ${(iterations * typos.length / (totalTime / 1000)).toLocaleString()}`);
 
-    // Show sample results
+    // !  Show sample results
     console.log('\nSample Results:');
     for (const typo of typos.slice(0, 3)) {
         const suggestions = findTypoSuggestions(typo, keywords, 3);
@@ -287,9 +287,9 @@ export function benchmarkFuzzySearchPerformance() {
     return { totalTime, avgTime };
 }
 
-// =============================================================================
-// Benchmark 5: Memory Usage
-// =============================================================================
+// !  =============================================================================
+// !  Benchmark 5: Memory Usage
+// !  =============================================================================
 
 export function benchmarkMemoryUsage(grammar) {
     console.log('\n' + '='.repeat(80));
@@ -299,7 +299,7 @@ export function benchmarkMemoryUsage(grammar) {
     if (typeof process !== 'undefined' && process.memoryUsage) {
         const before = process.memoryUsage();
 
-        // Build index
+        // !  Build index
         const index = new GrammarIndex(grammar);
 
         const after = process.memoryUsage();
@@ -318,9 +318,9 @@ export function benchmarkMemoryUsage(grammar) {
     }
 }
 
-// =============================================================================
-// Benchmark 6: Complete Tokenizer Performance
-// =============================================================================
+// !  =============================================================================
+// !  Benchmark 6: Complete Tokenizer Performance
+// !  =============================================================================
 
 export function benchmarkCompleteTokenizer(grammar, testCode) {
     console.log('\n' + '='.repeat(80));
@@ -335,12 +335,12 @@ export function benchmarkCompleteTokenizer(grammar, testCode) {
     console.log(`Test Code: ${testCode}`);
     console.log(`Iterations: ${iterations}\n`);
 
-    // Warm-up
+    // !  Warm-up
     for (let i = 0; i < 10; i++) {
         tokenizer.tokenize(testCode);
     }
 
-    // Benchmark
+    // !  Benchmark
     const start = performance.now();
     for (let i = 0; i < iterations; i++) {
         tokenizer.tokenize(testCode);
@@ -361,9 +361,9 @@ export function benchmarkCompleteTokenizer(grammar, testCode) {
     return { totalTime, avgTime, tokenCount: tokens.length };
 }
 
-// =============================================================================
-// Run All Benchmarks
-// =============================================================================
+// !  =============================================================================
+// !  Run All Benchmarks
+// !  =============================================================================
 
 export function runAllBenchmarks(grammar) {
     console.log('\n');
@@ -380,7 +380,7 @@ export function runAllBenchmarks(grammar) {
         results.fuzzySearch = benchmarkFuzzySearchPerformance();
         results.memoryUsage = benchmarkMemoryUsage(grammar);
 
-        // Test with real code
+        // !  Test with real code
         const testCode = `
       const x = 10;
       if (x !== 20) {
@@ -396,7 +396,7 @@ export function runAllBenchmarks(grammar) {
         console.error('Benchmark error:', error);
     }
 
-    // Summary
+    // !  Summary
     console.log('\n' + '='.repeat(80));
     console.log('SUMMARY');
     console.log('='.repeat(80) + '\n');
@@ -426,9 +426,9 @@ export function runAllBenchmarks(grammar) {
     return results;
 }
 
-// =============================================================================
-// Utility Functions
-// =============================================================================
+// !  =============================================================================
+// !  Utility Functions
+// !  =============================================================================
 
 function calculateStdDev(values) {
     const avg = values.reduce((a, b) => a + b, 0) / values.length;
@@ -437,9 +437,9 @@ function calculateStdDev(values) {
     return Math.sqrt(avgSquareDiff);
 }
 
-// =============================================================================
-// Export
-// =============================================================================
+// !  =============================================================================
+// !  Export
+// !  =============================================================================
 
 export default {
     benchmarkIndexBuilding,
