@@ -26,6 +26,7 @@
     "exclude": "**/node_modules/**"
   },
   "fileExtensions": [".js", ".ts", ".jsx", ".tsx"],
+  "ignoreDirectories": ["node_modules", ".git", ".vscode", "dist", "build", "coverage", "logs", ".backups"],
   "fuzzySearch": {
     "maxLevenshteinDistance": 2,
     "maxDistance": 3,

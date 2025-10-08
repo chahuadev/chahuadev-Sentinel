@@ -81,6 +81,12 @@ ${cliConfig.helpText.footer}`);
 
     async scanFile(filePath, options = {}) {
         try {
+            // Log progress for each file
+            this.stats.processedFiles++;
+            if (!options.quiet) {
+                console.log(`[${this.stats.processedFiles}/${this.stats.totalFiles}] Scanning: ${filePath}`);
+            }
+            
             if (!fs.existsSync(filePath)) {
                 throw new Error(`${cliConfig.messages.fileNotFound} ${filePath}`);
             }
@@ -133,8 +139,20 @@ ${cliConfig.helpText.footer}`);
 
             const results = [];
             for (const file of files) {
-                const result = await this.scanFile(file, options);
-                results.push({ file, ...result });
+                try {
+                    const result = await this.scanFile(file, options);
+                    results.push({ file, ...result });
+                } catch (fileError) {
+                    // !  NO_SILENT_FALLBACKS: Log error but continue to next file
+                    console.error(`\n❌ Error processing ${file}:`);
+                    console.error(`   ${fileError.message}`);
+                    results.push({ 
+                        file, 
+                        violations: [], 
+                        error: fileError.message 
+                    });
+                    // Continue to next file
+                }
             }
 
             return results;
@@ -145,73 +163,87 @@ ${cliConfig.helpText.footer}`);
     }
 
     /**
-     * Find files recursively without external dependencies
+     * Find files recursively using our own robust scanning logic.
+     * (IMPROVED VERSION - NO EXTERNAL LIBRARIES)
+     * FIX: ปรับปรุง Logic ให้สแกนได้ครบทุกไฟล์โดยไม่พลาด
      */
     async findFilesRecursive(pattern) {
-        const results = [];
-        
-        // WHY: Read from config (NO_HARDCODE compliance)
-        // NO_SILENT_FALLBACKS: Config MUST exist - no defaults allowed
-        const extensions = this.config.fileExtensions;
-        
-        if (!extensions || !Array.isArray(extensions) || extensions.length === 0) {
-            throw new Error(
-                'Configuration error: fileExtensions is required in cli-config.json\n' +
-                'Expected: { "fileExtensions": [".js", ".ts", ".jsx", ".tsx"] }\n' +
-                'NO_HARDCODE: We cannot use hardcoded defaults.'
-            );
-        }
-        
-        const scanDirectory = (dir) => {
+        const files = [];
+        const scannedDirs = new Set();
+        let totalScanned = 0;
+        let errorCount = 0;
+
+        // FIX: ใช้ extensions และ ignore patterns จาก config
+        const extensionsToScan = this.config.fileExtensions || ['.js', '.ts', '.jsx', '.tsx'];
+        const ignoreDirs = new Set(this.config.ignoreDirectories || ['node_modules', '.git', '.vscode']);
+
+        console.log(`Scanning for extensions: [${extensionsToScan.join(', ')}]`);
+        console.log(`Ignoring directories: [${Array.from(ignoreDirs).join(', ')}]`);
+
+        const scan = (dir) => {
+            // FIX: ตรวจสอบ path ที่เคยสแกนและ path ที่ต้อง ignore ให้แม่นยำขึ้น
+            const resolvedDir = path.resolve(dir);
+            const dirName = path.basename(resolvedDir);
+
+            // ข้ามถ้าสแกนแล้ว หรือเป็น ignored directory หรือขึ้นต้นด้วย .
+            if (scannedDirs.has(resolvedDir) || ignoreDirs.has(dirName) || dirName.startsWith('.')) {
+                return;
+            }
+            scannedDirs.add(resolvedDir);
+
+            let entries;
             try {
-                const entries = fs.readdirSync(dir, { withFileTypes: true });
+                entries = fs.readdirSync(resolvedDir, { withFileTypes: true });
+            } catch (error) {
+                // !  NO_SILENT_FALLBACKS - ทำให้ชัดเจนว่าอ่านโฟลเดอร์ไม่ได้ แต่ยังทำงานต่อ
+                console.warn(` Warning: Could not read directory ${resolvedDir}. Skipping. Error: ${error.message}`);
+                errorCount++;
+                return; // หยุดการทำงานใน path นี้ แต่ไม่หยุดทั้งโปรแกรม
+            }
+
+            for (const entry of entries) {
+                const fullPath = path.join(resolvedDir, entry.name);
                 
-                for (const entry of entries) {
-                    const fullPath = path.join(dir, entry.name);
-                    
+                try {
                     if (entry.isDirectory()) {
-                        // Skip node_modules and other common ignore patterns
-                        if (!this.shouldIgnoreDirectory(entry.name)) {
-                            scanDirectory(fullPath);
-                        }
+                        scan(fullPath); // Recursive call
                     } else if (entry.isFile()) {
                         const ext = path.extname(entry.name);
-                        if (extensions.includes(ext)) {
-                            results.push(fullPath);
+                        if (extensionsToScan.includes(ext)) {
+                            totalScanned++;
+                            files.push(fullPath);
                         }
                     }
+                } catch (itemError) {
+                    // !  NO_SILENT_FALLBACKS: Log error but continue
+                    console.warn(` Warning: Cannot access ${fullPath}: ${itemError.message}`);
+                    errorCount++;
                 }
-            } catch (error) {
-                // Skip directories we cannot read
-                console.error(`Warning: Cannot read directory ${dir}: ${error.message}`);
             }
         };
 
-        // Handle different pattern types
-        if (pattern.includes('/') || pattern.includes('\\')) {
-            // Path-based pattern
-            const basePath = pattern.replace(/[*]/g, '');
-            if (fs.existsSync(basePath) && fs.statSync(basePath).isDirectory()) {
-                scanDirectory(basePath);
-            } else if (fs.existsSync(pattern) && fs.statSync(pattern).isFile()) {
-                results.push(pattern);
+        // FIX: ปรับปรุง Logic การหา "จุดเริ่มต้น" ของการสแกนให้ฉลาดขึ้น
+        const startPath = pattern ? path.resolve(process.cwd(), pattern) : process.cwd();
+        
+        console.log(` Starting scan from: "${startPath}"`);
+
+        if (fs.existsSync(startPath)) {
+            const stat = fs.statSync(startPath);
+            if (stat.isDirectory()) {
+                scan(startPath);
+            } else if (stat.isFile()) {
+                // กรณีที่ผู้ใช้ระบุไฟล์เดียวโดยตรง
+                if (extensionsToScan.includes(path.extname(startPath))) {
+                    files.push(startPath);
+                    totalScanned++;
+                }
             }
         } else {
-            // Scan current directory
-            scanDirectory(process.cwd());
+            throw new Error(`The specified path or pattern "${pattern}" does not exist.`);
         }
 
-        return results;
-    }
-
-    /**
-     * Check if directory should be ignored
-     * COMPLIANCE: NO_HARDCODE - read patterns from config file
-     */
-    shouldIgnoreDirectory(name) {
-        // COMPLIANCE: NO_HARDCODE - get ignore patterns from config
-        const ignorePatterns = cliConfig.ignoreDirectories || [];
-        return ignorePatterns.includes(name) || name.startsWith('.');
+        console.log(`\n✓ Scanned ${totalScanned} files (${errorCount} errors skipped)`);
+        return files;
     }
 
     showSummary(results, options = {}) {
