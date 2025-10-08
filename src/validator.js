@@ -14,9 +14,9 @@
 // ! ABSOLUTE RULES DEFINITION - 5 กฎเหล็กของ Chahuadev
 // ! ======================================================================
 const ABSOLUTE_RULES = {
-            // ! ======================================================================
-            // !  กฎเหล็กข้อที่ 1: NO_MOCKING - ห้ามใช้ Mock/Stub/Spy
-            // ! ======================================================================  
+// ! ======================================================================
+// !  กฎเหล็กข้อที่ 1: NO_MOCKING - ห้ามใช้ Mock/Stub/Spy
+// ! ======================================================================  
     NO_MOCKING: {
         id: 'NO_MOCKING',
         name: {
@@ -195,8 +195,9 @@ const ABSOLUTE_RULES = {
             BAD:  jest.mock('./database'); // Tests don't validate real database integration
             GOOD: function createUser(userData, database) { return database.save(userData); } // Tests can pass real or test database`,
                      
-
+// ! ======================================================================
                th: `
+// ! ======================================================================               
             // ! ======================================================================
                  ปรัชญาและเหตุผลเชิงลึก:
             // ! ======================================================================
@@ -557,7 +558,9 @@ const ABSOLUTE_RULES = {
             // ! END OF correctExamples - All correct implementation patterns above
             // ! ======================================================================
         },
+// ! ======================================================================        
         patterns: [
+// ! ======================================================================            
             // Jest mocking patterns (all variants)
             { regex: /jest\.mock\s*\(/, name: 'jest.mock()', severity: 'ERROR' },
             { regex: /jest\.unmock\s*\(/, name: 'jest.unmock()', severity: 'ERROR' },
@@ -1021,9 +1024,9 @@ const ABSOLUTE_RULES = {
         // ═══════════════════════════════════════════════════════════════════════════════════════════════════
     },
 
-    // ! ======================================================================
-    // ! NO_HARDCODE - ห้าม Hardcode ค่าใดๆ (กฎเหล็กข้อที่ 2)
-    // ! ======================================================================
+// ! ======================================================================
+// ! NO_HARDCODE - ห้าม Hardcode ค่าใดๆ (กฎเหล็กข้อที่ 2)
+// ! ======================================================================
     NO_HARDCODE: {
         id: 'NO_HARDCODE',
         name: {
@@ -1180,7 +1183,9 @@ const ABSOLUTE_RULES = {
                  ZERO TOLERANCE:
             // ! ======================================================================
             No hardcoded URLs, API keys, database connections, file paths, timeouts, business rules, feature flags, security bypasses, resource limits, schedules, compliance settings, or ANY environment/deployment/business-specific values in source code.`,
+// ! ======================================================================
             th: 
+// ! ======================================================================            
             // ! ======================================================================            
                  `ปรัชญาและเหตุผลเชิงลึก:
             // ! ======================================================================
@@ -1387,8 +1392,10 @@ const ABSOLUTE_RULES = {
 
                 ไม่มีข้อยกเว้น ไม่มีเหตุผลพิเศษ ไม่มี "แต่มันแค่..." - ห้าม HARDCODE เด็ดขาด`
         },
+// ! ======================================================================        
         patterns: [
-            // HTTP/HTTPS URLs (all variants)
+// ! ======================================================================            
+            // ! HTTP/HTTPS URLs (all variants)
             {
                 regex: /['"]https?:\/\/(?!www\.w3\.org|localhost|127\.0\.0\.1)[a-zA-Z0-9][^'"]*['"]/,
                 name: 'HTTP/HTTPS URL',
@@ -1405,7 +1412,7 @@ const ABSOLUTE_RULES = {
                 severity: 'ERROR'
             },
 
-            // API Keys and Secrets (comprehensive patterns)
+            // ! API Keys and Secrets (comprehensive patterns)
             {
                 regex: /['"](?:api[_-]?key|apikey|api_secret|secret[_-]?key|access[_-]?token|bearer[_-]?token)['"]:\s*['"][^'"]+['"]/i,
                 name: 'API Key/Secret/Token in object',
@@ -1517,7 +1524,7 @@ const ABSOLUTE_RULES = {
                 severity: 'ERROR'
             },
 
-            // Database Connection Strings
+            // ! Database Connection Strings
             {
                 regex: /['"](?:mongodb|mysql|postgresql|postgres):\/\/[^'"]*['"]/i,
                 name: 'Database connection string',
@@ -1534,7 +1541,7 @@ const ABSOLUTE_RULES = {
                 severity: 'ERROR'
             },
 
-            // Server/Host URLs and IPs
+            // ! Server/Host URLs and IPs
             {
                 regex: /['"](?:https?:\/\/)?[a-zA-Z0-9-]+\.(?:com|net|org|io|co|dev|local|internal)[^'"]*['"]/i,
                 name: 'Domain name/hostname',
@@ -1546,7 +1553,7 @@ const ABSOLUTE_RULES = {
                 severity: 'ERROR'
             },
 
-            // Environment-specific hardcoded values
+            // ! Environment-specific hardcoded values
             {
                 regex: /['"](?:development|production|staging|test|dev|prod|stage)['"](?:\s*[=:]\s*true|\s*===\s*['"](?:development|production|staging|test|dev|prod|stage)['"])/i,
                 name: 'Environment comparison hardcoded',
@@ -1558,7 +1565,7 @@ const ABSOLUTE_RULES = {
                 severity: 'WARNING'
             },
 
-            // File paths (absolute paths, especially on Windows/Unix)
+            // ! File paths (absolute paths, especially on Windows/Unix)
             {
                 regex: /['"][C-Z]:\\[^'"]*['"]/,
                 name: 'Windows absolute file path',
@@ -1575,7 +1582,7 @@ const ABSOLUTE_RULES = {
                 severity: 'WARNING'
             },
 
-            // Version numbers and build numbers
+            // ! Version numbers and build numbers
             {
                 regex: /(?:version|build|release)['"]?\s*[:=]\s*['"][0-9]+\.[0-9]+\.[0-9]+['"]/i,
                 name: 'Version number hardcoded',
@@ -1587,7 +1594,7 @@ const ABSOLUTE_RULES = {
                 severity: 'WARNING'
             },
 
-            // Magic numbers (common problematic values)
+            // ! Magic numbers (common problematic values)
             {
                 regex: /(?<![0-9.])\b(?:8080|3000|5000|8000|9000|3306|5432|6379|27017|443|80|22|21|25)\b(?![0-9.])/,
                 name: 'Common port number (should be configurable)',
@@ -1599,7 +1606,7 @@ const ABSOLUTE_RULES = {
                 severity: 'WARNING'
             },
 
-            // Cache expiration times
+            // ! Cache expiration times
             {
                 regex: /(?:expires?|ttl|timeout|cache)['"]?\s*[:=]\s*(?:[0-9]{4,}|'[0-9]{4,}'|"[0-9]{4,}")/i,
                 name: 'Cache/timeout duration hardcoded',
@@ -1613,28 +1620,28 @@ const ABSOLUTE_RULES = {
                 severity: 'ERROR'
             },
 
-            // Phone numbers
+            // ! Phone numbers
             {
                 regex: /['"](?:\+?[1-9]\d{1,14}|(?:\(\d{3}\)|\d{3})[-.\s]?\d{3}[-.\s]?\d{4})['"]/,
                 name: 'Phone number hardcoded',
                 severity: 'ERROR'
             },
 
-            // Credit card test numbers (common test patterns)
+            // ! Credit card test numbers (common test patterns)
             {
                 regex: /['"](?:4111111111111111|4000000000000002|5555555555554444|2223003122003222|378282246310005)['"]/,
                 name: 'Test credit card number (should use test data config)',
                 severity: 'WARNING'
             },
 
-            // Company/organization specific identifiers
+            // ! Company/organization specific identifiers
             {
                 regex: /['"](?:admin|administrator|root|superuser|sa|sysadmin)['"]/i,
                 name: 'Admin/root username hardcoded',
                 severity: 'ERROR'
             },
 
-            // Encryption/Hash related hardcoded values
+            // ! Encryption/Hash related hardcoded values
             {
                 regex: /['"][a-fA-F0-9]{32}['"]/,
                 name: 'MD5 hash or 32-char hex string',
@@ -1651,21 +1658,21 @@ const ABSOLUTE_RULES = {
                 severity: 'WARNING'
             },
 
-            // JWT tokens
+            // ! JWT tokens
             {
                 regex: /['"]eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*['"]/,
                 name: 'JWT token pattern',
                 severity: 'ERROR'
             },
 
-            // OAuth client secrets and IDs
+            // ! OAuth client secrets and IDs
             {
                 regex: /(?:client_secret|client_id|oauth_token)['"]?\s*[:=]\s*['"][a-zA-Z0-9_-]{20,}['"]/i,
                 name: 'OAuth client credentials',
                 severity: 'ERROR'
             },
 
-            // Webhook URLs
+            // ! Webhook URLs
             {
                 regex: /['"]https?:\/\/hooks?\.slack\.com\/[^'"]*['"]/i,
                 name: 'Slack webhook URL',
@@ -1677,7 +1684,7 @@ const ABSOLUTE_RULES = {
                 severity: 'ERROR'
             },
 
-            // Cloud service keys and identifiers
+            // ! Cloud service keys and identifiers
             {
                 regex: /['"]projects\/[a-zA-Z0-9-]+\/serviceAccounts\/[^'"]*['"]/i,
                 name: 'Google Cloud service account path',
@@ -1694,21 +1701,21 @@ const ABSOLUTE_RULES = {
                 severity: 'WARNING'
             },
 
-            // Hardcoded salts and initialization vectors
+            // ! Hardcoded salts and initialization vectors
             {
                 regex: /(?:salt|iv|nonce)['"]?\s*[:=]\s*['"][a-zA-Z0-9+\/]{8,}['"]/i,
                 name: 'Cryptographic salt/IV/nonce hardcoded',
                 severity: 'ERROR'
             },
 
-            // License keys
+            // ! License keys
             {
                 regex: /(?:license|serial|activation)['"]?\s*[:=]\s*['"][A-Z0-9-]{20,}['"]/i,
                 name: 'License/serial key pattern',
                 severity: 'ERROR'
             },
 
-            // Payment processor keys
+            // ! Payment processor keys
             {
                 regex: /(?:merchant|paypal|square)['"]?\s*[:=]\s*['"][a-zA-Z0-9_-]{16,}['"]/i,
                 name: 'Payment processor credential',
@@ -2617,8 +2624,10 @@ const ABSOLUTE_RULES = {
             /example\.com|example\.org/,
             /YOUR_API_KEY|REPLACE_ME|TODO|CHANGEME|dummy/i,
         ],
+// ! ======================================================================        
         violationExamples: {
             en: [
+// ! ======================================================================                
                 `// @example-for-rule NO_HARDCODE
                 // @type violation
                 // @matches-pattern HTTP/HTTPS URL hardcoded
@@ -2659,7 +2668,9 @@ const ABSOLUTE_RULES = {
                 // @matches-pattern Stripe Publishable Key
                 const STRIPE_KEY = "pk_live_AbCdEf123456";`
             ],
+// ! ======================================================================            
             th: [
+// ! ======================================================================                
                 `// @example-for-rule NO_HARDCODE
                 // @type violation
                 // @matches-pattern HTTP/HTTPS URL hardcoded
@@ -2709,8 +2720,10 @@ const ABSOLUTE_RULES = {
                 const STRIPE_KEY = "pk_live_AbCdEf123456";`
             ]
         },
+// ! ======================================================================
         correctExamples: {
             en: [
+// ! ======================================================================                
                 `// @example-for-rule NO_HARDCODE
                 // @type correct
                 const API_URL = process.env.API_URL || config.api.baseUrl;`,
@@ -2743,7 +2756,9 @@ const ABSOLUTE_RULES = {
                 // @type correct
                 const STRIPE_KEY = process.env.STRIPE_PUBLISHABLE_KEY;`
             ],
+// ! ======================================================================            
             th: [
+// ! ======================================================================
                 'const API_URL = process.env.API_URL || config.api.baseUrl; // จาก config',
                 'const apiKey = process.env.STRIPE_SECRET_KEY; // จาก environment variable',
                 'const dbPassword = process.env.DB_PASSWORD; // จาก environment',
@@ -2763,9 +2778,9 @@ const ABSOLUTE_RULES = {
     // ! ======================================================================
     },
 
-    // ! ======================================================================
-    // ! NO_SILENT_FALLBACKS - ห้ามใช้ Fallback ที่ซ่อนปัญหา (กฎเหล็กข้อที่ 3)
-    // ! ======================================================================
+// ! ======================================================================
+// ! NO_SILENT_FALLBACKS - ห้ามใช้ Fallback ที่ซ่อนปัญหา (กฎเหล็กข้อที่ 3)
+// ! ======================================================================
     NO_SILENT_FALLBACKS: {
         id: 'NO_SILENT_FALLBACKS',
         name: {
@@ -3083,7 +3098,8 @@ const ABSOLUTE_RULES = {
             12. "อะ! แต่มันแค่ rate limiting scenarios!"
                 → ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
                 → แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
-                → เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service โอเวอร์โหลด            // ! ======================================================================
+                → เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service โอเวอร์โหลด           
+            // ! ======================================================================
                  กฎทองสำหรับตรวจสอบ (ภาษาไทย):
             // ! ======================================================================
             ถ้า error/fallback เกิดขึ้นตอน 3 ทุ่มวันอาทิตย์ และไม่มีคน on-call ได้รับ notification
@@ -3093,11 +3109,13 @@ const ABSOLUTE_RULES = {
             ห้าม SILENT FAILURES - FAIL LOUD หรือไม่ต้อง FAIL`
 
         },
+// ! ======================================================================        
         violationExamples: [],
         correctExamples: [],
         patterns: [
+// ! ======================================================================            
             // ═══════════════════════════════════════════════════════════════════
-            // || OPERATOR SILENT FALLBACKS - จับ || ที่ซ่อน error
+            // ! || OPERATOR SILENT FALLBACKS - จับ || ที่ซ่อน error
             // ═══════════════════════════════════════════════════════════════════
             { regex: /\|\|\s*(?:null|undefined)\b/, name: '|| null/undefined fallback', severity: 'ERROR' },
             { regex: /\|\|\s*\[\]/, name: '|| empty array fallback', severity: 'ERROR' },
@@ -3107,7 +3125,7 @@ const ABSOLUTE_RULES = {
             { regex: /\|\|\s*\w+Default\w*/, name: '|| defaultValue pattern', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // ?? NULLISH COALESCING - จับ ?? ที่ซ่อนปัญหา
+            // ! ?? NULLISH COALESCING - จับ ?? ที่ซ่อนปัญหา
             // ═══════════════════════════════════════════════════════════════════
             { regex: /\?\?\s*(?:null|undefined)\b/, name: '?? null/undefined coalescing', severity: 'ERROR' },
             { regex: /\?\?\s*\[\]/, name: '?? empty array coalescing', severity: 'ERROR' },
@@ -3116,20 +3134,20 @@ const ABSOLUTE_RULES = {
             { regex: /\?\?\s*\w+Default\w*/, name: '?? defaultValue coalescing', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // TERNARY OPERATOR HIDING ERRORS - จับ ternary ที่ซ่อน error
+            // ! TERNARY OPERATOR HIDING ERRORS - จับ ternary ที่ซ่อน error
             // ═══════════════════════════════════════════════════════════════════
             { regex: /\?\s*(?:null|undefined|\[\]|\{\})\s*:\s*\w+/, name: 'Ternary with silent null fallback', severity: 'WARNING' },
             { regex: /\w+\s*\?\s*\w+\s*:\s*(?:null|undefined|\[\]|\{\})/, name: 'Ternary with silent default', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // OPTIONAL CHAINING HIDING UNDEFINED - จับ ?. ที่อาจซ่อนปัญหา
+            // ! OPTIONAL CHAINING HIDING UNDEFINED - จับ ?. ที่อาจซ่อนปัญหา
             // ═══════════════════════════════════════════════════════════════════
             { regex: /\?\.\w+\s*\|\|/, name: 'Optional chaining with || fallback', severity: 'WARNING' },
             { regex: /\?\.\w+\s*\?\?/, name: 'Optional chaining with ?? fallback', severity: 'WARNING' },
             { regex: /\?\.\w+\([^)]*\)\s*\|\|/, name: 'Optional method call with || fallback', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // PROMISE .catch() RETURNING DEFAULTS - จับ Promise catch ที่ไม่ log
+            // ! PROMISE .catch() RETURNING DEFAULTS - จับ Promise catch ที่ไม่ log
             // ═══════════════════════════════════════════════════════════════════
             { regex: /\.catch\s*\(\s*\(\s*\)\s*=>\s*(?:null|undefined|\[\]|\{\})\s*\)/, name: 'Promise.catch returning default without logging', severity: 'ERROR' },
             { regex: /\.catch\s*\(\s*\w+\s*=>\s*(?:null|undefined|\[\]|\{\})\s*\)/, name: 'Promise.catch silently swallowing error', severity: 'ERROR' },
@@ -3137,35 +3155,35 @@ const ABSOLUTE_RULES = {
             { regex: /\.catch\s*\(\s*\(\s*\)\s*=>\s*\w+Default\w*\s*\)/, name: 'Promise.catch returning default value', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // ASYNC/AWAIT WITHOUT TRY-CATCH - จับ async ที่ไม่มี error handling
+            // ! ASYNC/AWAIT WITHOUT TRY-CATCH - จับ async ที่ไม่มี error handling
             // ═══════════════════════════════════════════════════════════════════
             { regex: /async\s+function[^{]*\{(?:(?!try)(?!catch).)*await[\s\S]*?\}(?!\s*\.catch)/, name: 'async function with await but no try-catch', severity: 'ERROR' },
             { regex: /async\s*\([^)]*\)\s*=>\s*\{(?:(?!try)(?!catch).)*await/, name: 'async arrow function without try-catch', severity: 'ERROR' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // EMPTY CATCH BLOCKS - จับ catch ที่ว่างเปล่า (จะถูกเช็คใน checkCatchBlocks)
+            // ! EMPTY CATCH BLOCKS - จับ catch ที่ว่างเปล่า (จะถูกเช็คใน checkCatchBlocks)
             // ═══════════════════════════════════════════════════════════════════
             { regex: /catch\s*\(\s*\w*\s*\)\s*\{\s*\}/, name: 'Empty catch block (worst practice)', severity: 'ERROR' },
             { regex: /catch\s*\(\s*\w+\s*\)\s*\{\s*return\s+(?:null|undefined|\[\]|\{\}|false|0|['"][^'"]*['"])\s*;?\s*\}/, name: 'Catch block only returning default', severity: 'ERROR' },
             { regex: /catch\s*\(\s*\w+\s*\)\s*\{\s*\/\//, name: 'Catch block with only comments', severity: 'ERROR' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // TRY-CATCH WITHOUT PROPER HANDLING - จับ try-catch ที่ไม่มี log/throw
+            // ! TRY-CATCH WITHOUT PROPER HANDLING - จับ try-catch ที่ไม่มี log/throw
             // ═══════════════════════════════════════════════════════════════════
             { regex: /catch\s*\(\s*\w+\s*\)\s*\{(?:(?!logger)(?!console\.error)(?!console\.warn)(?!throw).)*\}/, name: 'Catch block without logging or throwing', severity: 'ERROR' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // .then() WITHOUT .catch() - จับ Promise chain ที่ไม่มี catch
+            // ! .then() WITHOUT .catch() - จับ Promise chain ที่ไม่มี catch
             // ═══════════════════════════════════════════════════════════════════
             { regex: /\.then\s*\([^)]*\)(?:\s*\.then\s*\([^)]*\))*\s*;/, name: 'Promise.then() without .catch()', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // DEFAULT PARAMETERS HIDING VALIDATION - จับ default param ที่อาจปัญหา
+            // ! DEFAULT PARAMETERS HIDING VALIDATION - จับ default param ที่อาจปัญหา
             // ═══════════════════════════════════════════════════════════════════
             { regex: /function\s+\w+\s*\([^)]*=\s*(?:\[\]|\{\}|null)[^)]*\)/, name: 'Default parameters may hide validation', severity: 'WARNING' },
 
             // ═══════════════════════════════════════════════════════════════════
-            // SILENT ERROR VARIABLE NAMES - จับชื่อตัวแปรที่บอกว่า ignore error
+            // ! SILENT ERROR VARIABLE NAMES - จับชื่อตัวแปรที่บอกว่า ignore error
             // ═══════════════════════════════════════════════════════════════════
             { regex: /catch\s*\(\s*_(?:error|err|e)?\s*\)/, name: 'Catch with _ (ignoring error intentionally)', severity: 'ERROR' },
             { regex: /catch\s*\(\s*ignore[dD]?\s*\)/, name: 'Catch with "ignored" variable name', severity: 'ERROR' },
@@ -3294,11 +3312,13 @@ const ABSOLUTE_RULES = {
             { regex: /\(err,\s*req,\s*res,\s*next\)\s*=>\s*\{\s*res\.(send|json)/, name: 'Express error middleware without logging', severity: 'WARNING' },
             { regex: /app\.use\s*\(\s*async.*?catch.*?\{\s*\}/, name: 'Empty catch in Express middleware', severity: 'ERROR' },
         ],
+// ! ======================================================================        
         severity: 'ERROR',
         mustInclude: ['throw', 'logger', 'console.error', 'log.error', 'console.warn'],
         checkCatchBlocks: true,
         violationExamples: {
             en: [
+// ! ======================================================================                
                 `// @example-for-rule NO_SILENT_FALLBACKS
                 // @type violation
                 // @description Try-catch with silent return
@@ -3319,8 +3339,11 @@ const ABSOLUTE_RULES = {
                 // @type violation
                 // @description async function with await but no try-catch
                 async function getData() { await Promise.resolve(1); }`
+
+// ! ======================================================================
             ],
             th: [
+// ! ======================================================================                
                 `// @example-for-rule NO_SILENT_FALLBACKS
                 // @type violation
                 // @matches-pattern Try-catch with silent return
@@ -3370,8 +3393,10 @@ const ABSOLUTE_RULES = {
                 async function getData() { await apiCall(); }`
             ]
         },
-        correctExamples: {
+// ! ======================================================================        
+        correctExamples: {       
             en: [
+// ! ======================================================================                
                 `// @example-for-rule NO_SILENT_FALLBACKS
                 // @type correct
                 try { riskyOperation(); } catch(e) { logger.error("Operation failed:", e); throw e; }`,
@@ -3404,7 +3429,9 @@ const ABSOLUTE_RULES = {
                 // @type correct
                 async function getData() { try { return await apiCall(); } catch(e) { logger.error("API call failed:", e); throw e; } }`
             ],
+// ! ======================================================================            
             th: [
+// ! ======================================================================                
                 `// @example-for-rule NO_SILENT_FALLBACKS
                 // @type correct
                 try { riskyOperation(); } catch(e) { logger.error("Operation failed:", e); throw e; }`,
@@ -3447,9 +3474,9 @@ const ABSOLUTE_RULES = {
     // ! ======================================================================
     },
 
-    // ! ======================================================================
-    // ! NO_INTERNAL_CACHING - ห้ามสร้าง Cache ภายในฟังก์ชัน (กฎเหล็กข้อที่ 4)
-    // ! ======================================================================
+// ! ======================================================================
+// ! NO_INTERNAL_CACHING - ห้ามสร้าง Cache ภายในฟังก์ชัน (กฎเหล็กข้อที่ 4)
+// ! ======================================================================
     NO_INTERNAL_CACHING: {
         id: 'NO_INTERNAL_CACHING',
         name: {
@@ -3551,7 +3578,9 @@ const ABSOLUTE_RULES = {
             const user = await cachedGetUserProfile(123, database);
 
             ZERO TOLERANCE: No Map(), WeakMap(), object literals ({}), arrays ([]), class properties (this.cache), closure variables, memoization, or any form of internal state storage for caching purposes.`,
+// ! ======================================================================
             th: `
+// ! ======================================================================            
             // ! ======================================================================            
                  ปรัชญาที่เด็ดขาด: "Cache คือสถานะ และสถานะคือศัตรูของความน่าเชื่อถือ"
             // ! ======================================================================
@@ -3808,9 +3837,11 @@ const ABSOLUTE_RULES = {
             ห้าม INTERNAL STATE - PURE FUNCTIONS เท่านั้น`
 
         },
+// ! ======================================================================        
         violationExamples: [],
         correctExamples: [],
         patterns: [
+// ! ======================================================================            
             // ═══════════════════════════════════════════════════════════════════
             // CACHE VARIABLE DECLARATIONS - จับการประกาศตัวแปร cache ที่ชัดเจน
             // ปรับปรุง: เน้นจับ pattern ที่มีการใช้งาน cache จริงๆ ไม่ใช่แค่ชื่อ
@@ -4081,8 +4112,11 @@ const ABSOLUTE_RULES = {
             // Asset caching
             { regex: /assetCache|asset_cache|resourceCache|resource_cache/i, name: 'asset/resource caching', severity: 'WARNING' }
         ],
+
         severity: 'WARNING',
+// ! ======================================================================        
         violationExamples: {
+// ! ======================================================================            
             en: [
                 `// @example-for-rule NO_INTERNAL_CACHING
                 // @type violation
@@ -4112,7 +4146,9 @@ const ABSOLUTE_RULES = {
                 // @description useMemo() - React internal memoization
                 const memoizedValue = useMemo(() => expensiveCalculation(), [deps]);`
             ],
+// ! ======================================================================            
             th: [
+// ! ======================================================================                
                 `// @example-for-rule NO_INTERNAL_CACHING
                 // @type violation
                 // @matches-pattern cache variable with Map/Object/Array
@@ -4183,7 +4219,9 @@ const ABSOLUTE_RULES = {
                 const stored = useSWR(key, fetcher);`
             ]
         },
+// ! ======================================================================       
         correctExamples: {
+// ! ======================================================================           
             en: [
                 `// @example-for-rule NO_INTERNAL_CACHING
                 // @type correct
@@ -4252,7 +4290,9 @@ const ABSOLUTE_RULES = {
                     return api.get(key); 
                 }`
             ],
+// ! ======================================================================            
             th: [
+// ! ======================================================================                
                 `// @example-for-rule NO_INTERNAL_CACHING
                 // @type correct
                 // @matches-pattern pure function without cache
@@ -4326,10 +4366,9 @@ const ABSOLUTE_RULES = {
             th: 'ลบ cache ภายใน ให้ผู้เรียกใช้จัดการ cache จากภายนอกด้วย Redis, Memcached หรือ caching decorator'
         }
     },
-
-    // ! ======================================================================
-    // ! NO_EMOJI - ห้ามใช้อิโมจิในโค้ด (กฎเหล็กข้อที่ 5)
-    // ! ======================================================================
+// ! ======================================================================
+// ! NO_EMOJI - ห้ามใช้อิโมจิในโค้ด (กฎเหล็กข้อที่ 5)
+// ! ======================================================================
     NO_EMOJI: {
         id: 'NO_EMOJI',
         name: {
@@ -4648,8 +4687,8 @@ const ABSOLUTE_RULES = {
 
             5. "เฮ้ย! แต่มันแค่ priority levels!"
                → ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
-   → แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
-   → เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
+               → แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
+               → เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
 
             6. "อะ! แต่มันแค่ user-facing strings!"
                → ไม่ยอมรับ! User-facing content ต้อง properly internationalized
@@ -4702,8 +4741,11 @@ const ABSOLUTE_RULES = {
 
             ไม่มี "แต่มันดูน่ารัก" หรือ "ทำให้ code สนุก" - CODE คือ BUSINESS DOCUMENTATION
             ห้าม EMOJI - PROFESSIONAL CODE เท่านั้น`
+
         },
+// ! ======================================================================        
         patterns: [
+// ! ======================================================================            
             // ═══════════════════════════════════════════════════════════════════
             // CORE EMOJI RANGES (Unicode 15.1+) - จับอิโมจิหลักทุกตัว
             // ═══════════════════════════════════════════════════════════════════
@@ -4897,9 +4939,9 @@ const ABSOLUTE_RULES = {
             { regex: '[\\u{1F3AF}]', flags: 'gu', name: 'Direct hit (U+1F3AF) - use "TARGET"', severity: 'ERROR' },
         ],
         severity: 'ERROR',
-        // ! ======================================================================
-        // ! violationExamples - ตัวอย่างการละเมิดกฎ NO_EMOJI
-        // ! ======================================================================
+// ! ======================================================================
+// ! violationExamples - ตัวอย่างการละเมิดกฎ NO_EMOJI
+// ! ======================================================================
         violationExamples: {
             // ! ======================================================================
             // ! English violation examples
@@ -5143,7 +5185,7 @@ const ABSOLUTE_RULES = {
 // ! END OF NO_EMOJI Rule Definition
 // ! ======================================================================
 
-// ======================================================================
-// MODULE EXPORTS - ส่งออกข้อมูลกฎเท่านั้น (เป็นหนังสือให้อ่าน)
-// ======================================================================
+// ! ======================================================================
+// ! MODULE EXPORTS - ส่งออกข้อมูลกฎเท่านั้น (เป็นหนังสือให้อ่าน)
+// ! ======================================================================
 export { ABSOLUTE_RULES };
