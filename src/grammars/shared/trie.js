@@ -73,11 +73,12 @@ export class Trie {
     /**
      * ! Search for a word in the trie
      * ! @param {string} word - The word to search
-     * ! @returns {any|null} - Associated data if found, null otherwise
+     * ! @returns {any|undefined} - Associated data if found, undefined otherwise
      */
     search(word) {
         const node = this._searchNode(word);
-        return node?.isEndOfWord ? node.data : null;
+        // !  NO_SILENT_FALLBACKS: คืน undefined แทน null (JavaScript convention)
+        return node?.isEndOfWord ? node.data : undefined;
     }
 
     /**

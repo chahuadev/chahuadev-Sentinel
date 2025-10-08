@@ -112,6 +112,10 @@ export class GrammarIndex {
 
         // !  Build all indexes
         this._buildIndexes();
+        
+        // WHY: Debug logging to verify Trie was built correctly
+        console.log(` GrammarIndex built: ${this.operatorTrie.size} operators in Trie`);
+        console.log(`   Trie root children:`, Array.from(this.operatorTrie.root.children.keys()).slice(0, 20).join(', '));
     }
 
     // !  ===========================================================================
@@ -220,12 +224,15 @@ export class GrammarIndex {
 
             // !  Assignment operators
             if (grammar.operators.assignmentOperators) {
+                let count = 0;
                 for (const [op, data] of Object.entries(grammar.operators.assignmentOperators)) {
                     if (!this.operatorMap.has(op)) {
                         this.operatorMap.set(op, data);
                     }
                     this.operatorTrie.insert(op, { ...data, type: 'assignment' });
+                    count++;
                 }
+                console.log(` Built ${count} assignment operators in Trie (including '=')`);
             }
         }
 
@@ -352,6 +359,13 @@ export class GrammarIndex {
     findLongestOperator(input, position = 0) {
         const match = this.operatorTrie.findLongestMatch(input, position);
 
+        // WHY: Debug logging to see why operators are not found
+        if (!match) {
+            const char = input[position];
+            const next5 = input.substring(position, position + 5);
+            console.log(`findLongestOperator FAILED: char="${char}" context="${next5}" position=${position}`);
+        }
+
         if (!match) {
             // !  NO_SILENT_FALLBACKS: คืน Object ที่มีสถานะชัดเจนแทน null
             return {
@@ -376,17 +390,28 @@ export class GrammarIndex {
      * ! Find longest matching punctuation from input
      * ! @param {string} input - Input string
      * ! @param {number} position - Start position
-     * ! @returns {{punctuation: string, data: any, length: number}|null}
+     * ! @returns {{found: boolean, punctuation: string|null, data: any, length: number, position: number}}
      */
     findLongestPunctuation(input, position = 0) {
         const match = this.punctuationTrie.findLongestMatch(input, position);
 
-        if (!match) return null;
+        if (!match) {
+            // !  NO_SILENT_FALLBACKS: คืน Object ที่มีสถานะชัดเจนแทน null
+            return {
+                found: false,
+                punctuation: null,
+                data: null,
+                length: 0,
+                position: position
+            };
+        }
 
         return {
+            found: true,
             punctuation: match.word,
             data: match.data,
-            length: match.length
+            length: match.length,
+            position: position
         };
     }
 
@@ -394,12 +419,6 @@ export class GrammarIndex {
     // !   ! Prefix Search Operations (O(m + k))
     // !  ===========================================================================
 
-    /**
-     * ! Find all keywords starting with prefix (for autocomplete)
-     * ! 
-     * ! @param {string} prefix - Prefix to search
-     * ! @returns {Array<{keyword: string, data: any}>}
-     */
     findKeywordsByPrefix(prefix) {
         return this.keywordTrie.findWordsWithPrefix(prefix).map(result => ({
             keyword: result.word,
@@ -423,23 +442,23 @@ export class GrammarIndex {
     // !  Fuzzy Search Operations (O(n * m))
     // !  ===========================================================================
 
-    /**
-     * ! Find closest keyword match (for typo suggestions)
-     * ! 
-     * ! Example:
-     * ! findClosestKeyword('functoin')  { keyword: 'function', distance: 2 }
-     * ! 
-     * ! @param {string} input - Possibly misspelled input
-     * ! @param {number} maxDistance - Maximum edit distance (default: 3)
-     * ! @returns {{keyword: string, distance: number, similarity: number}|null}
-     */
     findClosestKeyword(input, maxDistance = GRAMMAR_CONFIG.maxDistance) {
         const candidates = Array.from(this.keywordSet);
         const result = findClosestMatch(input, candidates, maxDistance);
 
-        if (!result) return null;
+        if (!result.found) {
+            // !  NO_SILENT_FALLBACKS: คืน Object ที่มีสถานะชัดเจนแทน null
+            return {
+                found: false,
+                keyword: null,
+                distance: maxDistance + 1,
+                similarity: 0,
+                data: null
+            };
+        }
 
         return {
+            found: true,
             keyword: result.match,
             distance: result.distance,
             similarity: result.similarity,
@@ -449,13 +468,6 @@ export class GrammarIndex {
 
     /**
      * ! Find typo suggestions for invalid keyword
-     * ! 
-     * ! Example:
-     * ! suggestKeyword('functoin')  [
-     * !   { keyword: 'function', distance: 2 },
-     * !   { keyword: 'const', distance: 5 }
-     * ! ]
-     * ! 
      * ! @param {string} input - Possibly misspelled input
      * ! @param {number} maxSuggestions - Maximum suggestions (default: 3)
      * ! @returns {Array<{keyword: string, distance: number}>}

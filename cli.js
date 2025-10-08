@@ -24,6 +24,7 @@ const cliConfig = JSON.parse(
 class ChahuadevCLI {
     constructor() {
         this.engine = null;
+        this.config = cliConfig; // WHY: Store config reference for use in methods (NO_HARDCODE)
         this.stats = {
             totalFiles: 0,
             totalViolations: 0,
@@ -148,7 +149,18 @@ ${cliConfig.helpText.footer}`);
      */
     async findFilesRecursive(pattern) {
         const results = [];
-        const extensions = ['.js', '.ts', '.jsx', '.tsx'];
+        
+        // WHY: Read from config (NO_HARDCODE compliance)
+        // NO_SILENT_FALLBACKS: Config MUST exist - no defaults allowed
+        const extensions = this.config.fileExtensions;
+        
+        if (!extensions || !Array.isArray(extensions) || extensions.length === 0) {
+            throw new Error(
+                'Configuration error: fileExtensions is required in cli-config.json\n' +
+                'Expected: { "fileExtensions": [".js", ".ts", ".jsx", ".tsx"] }\n' +
+                'NO_HARDCODE: We cannot use hardcoded defaults.'
+            );
+        }
         
         const scanDirectory = (dir) => {
             try {

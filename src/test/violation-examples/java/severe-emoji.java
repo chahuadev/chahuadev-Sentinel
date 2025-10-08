@@ -15,72 +15,72 @@ import java.util.concurrent.ConcurrentHashMap;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 @interface EmojiConfig {
-    String successIcon() default "✅";
-    String errorIcon() default "❌";
-    String warningIcon() default "⚠️";
-    String infoIcon() default "ℹ️";
-    String[] statusEmojis() default {"🟢", "🟡", "🔴", "⚪"};
+    String successIcon() default "";
+    String errorIcon() default "";
+    String warningIcon() default "";
+    String infoIcon() default "ℹ";
+    String[] statusEmojis() default {"", "", "", ""};
 }
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @interface LogWithEmoji {
-    String prefix() default "🔍";
-    String suffix() default "📝";
+    String prefix() default "";
+    String suffix() default "";
     boolean includeTimestamp() default true;
 }
 
 // CRITICAL: Service class with emoji annotations
 @EmojiConfig(
-    successIcon = "🎉",
-    errorIcon = "💥", 
-    warningIcon = "🚨",
-    infoIcon = "💡",
-    statusEmojis = {"🚀", "⏳", "💀", "🎯"}
+    successIcon = "",
+    errorIcon = "", 
+    warningIcon = "",
+    infoIcon = "",
+    statusEmojis = {"", "", "", ""}
 )
 public class SevereEmojiViolations {
     
     // VIOLATION 2: Emoji Constants and Static Fields
     public static class EmojiConstants {
         // CRITICAL: Comprehensive emoji constant definitions
-        public static final String SUCCESS = "✅";
-        public static final String FAILURE = "❌";
-        public static final String WARNING = "⚠️";
-        public static final String INFO = "ℹ️";
-        public static final String LOADING = "⏳";
-        public static final String COMPLETE = "✨";
-        public static final String ERROR = "💥";
-        public static final String FIRE = "🔥";
-        public static final String ROCKET = "🚀";
-        public static final String TARGET = "🎯";
+        public static final String SUCCESS = "";
+        public static final String FAILURE = "";
+        public static final String WARNING = "";
+        public static final String INFO = "ℹ";
+        public static final String LOADING = "";
+        public static final String COMPLETE = "";
+        public static final String ERROR = "";
+        public static final String FIRE = "";
+        public static final String ROCKET = "";
+        public static final String TARGET = "";
         
         // CRITICAL: Status indicator emojis
         public static final Map<String, String> STATUS_INDICATORS = Map.of(
-            "ONLINE", "🟢",
-            "OFFLINE", "🔴", 
-            "PENDING", "🟡",
-            "UNKNOWN", "⚪",
-            "MAINTENANCE", "🔧"
+            "ONLINE", "",
+            "OFFLINE", "", 
+            "PENDING", "",
+            "UNKNOWN", "",
+            "MAINTENANCE", ""
         );
         
         // CRITICAL: Reaction emojis for user interactions
         public static final List<String> REACTION_EMOJIS = Arrays.asList(
-            "👍", "👎", "❤️", "😂", "😮", "😢", "😡"
+            "", "", "", "", "", "", ""
         );
         
         // CRITICAL: Progress indicators using emoji
         public static final String[] PROGRESS_STEPS = {
-            "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣",
-            "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"
+            "1", "2", "3", "4", "5",
+            "6", "7", "8", "9", ""
         };
         
         // CRITICAL: Unicode code point arrays (hidden emoji)
         public static final int[] CELEBRATION_CODEPOINTS = {
-            0x1F389, // 🎉 Party Popper
-            0x1F38A, // 🎊 Confetti Ball  
-            0x1F973, // 🥳 Partying Face
-            0x1F386, // 🎆 Fireworks
-            0x1F387  // 🎇 Sparkler
+            0x1F389, //  Party Popper
+            0x1F38A, //  Confetti Ball  
+            0x1F973, //  Partying Face
+            0x1F386, //  Fireworks
+            0x1F387  //  Sparkler
         };
     }
     
@@ -88,15 +88,15 @@ public class SevereEmojiViolations {
     public static class NotificationService {
         private final Map<String, String> userPreferences = new ConcurrentHashMap<>();
         
-        @LogWithEmoji(prefix = "📨", suffix = "📮")
+        @LogWithEmoji(prefix = "", suffix = "")
         public String sendNotification(String userId, String message, String type) {
             String emoji = getEmojiForType(type);
             String formattedMessage = String.format("%s %s %s", emoji, message, emoji);
             
-            System.out.println("📤 Sending notification: " + formattedMessage);
+            System.out.println(" Sending notification: " + formattedMessage);
             
             // CRITICAL: Business logic that depends on emoji  
-            if (message.contains("🎉") || message.contains("🎊")) {
+            if (message.contains("") || message.contains("")) {
                 // Special handling for celebration messages
                 return processCelebrationMessage(userId, formattedMessage);
             }
@@ -106,33 +106,33 @@ public class SevereEmojiViolations {
         
         private String getEmojiForType(String type) {
             switch (type.toUpperCase()) {
-                case "SUCCESS": return "🎉";
-                case "ERROR": return "💥";
-                case "WARNING": return "⚠️"; 
-                case "INFO": return "💡";
-                case "CELEBRATION": return "🥳";
-                default: return "📢";
+                case "SUCCESS": return "";
+                case "ERROR": return "";
+                case "WARNING": return ""; 
+                case "INFO": return "";
+                case "CELEBRATION": return "";
+                default: return "";
             }
         }
         
         private String processCelebrationMessage(String userId, String message) {
             // CRITICAL: Celebration-specific logic based on emoji content
-            String celebrationEmoji = "🎊";
+            String celebrationEmoji = "";
             String enhancedMessage = celebrationEmoji + " SPECIAL CELEBRATION " + celebrationEmoji + "\n" + message;
             
             // Add confetti effect indicators
-            enhancedMessage += "\n" + "🎆".repeat(5);
+            enhancedMessage += "\n" + "".repeat(5);
             
             return enhancedMessage;
         }
         
-        @LogWithEmoji(prefix = "📊", suffix = "📈")
+        @LogWithEmoji(prefix = "", suffix = "")
         public Map<String, Integer> getEmojiUsageStatistics() {
             Map<String, Integer> stats = new HashMap<>();
             
             // CRITICAL: Emoji analytics and counting
-            String[] commonEmojis = {"😀", "😃", "😄", "😁", "😅", "😂", "🤣", 
-                                   "😊", "😇", "🙂", "😉", "😌", "😍", "🥰", "😘"};
+            String[] commonEmojis = {"", "", "", "", "", "", "", 
+                                   "", "", "", "", "", "", "", ""};
             
             for (String emoji : commonEmojis) {
                 stats.put(emoji, (int) (Math.random() * 100));
@@ -146,11 +146,11 @@ public class SevereEmojiViolations {
     public static class UserInterfaceManager {
         
         public enum ComponentState {
-            ACTIVE("🟢 Active"),
-            INACTIVE("🔴 Inactive"), 
-            LOADING("🟡 Loading"),
-            ERROR("💥 Error"),
-            SUCCESS("✅ Success");
+            ACTIVE(" Active"),
+            INACTIVE(" Inactive"), 
+            LOADING(" Loading"),
+            ERROR(" Error"),
+            SUCCESS(" Success");
             
             private final String displayText;
             
@@ -181,7 +181,7 @@ public class SevereEmojiViolations {
         // CRITICAL: Dashboard with emoji-based indicators
         public String createDashboard(Map<String, ComponentState> components) {
             StringBuilder dashboard = new StringBuilder();
-            dashboard.append("🖥️ SYSTEM DASHBOARD 🖥️\n");
+            dashboard.append(" SYSTEM DASHBOARD \n");
             dashboard.append("=" .repeat(50)).append("\n");
             
             components.forEach((name, state) -> {
@@ -189,7 +189,7 @@ public class SevereEmojiViolations {
             });
             
             dashboard.append("=" .repeat(50)).append("\n");
-            dashboard.append("📊 Summary: ").append(generateSummaryEmoji(components)).append("\n");
+            dashboard.append(" Summary: ").append(generateSummaryEmoji(components)).append("\n");
             
             return dashboard.toString();
         }
@@ -203,22 +203,22 @@ public class SevereEmojiViolations {
                 .filter(state -> state == ComponentState.ACTIVE)
                 .count();
             
-            if (errorCount > 0) return "🚨 Issues Detected";
-            if (activeCount == components.size()) return "🎯 All Systems Operational";
-            return "⚠️ Mixed Status";
+            if (errorCount > 0) return " Issues Detected";
+            if (activeCount == components.size()) return " All Systems Operational";
+            return " Mixed Status";
         }
         
         // CRITICAL: Button generation with emoji labels
         public List<String> generateActionButtons(String context) {
             Map<String, String> buttonConfigs = Map.of(
-                "save", "💾 Save Changes",
-                "delete", "🗑️ Delete Item",
-                "edit", "✏️ Edit Content", 
-                "refresh", "🔄 Refresh Data",
-                "export", "📤 Export Data",
-                "import", "📥 Import Data",
-                "settings", "⚙️ Settings",
-                "help", "❓ Help & Support"
+                "save", " Save Changes",
+                "delete", " Delete Item",
+                "edit", " Edit Content", 
+                "refresh", " Refresh Data",
+                "export", " Export Data",
+                "import", " Import Data",
+                "settings", " Settings",
+                "help", " Help & Support"
             );
             
             return buttonConfigs.entrySet().stream()
@@ -260,14 +260,14 @@ public class SevereEmojiViolations {
         // CRITICAL: Replace emojis with descriptions
         public String replaceEmojisWithText(String input) {
             Map<String, String> emojiDescriptions = Map.of(
-                "😀", "[GRINNING_FACE]",
-                "😂", "[FACE_WITH_TEARS_OF_JOY]", 
-                "❤️", "[RED_HEART]",
-                "👍", "[THUMBS_UP]",
-                "🔥", "[FIRE]",
-                "💯", "[HUNDRED_POINTS]",
-                "🎉", "[PARTY_POPPER]",
-                "✅", "[CHECK_MARK_BUTTON]"
+                "", "[GRINNING_FACE]",
+                "", "[FACE_WITH_TEARS_OF_JOY]", 
+                "", "[RED_HEART]",
+                "", "[THUMBS_UP]",
+                "", "[FIRE]",
+                "", "[HUNDRED_POINTS]",
+                "", "[PARTY_POPPER]",
+                "", "[CHECK_MARK_BUTTON]"
             );
             
             String result = input;
@@ -291,8 +291,8 @@ public class SevereEmojiViolations {
         
         public String generateRandomEmojiSequence(int length) {
             String[] randomEmojis = {
-                "🎲", "🎯", "🎪", "🎨", "🎭", "🎮", "🎰", "🎳", 
-                "🏀", "🏈", "⚽", "🎾", "🏐", "🏉", "🎱", "🏓"
+                "", "", "", "", "", "", "", "", 
+                "", "", "", "", "", "", "", ""
             };
             
             StringBuilder sequence = new StringBuilder();
@@ -311,24 +311,24 @@ public class SevereEmojiViolations {
             List<String> emojis = extractEmojis(message);
             
             if (emojis.isEmpty()) {
-                return "😐 Neutral";
+                return " Neutral";
             }
             
             // Count positive vs negative emojis
             long positiveCount = emojis.stream()
-                .filter(emoji -> "😀😃😄😁😊😍🥰😘😂🤣👍✅🎉🎊💕❤️🔥💯".contains(emoji))
+                .filter(emoji -> "".contains(emoji))
                 .count();
             
             long negativeCount = emojis.stream()
-                .filter(emoji -> "😢😭😞😔😟😕🙁☹️😩😫😤😡🤬👎❌💔".contains(emoji))
+                .filter(emoji -> "".contains(emoji))
                 .count();
             
             if (positiveCount > negativeCount) {
-                return "😊 Positive (" + positiveCount + " positive emojis)";
+                return " Positive (" + positiveCount + " positive emojis)";
             } else if (negativeCount > positiveCount) {
-                return "😞 Negative (" + negativeCount + " negative emojis)";
+                return " Negative (" + negativeCount + " negative emojis)";
             } else {
-                return "😐 Mixed (" + positiveCount + " pos, " + negativeCount + " neg)";
+                return " Mixed (" + positiveCount + " pos, " + negativeCount + " neg)";
             }
         }
     }
@@ -343,14 +343,14 @@ public class SevereEmojiViolations {
         
         // CRITICAL: Configuration keys using emojis
         private void initializeEmojiConfig() {
-            emojiBasedConfig.put("🔧_max_connections", 100);
-            emojiBasedConfig.put("⏱️_timeout_seconds", 30);
-            emojiBasedConfig.put("🔒_security_level", "HIGH");
-            emojiBasedConfig.put("📊_enable_analytics", true);
-            emojiBasedConfig.put("🎨_theme_color", "#FF5733");
-            emojiBasedConfig.put("🌍_default_language", "en");
-            emojiBasedConfig.put("📧_email_notifications", true);
-            emojiBasedConfig.put("🔔_push_notifications", false);
+            emojiBasedConfig.put("_max_connections", 100);
+            emojiBasedConfig.put("_timeout_seconds", 30);
+            emojiBasedConfig.put("_security_level", "HIGH");
+            emojiBasedConfig.put("_enable_analytics", true);
+            emojiBasedConfig.put("_theme_color", "#FF5733");
+            emojiBasedConfig.put("_default_language", "en");
+            emojiBasedConfig.put("_email_notifications", true);
+            emojiBasedConfig.put("_push_notifications", false);
         }
         
         @SuppressWarnings("unchecked")
@@ -373,7 +373,7 @@ public class SevereEmojiViolations {
         // CRITICAL: Generate configuration report with emojis
         public String generateConfigReport() {
             StringBuilder report = new StringBuilder();
-            report.append("⚙️ SYSTEM CONFIGURATION REPORT ⚙️\n");
+            report.append(" SYSTEM CONFIGURATION REPORT \n");
             report.append("═".repeat(50)).append("\n");
             
             emojiBasedConfig.forEach((key, value) -> {

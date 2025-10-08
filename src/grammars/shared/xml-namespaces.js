@@ -75,17 +75,30 @@ export const NAMESPACE_SOURCES = {
  * @param {string} elementName - The element name to look up
  * @returns {object|null} Namespace object or null if not found
  */
+/**
+ * Get namespace info for an element name
+ * @param {string} elementName - The element name to lookup
+ * @returns {{found: boolean, name: string|null, elements: Array|null, source: Object|null}} Namespace info
+ */
 export function getNamespaceForElement(elementName) {
     for (const [namespaceName, namespace] of Object.entries(XML_NAMESPACES)) {
         if (namespace.elements.includes(elementName)) {
             return {
+                found: true,
                 name: namespaceName,
                 ...namespace,
                 source: NAMESPACE_SOURCES[namespaceName]
             };
         }
     }
-    return null;
+    
+    // !  NO_SILENT_FALLBACKS: คืน Object ที่มีสถานะชัดเจนแทน null
+    return {
+        found: false,
+        name: null,
+        elements: null,
+        source: null
+    };
 }
 
 /**

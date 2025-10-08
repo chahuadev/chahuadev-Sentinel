@@ -178,7 +178,7 @@ class GrammarSearchProxy {
             }
         } catch (error) {
             console.error(`ERROR: Failed to request grammar ${language}:`, error.message);
-            throw error; // Don't return null - throw error to caller
+            throw error; 
         }
     }
 
@@ -207,8 +207,9 @@ class GrammarSearchProxy {
                 throw error;
             }
         } catch (error) {
+            // !  NO_SILENT_FALLBACKS: FAIL LOUD - throw error instead of returning null
             console.error(` Keyword search failed:`, error.message);
-            return null;
+            throw error;
         }
     }
 }

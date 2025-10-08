@@ -1,3 +1,4 @@
+
 // ! ======================================================================
 // !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
 // !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
@@ -27,7 +28,8 @@ export const ERROR_TYPES = {
     PARSER_ERROR: 'PARSER_ERROR',
     TOKENIZER_ERROR: 'TOKENIZER_ERROR',
     AST_ERROR: 'AST_ERROR',
-    MEMORY_ERROR: 'MEMORY_ERROR'
+    MEMORY_ERROR: 'MEMORY_ERROR',
+    PARSER_LEARNING_NEEDED: 'PARSER_LEARNING_NEEDED'  // Parser encountered unknown syntax
 };
 
 /**

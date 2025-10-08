@@ -174,16 +174,16 @@ const ABSOLUTE_RULES = {
             // ! ======================================================================
                 ARCHITECTURAL SOLUTIONS TO COMMON "UNMOCKABLE" SCENARIOS:
             // ! ======================================================================
-               DATABASE → Repository Pattern with interface
-               FILE SYSTEM → FileSystem abstraction service  
-               HTTP CALLS → HttpClient interface with implementations
-               RANDOM/CRYPTO → RandomGenerator/CryptoProvider services
-               TIME/DATE → Clock/TimeProvider services
-               ENVIRONMENT → Configuration provider
-               LOGGING → Logger interface
-               CACHING → Cache interface
-               MESSAGING → MessageBus interface
-               AUTHENTICATION → AuthProvider interface
+               DATABASE  Repository Pattern with interface
+               FILE SYSTEM  FileSystem abstraction service  
+               HTTP CALLS  HttpClient interface with implementations
+               RANDOM/CRYPTO  RandomGenerator/CryptoProvider services
+               TIME/DATE  Clock/TimeProvider services
+               ENVIRONMENT  Configuration provider
+               LOGGING  Logger interface
+               CACHING  Cache interface
+               MESSAGING  MessageBus interface
+               AUTHENTICATION  AuthProvider interface
             // ! ======================================================================
                  NO EXCEPTIONS:
             // ! ======================================================================               
@@ -337,54 +337,54 @@ const ABSOLUTE_RULES = {
                  เหตุผลที่คนอยากใช้ mocking และการปิดช่องโหว่:
             // ! ======================================================================
             1. "เฮ้ย! แต่ unit test ต้องเร็วนี่!"
-               → ไม่ยอมรับ! ความเร็วมาจาก architecture ที่ดี ไม่ใช่การ mock
-               → แก้ถูก: ใช้ in-memory database หรือ test containers สำหรับ integration tests
-               → เพราะอะไร: Mock ทำให้ test ไม่ validate real integration behavior
+                ไม่ยอมรับ! ความเร็วมาจาก architecture ที่ดี ไม่ใช่การ mock
+                แก้ถูก: ใช้ in-memory database หรือ test containers สำหรับ integration tests
+                เพราะอะไร: Mock ทำให้ test ไม่ validate real integration behavior
 
             2. "อะ! แต่ external API มันช้าแล้วก็ไม่เสถียร!"
-               → ไม่ยอมรับ! External API ต้องห่อใน service layer และใช้ test environment
-               → แก้ถูก: API Gateway pattern พร้อม test endpoint หรือ staging environment
-               → เพราะอะไร: Mock API response ไม่ test real network errors และ API contract changes
+                ไม่ยอมรับ! External API ต้องห่อใน service layer และใช้ test environment
+                แก้ถูก: API Gateway pattern พร้อม test endpoint หรือ staging environment
+                เพราะอะไร: Mock API response ไม่ test real network errors และ API contract changes
 
             3. "เฮ้ย! แต่ database connection มันหนักเกินไป!"
-               → ไม่ยอมรับ! Database testing ต้องใช้ proper test isolation
-               → แก้ถูก: Docker test containers, transaction rollback หรือ dedicated test database
-               → เพราะอะไร: Mock database ไม่ validate SQL syntax, constraints และ data integrity
+                ไม่ยอมรับ! Database testing ต้องใช้ proper test isolation
+                แก้ถูก: Docker test containers, transaction rollback หรือ dedicated test database
+                เพราะอะไร: Mock database ไม่ validate SQL syntax, constraints และ data integrity
 
             4. "อะ! แต่ file system I/O มันช้า!"
-               → ไม่ยอมรับ! File operations ต้องถูกออกแบบให้ testable
-               → แก้ถูก: Abstraction layer สำหรับ file operations พร้อม in-memory implementation
-               → เพราะอะไร: Mock file operations ไม่ test real file permissions และ disk space issues
+                ไม่ยอมรับ! File operations ต้องถูกออกแบบให้ testable
+                แก้ถูก: Abstraction layer สำหรับ file operations พร้อม in-memory implementation
+                เพราะอะไร: Mock file operations ไม่ test real file permissions และ disk space issues
 
             5. "เฮ้ย! แต่ time/date testing ทำไงล่ะ!"
-               → ไม่ยอมรับ! Time dependencies ต้อง inject เป็น parameter
-               → แก้ถุก: Clock abstraction ที่ inject เข้า function แทน Date.now() ตรงๆ
-               → เพราะอะไร: Mock time ไม่ test timezone issues และ daylight saving time
+                ไม่ยอมรับ! Time dependencies ต้อง inject เป็น parameter
+                แก้ถุก: Clock abstraction ที่ inject เข้า function แทน Date.now() ตรงๆ
+                เพราะอะไร: Mock time ไม่ test timezone issues และ daylight saving time
 
             6. "อะ! แต่ third-party library มันใช้ยาก!"
-               → ไม่ยอมรับ! Third-party ต้องห่อใน adapter pattern
-               → แก้ถูก: Wrapper class ที่ implement interface ชัดเจนแล้วทดสอบ adapter นั้น
-               → เพราะอะไร: Mock library ไม่ validate API compatibility และ version changes
+                ไม่ยอมรับ! Third-party ต้องห่อใน adapter pattern
+                แก้ถูก: Wrapper class ที่ implement interface ชัดเจนแล้วทดสอบ adapter นั้น
+                เพราะอะไร: Mock library ไม่ validate API compatibility และ version changes
 
             7. "เฮ้ย! แต่ email/SMS service มันต้องใช้เงิน!"
-               → ไม่ยอมรับ! Communication service ต้องมี test mode
-               → แก้ถูก: Service configuration ที่มี test mode หรือ sandbox environment
-               → เพราะอะไร: Mock communication ไม่ validate message formatting และ delivery constraints
+                ไม่ยอมรับ! Communication service ต้องมี test mode
+                แก้ถูก: Service configuration ที่มี test mode หรือ sandbox environment
+                เพราะอะไร: Mock communication ไม่ validate message formatting และ delivery constraints
 
             8. "อะ! แต่ authentication มันซับซ้อน!"
-               → ไม่ยอมรับ! Authentication ต้องออกแบบให้มี test user
-               → แก้ถูก: Test authentication token หรือ development-only auth bypass
-               → เพราะอะไร: Mock auth ไม่ validate permission logic และ security policies
+                ไม่ยอมรับ! Authentication ต้องออกแบบให้มี test user
+                แก้ถูก: Test authentication token หรือ development-only auth bypass
+                เพราะอะไร: Mock auth ไม่ validate permission logic และ security policies
 
             9. "เฮ้ย! แต่ legacy code มันแก้ไม่ได้!"
-               → ไม่ยอมรับ! Legacy integration ต้องค่อยๆ refactor
-               → แก้ถูก: Strangler Fig pattern - wrap legacy ใน interface ใหม่แล้วทดสอบ interface นั้น
-               → เพราะอะไร: Mock legacy ทำให้ไม่สามารถ validate การทำงานจริงของระบบเก่า
+                ไม่ยอมรับ! Legacy integration ต้องค่อยๆ refactor
+                แก้ถูก: Strangler Fig pattern - wrap legacy ใน interface ใหม่แล้วทดสอบ interface นั้น
+                เพราะอะไร: Mock legacy ทำให้ไม่สามารถ validate การทำงานจริงของระบบเก่า
 
             10. "อะ! แต่ performance testing ต้องใช้ mock!"
-                → ไม่ยอมรับ! Performance testing ต้องใช้ representative data
-                → แก้ถูก: Load testing พร้อม realistic test data และ proper test environment
-                → เพราะอะไร: Mock performance ไม่ reflect real bottlenecks และ resource constraints
+                 ไม่ยอมรับ! Performance testing ต้องใช้ representative data
+                 แก้ถูก: Load testing พร้อม realistic test data และ proper test environment
+                 เพราะอะไร: Mock performance ไม่ reflect real bottlenecks และ resource constraints
 
             // ! ======================================================================
                  กฎทองสำหรับตรวจสอบ:
@@ -1257,64 +1257,64 @@ const ABSOLUTE_RULES = {
             // ! ======================================================================
 
             1. "OMG BUT IT'S JUST A LOCALHOST URL FOR DEVELOPMENT!"
-               → ไม่ยอมรับ! ทันทีที่เขียน localhost แล้ว Junior Developer คนอื่นจะคิดว่าต่อจากนี้ localhost ทั้งหมดใส่ hardcode ได้
-               → แก้ถูก: DEFAULT_DEV_URL = process.env.DEV_URL || 'http://localhost:3000'
-               → เพราะอะไร: โครงการใหญ่มักมี multiple localhost environments ที่ต่าง port กัน
+                ไม่ยอมรับ! ทันทีที่เขียน localhost แล้ว Junior Developer คนอื่นจะคิดว่าต่อจากนี้ localhost ทั้งหมดใส่ hardcode ได้
+                แก้ถูก: DEFAULT_DEV_URL = process.env.DEV_URL || 'http://localhost:3000'
+                เพราะอะไร: โครงการใหญ่มักมี multiple localhost environments ที่ต่าง port กัน
 
             2. "DUDE! IT'S JUST FOR UNIT TESTS!"
-               → ไม่ยอมรับ! Test fixtures และ mock data ต้องอยู่ในไฟล์แยก หรือ test-specific configuration
-               → แก้ถูก: fixtures/test-urls.json, test-config.js หรือใช้ jest.setupFiles
-               → เพราะอะไร: Hardcode ใน test ทำให้เปลี่ยน test environment ไม่ได้
+                ไม่ยอมรับ! Test fixtures และ mock data ต้องอยู่ในไฟล์แยก หรือ test-specific configuration
+                แก้ถูก: fixtures/test-urls.json, test-config.js หรือใช้ jest.setupFiles
+                เพราะอะไร: Hardcode ใน test ทำให้เปลี่ยน test environment ไม่ได้
 
             3. "BRO, IT'S JUST A TIMEOUT CONSTANT!"
-               → ไม่ยอมรับ! Timeout behavior ต้องเปลี่ยนได้ตาม network conditions ของแต่ละ environment
-               → แก้ถูก: config.timeouts.httpRequest ที่มี default แต่ override ได้
-               → เพราะอะไร: Production might need 30 seconds, Development needs 5 seconds, Testing needs 1 second
+                ไม่ยอมรับ! Timeout behavior ต้องเปลี่ยนได้ตาม network conditions ของแต่ละ environment
+                แก้ถูก: config.timeouts.httpRequest ที่มี default แต่ override ได้
+                เพราะอะไร: Production might need 30 seconds, Development needs 5 seconds, Testing needs 1 second
 
             4. "OMG BUT IT'S JUST A DATABASE SCHEMA NAME!"
-               → ไม่ยอมรับ! Database naming convention ต่างกันใน environment ต่างๆ
-               → แก้ถูก: DB_SCHEMA environment variable with tenant-specific or environment-specific naming
-               → เพราะอะไร: Multi-tenant และ environment isolation
+                ไม่ยอมรับ! Database naming convention ต่างกันใน environment ต่างๆ
+                แก้ถูก: DB_SCHEMA environment variable with tenant-specific or environment-specific naming
+                เพราะอะไร: Multi-tenant และ environment isolation
 
             5. "DUDE! IT'S A THIRD-PARTY OAUTH REDIRECT URL!"
-               → ไม่ยอมรับ! OAuth configuration เปลี่ยนตาม domain และ environment
-               → แก้ถูก: OAUTH_REDIRECT_BASE + computed path based on current domain
-               → เพราะอะไร: Staging, QA, Production มี different domains
+                ไม่ยอมรับ! OAuth configuration เปลี่ยนตาม domain และ environment
+                แก้ถูก: OAUTH_REDIRECT_BASE + computed path based on current domain
+                เพราะอะไร: Staging, QA, Production มี different domains
 
             6. "BRO, IT'S JUST A SIMPLE FILE PATH!"
-               → ไม่ยอมรับ! File paths ต่างกันใน Windows/Linux และ container environments
-               → แก้ถูก: path.join(process.env.DATA_DIR || './data', filename)
-               → เพราะอะไร: Development: ./data, Production: /app/data, Docker: /var/app/data
+                ไม่ยอมรับ! File paths ต่างกันใน Windows/Linux และ container environments
+                แก้ถูก: path.join(process.env.DATA_DIR || './data', filename)
+                เพราะอะไร: Development: ./data, Production: /app/data, Docker: /var/app/data
 
             7. "OMG BUT THESE ARE INDUSTRY-STANDARD PORTS!"
-               → ไม่ยอมรับ! "Standard" ports อาจถูกใช้โดย service อื่น หรือ blocked โดย firewall
-               → แก้ถูก: PORT configuration ที่มี default แต่ override ได้
-               → เพราะอะไร: Production ใช้ port 8080, Development ใช้ 3000, Docker ใช้ 80
+                ไม่ยอมรับ! "Standard" ports อาจถูกใช้โดย service อื่น หรือ blocked โดย firewall
+                แก้ถูก: PORT configuration ที่มี default แต่ override ได้
+                เพราะอะไร: Production ใช้ port 8080, Development ใช้ 3000, Docker ใช้ 80
 
             8. "DUDE! IT'S JUST MAGIC NUMBERS FOR BUSINESS LOGIC!"
-               → ไม่ยอมรับ! Business rules เปลี่ยนและต้อง externalize เพื่อให้ business team แก้ได้โดยไม่ผ่าน engineering
-               → แก้ถูก: BUSINESS_RULES configuration หรือ feature flags
-               → เพราะอะไร: "Free shipping จาก 500 บาท" อาจเปลี่ยนเป็น 800 บาทโดยไม่แก้โค้ด
+                ไม่ยอมรับ! Business rules เปลี่ยนและต้อง externalize เพื่อให้ business team แก้ได้โดยไม่ผ่าน engineering
+                แก้ถูก: BUSINESS_RULES configuration หรือ feature flags
+                เพราะอะไร: "Free shipping จาก 500 บาท" อาจเปลี่ยนเป็น 800 บาทโดยไม่แก้โค้ด
 
             9. "BRO, THESE ARE JUST REGEX VALIDATION PATTERNS!"
-               → ไม่ยอมรับ! Validation rules เปลี่ยนตาม country, regulations และ business requirements
-               → แก้ถูก: validation-rules.json configuration
-               → เพราะอะไร: Email regex สำหรับ international vs Thailand, Phone number formats
+                ไม่ยอมรับ! Validation rules เปลี่ยนตาม country, regulations และ business requirements
+                แก้ถูก: validation-rules.json configuration
+                เพราะอะไร: Email regex สำหรับ international vs Thailand, Phone number formats
 
             10. "OMG BUT IT'S JUST CSS/STYLE CONSTANTS!"
-                → ไม่ยอมรับ! Design systems และ theme ต้องเปลี่ยนได้ตาม brand guidelines หรือ A/B testing
-                → แก้ถูก: CSS variables, theme configuration, design tokens
-                → เพราะอะไร: White-label applications, dark/light themes, accessibility variants
+                 ไม่ยอมรับ! Design systems และ theme ต้องเปลี่ยนได้ตาม brand guidelines หรือ A/B testing
+                 แก้ถูก: CSS variables, theme configuration, design tokens
+                 เพราะอะไร: White-label applications, dark/light themes, accessibility variants
 
             11. "DUDE! IT'S JUST ERROR MESSAGE STRINGS!"
-                → ไม่ยอมรับ! Error messages ต้องแปลได้และเปลี่ยนตาม user persona
-                → แก้ถูก: i18n configuration หรือ error-messages.json
-                → เพราะอะไร: Multi-language, user-friendly vs technical messages
+                 ไม่ยอมรับ! Error messages ต้องแปลได้และเปลี่ยนตาม user persona
+                 แก้ถูก: i18n configuration หรือ error-messages.json
+                 เพราะอะไร: Multi-language, user-friendly vs technical messages
 
             12. "BRO, IT'S JUST FEATURE FLAG BOOLEAN VALUES!"
-                → ไม่ยอมรับ! Feature flags ต้องควบคุมจาก runtime configuration
-                → แก้ถูก: Feature flag service หรือ FEATURE_* environment variables
-                → เพราะอะไร: Progressive rollout, A/B testing, instant rollback without deployment
+                 ไม่ยอมรับ! Feature flags ต้องควบคุมจาก runtime configuration
+                 แก้ถูก: Feature flag service หรือ FEATURE_* environment variables
+                 เพราะอะไร: Progressive rollout, A/B testing, instant rollback without deployment
 
             // ! ======================================================================
                GOLDEN RULE สำหรับตรวจสอบ: 
@@ -1326,64 +1326,64 @@ const ABSOLUTE_RULES = {
                 เหตุผลที่คนอยากใช้ hardcode และการปิดช่องโหว่ (เวอร์ชันภาษาไทย):
             // ! ======================================================================
             1. "เฮ้ย! แต่มันแค่ localhost URL สำหรับพัฒนานะ!"
-                → ไม่ยอมรับ! ทันทีที่เขียน localhost แล้ว Junior Developer คนอื่นจะคิดว่าต่อจากนี้ localhost ทั้งหมดใส่ hardcode ได้
-                → แก้ถูก: DEFAULT_DEV_URL = process.env.DEV_URL || 'http://localhost:3000'
-                → เพราะอะไร: โครงการใหญ่มักมี multiple localhost environments ที่ต่าง port กัน
+                 ไม่ยอมรับ! ทันทีที่เขียน localhost แล้ว Junior Developer คนอื่นจะคิดว่าต่อจากนี้ localhost ทั้งหมดใส่ hardcode ได้
+                 แก้ถูก: DEFAULT_DEV_URL = process.env.DEV_URL || 'http://localhost:3000'
+                 เพราะอะไร: โครงการใหญ่มักมี multiple localhost environments ที่ต่าง port กัน
 
             2. "อะ! แต่มันแค่สำหรับ unit testing นี่!"
-               → ไม่ยอมรับ! Test fixtures และ mock data ต้องอยู่ในไฟล์แยก หรือ test-specific configuration
-               → แก้ถูก: fixtures/test-urls.json, test-config.js หรือใช้ jest.setupFiles
-               → เพราะอะไร: Hardcode ใน test ทำให้เปลี่ยน test environment ไม่ได้
+                ไม่ยอมรับ! Test fixtures และ mock data ต้องอยู่ในไฟล์แยก หรือ test-specific configuration
+                แก้ถูก: fixtures/test-urls.json, test-config.js หรือใช้ jest.setupFiles
+                เพราะอะไร: Hardcode ใน test ทำให้เปลี่ยน test environment ไม่ได้
 
             3. "เฮ้ย! แต่มันแค่ timeout constant นะ!"
-               → ไม่ยอมรับ! Timeout behavior ต้องเปลี่ยนได้ตาม network conditions ของแต่ละ environment
-               → แก้ถูก: config.timeouts.httpRequest ที่มี default แต่ override ได้
-               → เพราะอะไร: Production อาจต้อง 30 วินาที, Development ต้อง 5 วินาที, Testing ต้อง 1 วินาที
+                ไม่ยอมรับ! Timeout behavior ต้องเปลี่ยนได้ตาม network conditions ของแต่ละ environment
+                แก้ถูก: config.timeouts.httpRequest ที่มี default แต่ override ได้
+                เพราะอะไร: Production อาจต้อง 30 วินาที, Development ต้อง 5 วินาที, Testing ต้อง 1 วินาที
 
             4. "อะ! แต่มันแค่ database schema name!"
-               → ไม่ยอมรับ! Database naming convention ต่างกันใน environment ต่างๆ
-               → แก้ถูก: DB_SCHEMA environment variable with tenant-specific หรือ environment-specific naming
-               → เพราะอะไร: Multi-tenant และ environment isolation
+                ไม่ยอมรับ! Database naming convention ต่างกันใน environment ต่างๆ
+                แก้ถูก: DB_SCHEMA environment variable with tenant-specific หรือ environment-specific naming
+                เพราะอะไร: Multi-tenant และ environment isolation
 
             5. "เฮ้ย! แต่มันแค่ third-party OAuth redirect URL!"
-               → ไม่ยอมรับ! OAuth configuration เปลี่ยนตาม domain และ environment
-               → แก้ถูก: OAUTH_REDIRECT_BASE + computed path based on current domain
-               → เพราะอะไร: Staging, QA, Production มี different domains
+                ไม่ยอมรับ! OAuth configuration เปลี่ยนตาม domain และ environment
+                แก้ถูก: OAUTH_REDIRECT_BASE + computed path based on current domain
+                เพราะอะไร: Staging, QA, Production มี different domains
 
             6. "อะ! แต่มันแค่ file path ธรรมดา!"
-               → ไม่ยอมรับ! File paths ต่างกันใน Windows/Linux และ container environments
-               → แก้ถูก: path.join(process.env.DATA_DIR || './data', filename)
-               → เพราะอะไร: Development: ./data, Production: /app/data, Docker: /var/app/data
+                ไม่ยอมรับ! File paths ต่างกันใน Windows/Linux และ container environments
+                แก้ถูก: path.join(process.env.DATA_DIR || './data', filename)
+                เพราะอะไร: Development: ./data, Production: /app/data, Docker: /var/app/data
 
             7. "เฮ้ย! แต่มันแค่ industry-standard ports!"
-               → ไม่ยอมรับ! "Standard" ports อาจถูกใช้โดย service อื่น หรือ blocked โดย firewall
-               → แก้ถูก: PORT configuration ที่มี default แต่ override ได้
-               → เพราะอะไร: Production ใช้ port 8080, Development ใช้ 3000, Docker ใช้ 80
+                ไม่ยอมรับ! "Standard" ports อาจถูกใช้โดย service อื่น หรือ blocked โดย firewall
+                แก้ถูก: PORT configuration ที่มี default แต่ override ได้
+                เพราะอะไร: Production ใช้ port 8080, Development ใช้ 3000, Docker ใช้ 80
 
             8. "อะ! แต่มันแค่ magic numbers สำหรับ business logic!"
-               → ไม่ยอมรับ! Business rules เปลี่ยนและต้อง externalize เพื่อให้ business team แก้ได้โดยไม่ผ่าน engineering
-               → แก้ถูก: BUSINESS_RULES configuration หรือ feature flags
-               → เพราะอะไร: "ส่งฟรีจาก 500 บาท" อาจเปลี่ยนเป็น 800 บาทโดยไม่แก้โค้ด
+                ไม่ยอมรับ! Business rules เปลี่ยนและต้อง externalize เพื่อให้ business team แก้ได้โดยไม่ผ่าน engineering
+                แก้ถูก: BUSINESS_RULES configuration หรือ feature flags
+                เพราะอะไร: "ส่งฟรีจาก 500 บาท" อาจเปลี่ยนเป็น 800 บาทโดยไม่แก้โค้ด
 
             9. "เฮ้ย! แต่มันแค่ regex validation patterns!"
-               → ไม่ยอมรับ! Validation rules เปลี่ยนตาม country, regulations และ business requirements
-               → แก้ถูก: validation-rules.json configuration
-               → เพราะอะไร: Email regex สำหรับ international vs Thailand, Phone number formats
+                ไม่ยอมรับ! Validation rules เปลี่ยนตาม country, regulations และ business requirements
+                แก้ถูก: validation-rules.json configuration
+                เพราะอะไร: Email regex สำหรับ international vs Thailand, Phone number formats
 
             10. "อะ! แต่มันแค่ CSS/style constants!"
-                → ไม่ยอมรับ! Design systems และ theme ต้องเปลี่ยนได้ตาม brand guidelines หรือ A/B testing
-                → แก้ถูก: CSS variables, theme configuration, design tokens
-                → เพราะอะไร: White-label applications, dark/light themes, accessibility variants
+                 ไม่ยอมรับ! Design systems และ theme ต้องเปลี่ยนได้ตาม brand guidelines หรือ A/B testing
+                 แก้ถูก: CSS variables, theme configuration, design tokens
+                 เพราะอะไร: White-label applications, dark/light themes, accessibility variants
 
             11. "เฮ้ย! แต่มันแค่ error message strings!"
-                → ไม่ยอมรับ! Error messages ต้องแปลได้และเปลี่ยนตาม user persona
-                → แก้ถูก: i18n configuration หรือ error-messages.json
-                → เพราะอะไร: Multi-language, user-friendly vs technical messages
+                 ไม่ยอมรับ! Error messages ต้องแปลได้และเปลี่ยนตาม user persona
+                 แก้ถูก: i18n configuration หรือ error-messages.json
+                 เพราะอะไร: Multi-language, user-friendly vs technical messages
 
             12. "อะ! แต่มันแค่ feature flag boolean values!"
-                → ไม่ยอมรับ! Feature flags ต้องควบคุมจาม runtime configuration
-                → แก้ถูก: Feature flag service หรือ FEATURE_* environment variables
-                → เพราะอะไร: Progressive rollout, A/B testing, instant rollback without deployment
+                 ไม่ยอมรับ! Feature flags ต้องควบคุมจาม runtime configuration
+                 แก้ถูก: Feature flag service หรือ FEATURE_* environment variables
+                 เพราะอะไร: Progressive rollout, A/B testing, instant rollback without deployment
             // ! ======================================================================
                 กฎทองสำหรับตรวจสอบ (ภาษาไทย): 
             // ! ======================================================================                
@@ -2969,63 +2969,63 @@ const ABSOLUTE_RULES = {
             เหตุผลที่คนอยากใช้ silent fallback และการปิดช่องโหว่:
 
             1. "OMG BUT IT'S JUST FOR GRACEFUL DEGRADATION!"
-               → ไม่ยอมรับ! Graceful degradation ต้อง OBSERVABLE และมี ALERTS ไม่ใช่ silent
-               → แก้ถูก: Log ทุก degradation พร้อม alert และ fallback indicator ให้ monitoring team เห็น
-               → เพราะอะไร: Silent degradation กลายเป็น technical debt และ production issue ที่ไม่มีใครสังเกต
+                ไม่ยอมรับ! Graceful degradation ต้อง OBSERVABLE และมี ALERTS ไม่ใช่ silent
+                แก้ถูก: Log ทุก degradation พร้อม alert และ fallback indicator ให้ monitoring team เห็น
+                เพราะอะไร: Silent degradation กลายเป็น technical debt และ production issue ที่ไม่มีใครสังเกต
 
             2. "DUDE! IT'S JUST A DEFAULT VALUE FOR CONVENIENCE!"
-               → ไม่ยอมรับ! Default value ต้องมีเหตุผลที่ดีและถูก document อย่างชัดเจน
-               → แก้ถูก: Explicit defaults ใน configuration พร้อม validation ว่าค่านั้นเหมาะสมหรือไม่
-               → เพราะอะไร: Default ที่ implicit อาจไม่เหมาะกับ environment หรือ use case ปัจจุบัน
+                ไม่ยอมรับ! Default value ต้องมีเหตุผลที่ดีและถูก document อย่างชัดเจน
+                แก้ถูก: Explicit defaults ใน configuration พร้อม validation ว่าค่านั้นเหมาะสมหรือไม่
+                เพราะอะไร: Default ที่ implicit อาจไม่เหมาะกับ environment หรือ use case ปัจจุบัน
 
             3. "BRO, IT'S JUST A RETRY MECHANISM!"
-               → ไม่ยอมรับ! Retry ต้องมี circuit breaker และ monitoring ไม่ใช่ retry แล้วปิดเงียบ
-               → แก้ถูก: Structured retry policy พร้อม exponential backoff และ fail after N attempts พร้อม alert
-               → เพราะอะไร: Infinite silent retry กิน resource และ mask serious infrastructure problems
+                ไม่ยอมรับ! Retry ต้องมี circuit breaker และ monitoring ไม่ใช่ retry แล้วปิดเงียบ
+                แก้ถูก: Structured retry policy พร้อม exponential backoff และ fail after N attempts พร้อม alert
+                เพราะอะไร: Infinite silent retry กิน resource และ mask serious infrastructure problems
 
             4. "OMG BUT IT'S JUST FOR NON-CRITICAL FEATURES!"
-               → ไม่ยอมรับ! "Non-critical" เป็น business decision ไม่ใช่ engineering decision - ต้อง explicit
-               → แก้ถูก: Feature flag configuration พร้อม graceful disable notification ให้ user
-               → เพราะอะไร: Features ที่คิดว่า non-critical อาจ critical สำหรับ specific user segment
+                ไม่ยอมรับ! "Non-critical" เป็น business decision ไม่ใช่ engineering decision - ต้อง explicit
+                แก้ถูก: Feature flag configuration พร้อม graceful disable notification ให้ user
+                เพราะอะไร: Features ที่คิดว่า non-critical อาจ critical สำหรับ specific user segment
 
             5. "DUDE! IT'S JUST FOR CACHE MISS SCENARIOS!"
-               → ไม่ยอมรับ! Cache miss ต้อง logged และ monitored เพื่อ tune cache strategy
-               → แก้ถูก: Cache miss พร้อม metrics และ fallback to primary data source with performance tracking
-               → เพราะอะไร: Silent cache miss ป้องกันการ optimize cache hit ratio
+                ไม่ยอมรับ! Cache miss ต้อง logged และ monitored เพื่อ tune cache strategy
+                แก้ถูก: Cache miss พร้อม metrics และ fallback to primary data source with performance tracking
+                เพราะอะไร: Silent cache miss ป้องกันการ optimize cache hit ratio
 
             6. "BRO, IT'S JUST A FALLBACK UI COMPONENT!"
-               → ไม่ยอมรับ! UI fallback ต้อง show error boundary พร้อม error reporting ไม่ใช่แสดง component ธรรมดา
-               → แก้ถูก: Error boundary component พร้อม user-friendly error message และ error reporting to monitoring
-               → เพราะอะไร: Silent UI fallback ทำให้ user confused และ developer ไม่รู้ว่ามี error
+                ไม่ยอมรับ! UI fallback ต้อง show error boundary พร้อม error reporting ไม่ใช่แสดง component ธรรมดา
+                แก้ถูก: Error boundary component พร้อม user-friendly error message และ error reporting to monitoring
+                เพราะอะไร: Silent UI fallback ทำให้ user confused และ developer ไม่รู้ว่ามี error
 
             7. "OMG BUT IT'S JUST FOR OPTIONAL API FIELDS!"
-               → ไม่ยอมรับ! Optional fields ต้อง validate ว่าจริงๆ optional หรือเป็น breaking change ที่ไม่ได้ detect
-               → แก้ถูก: API schema validation พร้อม deprecation warnings สำหรับ missing optional fields
-               → เพราะอะไร: Fields ที่ควรจะมีแต่หายไป อาจเป็น API version mismatch หรือ data corruption
+                ไม่ยอมรับ! Optional fields ต้อง validate ว่าจริงๆ optional หรือเป็น breaking change ที่ไม่ได้ detect
+                แก้ถูก: API schema validation พร้อม deprecation warnings สำหรับ missing optional fields
+                เพราะอะไร: Fields ที่ควรจะมีแต่หายไป อาจเป็น API version mismatch หรือ data corruption
 
             8. "DUDE! IT'S JUST FOR BACKWARD COMPATIBILITY!"
-               → ไม่ยอมรับ! Backward compatibility ต้องมี deprecation timeline และ migration path ไม่ใช่ silent forever
-               → แก้ถูก: Versioned compatibility layer พร้อม deprecation warnings และ migration guidance
-               → เพราะอะไร: Silent backward compatibility ป้องกัน technology stack evolution และ security updates
+                ไม่ยอมรับ! Backward compatibility ต้องมี deprecation timeline และ migration path ไม่ใช่ silent forever
+                แก้ถูก: Versioned compatibility layer พร้อม deprecation warnings และ migration guidance
+                เพราะอะไร: Silent backward compatibility ป้องกัน technology stack evolution และ security updates
 
             9. "BRO, IT'S JUST FOR A/B TESTING FALLBACK!"
-               → ไม่ยอมรับ! A/B test fallback ต้อง tracked เพื่อ measure control group ไม่ใช่ silent default
-               → แก้ถูก: A/B testing framework พร้อม explicit control group tracking และ experiment analytics
-               → เพราะอะไร: Silent fallback ทำให้ experiment results invalid และ statistical significance calculation ผิด
+                ไม่ยอมรับ! A/B test fallback ต้อง tracked เพื่อ measure control group ไม่ใช่ silent default
+                แก้ถูก: A/B testing framework พร้อม explicit control group tracking และ experiment analytics
+                เพราะอะไร: Silent fallback ทำให้ experiment results invalid และ statistical significance calculation ผิด
 
-                → ไม่ยอมรับ! Third-party downtime ต้อง alert operations team และ consider circuit breaker
-                → แก้ถูก: Service health check พร้อม circuit breaker pattern และ escalation to operations
-                → เพราะอะไร: Silent third-party failure ป้องกัน proactive vendor management และ SLA enforcement
+                 ไม่ยอมรับ! Third-party downtime ต้อง alert operations team และ consider circuit breaker
+                 แก้ถูก: Service health check พร้อม circuit breaker pattern และ escalation to operations
+                 เพราะอะไร: Silent third-party failure ป้องกัน proactive vendor management และ SLA enforcement
 
             11. "DUDE! IT'S JUST FOR DATABASE READ REPLICA FAILURES!"
-                → ไม่ยอมรับ! Replica failure ต้อง switch to primary พร้อม DBA notification
-                → แก้ถูก: Database connection pool พร้อม automatic failover และ database health monitoring
-                → เพราะอะไร: Silent replica failure อาจ indicate infrastructure problem ที่ต้อง urgent fix
+                 ไม่ยอมรับ! Replica failure ต้อง switch to primary พร้อม DBA notification
+                 แก้ถูก: Database connection pool พร้อม automatic failover และ database health monitoring
+                 เพราะอะไร: Silent replica failure อาจ indicate infrastructure problem ที่ต้อง urgent fix
 
             12. "BRO, IT'S JUST FOR RATE LIMITING SCENARIOS!"
-                → ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
-                → แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
-                → เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service overloaded
+                 ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
+                 แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
+                 เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service overloaded
 
             // ! ======================================================================
                  GOLDEN RULE สำหรับตรวจสอบ:
@@ -3042,63 +3042,63 @@ const ABSOLUTE_RULES = {
             เหตุผลที่คนอยากใช้ silent fallback และการปิดช่องโหว่:
 
             1. "เฮ้ย! แต่มันแค่ graceful degradation นะ!"
-               → ไม่ยอมรับ! Graceful degradation ต้อง OBSERVABLE และมี ALERTS ไม่ใช่ silent
-               → แก้ถูก: Log ทุก degradation พร้อม alert และ fallback indicator ให้ monitoring team เห็น
-               → เพราะอะไร: Silent degradation กลายเป็น technical debt และ production issue ที่ไม่มีใครสังเกต
+                ไม่ยอมรับ! Graceful degradation ต้อง OBSERVABLE และมี ALERTS ไม่ใช่ silent
+                แก้ถูก: Log ทุก degradation พร้อม alert และ fallback indicator ให้ monitoring team เห็น
+                เพราะอะไร: Silent degradation กลายเป็น technical debt และ production issue ที่ไม่มีใครสังเกต
 
             2. "อะ! แต่มันแค่ default value เพื่อความสะดวก!"
-               → ไม่ยอมรับ! Default value ต้องมีเหตุผลที่ดีและถูก document อย่างชัดเจน
-               → แก้ถูก: Explicit defaults ใน configuration พร้อม validation ว่าค่านั้นเหมาะสมหรือไม่
-               → เพราะอะไร: Default ที่ implicit อาจไม่เหมาะกับ environment หรือ use case ปัจจุบัน
+                ไม่ยอมรับ! Default value ต้องมีเหตุผลที่ดีและถูก document อย่างชัดเจน
+                แก้ถูก: Explicit defaults ใน configuration พร้อม validation ว่าค่านั้นเหมาะสมหรือไม่
+                เพราะอะไร: Default ที่ implicit อาจไม่เหมาะกับ environment หรือ use case ปัจจุบัน
 
             3. "เฮ้ย! แต่มันแค่ retry mechanism!"
-               → ไม่ยอมรับ! Retry ต้องมี circuit breaker และ monitoring ไม่ใช่ retry แล้วปิดเงียบ
-               → แก้ถูก: Structured retry policy พร้อม exponential backoff และ fail after N attempts พร้อม alert
-               → เพราะอะไร: Infinite silent retry กิน resource และ mask serious infrastructure problems
+                ไม่ยอมรับ! Retry ต้องมี circuit breaker และ monitoring ไม่ใช่ retry แล้วปิดเงียบ
+                แก้ถูก: Structured retry policy พร้อม exponential backoff และ fail after N attempts พร้อม alert
+                เพราะอะไร: Infinite silent retry กิน resource และ mask serious infrastructure problems
 
             4. "อะ! แต่มันแค่ feature ที่ไม่สำคัญ!"
-               → ไม่ยอมรับ! "ไม่สำคัญ" เป็น business decision ไม่ใช่ engineering decision - ต้อง explicit
-               → แก้ถูก: Feature flag configuration พร้อม graceful disable notification ให้ user
-               → เพราะอะไร: Features ที่คิดว่าไม่สำคัญ อาจสำคัญมากสำหรับ specific user segment
+                ไม่ยอมรับ! "ไม่สำคัญ" เป็น business decision ไม่ใช่ engineering decision - ต้อง explicit
+                แก้ถูก: Feature flag configuration พร้อม graceful disable notification ให้ user
+                เพราะอะไร: Features ที่คิดว่าไม่สำคัญ อาจสำคัญมากสำหรับ specific user segment
 
             5. "เฮ้ย! แต่มันแค่ cache miss scenarios!"
-               → แก้ถูก: Cache miss พร้อม metrics และ fallback to primary data source with performance tracking
-               → เพราะอะไร: Silent cache miss ป้องกันการ optimize cache hit ratio
+                แก้ถูก: Cache miss พร้อม metrics และ fallback to primary data source with performance tracking
+                เพราะอะไร: Silent cache miss ป้องกันการ optimize cache hit ratio
 
             6. "อะ! แต่มันแค่ fallback UI component!"
-               → ไม่ยอมรับ! UI fallback ต้อง show error boundary พร้อม error reporting ไม่ใช่แสดง component ธรรมดา
-               → แก้ถูก: Error boundary component พร้อม user-friendly error message และ error reporting to monitoring
-               → เพราะอะไร: Silent UI fallback ทำให้ user งงและ developer ไม่รู้ว่ามี error
+                ไม่ยอมรับ! UI fallback ต้อง show error boundary พร้อม error reporting ไม่ใช่แสดง component ธรรมดา
+                แก้ถูก: Error boundary component พร้อม user-friendly error message และ error reporting to monitoring
+                เพราะอะไร: Silent UI fallback ทำให้ user งงและ developer ไม่รู้ว่ามี error
 
             7. "เฮ้ย! แต่มันแค่ optional API fields!"
-               → ไม่ยอมรับ! Optional fields ต้อง validate ว่าจริงๆ optional หรือเป็น breaking change ที่ไม่ได้ detect
-               → แก้ถูก: API schema validation พร้อม deprecation warnings สำหรับ missing optional fields
-               → เพราะอะไร: Fields ที่ควรจะมีแต่หายไป อาจเป็น API version mismatch หรือ data corruption
+                ไม่ยอมรับ! Optional fields ต้อง validate ว่าจริงๆ optional หรือเป็น breaking change ที่ไม่ได้ detect
+                แก้ถูก: API schema validation พร้อม deprecation warnings สำหรับ missing optional fields
+                เพราะอะไร: Fields ที่ควรจะมีแต่หายไป อาจเป็น API version mismatch หรือ data corruption
 
             8. "อะ! แต่มันแค่ backward compatibility!"
-               → ไม่ยอมรับ! Backward compatibility ต้องมี deprecation timeline และ migration path ไม่ใช่ silent forever
-               → แก้ถูก: Versioned compatibility layer พร้อม deprecation warnings และ migration guidance
-               → เพราะอะไร: Silent backward compatibility ป้องกัน technology stack evolution และ security updates
+                ไม่ยอมรับ! Backward compatibility ต้องมี deprecation timeline และ migration path ไม่ใช่ silent forever
+                แก้ถูก: Versioned compatibility layer พร้อม deprecation warnings และ migration guidance
+                เพราะอะไร: Silent backward compatibility ป้องกัน technology stack evolution และ security updates
 
             9. "เฮ้ย! แต่มันแค่ A/B testing fallback!"
-               → ไม่ยอมรับ! A/B test fallback ต้อง tracked เพื่อ measure control group ไม่ใช่ silent default
-               → แก้ถูก: A/B testing framework พร้อม explicit control group tracking และ experiment analytics
-               → เพราะอะไร: Silent fallback ทำให้ experiment results invalid และ statistical significance calculation ผิด
+                ไม่ยอมรับ! A/B test fallback ต้อง tracked เพื่อ measure control group ไม่ใช่ silent default
+                แก้ถูก: A/B testing framework พร้อม explicit control group tracking และ experiment analytics
+                เพราะอะไร: Silent fallback ทำให้ experiment results invalid และ statistical significance calculation ผิด
 
             10. "อะ! แต่มันแค่ third-party service downtime!"
-                → ไม่ยอมรับ! Third-party downtime ต้อง alert operations team และ consider circuit breaker
-                → แก้ถูก: Service health check พร้อม circuit breaker pattern และ escalation to operations
-                → เพราะอะไร: Silent third-party failure ป้องกัน proactive vendor management และ SLA enforcement
+                 ไม่ยอมรับ! Third-party downtime ต้อง alert operations team และ consider circuit breaker
+                 แก้ถูก: Service health check พร้อม circuit breaker pattern และ escalation to operations
+                 เพราะอะไร: Silent third-party failure ป้องกัน proactive vendor management และ SLA enforcement
 
             11. "เฮ้ย! แต่มันแค่ database read replica failures!"
-                → ไม่ยอมรับ! Replica failure ต้อง switch to primary พร้อม DBA notification
-                → แก้ถูก: Database connection pool พร้อม automatic failover และ database health monitoring
-                → เพราะอะไร: Silent replica failure อาจ indicate infrastructure problem ที่ต้อง urgent fix
+                 ไม่ยอมรับ! Replica failure ต้อง switch to primary พร้อม DBA notification
+                 แก้ถูก: Database connection pool พร้อม automatic failover และ database health monitoring
+                 เพราะอะไร: Silent replica failure อาจ indicate infrastructure problem ที่ต้อง urgent fix
 
             12. "อะ! แต่มันแค่ rate limiting scenarios!"
-                → ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
-                → แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
-                → เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service โอเวอร์โหลด           
+                 ไม่ยอมรับ! Rate limit hit ต้อง logged และ consider exponential backoff ไม่ใช่ silent skip
+                 แก้ถูก: Rate limiting พร้อม proper HTTP status codes, retry headers และ client-side queue management
+                 เพราะอะไร: Silent rate limiting ทำให้ client ไม่รู้ว่า service โอเวอร์โหลด           
             // ! ======================================================================
                  กฎทองสำหรับตรวจสอบ (ภาษาไทย):
             // ! ======================================================================
@@ -3677,64 +3677,64 @@ const ABSOLUTE_RULES = {
             เหตุผลที่คนอยากใช้ internal caching และการปิดช่องโหว่:
 
             1. "OMG BUT IT'S JUST FOR PERFORMANCE OPTIMIZATION!"
-               → ไม่ยอมรับ! Performance optimization ต้องทำแบบ centralized และ measurable ไม่ใช่ hidden internal cache
-               → แก้ถูก: External caching layer พร้อม monitoring และ cache hit/miss metrics
-               → เพราะอะไร: Internal cache ไม่สามารถ monitor, tune หรือ debug ได้ง่าย
+                ไม่ยอมรับ! Performance optimization ต้องทำแบบ centralized และ measurable ไม่ใช่ hidden internal cache
+                แก้ถูก: External caching layer พร้อม monitoring และ cache hit/miss metrics
+                เพราะอะไร: Internal cache ไม่สามารถ monitor, tune หรือ debug ได้ง่าย
 
             2. "DUDE! IT'S JUST A SIMPLE MEMOIZATION FOR EXPENSIVE CALCULATIONS!"
-               → ไม่ยอมรับ! Expensive calculations ต้องใช้ proper caching strategy พร้อม TTL และ invalidation
-               → แก้ถูก: Dedicated computation cache service หรือ memoization library with proper lifecycle
-               → เพราะอะไร: Manual memoization ไม่มี memory management และอาจ memory leak
+                ไม่ยอมรับ! Expensive calculations ต้องใช้ proper caching strategy พร้อม TTL และ invalidation
+                แก้ถูก: Dedicated computation cache service หรือ memoization library with proper lifecycle
+                เพราะอะไร: Manual memoization ไม่มี memory management และอาจ memory leak
 
             3. "BRO, IT'S JUST FOR AVOIDING DUPLICATE API CALLS!"
-               → ไม่ยอมรับ! API call deduplication ต้องทำใน HTTP layer หรือ API client layer
-               → แก้ถูก: HTTP cache headers, API client with request deduplication หรือ GraphQL DataLoader pattern
-               → เพราะอะไร: Function-level deduplication ไม่ respect HTTP semantics และ cache invalidation
+                ไม่ยอมรับ! API call deduplication ต้องทำใน HTTP layer หรือ API client layer
+                แก้ถูก: HTTP cache headers, API client with request deduplication หรือ GraphQL DataLoader pattern
+                เพราะอะไร: Function-level deduplication ไม่ respect HTTP semantics และ cache invalidation
 
             4. "OMG BUT IT'S JUST FOR STATIC DATA THAT NEVER CHANGES!"
-               → ไม่ยอมรับ! "Never changes" คือ assumption ที่อันตราย - data เปลี่ยนได้เสมอ
-               → แก้ถูก: Configuration store หรือ static assets loading พร้อม cache invalidation mechanism
-               → เพราะอะไร: Static assumptions break เมื่อ requirements เปลี่ยนและไม่มี invalidation strategy
+                ไม่ยอมรับ! "Never changes" คือ assumption ที่อันตราย - data เปลี่ยนได้เสมอ
+                แก้ถูก: Configuration store หรือ static assets loading พร้อม cache invalidation mechanism
+                เพราะอะไร: Static assumptions break เมื่อ requirements เปลี่ยนและไม่มี invalidation strategy
 
             5. "DUDE! IT'S JUST FOR DATABASE QUERY RESULT CACHING!"
-               → ไม่ยอมรับ! Database caching ต้องทำใน database layer หรือ dedicated cache layer
-               → แก้ถูก: Database query cache, Redis cache หรือ ORM-level caching พร้อม proper invalidation
-               → เพราะอะไร: Function-level DB caching bypass database transaction isolation และ data consistency
+                ไม่ยอมรับ! Database caching ต้องทำใน database layer หรือ dedicated cache layer
+                แก้ถูก: Database query cache, Redis cache หรือ ORM-level caching พร้อม proper invalidation
+                เพราะอะไร: Function-level DB caching bypass database transaction isolation และ data consistency
 
             6. "BRO, IT'S JUST FOR PARSED CONFIGURATION DATA!"
-               → ไม่ยอมรับ! Configuration parsing ต้องทำครั้งเดียวตอน application startup
-               → แก้ถูก: Configuration loader ที่ parse ตอน bootstrap พร้อม hot-reload mechanism
-               → เพราะอะไร: Runtime config parsing cache ป้องกัน configuration updates และ environment changes
+                ไม่ยอมรับ! Configuration parsing ต้องทำครั้งเดียวตอน application startup
+                แก้ถูก: Configuration loader ที่ parse ตอน bootstrap พร้อม hot-reload mechanism
+                เพราะอะไร: Runtime config parsing cache ป้องกัน configuration updates และ environment changes
 
             7. "OMG BUT IT'S JUST FOR USER SESSION DATA!"
-               → ไม่ยอมรับ! User session ต้องเก็บใน session store ไม่ใช่ application memory
-               → แก้ถูก: Redis session store, database sessions หรือ JWT stateless sessions
-               → เพราะอะไร: In-memory session cache ไม่ work ใน multi-instance deployment และ horizontal scaling
+                ไม่ยอมรับ! User session ต้องเก็บใน session store ไม่ใช่ application memory
+                แก้ถูก: Redis session store, database sessions หรือ JWT stateless sessions
+                เพราะอะไร: In-memory session cache ไม่ work ใน multi-instance deployment และ horizontal scaling
 
             8. "DUDE! IT'S JUST FOR TEMPLATE RENDERING CACHE!"
-               → ไม่ยอมรับ! Template caching ต้องทำใน template engine layer
-               → แก้ถูก: Template engine built-in caching (เช่น Handlebars precompiled templates)
-               → เพราะอะไร: Custom template cache ไม่ integrate กับ template engine optimization และ debug tools
+                ไม่ยอมรับ! Template caching ต้องทำใน template engine layer
+                แก้ถูก: Template engine built-in caching (เช่น Handlebars precompiled templates)
+                เพราะอะไร: Custom template cache ไม่ integrate กับ template engine optimization และ debug tools
 
             9. "BRO, IT'S JUST FOR VALIDATION RULES PARSING!"
-               → ไม่ยอมรับ! Validation rules ต้อง compile ตอน application startup
-               → แก้ถูก: Pre-compiled validation schemas หรือ validation library with built-in compilation caching
-               → เพราะอะไร: Runtime validation parsing cache อาจ outdated เมื่อ rules เปลี่ยน
+                ไม่ยอมรับ! Validation rules ต้อง compile ตอน application startup
+                แก้ถูก: Pre-compiled validation schemas หรือ validation library with built-in compilation caching
+                เพราะอะไร: Runtime validation parsing cache อาจ outdated เมื่อ rules เปลี่ยน
 
             10. "OMG BUT IT'S JUST FOR TIMEZONE/LOCALE DATA!"
-                → ไม่ยอมรับ! Timezone/locale data ต้องใช้ standard library caching
-                → แก้ถูก: Intl API, moment.js timezone caching หรือ i18n library built-in cache
-                → เพราะอะไร: Custom timezone cache อาจ outdated เมื่อมี timezone rule changes
+                 ไม่ยอมรับ! Timezone/locale data ต้องใช้ standard library caching
+                 แก้ถูก: Intl API, moment.js timezone caching หรือ i18n library built-in cache
+                 เพราะอะไร: Custom timezone cache อาจ outdated เมื่อมี timezone rule changes
 
             11. "DUDE! IT'S JUST FOR FILE SYSTEM READ CACHE!"
-                → ไม่ยอมรับ! File system caching ต้องทำใน OS level หรือ application-level file cache
-                → แก้ถูก: OS file system cache, application file loader พร้อม file watcher
-                → เพราะอะไร: Custom file cache ไม่ detect file changes และ memory management issues
+                 ไม่ยอมรับ! File system caching ต้องทำใน OS level หรือ application-level file cache
+                 แก้ถูก: OS file system cache, application file loader พร้อม file watcher
+                 เพราะอะไร: Custom file cache ไม่ detect file changes และ memory management issues
 
             12. "BRO, IT'S JUST FOR CRYPTO/HASH COMPUTATION CACHE!"
-                → ไม่ยอมรับ! Crypto operations ต้องใช้ proper key derivation functions หรือ crypto library caching
-                → แก้ถูก: Proper PBKDF2/bcrypt/scrypt พร้อม built-in optimization หรือ dedicated crypto cache service
-                → เพราะอะไร: Custom crypto cache อาจ security vulnerability และไม่ follow crypto best practices
+                 ไม่ยอมรับ! Crypto operations ต้องใช้ proper key derivation functions หรือ crypto library caching
+                 แก้ถูก: Proper PBKDF2/bcrypt/scrypt พร้อม built-in optimization หรือ dedicated crypto cache service
+                 เพราะอะไร: Custom crypto cache อาจ security vulnerability และไม่ follow crypto best practices
 
             // ! ======================================================================
                  ARCHITECTURAL PRINCIPLE:
@@ -3760,64 +3760,64 @@ const ABSOLUTE_RULES = {
             เหตุผลที่คนอยากใช้ internal caching และการปิดช่องโหว่:
 
             1. "เฮ้ย! แต่มันแค่ performance optimization นะ!"
-               → ไม่ยอมรับ! Performance optimization ต้องทำแบบ centralized และ measurable ไม่ใช่ซ่อนใน function
-               → แก้ถูก: External caching layer พร้อม monitoring และ cache hit/miss metrics
-               → เพราะอะไร: Internal cache ไม่สามารถ monitor, tune หรือ debug ได้ง่าย
+                ไม่ยอมรับ! Performance optimization ต้องทำแบบ centralized และ measurable ไม่ใช่ซ่อนใน function
+                แก้ถูก: External caching layer พร้อม monitoring และ cache hit/miss metrics
+                เพราะอะไร: Internal cache ไม่สามารถ monitor, tune หรือ debug ได้ง่าย
 
             2. "อะ! แต่มันแค่ memoization ธรรมดาสำหรับการคำนวณที่หนัก!"
-               → ไม่ยอมรับ! การคำนวณที่หนักต้องใช้ proper caching strategy พร้อม TTL และ invalidation
-               → แก้ถูก: Dedicated computation cache service หรือ memoization library ที่มี proper lifecycle
-               → เพราะอะไร: Manual memoization ไม่มี memory management และอาจ memory leak
+                ไม่ยอมรับ! การคำนวณที่หนักต้องใช้ proper caching strategy พร้อม TTL และ invalidation
+                แก้ถูก: Dedicated computation cache service หรือ memoization library ที่มี proper lifecycle
+                เพราะอะไร: Manual memoization ไม่มี memory management และอาจ memory leak
 
             3. "เฮ้ย! แต่มันแค่หลีกเลี่ยง duplicate API calls!"
-               → ไม่ยอมรับ! API call deduplication ต้องทำใน HTTP layer หรือ API client layer
-               → แก้ถูก: HTTP cache headers, API client ที่มี request deduplication หรือ GraphQL DataLoader pattern
-               → เพราะอะไร: Function-level deduplication ไม่ respect HTTP semantics และ cache invalidation
+                ไม่ยอมรับ! API call deduplication ต้องทำใน HTTP layer หรือ API client layer
+                แก้ถูก: HTTP cache headers, API client ที่มี request deduplication หรือ GraphQL DataLoader pattern
+                เพราะอะไร: Function-level deduplication ไม่ respect HTTP semantics และ cache invalidation
 
             4. "อะ! แต่มันแค่ static data ที่ไม่เปลี่ยน!"
-               → ไม่ยอมรับ! "ไม่เปลี่ยน" คือ assumption ที่อันตราย - data เปลี่ยนได้เสมอ
-               → แก้ถูก: Configuration store หรือ static assets loading พร้อม cache invalidation mechanism
-               → เพราะอะไร: Static assumptions พังเมื่อ requirements เปลี่ยนและไม่มี invalidation strategy
+                ไม่ยอมรับ! "ไม่เปลี่ยน" คือ assumption ที่อันตราย - data เปลี่ยนได้เสมอ
+                แก้ถูก: Configuration store หรือ static assets loading พร้อม cache invalidation mechanism
+                เพราะอะไร: Static assumptions พังเมื่อ requirements เปลี่ยนและไม่มี invalidation strategy
 
             5. "เฮ้ย! แต่มันแค่ database query result caching!"
-               → ไม่ยอมรับ! Database caching ต้องทำใน database layer หรือ dedicated cache layer
-               → แก้ถูก: Database query cache, Redis cache หรือ ORM-level caching พร้อม proper invalidation
-               → เพราะอะไร: Function-level DB caching bypass database transaction isolation และ data consistency
+                ไม่ยอมรับ! Database caching ต้องทำใน database layer หรือ dedicated cache layer
+                แก้ถูก: Database query cache, Redis cache หรือ ORM-level caching พร้อม proper invalidation
+                เพราะอะไร: Function-level DB caching bypass database transaction isolation และ data consistency
 
             6. "อะ! แต่มันแค่ parsed configuration data!"
-               → ไม่ยอมรับ! Configuration parsing ต้องทำครั้งเดียวตอน application startup
-               → แก้ถูก: Configuration loader ที่ parse ตอน bootstrap พร้อม hot-reload mechanism
-               → เพราะอะไร: Runtime config parsing cache ป้องกัน configuration updates และ environment changes
+                ไม่ยอมรับ! Configuration parsing ต้องทำครั้งเดียวตอน application startup
+                แก้ถูก: Configuration loader ที่ parse ตอน bootstrap พร้อม hot-reload mechanism
+                เพราะอะไร: Runtime config parsing cache ป้องกัน configuration updates และ environment changes
 
             7. "เฮ้ย! แต่มันแค่ user session data!"
-               → ไม่ยอมรับ! User session ต้องเก็บใน session store ไม่ใช่ application memory
-               → แก้ถูก: Redis session store, database sessions หรือ JWT stateless sessions
-               → เพราะอะไร: In-memory session cache ไม่ work ใน multi-instance deployment และ horizontal scaling
+                ไม่ยอมรับ! User session ต้องเก็บใน session store ไม่ใช่ application memory
+                แก้ถูก: Redis session store, database sessions หรือ JWT stateless sessions
+                เพราะอะไร: In-memory session cache ไม่ work ใน multi-instance deployment และ horizontal scaling
 
             8. "อะ! แต่มันแค่ template rendering cache!"
-               → ไม่ยอมรับ! Template caching ต้องทำใน template engine layer
-               → แก้ถูก: Template engine built-in caching (เช่น Handlebars precompiled templates)
-               → เพราะอะไร: Custom template cache ไม่ integrate กับ template engine optimization และ debug tools
+                ไม่ยอมรับ! Template caching ต้องทำใน template engine layer
+                แก้ถูก: Template engine built-in caching (เช่น Handlebars precompiled templates)
+                เพราะอะไร: Custom template cache ไม่ integrate กับ template engine optimization และ debug tools
 
             9. "เฮ้ย! แต่มันแค่ validation rules parsing!"
-               → ไม่ยอมรับ! Validation rules ต้อง compile ตอน application startup
-               → แก้ถูก: Pre-compiled validation schemas หรือ validation library with built-in compilation caching
-               → เพราะอะไร: Runtime validation parsing cache อาจ outdated เมื่อ rules เปลี่ยน
+                ไม่ยอมรับ! Validation rules ต้อง compile ตอน application startup
+                แก้ถูก: Pre-compiled validation schemas หรือ validation library with built-in compilation caching
+                เพราะอะไร: Runtime validation parsing cache อาจ outdated เมื่อ rules เปลี่ยน
 
             10. "อะ! แต่มันแค่ timezone/locale data!"
-                → ไม่ยอมรับ! Timezone/locale data ต้องใช้ standard library caching
-                → แก้ถูก: Intl API, moment.js timezone caching หรือ i18n library built-in cache
-                → เพราะอะไร: Custom timezone cache อาจ outdated เมื่อมี timezone rule changes
+                 ไม่ยอมรับ! Timezone/locale data ต้องใช้ standard library caching
+                 แก้ถูก: Intl API, moment.js timezone caching หรือ i18n library built-in cache
+                 เพราะอะไร: Custom timezone cache อาจ outdated เมื่อมี timezone rule changes
 
             11. "เฮ้ย! แต่มันแค่ file system read cache!"
-                → ไม่ยอมรับ! File system caching ต้องทำใน OS level หรือ application-level file cache
-                → แก้ถูก: OS file system cache, application file loader พร้อม file watcher
-                → เพราะอะไร: Custom file cache ไม่ detect file changes และ memory management issues
+                 ไม่ยอมรับ! File system caching ต้องทำใน OS level หรือ application-level file cache
+                 แก้ถูก: OS file system cache, application file loader พร้อม file watcher
+                 เพราะอะไร: Custom file cache ไม่ detect file changes และ memory management issues
 
             12. "อะ! แต่มันแค่ crypto/hash computation cache!"
-                → ไม่ยอมรับ! Crypto operations ต้องใช้ proper key derivation functions หรือ crypto library caching
-                → แก้ถูก: Proper PBKDF2/bcrypt/scrypt พร้อม built-in optimization หรือ dedicated crypto cache service
-                → เพราะอะไร: Custom crypto cache อาจเป็น security vulnerability และไม่ follow crypto best practices
+                 ไม่ยอมรับ! Crypto operations ต้องใช้ proper key derivation functions หรือ crypto library caching
+                 แก้ถูก: Proper PBKDF2/bcrypt/scrypt พร้อม built-in optimization หรือ dedicated crypto cache service
+                 เพราะอะไร: Custom crypto cache อาจเป็น security vulnerability และไม่ follow crypto best practices
 
             // ! ======================================================================
                  หลักการสถาปัตยกรรม (ภาษาไทย):
@@ -4583,64 +4583,64 @@ const ABSOLUTE_RULES = {
             เหตุผลที่คนอยากใช้ emoji และการปิดช่องโหว่:
 
             1. "OMG BUT IT'S JUST FOR FUN AND TEAM MORALE!"
-               → ไม่ยอมรับ! Fun ไม่ใช่เหตุผลที่ดีในการทำลาย professional code standards
-               → แก้ถูก: Team morale ผ่าน proper documentation, meaningful code review และ knowledge sharing
-               → เพราะอะไร: Code คือ professional artifact ที่ต้อง maintainable โดย developers ทั่วโลก
+                ไม่ยอมรับ! Fun ไม่ใช่เหตุผลที่ดีในการทำลาย professional code standards
+                แก้ถูก: Team morale ผ่าน proper documentation, meaningful code review และ knowledge sharing
+                เพราะอะไร: Code คือ professional artifact ที่ต้อง maintainable โดย developers ทั่วโลก
 
             2. "DUDE! IT'S JUST IN COMMENTS, NOT IN ACTUAL CODE!"
-               → ไม่ยอมรับ! Comments เป็นส่วนหนึ่งของ codebase และต้อง searchable และ parseable
-               → แก้ถูก: Structured comments พร้อม proper prefixes (// TODO:, // FIXME:, // NOTE:)
-               → เพราะอะไร: Emoji ใน comments ทำลาย text search, code indexing และ documentation generation
+                ไม่ยอมรับ! Comments เป็นส่วนหนึ่งของ codebase และต้อง searchable และ parseable
+                แก้ถูก: Structured comments พร้อม proper prefixes (// TODO:, // FIXME:, // NOTE:)
+                เพราะอะไร: Emoji ใน comments ทำลาย text search, code indexing และ documentation generation
 
             3. "BRO, IT'S JUST FOR COMMIT MESSAGES!"
-               → ไม่ยอมรับ! Commit messages ต้อง machine-readable และ professional
-               → แก้ถูก: Conventional Commit format พร้อม clear type และ scope (feat:, fix:, docs:)
-               → เพราะอะไร: Git log parsing, changelog generation และ CI/CD automation ต้องการ structured format
+                ไม่ยอมรับ! Commit messages ต้อง machine-readable และ professional
+                แก้ถูก: Conventional Commit format พร้อม clear type และ scope (feat:, fix:, docs:)
+                เพราะอะไร: Git log parsing, changelog generation และ CI/CD automation ต้องการ structured format
 
             4. "OMG BUT IT'S JUST FOR STATUS INDICATORS!"
-               → ไม่ยอมรับ! Status indicators ต้องใช้ standard text ที่ universally understood
-               → แก้ถูก: Enum values (SUCCESS/FAILED/PENDING) หรือ standard status codes
-               → เพราะอะไร: Status indicators ต้อง machine-readable และ locale-independent
+                ไม่ยอมรับ! Status indicators ต้องใช้ standard text ที่ universally understood
+                แก้ถูก: Enum values (SUCCESS/FAILED/PENDING) หรือ standard status codes
+                เพราะอะไร: Status indicators ต้อง machine-readable และ locale-independent
 
             5. "DUDE! IT'S JUST FOR PRIORITY LEVELS!"
-               → ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
-               → แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
-               → เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
+                ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
+                แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
+                เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
 
             6. "BRO, IT'S JUST FOR USER-FACING STRINGS!"
-               → ไม่ยอมรับ! User-facing content ต้อง properly internationalized
-               → แก้ถูก: i18n framework พร้อม proper Unicode handling และ locale-specific rendering
-               → เพราะอะไร: Hardcoded emoji ไม่ support accessibility, screen readers และ cultural differences
+                ไม่ยอมรับ! User-facing content ต้อง properly internationalized
+                แก้ถูก: i18n framework พร้อม proper Unicode handling และ locale-specific rendering
+                เพราะอะไร: Hardcoded emoji ไม่ support accessibility, screen readers และ cultural differences
 
             7. "OMG BUT IT'S JUST FOR TEST DATA/FIXTURES!"
-               → ไม่ยอมรับ! Test data ต้อง predictable และ focused บน business logic ไม่ใช่ visual elements
-               → แก้ถูก: Meaningful test data ที่ reflect real-world scenarios
-               → เพราะอะไร: Emoji ใน test data distract จาก actual test logic และ make debugging harder
+                ไม่ยอมรับ! Test data ต้อง predictable และ focused บน business logic ไม่ใช่ visual elements
+                แก้ถูก: Meaningful test data ที่ reflect real-world scenarios
+                เพราะอะไร: Emoji ใน test data distract จาก actual test logic และ make debugging harder
 
             8. "DUDE! IT'S JUST FOR ERROR MESSAGES TO MAKE THEM FRIENDLY!"
-               → ไม่ยอมรับ! Error messages ต้อง structured และ actionable ไม่ใช่ "friendly"
-               → แก้ถูก: Clear error codes พร้อม actionable messages และ proper error categorization
-               → เพราะอะไร: Error handling systems ต้อง parseable และ alerting systems ต้องการ structured data
+                ไม่ยอมรับ! Error messages ต้อง structured และ actionable ไม่ใช่ "friendly"
+                แก้ถูก: Clear error codes พร้อม actionable messages และ proper error categorization
+                เพราะอะไร: Error handling systems ต้อง parseable และ alerting systems ต้องการ structured data
 
             9. "BRO, IT'S JUST FOR LOG LEVEL INDICATORS!"
-               → ไม่ยอมรับ! Log levels ต้อง standard และ machine-parseable
-               → แก้ถูก: Standard log levels (DEBUG/INFO/WARN/ERROR/FATAL) พร้อม structured logging
-               → เพราะอะไร: Log aggregation systems และ monitoring tools ต้องการ standardized log formats
+                ไม่ยอมรับ! Log levels ต้อง standard และ machine-parseable
+                แก้ถูก: Standard log levels (DEBUG/INFO/WARN/ERROR/FATAL) พร้อม structured logging
+                เพราะอะไร: Log aggregation systems และ monitoring tools ต้องการ standardized log formats
 
             10. "OMG BUT IT'S PART OF THE BUSINESS DOMAIN (SOCIAL MEDIA APP)!"
-                → ไม่ยอมรับ! Business domain emoji ต้องเก็บใน database หรือ user content ไม่ใช่ source code
-                → แก้ถูก: Emoji handling library พร้อม proper Unicode normalization และ database storage
-                → เพราะอะไร: Business logic ต้องแยกจาก presentation layer และ support emoji evolution
+                 ไม่ยอมรับ! Business domain emoji ต้องเก็บใน database หรือ user content ไม่ใช่ source code
+                 แก้ถูก: Emoji handling library พร้อม proper Unicode normalization และ database storage
+                 เพราะอะไร: Business logic ต้องแยกจาก presentation layer และ support emoji evolution
 
             11. "DUDE! IT'S JUST FOR FEATURE FLAGS OR CONFIGURATION!"
-                → ไม่ยอมรับ! Configuration values ต้อง machine-readable และ deployment-safe
-                → แก้ถูก: Boolean/string configuration values พร้อม proper validation
-                → เพราะอะไร: Configuration parsing ต้อง robust และ environment-independent
+                 ไม่ยอมรับ! Configuration values ต้อง machine-readable และ deployment-safe
+                 แก้ถูก: Boolean/string configuration values พร้อม proper validation
+                 เพราะอะไร: Configuration parsing ต้อง robust และ environment-independent
 
             12. "BRO, OTHER POPULAR PROJECTS USE EMOJI IN CODE!"
-                → ไม่ยอมรับ! Popularity ไม่ใช่ technical merit - enterprise code ต้อง stricter standards
-                → แก้ถูก: Follow established enterprise coding standards และ industry best practices
-                → เพราะอะไร: Enterprise software ต้อง maintainable โดย global teams พร้อม different tooling และ environments
+                 ไม่ยอมรับ! Popularity ไม่ใช่ technical merit - enterprise code ต้อง stricter standards
+                 แก้ถูก: Follow established enterprise coding standards และ industry best practices
+                 เพราะอะไร: Enterprise software ต้อง maintainable โดย global teams พร้อม different tooling และ environments
 
             // ! ======================================================================
             // ! PROFESSIONAL PRINCIPLE
@@ -4666,64 +4666,64 @@ const ABSOLUTE_RULES = {
             เหตุผลที่คนอยากใช้ emoji และการปิดช่องโหว่:
 
             1. "เฮ้ย! แต่มันแค่เพื่อความสนุกและสร้างขวัญทีม!"
-               → ไม่ยอมรับ! ความสนุกไม่ใช่เหตุผลที่ดีในการทำลาย professional code standards
-               → แก้ถูก: Team morale ผ่าน proper documentation, meaningful code review และ knowledge sharing
-               → เพราะอะไร: Code คือ professional artifact ที่ต้อง maintainable โดย developers ทั่วโลก
+                ไม่ยอมรับ! ความสนุกไม่ใช่เหตุผลที่ดีในการทำลาย professional code standards
+                แก้ถูก: Team morale ผ่าน proper documentation, meaningful code review และ knowledge sharing
+                เพราะอะไร: Code คือ professional artifact ที่ต้อง maintainable โดย developers ทั่วโลก
 
             2. "อะ! แต่มันแค่ใน comments ไม่ใช่โค้ดจริงนะ!"
-               → ไม่ยอมรับ! Comments เป็นส่วนหนึ่งของ codebase และต้อง searchable และ parseable
-               → แก้ถูก: Structured comments พร้อม proper prefixes (// TODO:, // FIXME:, // NOTE:)
-               → เพราะอะไร: Emoji ใน comments ทำลาย text search, code indexing และ documentation generation
+                ไม่ยอมรับ! Comments เป็นส่วนหนึ่งของ codebase และต้อง searchable และ parseable
+                แก้ถูก: Structured comments พร้อม proper prefixes (// TODO:, // FIXME:, // NOTE:)
+                เพราะอะไร: Emoji ใน comments ทำลาย text search, code indexing และ documentation generation
 
             3. "เฮ้ย! แต่มันแค่ commit messages!"
-               → ไม่ยอมรับ! Commit messages ต้อง machine-readable และ professional
-               → แก้ถูก: Conventional Commit format พร้อม clear type และ scope (feat:, fix:, docs:)
-               → เพราะอะไร: Git log parsing, changelog generation และ CI/CD automation ต้องการ structured format
+                ไม่ยอมรับ! Commit messages ต้อง machine-readable และ professional
+                แก้ถูก: Conventional Commit format พร้อม clear type และ scope (feat:, fix:, docs:)
+                เพราะอะไร: Git log parsing, changelog generation และ CI/CD automation ต้องการ structured format
 
             4. "อะ! แต่มันแค่ status indicators!"
-               → ไม่ยอมรับ! Status indicators ต้องใช้ standard text ที่ universally understood
-               → แก้ถูก: Enum values (SUCCESS/FAILED/PENDING) หรือ standard status codes
-               → เพราะอะไร: Status indicators ต้อง machine-readable และ locale-independent
+                ไม่ยอมรับ! Status indicators ต้องใช้ standard text ที่ universally understood
+                แก้ถูก: Enum values (SUCCESS/FAILED/PENDING) หรือ standard status codes
+                เพราะอะไร: Status indicators ต้อง machine-readable และ locale-independent
 
             5. "เฮ้ย! แต่มันแค่ priority levels!"
-               → ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
-               → แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
-               → เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
+                ไม่ยอมรับ! Priority levels ต้องใช้ standardized priority systems
+                แก้ถูก: Priority enum (LOW/MEDIUM/HIGH/CRITICAL) หรือ numeric levels (P0-P4)
+                เพราะอะไร: Priority systems ต้อง sortable และ integrate กับ issue tracking systems
 
             6. "อะ! แต่มันแค่ user-facing strings!"
-               → ไม่ยอมรับ! User-facing content ต้อง properly internationalized
-               → แก้ถูก: i18n framework พร้อม proper Unicode handling และ locale-specific rendering
-               → เพราะอะไร: Hardcoded emoji ไม่ support accessibility, screen readers และ cultural differences
+                ไม่ยอมรับ! User-facing content ต้อง properly internationalized
+                แก้ถูก: i18n framework พร้อม proper Unicode handling และ locale-specific rendering
+                เพราะอะไร: Hardcoded emoji ไม่ support accessibility, screen readers และ cultural differences
 
             7. "เฮ้ย! แต่มันแค่ test data/fixtures!"
-               → ไม่ยอมรับ! Test data ต้อง predictable และ focused บน business logic ไม่ใช่ visual elements
-               → แก้ถูก: Meaningful test data ที่ reflect real-world scenarios
-               → เพราะอะไร: Emoji ใน test data distract จาก actual test logic และ make debugging harder
+                ไม่ยอมรับ! Test data ต้อง predictable และ focused บน business logic ไม่ใช่ visual elements
+                แก้ถูก: Meaningful test data ที่ reflect real-world scenarios
+                เพราะอะไร: Emoji ใน test data distract จาก actual test logic และ make debugging harder
 
             8. "อะ! แต่มันแค่ error messages เพื่อให้เป็นมิตร!"
-               → ไม่ยอมรับ! Error messages ต้อง structured และ actionable ไม่ใช่ "เป็นมิตร"
-               → แก้ถูก: Clear error codes พร้อม actionable messages และ proper error categorization
-               → เพราะอะไร: Error handling systems ต้อง parseable และ alerting systems ต้องการ structured data
+                ไม่ยอมรับ! Error messages ต้อง structured และ actionable ไม่ใช่ "เป็นมิตร"
+                แก้ถูก: Clear error codes พร้อม actionable messages และ proper error categorization
+                เพราะอะไร: Error handling systems ต้อง parseable และ alerting systems ต้องการ structured data
 
             9. "เฮ้ย! แต่มันแค่ log level indicators!"
-               → ไม่ยอมรับ! Log levels ต้อง standard และ machine-parseable
-               → แก้ถูก: Standard log levels (DEBUG/INFO/WARN/ERROR/FATAL) พร้อม structured logging
-               → เพราะอะไร: Log aggregation systems และ monitoring tools ต้องการ standardized log formats
+                ไม่ยอมรับ! Log levels ต้อง standard และ machine-parseable
+                แก้ถูก: Standard log levels (DEBUG/INFO/WARN/ERROR/FATAL) พร้อม structured logging
+                เพราะอะไร: Log aggregation systems และ monitoring tools ต้องการ standardized log formats
 
             10. "อะ! แต่มันเป็นส่วนหนึ่งของ business domain (social media app)!"
-                → ไม่ยอมรับ! Business domain emoji ต้องเก็บใน database หรือ user content ไม่ใช่ source code
-                → แก้ถูก: Emoji handling library พร้อม proper Unicode normalization และ database storage
-                → เพราะอะไร: Business logic ต้องแยกจาก presentation layer และ support emoji evolution
+                 ไม่ยอมรับ! Business domain emoji ต้องเก็บใน database หรือ user content ไม่ใช่ source code
+                 แก้ถูก: Emoji handling library พร้อม proper Unicode normalization และ database storage
+                 เพราะอะไร: Business logic ต้องแยกจาก presentation layer และ support emoji evolution
 
             11. "เฮ้ย! แต่มันแค่ feature flags หรือ configuration!"
-                → ไม่ยอมรับ! Configuration values ต้อง machine-readable และ deployment-safe
-                → แก้ถูก: Boolean/string configuration values พร้อม proper validation
-                → เพราะอะไร: Configuration parsing ต้อง robust และ environment-independent
+                 ไม่ยอมรับ! Configuration values ต้อง machine-readable และ deployment-safe
+                 แก้ถูก: Boolean/string configuration values พร้อม proper validation
+                 เพราะอะไร: Configuration parsing ต้อง robust และ environment-independent
 
             12. "อะ! แต่โปรเจ็กต์ดังๆ ก็ใช้ emoji ในโค้ด!"
-                → ไม่ยอมรับ! Popularity ไม่ใช่ technical merit - enterprise code ต้อง stricter standards
-                → แก้ถูก: Follow established enterprise coding standards และ industry best practices
-                → เพราะอะไร: Enterprise software ต้อง maintainable โดย global teams พร้อม different tooling และ environments
+                 ไม่ยอมรับ! Popularity ไม่ใช่ technical merit - enterprise code ต้อง stricter standards
+                 แก้ถูก: Follow established enterprise coding standards และ industry best practices
+                 เพราะอะไร: Enterprise software ต้อง maintainable โดย global teams พร้อม different tooling และ environments
 
             // ! ======================================================================
             // ! หลักการมืออาชีพ (ภาษาไทย)

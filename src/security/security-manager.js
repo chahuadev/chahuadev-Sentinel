@@ -282,7 +282,12 @@ class SecurityManager {
             try {
                 return input.match(pattern);
             } catch (error) {
-                return null;
+                // !  NO_SILENT_FALLBACKS: Throw error instead of returning null
+                this.logSecurityEvent('REGEX_ERROR', `Regex execution failed: ${error.message}`, {
+                    pattern: pattern.source,
+                    context
+                });
+                throw error;
             }
         }
         

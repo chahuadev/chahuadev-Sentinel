@@ -232,7 +232,8 @@ function findLongestOperatorLoop(input, position, operators) {
         }
     }
 
-    return null;
+    // !  NO_SILENT_FALLBACKS: คืน empty result แทน null
+    return { operator: null, length: 0 };
 }
 
 // !  =============================================================================
@@ -314,7 +315,8 @@ export function benchmarkMemoryUsage(grammar) {
         return { heapUsed, external, stats: index.getStats() };
     } else {
         console.log('Memory profiling not available in this environment');
-        return null;
+        // !  NO_SILENT_FALLBACKS: คืน empty result แทน null
+        return { heapUsed: 0, external: 0, stats: null, available: false };
     }
 }
 

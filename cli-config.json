@@ -25,6 +25,17 @@
     "include": "**/*.{js,ts,jsx,tsx}",
     "exclude": "**/node_modules/**"
   },
+  "fileExtensions": [".js", ".ts", ".jsx", ".tsx"],
+  "fuzzySearch": {
+    "maxLevenshteinDistance": 2,
+    "maxDistance": 3,
+    "minSimilarity": 0.7,
+    "maxSuggestions": 3
+  },
+  "fallbackValues": {
+    "unknownTokenName": "UNKNOWN_TOKEN",
+    "parserLearningRuleId": "PARSER_LEARNING_NEEDED"
+  },
   "projectInfo": {
     "repository": "https://github.com/chahuadev/chahuadev-Sentinel.git",
     "author": "บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)",

@@ -202,7 +202,7 @@ const PaymentComponent = () => {
                 borderBottom: '1px solid #edf2f7',
                 color: '#4a5568'
               }}>
-                ✓ {feature}
+                 {feature}
               </li>
             ))}
           </ul>

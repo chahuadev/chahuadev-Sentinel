@@ -8,42 +8,42 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 // VIOLATION 1: Component Props และ State ที่มี Emoji
 const EmojiStatusCard = ({ 
   title, 
-  status = "🟢", 
-  icon = "📊", 
-  message = "Everything looks good! 🎉",
+  status = "", 
+  icon = "", 
+  message = "Everything looks good! ",
   onStatusChange = () => {},
-  reactions = ["👍", "❤️", "🔥", "🎯"]
+  reactions = ["", "", "", ""]
 }) => {
-  const [currentReaction, setCurrentReaction] = useState("😊");
+  const [currentReaction, setCurrentReaction] = useState("");
   const [userFeedback, setUserFeedback] = useState("");
-  const [mood, setMood] = useState("😐");
+  const [mood, setMood] = useState("");
 
   // CRITICAL: Emoji mapping objects
   const statusEmojis = {
-    online: "🟢",
-    offline: "🔴", 
-    warning: "🟡",
-    error: "💥",
-    maintenance: "🔧",
-    success: "✅"
+    online: "",
+    offline: "", 
+    warning: "",
+    error: "",
+    maintenance: "",
+    success: ""
   };
 
   const moodEmojis = {
-    happy: "😊",
-    sad: "😢",
-    excited: "🤩",
-    angry: "😡",
-    surprised: "😮",
-    thinking: "🤔"
+    happy: "",
+    sad: "",
+    excited: "",
+    angry: "",
+    surprised: "",
+    thinking: ""
   };
 
   // CRITICAL: Functions that return emoji strings
   const getStatusIcon = useCallback((statusType) => {
-    return statusEmojis[statusType] || "❓";
+    return statusEmojis[statusType] || "";
   }, []);
 
   const generateRandomEmoji = () => {
-    const emojis = ["🎉", "🚀", "⭐", "🔥", "💎", "🏆", "🎯", "⚡"];
+    const emojis = ["", "", "", "", "", "", "", ""];
     return emojis[Math.floor(Math.random() * emojis.length)];
   };
 
@@ -114,7 +114,7 @@ const EmojiStatusCard = ({
               cursor: "pointer"
             }}
           >
-            🎲 Random
+             Random
           </button>
         </div>
       </div>
@@ -123,7 +123,7 @@ const EmojiStatusCard = ({
       <div style={{ margin: "16px 0" }}>
         <input
           type="text"
-          placeholder="💬 Leave your feedback..."
+          placeholder=" Leave your feedback..."
           value={userFeedback}
           onChange={(e) => setUserFeedback(e.target.value)}
           style={{
@@ -136,7 +136,7 @@ const EmojiStatusCard = ({
         />
         {userFeedback && (
           <p style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
-            📝 Feedback: {userFeedback} {currentReaction}
+             Feedback: {userFeedback} {currentReaction}
           </p>
         )}
       </div>
@@ -150,21 +150,21 @@ const EmojiNavigation = () => {
 
   // CRITICAL: Navigation items with emoji icons
   const navigationItems = [
-    { id: "dashboard", label: "Dashboard", icon: "📊", badge: null },
-    { id: "users", label: "Users", icon: "👥", badge: "12" },
-    { id: "analytics", label: "Analytics", icon: "📈", badge: "new" },
-    { id: "messages", label: "Messages", icon: "💬", badge: "5" },
-    { id: "notifications", label: "Notifications", icon: "🔔", badge: "99+" },
-    { id: "settings", label: "Settings", icon: "⚙️", badge: null },
-    { id: "help", label: "Help & Support", icon: "❓", badge: null },
-    { id: "logout", label: "Logout", icon: "🚪", badge: null }
+    { id: "dashboard", label: "Dashboard", icon: "", badge: null },
+    { id: "users", label: "Users", icon: "", badge: "12" },
+    { id: "analytics", label: "Analytics", icon: "", badge: "new" },
+    { id: "messages", label: "Messages", icon: "", badge: "5" },
+    { id: "notifications", label: "Notifications", icon: "", badge: "99+" },
+    { id: "settings", label: "Settings", icon: "", badge: null },
+    { id: "help", label: "Help & Support", icon: "", badge: null },
+    { id: "logout", label: "Logout", icon: "", badge: null }
   ];
 
   const getBadgeEmoji = (badgeValue) => {
     if (!badgeValue) return "";
-    if (badgeValue === "new") return "🆕";
-    if (badgeValue.includes("+")) return "🔥";
-    return "📍";
+    if (badgeValue === "new") return "";
+    if (badgeValue.includes("+")) return "";
+    return "";
   };
 
   return (
@@ -181,10 +181,10 @@ const EmojiNavigation = () => {
         marginBottom: "20px"
       }}>
         <h2 style={{ color: "white", margin: "0" }}>
-          🏢 MyApp Dashboard
+           MyApp Dashboard
         </h2>
         <p style={{ color: "#bdc3c7", fontSize: "14px", margin: "8px 0 0" }}>
-          Welcome back! 👋
+          Welcome back! 
         </p>
       </div>
 
@@ -250,7 +250,7 @@ const EmojiNavigation = () => {
         textAlign: "center",
         fontSize: "14px"
       }}>
-        🟢 System Status: All Good! ✅
+         System Status: All Good! 
       </div>
     </nav>
   );
@@ -263,42 +263,42 @@ const UserProfileCard = ({ user }) => {
 
   // CRITICAL: Activity status with emoji mapping
   const activityEmojis = {
-    coding: "💻",
-    meeting: "🤝", 
-    coffee: "☕",
-    lunch: "🍽️",
-    vacation: "🏖️",
-    sick: "🤒",
-    busy: "⏰",
-    available: "✅"
+    coding: "",
+    meeting: "", 
+    coffee: "",
+    lunch: "",
+    vacation: "",
+    sick: "",
+    busy: "",
+    available: ""
   };
 
   const roleEmojis = {
-    admin: "👑",
-    manager: "📋",
-    developer: "👨‍💻", 
-    designer: "🎨",
-    tester: "🔍",
-    user: "👤"
+    admin: "",
+    manager: "",
+    developer: "", 
+    designer: "",
+    tester: "",
+    user: ""
   };
 
   // CRITICAL: Mood and status calculation with emojis
   const getUserMoodEmoji = useMemo(() => {
     const now = new Date().getHours();
-    if (now < 9) return "😴"; // Early morning
-    if (now < 12) return "☕"; // Morning coffee
-    if (now < 14) return "💪"; // Productive time  
-    if (now < 17) return "🎯"; // Focus time
-    if (now < 20) return "😊"; // Evening
-    return "🌙"; // Night
+    if (now < 9) return ""; // Early morning
+    if (now < 12) return ""; // Morning coffee
+    if (now < 14) return ""; // Productive time  
+    if (now < 17) return ""; // Focus time
+    if (now < 20) return ""; // Evening
+    return ""; // Night
   }, []);
 
   const getPerformanceEmoji = (score) => {
-    if (score >= 90) return "🏆";
-    if (score >= 80) return "🥇";
-    if (score >= 70) return "🥈";
-    if (score >= 60) return "🥉";
-    return "📈";
+    if (score >= 90) return "";
+    if (score >= 80) return "";
+    if (score >= 70) return "";
+    if (score >= 60) return "";
+    return "";
   };
 
   return (
@@ -324,12 +324,12 @@ const UserProfileCard = ({ user }) => {
           fontSize: "24px",
           marginRight: "16px"
         }}>
-          {user.avatar || "👤"}
+          {user.avatar || ""}
         </div>
         
         <div style={{ flex: 1 }}>
           <h3 style={{ margin: "0 0 4px", color: "#1d2129" }}>
-            {roleEmojis[user.role] || "👤"} {user.name}
+            {roleEmojis[user.role] || ""} {user.name}
           </h3>
           <p style={{ margin: "0", color: "#65676b", fontSize: "14px" }}>
             {user.title} • {user.department}
@@ -346,7 +346,7 @@ const UserProfileCard = ({ user }) => {
             fontWeight: "bold",
             color: isOnline ? "#2e7d2e" : "#7d2e2e"
           }}>
-            {isOnline ? "🟢 Online" : "🔴 Offline"}
+            {isOnline ? " Online" : " Offline"}
           </div>
         </div>
       </div>
@@ -364,7 +364,7 @@ const UserProfileCard = ({ user }) => {
           borderRadius: "8px",
           textAlign: "center"
         }}>
-          <div style={{ fontSize: "20px" }}>📊</div>
+          <div style={{ fontSize: "20px" }}></div>
           <div style={{ fontSize: "18px", fontWeight: "bold", color: "#495057" }}>
             {user.projectsCount || 0}
           </div>
@@ -401,7 +401,7 @@ const UserProfileCard = ({ user }) => {
           border: "1px solid #bbdefb"
         }}>
           <span style={{ fontSize: "16px", marginRight: "8px" }}>
-            {activityEmojis[currentActivity] || "📍"}
+            {activityEmojis[currentActivity] || ""}
           </span>
           <span style={{ fontSize: "14px", color: "#1976d2" }}>
             {currentActivity || "Available"} {getUserMoodEmoji}
@@ -425,7 +425,7 @@ const UserProfileCard = ({ user }) => {
           fontSize: "14px",
           cursor: "pointer"
         }}>
-          💬 Message
+           Message
         </button>
         <button style={{
           flex: 1,
@@ -437,7 +437,7 @@ const UserProfileCard = ({ user }) => {
           fontSize: "14px",
           cursor: "pointer"
         }}>
-          📞 Call
+           Call
         </button>
         <button style={{
           padding: "8px 12px",
@@ -448,20 +448,20 @@ const UserProfileCard = ({ user }) => {
           fontSize: "14px",
           cursor: "pointer"
         }}>
-          ⚙️
+          
         </button>
       </div>
 
       {/* CRITICAL: Recent activity with timestamps and emojis */}
       <div style={{ marginTop: "20px" }}>
         <h4 style={{ fontSize: "14px", color: "#65676b", margin: "0 0 12px" }}>
-          📅 Recent Activity
+           Recent Activity
         </h4>
         <div style={{ fontSize: "12px" }}>
           {[
-            { time: "2 hours ago", action: "🚀 Deployed new feature", emoji: "✅" },
-            { time: "4 hours ago", action: "📝 Updated documentation", emoji: "📄" },
-            { time: "1 day ago", action: "🐛 Fixed critical bug", emoji: "🔧" }
+            { time: "2 hours ago", action: " Deployed new feature", emoji: "" },
+            { time: "4 hours ago", action: " Updated documentation", emoji: "" },
+            { time: "1 day ago", action: " Fixed critical bug", emoji: "" }
           ].map((activity, index) => (
             <div key={index} style={{
               display: "flex",
@@ -486,20 +486,20 @@ const FeedbackForm = () => {
     rating: 5,
     message: "",
     category: "",
-    mood: "😊"
+    mood: ""
   });
 
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
   // CRITICAL: Rating system with emoji
-  const ratingEmojis = ["😡", "😞", "😐", "🙂", "😊"];
+  const ratingEmojis = ["", "", "", "", ""];
   const categories = [
-    { id: "bug", label: "🐛 Bug Report", color: "#e74c3c" },
-    { id: "feature", label: "💡 Feature Request", color: "#3498db" },
-    { id: "improvement", label: "⚡ Improvement", color: "#f39c12" },
-    { id: "compliment", label: "🎉 Compliment", color: "#27ae60" },
-    { id: "complaint", label: "😤 Complaint", color: "#e67e22" }
+    { id: "bug", label: " Bug Report", color: "#e74c3c" },
+    { id: "feature", label: " Feature Request", color: "#3498db" },
+    { id: "improvement", label: " Improvement", color: "#f39c12" },
+    { id: "compliment", label: " Compliment", color: "#27ae60" },
+    { id: "complaint", label: " Complaint", color: "#e67e22" }
   ];
 
   // CRITICAL: Validation with emoji responses
@@ -507,17 +507,17 @@ const FeedbackForm = () => {
     const newErrors = {};
     
     if (!feedback.message.trim()) {
-      newErrors.message = "❌ Please enter your feedback message";
+      newErrors.message = " Please enter your feedback message";
     } else if (feedback.message.length < 10) {
-      newErrors.message = "⚠️ Message should be at least 10 characters long";
+      newErrors.message = " Message should be at least 10 characters long";
     }
     
     if (!feedback.category) {
-      newErrors.category = "❗ Please select a feedback category";
+      newErrors.category = " Please select a feedback category";
     }
     
     if (feedback.rating < 1 || feedback.rating > 5) {
-      newErrors.rating = "🔢 Rating must be between 1 and 5";
+      newErrors.rating = " Rating must be between 1 and 5";
     }
 
     setErrors(newErrors);
@@ -534,7 +534,7 @@ const FeedbackForm = () => {
       // Reset form after 3 seconds
       setTimeout(() => {
         setSubmitted(false);
-        setFeedback({ rating: 5, message: "", category: "", mood: "😊" });
+        setFeedback({ rating: 5, message: "", category: "", mood: "" });
       }, 3000);
     }
   };
@@ -549,15 +549,15 @@ const FeedbackForm = () => {
         borderRadius: "12px",
         margin: "20px"
       }}>
-        <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎉</div>
+        <div style={{ fontSize: "48px", marginBottom: "16px" }}></div>
         <h2 style={{ color: "#155724", margin: "0 0 8px" }}>
-          Thank You! 🙏
+          Thank You! 
         </h2>
         <p style={{ color: "#155724", margin: "0" }}>
-          Your feedback has been submitted successfully! ✅
+          Your feedback has been submitted successfully! 
         </p>
         <div style={{ fontSize: "24px", marginTop: "16px" }}>
-          {feedback.mood} 💖 🚀
+          {feedback.mood}  
         </div>
       </div>
     );
@@ -574,13 +574,13 @@ const FeedbackForm = () => {
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
     }}>
       <h2 style={{ textAlign: "center", color: "#1d2129", marginBottom: "24px" }}>
-        📝 Share Your Feedback
+         Share Your Feedback
       </h2>
 
       {/* CRITICAL: Rating with emoji display */}
       <div style={{ marginBottom: "20px" }}>
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          ⭐ Rate Your Experience
+           Rate Your Experience
         </label>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {[1, 2, 3, 4, 5].map(rating => (
@@ -615,7 +615,7 @@ const FeedbackForm = () => {
       {/* CRITICAL: Category selection with emoji labels */}
       <div style={{ marginBottom: "20px" }}>
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          📂 Feedback Category
+           Feedback Category
         </label>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
           {categories.map(category => (
@@ -648,12 +648,12 @@ const FeedbackForm = () => {
       {/* CRITICAL: Message input with emoji placeholder */}
       <div style={{ marginBottom: "20px" }}>
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          💬 Your Message
+           Your Message
         </label>
         <textarea
           value={feedback.message}
           onChange={(e) => setFeedback(prev => ({ ...prev, message: e.target.value }))}
-          placeholder="💭 Tell us what's on your mind... We'd love to hear from you! ✨"
+          placeholder=" Tell us what's on your mind... We'd love to hear from you! "
           style={{
             width: "100%",
             minHeight: "120px",
@@ -675,7 +675,7 @@ const FeedbackForm = () => {
             color: feedback.message.length < 10 ? "#e74c3c" : "#6c757d",
             marginLeft: "auto"
           }}>
-            {feedback.message.length < 10 ? "❌" : "✅"} {feedback.message.length} characters
+            {feedback.message.length < 10 ? "" : ""} {feedback.message.length} characters
           </span>
         </div>
       </div>
@@ -683,7 +683,7 @@ const FeedbackForm = () => {
       {/* CRITICAL: Mood selector with emoji */}
       <div style={{ marginBottom: "24px" }}>
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          😊 Current Mood
+           Current Mood
         </label>
         <select
           value={feedback.mood}
@@ -696,12 +696,12 @@ const FeedbackForm = () => {
             backgroundColor: "white"
           }}
         >
-          <option value="😊">😊 Happy</option>
-          <option value="😍">😍 Excited</option>
-          <option value="😐">😐 Neutral</option>
-          <option value="😔">😔 Disappointed</option>
-          <option value="😠">😠 Frustrated</option>
-          <option value="🤔">🤔 Thoughtful</option>
+          <option value=""> Happy</option>
+          <option value=""> Excited</option>
+          <option value=""> Neutral</option>
+          <option value=""> Disappointed</option>
+          <option value=""> Frustrated</option>
+          <option value=""> Thoughtful</option>
         </select>
       </div>
 
@@ -723,7 +723,7 @@ const FeedbackForm = () => {
         onMouseEnter={(e) => e.target.style.backgroundColor = "#166fe5"}
         onMouseLeave={(e) => e.target.style.backgroundColor = "#1877f2"}
       >
-        🚀 Submit Feedback
+         Submit Feedback
       </button>
     </form>
   );
@@ -736,7 +736,7 @@ const EmojiApp = () => {
     title: "Senior Developer", 
     department: "Engineering",
     role: "developer",
-    avatar: "👨‍💻",
+    avatar: "",
     isOnline: true,
     activity: "coding",
     projectsCount: 15,
@@ -749,23 +749,23 @@ const EmojiApp = () => {
       
       <div style={{ flex: 1, padding: "20px", overflow: "auto" }}>
         <h1 style={{ color: "#1d2129", marginBottom: "24px" }}>
-          🏠 Welcome to the Dashboard! 👋
+           Welcome to the Dashboard! 
         </h1>
         
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
           <EmojiStatusCard 
             title="System Status"
             status="online"
-            message="All systems running smoothly! 🎯"
-            reactions={["🎉", "👏", "🚀", "💯", "🔥"]}
+            message="All systems running smoothly! "
+            reactions={["", "", "", "", ""]}
           />
           
           <EmojiStatusCard 
             title="Performance Metrics"
             status="success" 
-            icon="📈"
-            message="Great performance today! Keep it up! 💪"
-            reactions={["👍", "💎", "⭐", "🏆"]}
+            icon=""
+            message="Great performance today! Keep it up! "
+            reactions={["", "", "", ""]}
           />
         </div>
 

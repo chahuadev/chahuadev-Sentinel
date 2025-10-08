@@ -236,11 +236,11 @@
 
 ### Quick Reference
 
-**New Contributors**: CODE_OF_CONDUCT.md → CONTRIBUTING.md → COMMIT_GUIDELINES.md → API.md
-**Developers**: API.md → ARCHITECTURE.md → SECURITY.md
-**Users**: README.md → API.md → Documentation examples
-**Maintainers**: GOVERNANCE.md → RELEASE_PROCESS.md → COLLABORATION.md → All documentation
-**Community Leaders**: CODE_OF_CONDUCT.md → GOVERNANCE.md → COLLABORATION.md
+**New Contributors**: CODE_OF_CONDUCT.md  CONTRIBUTING.md  COMMIT_GUIDELINES.md  API.md
+**Developers**: API.md  ARCHITECTURE.md  SECURITY.md
+**Users**: README.md  API.md  Documentation examples
+**Maintainers**: GOVERNANCE.md  RELEASE_PROCESS.md  COLLABORATION.md  All documentation
+**Community Leaders**: CODE_OF_CONDUCT.md  GOVERNANCE.md  COLLABORATION.md
 
 ### Cross-References
 

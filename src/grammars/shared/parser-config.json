@@ -101,7 +101,8 @@
         "maxSuggestions": 3
     },
     "tokenizer": {
-        "benchmarkIterations": 1000
+        "benchmarkIterations": 1000,
+        "maxAsciiCharCode": 127
     },
     "performanceBenchmarks": {
         "defaultSize": 100,

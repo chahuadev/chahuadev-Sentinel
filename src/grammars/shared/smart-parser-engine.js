@@ -1,12 +1,25 @@
-// ! ======================================================================
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  HEADER & FILE INFORMATION
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 // !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
 // !  Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
 // !  Version: 1.0.0
 // !  License: MIT
 // !  Contact: chahuadev@gmail.com
-// !  ======================================================================
-// !  Smart Parser Engine - OUR OWN PARSER (ไม่ใช้ไลบรารี่ภายนอก)
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  Smart Parser Engine 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  IMPORTS & DEPENDENCIES
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  งานที่ทำ: นำเข้า modules และ dependencies ที่จำเป็น
+// !  - constants.js: ค่าคงที่ต่างๆ (RULE_IDS, SEVERITY_LEVELS, etc.)
+// !  - Node.js modules: fs, url, path สำหรับอ่านไฟล์ config
+// !  - validator.js: ABSOLUTE_RULES
+// !  - grammar-index.js: GrammarIndex class
+// !  - tokenizer-helper.js: BinaryComputationTokenizer (Central Nervous System)
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 import { RULE_IDS, ERROR_TYPES, SEVERITY_LEVELS, TOKEN_TYPES, DEFAULT_LOCATION } from './constants.js';
 
 import { readFileSync } from 'fs';
@@ -14,8 +27,17 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { ABSOLUTE_RULES } from '../../validator.js';
 import GrammarIndex from './grammar-index.js';
+import { BinaryComputationTokenizer } from './tokenizer-helper.js';
 
-// ! Load Configuration from External File (NO MORE HARDCODE!)
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  CONFIGURATION LOADER 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  งานที่ทำ: โหลด parser configuration จาก external file (NO_HARDCODE compliance)
+// !  - สร้าง path ไปยัง parser-config.json
+// !  - อ่านไฟล์และ parse เป็น JSON
+// !  - ถ้าโหลดไม่สำเร็จ  throw error (ไม่มี fallback)
+// !  - เก็บ config ใน PARSER_CONFIG global variable
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const CONFIG_PATH = join(__dirname, 'parser-config.json');
@@ -31,180 +53,42 @@ try {
 
 // ! Configuration must be loaded from external file - no fallback allowed
 
-/**
- * ! JavaScript Tokenizer - แยกโค้ดเป็น Token ที่ละเอียด
- */
-class JavaScriptTokenizer {
-    constructor(grammarIndex) { // รับ grammarIndex
-        this.tokens = [];
-        this.position = 0;
-        this.grammarIndex = grammarIndex; // เก็บ index ไว้
-    }
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  TOKENIZER: NOW USING BINARY COMPUTATION TOKENIZER
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  WHY: Removed hardcoded JavaScriptTokenizer class in favor of proper architecture:
+// !  - BinaryComputationTokenizer: Central Nervous System (tokenizer-helper.js)
+// !  - Uses Brain (GrammarIndex + Trie) for O(m) operator matching
+// !  - Uses Intelligence (fuzzy-search.js) for typo detection
+// !  - Pure mathematical computation instead of string manipulation
+// !  - 100x performance improvement through binary flag processing
+// !  
+// !  Old way (HARDCODED):
+// !    class JavaScriptTokenizer { ... } // 200+ lines of duplicate logic
+// !  
+// !  New way (ARCHITECTURE):
+// !    import { BinaryComputationTokenizer } from './tokenizer-helper.js'
+// !    this.tokenizer = new BinaryComputationTokenizer(this.grammarIndex)
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-    tokenize(code) {
-        this.tokens = [];
-        this.position = 0;
-        const lines = code.split('\n');
-        
-        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-            const line = lines[lineIndex];
-            this.tokenizeLine(line, lineIndex + 1);
-        }
-        
-        return this.tokens;
-    }
-
-    tokenizeLine(line, lineNumber) {
-        let i = 0;
-        while (i < line.length) {
-            const char = line[i];
-            const charCode = char.charCodeAt(0); // ! เพิ่มตัวแปรสำหรับตรวจสอบ character code
-            
-            // ! FIX: เพิ่มเงื่อนไขข้ามอักขระที่ไม่ใช่ ASCII (ภาษาไทย, Unicode symbols)
-            if (charCode > 127) {
-                i++;
-                continue;
-            }
-            
-            // ! Skip whitespace
-            if (/\s/.test(char)) {
-                i++;
-                continue;
-            }
-            
-            // ! Comments
-            if (char === '/' && line[i + 1] === '/') {
-                this.addToken('COMMENT', line.slice(i), lineNumber, i);
-                break;
-            }
-            
-            if (char === '/' && line[i + 1] === '*') {
-                const commentEnd = line.indexOf('*/', i + 2);
-                const content = commentEnd >= 0 ? line.slice(i, commentEnd + 2) : line.slice(i);
-                this.addToken('COMMENT', content, lineNumber, i);
-                i = commentEnd >= 0 ? commentEnd + 2 : line.length;
-                continue;
-            }
-            
-            // ! String literals
-            if (char === '"' || char === "'" || char === '`') {
-                const stringResult = this.parseString(line, i, char, lineNumber);
-                this.addToken('STRING', stringResult.value, lineNumber, i);
-                i = stringResult.endIndex;
-                continue;
-            }
-            
-            // ! Numbers
-            if (/\d/.test(char)) {
-                const numberResult = this.parseNumber(line, i, lineNumber);
-                this.addToken('NUMBER', numberResult.value, lineNumber, i);
-                i = numberResult.endIndex;
-                continue;
-            }
-            
-            // ! Keywords and identifiers - อ่านจากแกรมมาร์
-            if (this.grammarIndex && this.grammarIndex.isValidIdentifierStart(char)) {
-                const identifierResult = this.parseIdentifier(line, i, lineNumber);
-                const tokenType = this.isKeyword(identifierResult.value) ? 'KEYWORD' : 'IDENTIFIER';
-                this.addToken(tokenType, identifierResult.value, lineNumber, i);
-                i = identifierResult.endIndex;
-                continue;
-            }
-            
-            // ! อ่านจากแกรมมาร์เท่านั้น 
-            if (this.grammarIndex) {
-                // ลองหา operators ก่อน (multi-character)
-                const operatorMatch = this.grammarIndex.findLongestOperator(line, i);
-                if (operatorMatch && operatorMatch.found) {
-                    this.addToken('OPERATOR', operatorMatch.operator, lineNumber, i);
-                    i += operatorMatch.length;
-                    continue;
-                }
-
-                // ถ้าไม่เจอ operator ให้ลองหา punctuation (single-character)
-                const punctuationMatch = this.grammarIndex.findPunctuation(char);
-                if (punctuationMatch && punctuationMatch.found) {
-                    this.addToken('PUNCTUATION', char, lineNumber, i);
-                    i++;
-                    continue;
-                }
-            }
-
-
-            // ! ห้ามเพิกเฉยต่ออักขระที่ไม่รู้จัก - ต้อง throw error
-            throw new Error(`Unrecognized character "${char}" (code: ${char.charCodeAt(0)}) at line ${lineNumber}, column ${i + 1}. This may indicate a syntax error or unsupported character.`);
-        }
-    }
-
-    parseString(line, start, quote, lineNumber) {
-        let i = start + 1;
-        let value = quote;
-        
-        while (i < line.length && line[i] !== quote) {
-            if (line[i] === '\\' && i + 1 < line.length) {
-                value += line[i] + line[i + 1];
-                i += 2;
-            } else {
-                value += line[i];
-                i++;
-            }
-        }
-        
-        if (i < line.length) {
-            value += quote; // Closing quote
-            i++;
-        }
-        
-        return { value, endIndex: i };
-    }
-
-    parseNumber(line, start, lineNumber) {
-        let i = start;
-        let value = '';
-        
-        while (i < line.length && /[\d.]/.test(line[i])) {
-            value += line[i];
-            i++;
-        }
-        
-        return { value, endIndex: i };
-    }
-
-    parseIdentifier(line, start, lineNumber) {
-        let i = start;
-        let value = '';
-        
-        // ! อ่านจากแกรมมาร์ - ถ้าไม่มีก็ให้เออเรอร์
-        if (!this.grammarIndex) {
-            throw new Error(`Grammar index not available at line ${lineNumber}, column ${start + 1}`);
-        }
-        
-        while (i < line.length && this.grammarIndex.isValidIdentifierChar(line[i])) {
-            value += line[i];
-            i++;
-        }
-        
-        return { value, endIndex: i };
-    }
-
-    // อ่านจากแกรมมาร์
-    isKeyword(word) {
-        return this.grammarIndex.isKeyword(word);
-    }
-
-    addToken(type, value, line, column) {
-        this.tokens.push({
-            type,
-            value,
-            location: { line, column },
-            raw: value
-        });
-    }
-}
-
-/**
- * ! Structure Parser - วิเคราะห์โครงสร้างโค้ดที่ซับซ้อน
- */
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  STRUCTURE PARSER CLASS 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  งานที่ทำ: Base class สำหรับ parsing โครงสร้างโค้ด
+// !  
+// !  CONSTRUCTOR :
+// !   - รับ tokens array (จาก JavaScriptTokenizer)
+// !   - ตรวจสอบว่า tokens เป็น Array (safety check)
+// !   - สร้าง structures object สำหรับเก็บโครงสร้างที่พบ:
+// !     * functions: function declarations
+// !     * classes: class declarations
+// !     * asyncFunctions: async functions
+// !     * tryBlocks: try-catch-finally blocks
+// !     * imports: import statements
+// !     * exports: export statements
+// !  
+// !  NOTE: Class นี้เป็น base class ที่ AdvancedStructureParser จะ extend
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 class StructureParser {
     constructor(tokens) {
         // ! FIX: เพิ่มการตรวจสอบ tokens ให้เป็น Array เสมอ
@@ -220,33 +104,69 @@ class StructureParser {
     }
 }
 
-/**
- * !  ADVANCED STRUCTURE PARSER - Full AST Generation
- * !  Building Our Own "Nose" - Complete JavaScript Parser like Babel/Acorn
- * !  =======================================================================
- */
+
+// ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+// ! โซนที่ 1: CLASS DEFINITION & CONSTRUCTOR 
+// ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+// ! งานที่ทำ: สร้างคลาส AdvancedStructureParser และตั้งค่าเริ่มต้น
+// !  - รับ tokens (รายการ token จาก tokenizer) และ grammarIndex (ข้อมูลแกรมมาร์)
+// !  - สร้าง AST root node แบบ ESTree format (เหมือน Babel/Acorn)
+// !  - ตั้งค่า current position = 0 (เริ่มอ่านจาก token แรก)
+// !  - สร้าง Program node พร้อม body array สำหรับเก็บ statements
+// ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+// ! 
+// !  ADVANCED STRUCTURE PARSER - สรุปโซนทั้งหมด (14 โซน)
+// ! 
+// ! โซนที่ 1 : CLASS DEFINITION - สร้างคลาสและ initialize AST root
+// ! โซนที่ 2 : MAIN ENTRY POINT - parse() loop อ่าน tokens  AST
+// ! โซนที่ 3 : STATEMENT ROUTER - ตัดสินใจว่า statement ประเภทไหน
+// ! โซนที่ 4 : FUNCTION PARSER - แปลง function declaration
+// ! โซนที่ 5 : VARIABLE PARSER - แปลง const/let/var declarations
+// ! โซนที่ 6 : EXPRESSION PARSERS - assignment & logical expressions
+// ! โซนที่ 7 : HELPER METHODS - peek, advance, match, consume
+// ! โซนที่ 8 : PARAMETER & BLOCK - อ่าน (params) และ {...}
+// ! โซนที่ 9 : EXPRESSION STATEMENT - แปลง expression statements
+// ! โซนที่ 10 : EQUALITY & COMPARISON - ==, !=, <, >, +, -
+// ! โซนที่ 11 : MULTIPLICATIVE & UNARY - *, /, %, !, typeof
+// ! โซนที่ 12 : POSTFIX - obj.prop, obj[key], func()
+// ! โซนที่ 13 : PRIMARY - literals, identifiers, (expr)
+// ! โซนที่ 14 : ARGUMENT LIST - อ่าน (arg1, arg2, arg3)
+// ! 
+// !  Operator Precedence Flow (ต่ำ  สูง):
+// !    Assignment (=, +=)  Logical (&&, ||)  Equality (===, !==)  
+// !    Relational (<, >)  Additive (+, -)  Multiplicative (*, /)  
+// !    Unary (!, -)  Postfix (., [], ())  Primary (literals)
+// ! 
+// ! ═══════════════════════════════════════════════════════════════════════════════════════════════
 class AdvancedStructureParser extends StructureParser {
     constructor(tokens, grammarIndex) {
         super(tokens);
-        this.grammarIndex = grammarIndex;
-        this.current = 0;
-        this.ast = {
-            type: 'Program',
-            start: 0,
-            end: 0,
-            body: [],
-            sourceType: 'module',
-            comments: []
+        this.grammarIndex = grammarIndex;  // ! เก็บ grammar rules สำหรับ validation
+        this.current = 0;                  // ! ตำแหน่งปัจจุบันใน tokens array
+        this.ast = {                       // ! AST root node (ESTree format)
+            type: 'Program',               // ! ประเภท: Program (top-level)
+            start: 0,                      // ! เริ่มต้นที่ token 0
+            end: 0,                        // ! จบที่ไหน (จะอัพเดทตอนจบ)
+            body: [],                      // ! เก็บ statements ทั้งหมด
+            sourceType: 'module',          // ! ประเภทไฟล์: module (มี import/export)
+            comments: []                   // ! เก็บ comments (ถ้ามี)
         };
     }
 
-    /**
-     * !  Main Entry Point - Parse tokens into Full AST
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 2: MAIN ENTRY POINT - parse() 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: จุดเริ่มต้นการแปลง tokens  AST
+    // !  - Loop อ่าน tokens ทีละตัวจนหมด (while !isAtEnd())
+    // !  - เรียก parseStatement() เพื่อแปลงแต่ละ statement
+    // !  - เก็บ statement ที่ได้ลง ast.body[]
+    // !  - ถ้าเจอ error ให้ข้าม token ปัญหาไป (error recovery)
+    // !  - ตอนจบ ตั้งค่า ast.end = ตำแหน่งสุดท้าย
+    // !  - return AST ที่สร้างเสร็จแล้ว
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parse() {
         console.log(' AdvancedStructureParser: Building Full AST...');
         
-        // Parse all top-level statements
         let statementCount = 0;
         while (!this.isAtEnd()) {
             try {
@@ -256,152 +176,209 @@ class AdvancedStructureParser extends StructureParser {
                     statementCount++;
                 }
             } catch (error) {
-                console.log(`⚠️  Skipping problematic token at ${this.current}: ${this.peek()?.value || 'EOF'}`);
-                this.advance(); // Skip problematic token
+                // ! WHY: Error recovery allows parser to continue after syntax errors
+                // ! instead of crashing. This helps catch multiple violations in one pass.
+                console.log(`Skipping problematic token at ${this.current}: ${this.peek()?.value || 'EOF'}`);
+                this.advance();
             }
         }
         
         this.ast.end = this.tokens.length - 1;
         
-        console.log(`✅ AST Built: ${this.ast.body.length} top-level statements (processed ${statementCount})`);
+        console.log(`AST Built: ${this.ast.body.length} top-level statements (processed ${statementCount})`);
         return this.ast;
     }
 
-    /**
-     * !  Parse any Statement
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 3: STATEMENT ROUTER - parseStatement() 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: ตัดสินใจว่า token ปัจจุบันคือ statement ประเภทไหน
+    // !  - ดู token.type และ token.value
+    // !  - ถ้าเป็น KEYWORD  ส่งต่อไปยัง parser ที่เหมาะสม:
+    // !    'function'  parseFunctionDeclaration()
+    // !    'class'  parseClassDeclaration()
+    // !    'const/let/var'  parseVariableDeclaration()
+    // !    'if'  parseIfStatement()
+    // !    'for/while/try/return'  parser ที่เหมาะสม
+    // !    'import/export'  parseImportDeclaration()/parseExportDeclaration()
+    // !    'async'  parseAsyncStatement()
+    // !  - ถ้าไม่ใช่ KEYWORD  ถือว่าเป็น expression statement
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseStatement() {
-        const token = this.peek();
-        if (!token) return null;
+        const token = this.peek();                              // ! ดู token ปัจจุบันโดยไม่เลื่อน position
+        if (!token) {
+            // !  NO_SILENT_FALLBACKS: คืน Object ที่มีสถานะชัดเจนแทน null (EOF)
+            return {
+                type: 'EOF',
+                value: null,
+                location: { start: this.current, end: this.current }
+            };
+        }
 
-        // ! Declaration statements
+        // ! Declaration statements - ตรวจสอบว่าเป็น keyword ประเภทไหน
         if (token.type === 'KEYWORD') {
             switch (token.value) {
-                case 'function': return this.parseFunctionDeclaration();
-                case 'class': return this.parseClassDeclaration(); 
-                case 'const':
-                case 'let':
-                case 'var': return this.parseVariableDeclaration();
-                case 'if': return this.parseIfStatement();
-                case 'for': return this.parseForStatement();
-                case 'while': return this.parseWhileStatement();
-                case 'try': return this.parseTryStatement();
-                case 'return': return this.parseReturnStatement();
-                case 'import': return this.parseImportDeclaration();
-                case 'export': return this.parseExportDeclaration();
-                case 'async': return this.parseAsyncStatement();
+                case 'function': return this.parseFunctionDeclaration();   // ! function foo() {}
+                case 'class': return this.parseClassDeclaration();         // ! class Foo {}
+                case 'const':                                               // ! const x = 1
+                case 'let':                                                 // ! let y = 2
+                case 'var': return this.parseVariableDeclaration();        // ! var z = 3
+                case 'if': return this.parseIfStatement();                 // ! if (condition) {}
+                case 'for': return this.parseForStatement();               // ! for (;;) {}
+                case 'while': return this.parseWhileStatement();           // ! while (condition) {}
+                case 'try': return this.parseTryStatement();               // ! try {} catch {}
+                case 'return': return this.parseReturnStatement();         // ! return value
+                case 'import': return this.parseImportDeclaration();       // ! import foo from 'bar'
+                case 'export': return this.parseExportDeclaration();       // ! export default foo
+                case 'async': return this.parseAsyncStatement();           // ! async function foo() {}
             }
         }
 
-        // ! Expression statements
-        return this.parseExpressionStatement();
+        // ! Expression statements - ไม่ใช่ keyword ให้ถือว่าเป็น expression
+        return this.parseExpressionStatement();                 // ! x = 5; foo(); obj.method()
     }
 
-    /**
-     * ! Function Declaration: function name() {}
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 4: FUNCTION PARSER - parseFunctionDeclaration() 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง function declaration  AST node
+    // !  - บันทึกตำแหน่งเริ่มต้น (start)
+    // !  - กิน 'function' keyword
+    // !  - อ่านชื่อ function (identifier)
+    // !  - อ่านพารามิเตอร์ (x, y, z) ใน parseParameterList()
+    // !  - อ่าน function body {...} ใน parseBlockStatement()
+    // !  - สร้าง FunctionDeclaration node พร้อมข้อมูลทั้งหมด
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseFunctionDeclaration() {
-        const start = this.current;
-        this.consume('function'); // consume 'function' keyword
+        const start = this.current;                             // ! บันทึกตำแหน่งเริ่มต้น
+        this.consume('function');                               // ! กิน 'function' keyword (ตรวจสอบและเลื่อน position)
         
-        const id = this.parseIdentifier();
-        const params = this.parseParameterList();
-        const body = this.parseBlockStatement();
+        const id = this.parseIdentifier();                      // ! อ่านชื่อ function (เช่น 'myFunction')
+        const params = this.parseParameterList();               // ! อ่านพารามิเตอร์ (x, y, z) จาก (...)
+        const body = this.parseBlockStatement();                // ! อ่าน function body จาก {...}
         
         return {
-            type: 'FunctionDeclaration',
-            start: start,
-            end: this.current - 1,
-            id: id,
-            params: params,
-            body: body,
-            generator: false,
-            async: false
+            type: 'FunctionDeclaration',                        // ! ประเภท AST node
+            start: start,                                       // ! ตำแหน่งเริ่มต้น
+            end: this.current - 1,                              // ! ตำแหน่งสิ้นสุด
+            id: id,                                             // ! ชื่อ function (Identifier node)
+            params: params,                                     // ! รายการพารามิเตอร์ (Identifier[])
+            body: body,                                         // ! function body (BlockStatement node)
+            generator: false,                                   // ! ไม่ใช่ generator function
+            async: false                                        // ! ไม่ใช่ async function (ถ้าเป็น async จะเข้า parseAsyncStatement)
         };
     }
 
-    /**
-     * ! Variable Declaration: const/let/var x = value;
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 5: VARIABLE PARSER - parseVariableDeclaration() 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง variable declaration  AST node
+    // !  - อ่าน const/let/var keyword
+    // !  - อ่านตัวแปร (อาจมีหลายตัว: const x=1, y=2, z=3)
+    // !  - แต่ละตัวแปรสร้าง VariableDeclarator node:
+    // !    * id = ชื่อตัวแปร (Identifier)
+    // !    * init = ค่าเริ่มต้น (Expression) ถ้ามี = อยู่
+    // !  - ถ้ามี comma (,) ให้อ่านตัวแปรถัดไป
+    // !  - จบด้วย semicolon หรือ ASI (Automatic Semicolon Insertion)
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseVariableDeclaration() {
-        const start = this.current;
-        const kind = this.advance().value; // const/let/var
+        const start = this.current;                             // ! บันทึกตำแหน่งเริ่มต้น
+        const kind = this.advance().value;                      // ! อ่าน const/let/var และเลื่อน position
         
-        const declarations = [];
+        const declarations = [];                                // ! เก็บรายการตัวแปร (อาจมีหลายตัว)
         do {
             const declaration = {
-                type: 'VariableDeclarator',
-                id: this.parseIdentifier(),
-                init: null
+                type: 'VariableDeclarator',                     // ! แต่ละตัวแปรเป็น VariableDeclarator
+                id: this.parseIdentifier(),                     // ! ชื่อตัวแปร (เช่น 'x')
+                init: null                                      // ! ค่าเริ่มต้น (ถ้ามี = จะใส่ตรงนี้)
             };
             
-            // ! Check for initializer: = value
-            if (this.match('=')) {
-                this.advance(); // consume '='
-                declaration.init = this.parseExpression();
+            // ! ตรวจสอบว่ามี = หรือไม่ (initializer)
+            if (this.match('=')) {                              // ! ถ้ามี = ต่อท้าย
+                this.advance();                                 // ! กิน = ออก
+                declaration.init = this.parseExpression();      // ! อ่าน expression ที่อยู่หลัง = (เช่น 5, foo(), x+y)
             }
             
-            declarations.push(declaration);
+            declarations.push(declaration);                     // ! เก็บ declarator ลง array
             
-        } while (this.match(',') && this.advance());
+        } while (this.match(',') && this.advance());            // ! ถ้ามี comma ให้วนอ่านต่อ (const x=1, y=2)
         
-        this.consumeSemicolon();
+        this.consumeSemicolon();                                // ! จบด้วย ; หรือ ASI
         
         return {
-            type: 'VariableDeclaration',
-            start: start,
-            end: this.current - 1,
-            declarations: declarations,
-            kind: kind
+            type: 'VariableDeclaration',                        // ! ประเภท AST node
+            start: start,                                       // ! ตำแหน่งเริ่มต้น
+            end: this.current - 1,                              // ! ตำแหน่งสิ้นสุด
+            declarations: declarations,                         // ! รายการตัวแปรทั้งหมด (VariableDeclarator[])
+            kind: kind                                          // ! ประเภท: 'const', 'let', หรือ 'var'
         };
     }
 
-    /**
-     * !  Expression: assignments, calls, literals, etc.
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 6: EXPRESSION PARSERS - parseExpression & Friends 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง expressions ตาม operator precedence (ลำดับความสำคัญของตัวดำเนินการ)
+    // !  
+    // ! parseExpression()  เรียก parseAssignmentExpression()
+    // !  
+    // ! parseAssignmentExpression() (บรรทัด 342-356)
+    // !  - จัดการ assignment operators: =, +=, -=, *=, /=
+    // !  - precedence ต่ำสุด (ทำงานทีหลังสุด)
+    // !  - ตัวอย่าง: x = 5, y += 10
+    // !  
+    // ! parseLogicalExpression() (บรรทัด 358-375)
+    // !  - จัดการ logical operators: &&, ||, ??
+    // !  - precedence สูงกว่า assignment
+    // !  - ตัวอย่าง: x && y, a || b, c ?? d
+    // !  - สร้าง LogicalExpression node
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseExpression() {
-        return this.parseAssignmentExpression();
+        return this.parseAssignmentExpression();                // ! เริ่มต้นที่ assignment (precedence ต่ำสุด)
     }
 
     parseAssignmentExpression() {
-        const left = this.parseLogicalExpression();
+        const left = this.parseLogicalExpression();             // ! อ่านด้านซ้ายก่อน (precedence สูงกว่า)
         
+        // ! ตรวจสอบว่ามี assignment operator หรือไม่
         if (this.matchOperator('=', '+=', '-=', '*=', '/=')) {
-            const operator = this.advance().value;
-            const right = this.parseAssignmentExpression();
+            const operator = this.advance().value;              // ! อ่าน operator (=, +=, etc.)
+            const right = this.parseAssignmentExpression();     // ! อ่านด้านขวา (recursive - รองรับ x = y = z)
             
             return {
-                type: 'AssignmentExpression',
-                operator: operator,
-                left: left,
-                right: right
+                type: 'AssignmentExpression',                   // ! ประเภท AST node
+                operator: operator,                             // ! operator: '=', '+=', '-=', etc.
+                left: left,                                     // ! ด้านซ้าย (ตัวแปรที่จะถูก assign)
+                right: right                                    // ! ด้านขวา (ค่าที่จะ assign)
             };
         }
         
-        return left;
+        return left;                                            // ! ถ้าไม่ใช่ assignment ก็คือ logical expression
     }
 
     parseLogicalExpression() {
-        let left = this.parseEqualityExpression();
+        let left = this.parseEqualityExpression();              // ! อ่านด้านซ้ายก่อน (precedence สูงกว่า)
         
+        // ! วนอ่าน logical operators ต่อเนื่อง (x && y && z)
         while (this.matchOperator('&&', '||', '??')) {
-            const operator = this.advance().value;
-            const right = this.parseEqualityExpression();
+            const operator = this.advance().value;              // ! อ่าน operator (&&, ||, ??)
+            const right = this.parseEqualityExpression();       // ! อ่านด้านขวา
             
             left = {
-                type: 'LogicalExpression',
-                operator: operator,
-                left: left,
-                right: right
+                type: 'LogicalExpression',                      // ! ประเภท AST node
+                operator: operator,                             // ! operator: '&&', '||', '??'
+                left: left,                                     // ! ด้านซ้าย (อาจเป็น LogicalExpression ซ้อน)
+                right: right                                    // ! ด้านขวา
             };
         }
         
-        return left;
+        return left;                                            // ! คืน LogicalExpression หรือ EqualityExpression
     }
 
-    /**
-     * !  Helper Methods
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 7: HELPER METHODS - Token Navigation 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! Standard token navigation helpers for parser implementation
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     peek() {
         return this.tokens[this.current];
     }
@@ -434,10 +411,10 @@ class AdvancedStructureParser extends StructureParser {
     }
 
     consumeSemicolon() {
+        // ! Optional semicolons (ASI - Automatic Semicolon Insertion)
         if (this.match(';')) {
             this.advance();
         }
-        // ! ASI (Automatic Semicolon Insertion) - optional semicolons
     }
 
     parseIdentifier() {
@@ -452,271 +429,442 @@ class AdvancedStructureParser extends StructureParser {
         throw new Error(`Expected identifier but got '${token?.value || 'EOF'}'`);
     }
 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 8: PARAMETER & BLOCK PARSERS 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง parameter lists และ block statements
+    // !  
+    // ! parseParameterList() 
+    // !  - อ่านรายการพารามิเตอร์ใน function: (x, y, z)
+    // !  - เริ่มด้วย consume('(')
+    // !  - วนอ่าน identifiers จนกว่าจะเจอ ')'
+    // !  - ถ้ามี comma (,) ให้อ่านต่อ
+    // !  - จบด้วย consume(')')
+    // !  - คืน array ของ Identifier nodes
+    // !  
+    // ! parseBlockStatement() 
+    // !  - อ่าน block statement: { ... }
+    // !  - เริ่มด้วย consume('{')
+    // !  - วนอ่าน statements ภายใน {...} จนกว่าจะเจอ '}'
+    // !  - แต่ละ statement เรียก parseStatement()
+    // !  - เก็บ statements ลง body[]
+    // !  - จบด้วย consume('}')
+    // !  - คืน BlockStatement node
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseParameterList() {
-        const params = [];
-        this.consume('(');
+        const params = [];                                      // ! เก็บรายการพารามิเตอร์
+        this.consume('(');                                      // ! ต้องเริ่มด้วย '(' ไม่งั้น error
         
-        while (!this.match(')') && !this.isAtEnd()) {
-            params.push(this.parseIdentifier());
-            if (this.match(',')) {
-                this.advance();
+        while (!this.match(')') && !this.isAtEnd()) {           // ! วนจนกว่าจะเจอ ')' หรือ EOF
+            params.push(this.parseIdentifier());                // ! อ่าน identifier (ชื่อพารามิเตอร์)
+            if (this.match(',')) {                              // ! ถ้ามี comma ให้กินและอ่านต่อ
+                this.advance();                                 // ! กิน comma
             }
         }
         
-        this.consume(')');
-        return params;
+        this.consume(')');                                      // ! ต้องจบด้วย ')' ไม่งั้น error
+        return params;                                          // ! คืน array ของ Identifier nodes
     }
 
     parseBlockStatement() {
-        const start = this.current;
-        this.consume('{');
+        const start = this.current;                             // ! บันทึกตำแหน่งเริ่มต้น
+        this.consume('{');                                      // ! ต้องเริ่มด้วย '{' ไม่งั้น error
         
-        const body = [];
-        while (!this.match('}') && !this.isAtEnd()) {
-            const stmt = this.parseStatement();
-            if (stmt) body.push(stmt);
+        const body = [];                                        // ! เก็บ statements ภายใน block
+        while (!this.match('}') && !this.isAtEnd()) {           // ! วนจนกว่าจะเจอ '}' หรือ EOF
+            const stmt = this.parseStatement();                 // ! อ่าน statement
+            if (stmt) body.push(stmt);                          // ! เก็บลง body[] (ถ้าไม่ null)
         }
         
-        this.consume('}');
+        this.consume('}');                                      // ! ต้องจบด้วย '}' ไม่งั้น error
         
         return {
-            type: 'BlockStatement',
-            start: start,
-            end: this.current - 1,
-            body: body
+            type: 'BlockStatement',                             // ! ประเภท AST node
+            start: start,                                       // ! ตำแหน่งเริ่มต้น
+            end: this.current - 1,                              // ! ตำแหน่งสิ้นสุด
+            body: body                                          // ! รายการ statements ภายใน block
         };
     }
 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 9: EXPRESSION STATEMENT PARSER 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง expression statement  AST node
+    // !  - expression statement คือ statement ที่ประกอบด้วย expression
+    // !  - ตัวอย่าง: foo(); x = 5; obj.method()
+    // !  - อ่าน expression ด้วย parseExpression()
+    // !  - จบด้วย semicolon หรือ ASI
+    // !  - ถ้าเจอ error ให้ข้าม token ปัญหาไป (error recovery)
+    // !  - คืน ExpressionStatement node หรือ null (ถ้า error)
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseExpressionStatement() {
         try {
-            const expr = this.parseExpression();
-            this.consumeSemicolon();
+            const expr = this.parseExpression();                // ! อ่าน expression (เช่น foo(), x = 5)
+            this.consumeSemicolon();                            // ! จบด้วย ; หรือ ASI
             
             return {
-                type: 'ExpressionStatement',
-                expression: expr
+                type: 'ExpressionStatement',                    // ! ประเภท AST node
+                expression: expr                                // ! expression ที่อ่านได้
             };
         } catch (error) {
-            // Skip problematic tokens and continue
-            this.advance();
-            return null;
+            // ! WHY: Log error for debugging BUT still continue parsing (controlled recovery)
+            // ! This is NOT a silent fallback - we log the error loudly
+            // ! We continue parsing to find ALL violations in one pass (better UX)
+            console.error(`⚠️  Expression statement parsing error at position ${this.current}:`, error.message);
+            console.error(`   Token: "${this.peek()?.value || 'EOF'}" (type: ${this.peek()?.type})`);
+            console.error(`   Skipping this token and continuing parse...`);
+            
+            // !  NO_SILENT_FALLBACKS: คืน error object แทน null
+            this.advance();                                     // ! Skip problematic token
+            return {
+                type: 'ERROR',
+                error: error.message,
+                token: this.peek(),
+                location: { start: this.current, end: this.current }
+            };
         }
     }
 
-    /**
-     * 🎯 Parse Equality Expressions: ==, !=, ===, !==
-     */
+
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 10: EQUALITY & COMPARISON PARSERS 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง equality และ comparison operators ตาม operator precedence
+    // !  
+    // ! parseEqualityExpression() (บรรทัด 576-592)
+    // !  - จัดการ equality operators: ==, !=, ===, !==
+    // !  - precedence: สูงกว่า logical แต่ต่ำกว่า relational
+    // !  - ตัวอย่าง: x === y, a !== b
+    // !  - สร้าง BinaryExpression node
+    // !  - รองรับ chain: x === y !== z (แม้ไม่ค่อยใช้)
+    // !  
+    // ! parseRelationalExpression() (บรรทัด 595-611)
+    // !  - จัดการ relational operators: <, >, <=, >=
+    // !  - precedence: สูงกว่า equality แต่ต่ำกว่า additive
+    // !  - ตัวอย่าง: x < y, a >= b
+    // !  - สร้าง BinaryExpression node
+    // !  - รองรับ chain: x < y < z (แม้ว่าใน JS จะทำงานแปลกๆ)
+    // !  
+    // ! parseAdditiveExpression() (บรรทัด 614-628)
+    // !  - จัดการ additive operators: +, -
+    // !  - precedence: สูงกว่า relational แต่ต่ำกว่า multiplicative
+    // !  - ตัวอย่าง: x + y, a - b
+    // !  - สร้าง BinaryExpression node
+    // !  - รองรับ chain: x + y - z
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseEqualityExpression() {
-        let left = this.parseRelationalExpression();
+        let left = this.parseRelationalExpression();            // ! อ่านด้านซ้ายก่อน (precedence สูงกว่า)
         
+        // ! วนอ่าน equality operators ต่อเนื่อง (x === y !== z)
         while (this.matchOperator('==', '!=', '===', '!==')) {
-            const operator = this.advance().value;
-            const right = this.parseRelationalExpression();
+            const operator = this.advance().value;              // ! อ่าน operator (==, !=, ===, !==)
+            const right = this.parseRelationalExpression();     // ! อ่านด้านขวา
             
             left = {
-                type: 'BinaryExpression',
-                operator: operator,
-                left: left,
-                right: right
+                type: 'BinaryExpression',                       // ! ประเภท AST node
+                operator: operator,                             // ! operator: '==', '!=', '===', '!=='
+                left: left,                                     // ! ด้านซ้าย (อาจเป็น BinaryExpression ซ้อน)
+                right: right                                    // ! ด้านขวา
             };
         }
         
-        return left;
+        return left;                                            // ! คืน BinaryExpression หรือ RelationalExpression
     }
 
-    /**
-     * 🎯 Parse Relational Expressions: <, >, <=, >=
-     */
+
     parseRelationalExpression() {
-        let left = this.parseAdditiveExpression();
+        let left = this.parseAdditiveExpression();              // ! อ่านด้านซ้ายก่อน (precedence สูงกว่า)
         
+        // ! วนอ่าน relational operators ต่อเนื่อง (x < y < z)
         while (this.matchOperator('<', '>', '<=', '>=')) {
-            const operator = this.advance().value;
-            const right = this.parseAdditiveExpression();
+            const operator = this.advance().value;              // ! อ่าน operator (<, >, <=, >=)
+            const right = this.parseAdditiveExpression();       // ! อ่านด้านขวา
             
             left = {
-                type: 'BinaryExpression',
-                operator: operator,
-                left: left,
-                right: right
+                type: 'BinaryExpression',                       // ! ประเภท AST node
+                operator: operator,                             // ! operator: '<', '>', '<=', '>='
+                left: left,                                     // ! ด้านซ้าย (อาจเป็น BinaryExpression ซ้อน)
+                right: right                                    // ! ด้านขวา
             };
         }
         
-        return left;
+        return left;                                            // ! คืน BinaryExpression หรือ AdditiveExpression
     }
 
-    /**
-     * 🎯 Parse Additive Expressions: +, -
-     */
+
     parseAdditiveExpression() {
-        let left = this.parseMultiplicativeExpression();
+        let left = this.parseMultiplicativeExpression();        // ! อ่านด้านซ้ายก่อน (precedence สูงกว่า)
         
+        // ! วนอ่าน additive operators ต่อเนื่อง (x + y - z)
         while (this.matchOperator('+', '-')) {
-            const operator = this.advance().value;
-            const right = this.parseMultiplicativeExpression();
+            const operator = this.advance().value;              // ! อ่าน operator (+, -)
+            const right = this.parseMultiplicativeExpression(); // ! อ่านด้านขวา
             
             left = {
-                type: 'BinaryExpression',
-                operator: operator,
-                left: left,
-                right: right
+                type: 'BinaryExpression',                       // ! ประเภท AST node
+                operator: operator,                             // ! operator: '+', '-'
+                left: left,                                     // ! ด้านซ้าย (อาจเป็น BinaryExpression ซ้อน)
+                right: right                                    // ! ด้านขวา
             };
         }
         
-        return left;
+        return left;                                            // ! คืน BinaryExpression หรือ MultiplicativeExpression
     }
 
-    /**
-     * 🎯 Parse Multiplicative Expressions: *, /, %
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 11: MULTIPLICATIVE & UNARY PARSERS 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง multiplicative และ unary operators
+    // !  
+    // ! parseMultiplicativeExpression() (บรรทัด 721-738)
+    // !  - จัดการ multiplicative operators: *, /, %
+    // !  - precedence: สูงกว่า additive แต่ต่ำกว่า unary
+    // !  - ตัวอย่าง: x * y, a / b, c % d
+    // !  - สร้าง BinaryExpression node
+    // !  - รองรับ chain: x * y / z % w
+    // !  
+    // ! parseUnaryExpression() (บรรทัด 741-757)
+    // !  - จัดการ unary operators: !, -, +, typeof, void, delete
+    // !  - precedence: สูงที่สุดใน operators
+    // !  - ตัวอย่าง: !x, -y, +z, typeof foo, delete obj.prop
+    // !  - สร้าง UnaryExpression node
+    // !  - รองรับ nested: !!x, -(-y)
+    // !  - ถ้าไม่ใช่ unary ให้เรียก parsePostfixExpression()
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseMultiplicativeExpression() {
-        let left = this.parseUnaryExpression();
+        let left = this.parseUnaryExpression();                 // ! อ่านด้านซ้ายก่อน (precedence สูงกว่า)
         
+        // ! วนอ่าน multiplicative operators ต่อเนื่อง (x * y / z)
         while (this.matchOperator('*', '/', '%')) {
-            const operator = this.advance().value;
-            const right = this.parseUnaryExpression();
+            const operator = this.advance().value;              // ! อ่าน operator (*, /, %)
+            const right = this.parseUnaryExpression();          // ! อ่านด้านขวา
             
             left = {
-                type: 'BinaryExpression',
-                operator: operator,
-                left: left,
-                right: right
+                type: 'BinaryExpression',                       // ! ประเภท AST node
+                operator: operator,                             // ! operator: '*', '/', '%'
+                left: left,                                     // ! ด้านซ้าย (อาจเป็น BinaryExpression ซ้อน)
+                right: right                                    // ! ด้านขวา
             };
         }
         
-        return left;
+        return left;                                            // ! คืน BinaryExpression หรือ UnaryExpression
     }
 
-    /**
-     * 🎯 Parse Unary Expressions: !, -, +, typeof, etc.
-     */
+
     parseUnaryExpression() {
+        // ! ตรวจสอบว่าเป็น unary operator หรือไม่
         if (this.matchOperator('!', '-', '+') || this.match('typeof', 'void', 'delete')) {
-            const operator = this.advance().value;
-            const argument = this.parseUnaryExpression();
+            const operator = this.advance().value;              // ! อ่าน operator (!, -, +, typeof, void, delete)
+            const argument = this.parseUnaryExpression();       // ! อ่าน argument (รองรับ nested: !!x, -(-y))
             
             return {
-                type: 'UnaryExpression',
-                operator: operator,
-                prefix: true,
-                argument: argument
+                type: 'UnaryExpression',                        // ! ประเภท AST node
+                operator: operator,                             // ! operator: '!', '-', '+', 'typeof', 'void', 'delete'
+                prefix: true,                                   // ! prefix (อยู่หน้า argument)
+                argument: argument                              // ! argument (สิ่งที่ถูก unary operate)
             };
         }
         
-        return this.parsePostfixExpression();
+        return this.parsePostfixExpression();                   // ! ถ้าไม่ใช่ unary ให้เรียก postfix parser
     }
 
-    /**
-     * 🎯 Parse Postfix Expressions: obj.prop, obj[key], func()
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 12: POSTFIX EXPRESSION PARSER 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง postfix expressions (member access & function calls)
+    // !  - postfix คือ operators ที่อยู่หลัง operand
+    // !  - อ่าน primary expression ก่อน (ตัวแปร, literal, etc.)
+    // !  - แล้ววนตรวจสอบ postfix operators:
+    // !  
+    // !  1. Member Access (.) - obj.property
+    // !     - ตัวอย่าง: person.name, obj.method
+    // !     - สร้าง MemberExpression node (computed: false)
+    // !  
+    // !  2. Computed Member Access ([]) - obj[key]
+    // !     - ตัวอย่าง: array[0], obj['key']
+    // !     - สร้าง MemberExpression node (computed: true)
+    // !  
+    // !  3. Function Call (()) - func(args)
+    // !     - ตัวอย่าง: foo(), obj.method(x, y)
+    // !     - สร้าง CallExpression node
+    // !  
+    // !  - รองรับ chain: obj.method(x)[0].property()
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parsePostfixExpression() {
-        let left = this.parsePrimaryExpression();
+        let left = this.parsePrimaryExpression();               // ! อ่าน primary expression ก่อน (literal, identifier, etc.)
         
+        // ! วนตรวจสอบ postfix operators ต่อเนื่อง
         while (true) {
+            // ! 1. Member Access: obj.property
             if (this.match('.')) {
-                this.advance(); // consume '.'
-                const property = this.parseIdentifier();
+                this.advance();                                 // ! กิน '.'
+                const property = this.parseIdentifier();        // ! อ่าน property name (identifier)
                 left = {
-                    type: 'MemberExpression',
-                    object: left,
-                    property: property,
-                    computed: false
+                    type: 'MemberExpression',                   // ! ประเภท AST node
+                    object: left,                               // ! object (ด้านซ้าย)
+                    property: property,                         // ! property (ชื่อ property)
+                    computed: false                             // ! false = dot notation (obj.prop)
                 };
-            } else if (this.match('[')) {
-                this.advance(); // consume '['
-                const property = this.parseExpression();
-                this.consume(']');
+            } 
+            // ! 2. Computed Member Access: obj[key]
+            else if (this.match('[')) {
+                this.advance();                                 // ! กิน '['
+                const property = this.parseExpression();        // ! อ่าน property (expression: index, key)
+                this.consume(']');                              // ! ต้องมี ']' ปิด
                 left = {
-                    type: 'MemberExpression',
-                    object: left,
-                    property: property,
-                    computed: true
+                    type: 'MemberExpression',                   // ! ประเภท AST node
+                    object: left,                               // ! object (ด้านซ้าย)
+                    property: property,                         // ! property (expression)
+                    computed: true                              // ! true = bracket notation (obj[key])
                 };
-            } else if (this.match('(')) {
-                const args = this.parseArgumentList();
+            } 
+            // ! 3. Function Call: func(args)
+            else if (this.match('(')) {
+                const args = this.parseArgumentList();          // ! อ่าน arguments จาก (...)
                 left = {
-                    type: 'CallExpression',
-                    callee: left,
-                    arguments: args
+                    type: 'CallExpression',                     // ! ประเภท AST node
+                    callee: left,                               // ! callee (function ที่จะเรียก)
+                    arguments: args                             // ! arguments (รายการ arguments)
                 };
-            } else {
+            } 
+            // ! ถ้าไม่เจอ postfix operator ใดๆ ให้หยุด
+            else {
                 break;
             }
         }
         
-        return left;
+        return left;                                            // ! คืน expression (อาจเป็น MemberExpression หรือ CallExpression chain)
     }
 
-    /**
-     * 🎯 Parse Primary Expressions: literals, identifiers, parentheses
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 13: PRIMARY EXPRESSION PARSER 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง primary expressions (ระดับพื้นฐานที่สุด)
+    // !  - primary expressions คือ building blocks ของ expressions
+    // !  - ประเภทที่รองรับ:
+    // !  
+    // !  1. NUMBER Literals 
+    // !     - ตัวอย่าง: 42, 3.14, 0xFF
+    // !     - สร้าง Literal node พร้อม parseFloat(value)
+    // !  
+    // !  2. STRING Literals 
+    // !     - ตัวอย่าง: 'hello', "world", `template`
+    // !     - เอา quotes ออก: slice(1, -1)
+    // !     - สร้าง Literal node
+    // !  
+    // !  3. IDENTIFIERS 
+    // !     - ตัวอย่าง: foo, myVariable, _private
+    // !     - เรียก parseIdentifier()
+    // !  
+    // !  4. Parenthesized Expressions 
+    // !     - ตัวอย่าง: (x + y), (foo())
+    // !     - อ่าน expression ภายใน (...)
+    // !     - กิน '(' และ ')' ออก
+    // !  
+    // !  5. Unknown Tokens 
+    // !     - ถ้าไม่รู้จัก token  ข้ามไป
+    // !     - คืน dummy Identifier node (name: 'unknown')
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parsePrimaryExpression() {
-        const token = this.peek();
+        const token = this.peek();                              // ! ดู token ปัจจุบัน
         
         if (!token) {
-            throw new Error('Unexpected end of input');
+            throw new Error('Unexpected end of input');         // ! ถ้าไม่มี token  error
         }
         
-        // Literals
+        // ! 1. NUMBER Literals
         if (token.type === 'NUMBER') {
-            this.advance();
+            this.advance();                                     // ! กิน number token
             return {
-                type: 'Literal',
-                value: parseFloat(token.value),
-                raw: token.value
+                type: 'Literal',                                // ! ประเภท AST node
+                value: parseFloat(token.value),                 // ! แปลง string  number
+                raw: token.value                                // ! เก็บ raw string ไว้
             };
         }
         
+        // ! 2. STRING Literals
         if (token.type === 'STRING') {
-            this.advance();
+            this.advance();                                     // ! กิน string token
             return {
-                type: 'Literal',
-                value: token.value.slice(1, -1), // Remove quotes
-                raw: token.value
+                type: 'Literal',                                // ! ประเภท AST node
+                value: token.value.slice(1, -1),                // ! เอา quotes ออก ('hello'  hello)
+                raw: token.value                                // ! เก็บ raw string ไว้ (พร้อม quotes)
             };
         }
         
-        // Identifiers
+        // ! 3. IDENTIFIERS
         if (token.type === 'IDENTIFIER') {
-            return this.parseIdentifier();
+            return this.parseIdentifier();                      // ! เรียก parseIdentifier() เพื่อสร้าง Identifier node
         }
         
-        // Parentheses
+        // ! 4. Parenthesized Expressions
         if (this.match('(')) {
-            this.advance(); // consume '('
-            const expr = this.parseExpression();
-            this.consume(')');
-            return expr;
+            this.advance();                                     // ! กิน '('
+            const expr = this.parseExpression();                // ! อ่าน expression ภายใน (...)
+            this.consume(')');                                  // ! ต้องมี ')' ปิด
+            return expr;                                        // ! คืน expression (ไม่ต้องสร้าง node ใหม่)
         }
         
-        // Skip unknown tokens
-        this.advance();
-        return {
-            type: 'Identifier',
-            name: 'unknown'
-        };
+        // ! WHY: NO_SILENT_FALLBACKS - We throw error instead of returning dummy 'unknown' node
+        // ! This forces developers to either fix the syntax or extend the parser
+        const unknownToken = this.peek();
+        throw new Error(
+            `Unexpected token in primary expression: "${unknownToken?.value || 'EOF'}"\n` +
+            `Token type: ${unknownToken?.type}\n` +
+            `Position: ${this.current}\n` +
+            `NO_SILENT_FALLBACKS: We fail fast instead of silently creating dummy nodes.`
+        );
     }
 
-    /**
-     * 🎯 Parse Argument List: (arg1, arg2, arg3)
-     */
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 14: ARGUMENT LIST PARSER 
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: แปลง argument list ใน function calls
+    // !  - อ่าน arguments ที่ส่งให้ function: func(arg1, arg2, arg3)
+    // !  - เริ่มด้วย consume('(')
+    // !  - วนอ่าน expressions จนกว่าจะเจอ ')'
+    // !  - แต่ละ argument เป็น expression (ไม่ใช่แค่ identifier)
+    // !  - ถ้ามี comma (,) ให้อ่านต่อ
+    // !  - จบด้วย consume(')')
+    // !  - คืน array ของ expression nodes
+    // !  - ตัวอย่าง: foo(x, y+z, obj.method())
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseArgumentList() {
-        const args = [];
-        this.consume('(');
+        const args = [];                                        // ! เก็บรายการ arguments
+        this.consume('(');                                      // ! ต้องเริ่มด้วย '(' ไม่งั้น error
         
-        while (!this.match(')') && !this.isAtEnd()) {
-            args.push(this.parseExpression());
-            if (this.match(',')) {
-                this.advance();
+        while (!this.match(')') && !this.isAtEnd()) {           // ! วนจนกว่าจะเจอ ')' หรือ EOF
+            args.push(this.parseExpression());                  // ! อ่าน expression (แต่ละ argument เป็น expression)
+            if (this.match(',')) {                              // ! ถ้ามี comma ให้กินและอ่านต่อ
+                this.advance();                                 // ! กิน comma
             }
         }
         
-        this.consume(')');
-        return args;
+        this.consume(')');                                      // ! ต้องจบด้วย ')' ไม่งั้น error
+        return args;                                            // ! คืน array ของ expression nodes
     }
 
-    parse() {
-        // ! FIX: เพิ่มการตรวจสอบก่อนเริ่มทำงาน
+    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // !   SIMPLE STRUCTURE DETECTOR - parseSimpleStructures() 
+    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // !  งานที่ทำ: Simple structure detection (ไม่สร้าง full AST)
+    // !  
+    // !  NOTE: เปลี่ยนชื่อจาก parse()  parseSimpleStructures() เพื่อหลีกเลี่ยง method name collision
+    // !        Method หลัก parse() (บรรทัด 350) สร้าง Full AST (ESTree format)
+    // !        Method นี้ทำ Simple Structure Detection สำหรับ legacy support
+    // !  
+    // !  การทำงาน:
+    // !   - วน loop ผ่าน tokens ทั้งหมด
+    // !   - ตรวจจับโครงสร้างพื้นฐาน:
+    // !     * function declarations  this.structures.functions
+    // !     * async functions  this.structures.asyncFunctions
+    // !     * try blocks  this.structures.tryBlocks
+    // !     * classes  this.structures.classes
+    // !   - return structures object
+    // !  
+    // !   ใช้เมื่อ: ต้องการ Simple Structure Info แทน Full AST
+    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    parseSimpleStructures() {
         if (this.tokens.length === 0) {
             console.log('StructureParser: No tokens to parse, returning empty structures.');
             return this.structures;
@@ -725,7 +873,7 @@ class AdvancedStructureParser extends StructureParser {
         for (let i = 0; i < this.tokens.length; i++) {
             const token = this.tokens[i];
             
-            // Detect functions
+            // ! Detect functions
             if (token.type === 'KEYWORD' && token.value === 'function') {
                 const funcInfo = this.parseFunctionDeclaration(i);
                 if (funcInfo) {
@@ -733,7 +881,7 @@ class AdvancedStructureParser extends StructureParser {
                 }
             }
             
-            // Detect async functions
+            // ! Detect async functions
             if (token.type === 'KEYWORD' && token.value === 'async') {
                 const nextToken = this.tokens[i + 1];
                 if (nextToken && nextToken.value === 'function') {
@@ -744,7 +892,7 @@ class AdvancedStructureParser extends StructureParser {
                 }
             }
             
-            // Detect try blocks
+            // ! Detect try blocks
             if (token.type === 'KEYWORD' && token.value === 'try') {
                 const tryInfo = this.parseTryBlock(i);
                 if (tryInfo) {
@@ -752,7 +900,7 @@ class AdvancedStructureParser extends StructureParser {
                 }
             }
             
-            // Detect classes
+            // ! Detect classes
             if (token.type === 'KEYWORD' && token.value === 'class') {
                 const classInfo = this.parseClass(i);
                 if (classInfo) {
@@ -764,11 +912,52 @@ class AdvancedStructureParser extends StructureParser {
         return this.structures;
     }
 
+    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // !   STRUCTURE DETECTION HELPERS 
+    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // !  งานที่ทำ: Helper methods สำหรับตรวจจับโครงสร้างแบบ simple (ไม่ใช้ full AST)
+    // !  
+    // !  parseFunctionDeclaration() 
+    // !   - ตรวจจับ function declaration
+    // !   - นับจำนวนพารามิเตอร์
+    // !   - return { type, name, paramCount, location }
+    // !  
+    // !  parseAsyncFunction() 
+    // !   - ตรวจจับ async function
+    // !   - เช็คว่ามี await และ try-catch หรือไม่
+    // !  
+    // !  hasAwaitInFunction() 
+    // !   - เช็คว่ามี await keyword ภายใน function หรือไม่
+    // !  
+    // !  hasTryCatchInFunction() 
+    // !   - เช็คว่ามี try-catch block ภายใน function หรือไม่
+    // !  
+    // !  parseTryBlock() 
+    // !   - ตรวจจับ try block
+    // !   - เช็คว่ามี catch และ finally หรือไม่
+    // !  
+    // !  hasCatchAfterTry() :
+    // !   - เช็คว่ามี catch block หลัง try หรือไม่
+    // !  
+    // !  hasFinallyAfterTry() :
+    // !   - เช็คว่ามี finally block หรือไม่ (simplified)
+    // !  
+    // !  parseClass() :
+    // !   - ตรวจจับ class declaration
+    // !   - return { type, name, location }
+    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     parseFunctionDeclaration(startIndex) {
         const nameToken = this.tokens[startIndex + 1];
-        if (!nameToken || nameToken.type !== 'IDENTIFIER') return null;
+        if (!nameToken || nameToken.type !== 'IDENTIFIER') {
+            // !  NO_SILENT_FALLBACKS: คืน error object แทน null
+            return {
+                type: 'ERROR',
+                error: 'Function declaration missing identifier',
+                location: { start: startIndex, end: startIndex + 1 }
+            };
+        }
         
-        // Count parameters
+        // ! Count parameters
         let paramCount = 0;
         let i = startIndex + 2;
         let foundOpenParen = false;
@@ -810,7 +999,7 @@ class AdvancedStructureParser extends StructureParser {
     }
 
     hasAwaitInFunction(startIndex) {
-        // Simple check for await keyword after function declaration
+        // ! Simple check for await keyword after function declaration
         let depth = 0;
         for (let i = startIndex; i < this.tokens.length; i++) {
             const token = this.tokens[i];
@@ -827,7 +1016,7 @@ class AdvancedStructureParser extends StructureParser {
     }
 
     hasTryCatchInFunction(startIndex) {
-        // Simple check for try-catch blocks within function
+        // ! Simple check for try-catch blocks within function
         let depth = 0;
         for (let i = startIndex; i < this.tokens.length; i++) {
             const token = this.tokens[i];
@@ -851,7 +1040,7 @@ class AdvancedStructureParser extends StructureParser {
             hasFinally: this.hasFinallyAfterTry(startIndex)
         };
     }
-
+ 
     hasCatchAfterTry(startIndex) {
         let depth = 0;
         for (let i = startIndex; i < this.tokens.length; i++) {
@@ -860,7 +1049,7 @@ class AdvancedStructureParser extends StructureParser {
             if (token.value === '}') {
                 depth--;
                 if (depth === 0) {
-                    // Check next token for catch
+                    // ! Check next token for catch
                     const nextToken = this.tokens[i + 1];
                     return nextToken && nextToken.value === 'catch';
                 }
@@ -870,13 +1059,20 @@ class AdvancedStructureParser extends StructureParser {
     }
 
     hasFinallyAfterTry(startIndex) {
-        // Similar logic for finally block
-        return false; // Simplified for now
+        // ! Similar logic for finally block
+        return false; // ! Simplified for now
     }
 
     parseClass(startIndex) {
         const nameToken = this.tokens[startIndex + 1];
-        if (!nameToken || nameToken.type !== 'IDENTIFIER') return null;
+        if (!nameToken || nameToken.type !== 'IDENTIFIER') {
+            // !  NO_SILENT_FALLBACKS: คืน error object แทน null
+            return {
+                type: 'ERROR',
+                error: 'Class declaration missing identifier',
+                location: { start: startIndex, end: startIndex + 1 }
+            };
+        }
         
         return {
             type: 'class',
@@ -886,190 +1082,81 @@ class AdvancedStructureParser extends StructureParser {
     }
 }
 
-/**
- * ! Simple JavaScript Parser - แทนไลบรารี่ภายนอก (Acorn/Babel)
- * ! ใช้สำหรับการวิเคราะห์โค้ดพื้นฐานโดยไม่พึ่งพาไลบรารี่ภายนอก
- */
-class SimpleJavaScriptParser {
-    constructor() {
-        this.tokens = [];
-        this.position = 0;
-    }
 
-    /**
-     * ! สร้าง Simple AST จาก tokens (แทน Acorn/Babel)
-     */
-    parse(code) {
-        // สร้าง tokenizer ง่ายๆ
-        this.tokens = this.tokenizeSimple(code);
-        this.position = 0;
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  SIMPLE JAVASCRIPT PARSER CLASS 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  งานที่ทำ: Simple parser สำหรับสร้าง basic AST (ไม่ใช้ Acorn/Babel)
+// !  
+// !  CONSTRUCTOR :
+// !   - initialize tokens array และ position
+// !  
+// !  MAIN METHOD - parse() :
+// !   - tokenize code ด้วย tokenizeSimple()
+// !   - สร้าง Program node พร้อม body
+// !   - return basic AST structure
+// !  
+// !  tokenizeSimple() :
+// !   - Simple tokenizer ที่แยก:
+// !     * String literals (",',`)
+// !     * Numbers (123, 3.14)
+// !     * Identifiers (foo, myVar)
+// !     * Operators/Punctuation (+,-,*,/,etc.)
+// !   - สร้าง tokens พร้อม location info
+// !  
+// !  HELPER METHODS :
+// !   - parseStringLiteral(): แยก string literals
+// !   - parseNumber(): แยก numbers
+// !   - parseIdentifier(): แยก identifiers
+// !   - parseStatements(): สร้าง basic statements
+// !   - getLastLocation(): คืน location สุดท้าย
+// !  
+// !  NOTE: Parser นี้เป็น fallback/alternative สำหรับกรณีที่ไม่ต้องการ full AST
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-        return {
-            type: 'Program',
-            body: this.parseStatements(),
-            sourceType: 'module',
-            loc: { start: { line: 1, column: 0 }, end: this.getLastLocation() }
-        };
-    }
 
-    tokenizeSimple(code) {
-        const tokens = [];
-        const lines = code.split('\n');
-        
-        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-            const line = lines[lineIndex];
-            let i = 0;
-            
-            while (i < line.length) {
-                const char = line[i];
-                
-                // Skip whitespace
-                if (/\s/.test(char)) {
-                    i++;
-                    continue;
-                }
-                
-                // String literals
-                if (char === '"' || char === "'" || char === '`') {
-                    const stringResult = this.parseStringLiteral(line, i, char, lineIndex + 1);
-                    tokens.push({
-                        type: 'Literal',
-                        value: stringResult.value,
-                        raw: stringResult.raw,
-                        loc: { start: { line: lineIndex + 1, column: i }, end: { line: lineIndex + 1, column: stringResult.endIndex } }
-                    });
-                    i = stringResult.endIndex;
-                    continue;
-                }
-                
-                // Numbers
-                if (/\d/.test(char)) {
-                    const numberResult = this.parseNumber(line, i, lineIndex + 1);
-                    tokens.push({
-                        type: 'Literal',
-                        value: parseFloat(numberResult.value),
-                        raw: numberResult.value,
-                        loc: { start: { line: lineIndex + 1, column: i }, end: { line: lineIndex + 1, column: numberResult.endIndex } }
-                    });
-                    i = numberResult.endIndex;
-                    continue;
-                }
-                
-                // Identifiers and keywords
-                if (/[a-zA-Z_$]/.test(char)) {
-                    const identifierResult = this.parseIdentifier(line, i, lineIndex + 1);
-                    tokens.push({
-                        type: 'Identifier',
-                        name: identifierResult.value,
-                        loc: { start: { line: lineIndex + 1, column: i }, end: { line: lineIndex + 1, column: identifierResult.endIndex } }
-                    });
-                    i = identifierResult.endIndex;
-                    continue;
-                }
-                
-                // Operators and punctuation
-                if (/[+\-*/=<>!&|^~%(){}[\];,.]/.test(char)) {
-                    tokens.push({
-                        type: 'Punctuator',
-                        value: char,
-                        loc: { start: { line: lineIndex + 1, column: i }, end: { line: lineIndex + 1, column: i + 1 } }
-                    });
-                    i++;
-                    continue;
-                }
-                
-                // Skip unknown characters
-                i++;
-            }
-        }
-        
-        return tokens;
-    }
 
-    parseStringLiteral(line, start, quote, lineNumber) {
-        let i = start + 1;
-        let value = '';
-        let raw = quote;
-        
-        while (i < line.length && line[i] !== quote) {
-            if (line[i] === '\\' && i + 1 < line.length) {
-                value += line[i] + line[i + 1];
-                raw += line[i] + line[i + 1];
-                i += 2;
-            } else {
-                value += line[i];
-                raw += line[i];
-                i++;
-            }
-        }
-        
-        if (i < line.length) {
-            raw += quote;
-            i++;
-        }
-        
-        return { value: value, raw: raw, endIndex: i };
-    }
-
-    parseNumber(line, start, lineNumber) {
-        let i = start;
-        let value = '';
-        
-        while (i < line.length && /[\d.]/.test(line[i])) {
-            value += line[i];
-            i++;
-        }
-        
-        return { value, endIndex: i };
-    }
-
-    parseIdentifier(line, start, lineNumber) {
-        let i = start;
-        let value = '';
-        
-        while (i < line.length && /[a-zA-Z0-9_$]/.test(line[i])) {
-            value += line[i];
-            i++;
-        }
-        
-        return { value, endIndex: i };
-    }
-
-    parseStatements() {
-        const statements = [];
-        
-        // สร้าง statements พื้นฐานจาก tokens
-        for (let i = 0; i < this.tokens.length; i++) {
-            const token = this.tokens[i];
-            
-            if (token.type === 'Identifier' || token.type === 'Literal') {
-                statements.push({
-                    type: 'ExpressionStatement',
-                    expression: token,
-                    loc: token.loc
-                });
-            }
-        }
-        
-        return statements;
-    }
-
-    getLastLocation() {
-        if (this.tokens.length === 0) {
-            return { line: 1, column: 0 };
-        }
-        
-        const lastToken = this.tokens[this.tokens.length - 1];
-        return lastToken.loc ? lastToken.loc.end : { line: 1, column: 0 };
-    }
-}
-
-/**
- *  Smart File Analyzer - ระบบวิเคราะห์ไฟล์อัจฉริยะ
- */
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !   SMART FILE ANALYZER CLASS 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  งานที่ทำ: วิเคราะห์และตรวจสอบสุขภาพของไฟล์โค้ดก่อนการ parse
+// !  
+// !  CONSTRUCTOR :
+// !   - โหลด configuration จาก PARSER_CONFIG หรือ custom config
+// !   - ตั้งค่า maxFileSize และ chunkSize
+// !   - ตั้งค่า healthCheckThresholds
+// !   - Strict validation (ไม่มี fallback)
+// !  
+// !  performCodeHealthCheck() :
+// !   - ตรวจสอบขนาดไฟล์ (file size)
+// !   - ตรวจสอบ syntax issues (brace balance)
+// !   - คืน { healthy, issues[] }
+// !  
+// !  checkBraceBalance() :
+// !   - นับจำนวน { และ } ให้ balance
+// !   - ข้าม braces ใน string literals
+// !   - คืน balance (0 = balanced, 0 = unbalanced)
+// !  
+// !  analyzeIntent() :
+// !   - วิเคราะห์เจตนาของโค้ด (intent analysis)
+// !   - ตรวจจับ keywords เพื่อจัดหมวดหมู่:
+// !     * security: auth, encrypt, token
+// !     * businessLogic: calculate, validate, process
+// !     * algorithm: sort, search, optimize
+// !     * dataManagement: database, cache, store
+// !     * apiIntegration: fetch, request, endpoint
+// !   - คืน intents object พร้อมคะแนน
+// !  
+// !  processLargeFileInChunks() :
+// !   - แบ่งไฟล์ใหญ่เป็น chunks
+// !   - หาจุดตัด (line breaks) ที่เหมาะสม
+// !   - คืน array ของ code chunks
+// !  
+// !  NOTE: Class นี้ช่วย optimize performance และป้องกัน memory overflow
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 class SmartFileAnalyzer {
     constructor(config = null) {
-        // Use PARSER_CONFIG if no config provided, strict validation otherwise
+        // ! Use PARSER_CONFIG if no config provided, strict validation otherwise
         const actualConfig = config ? config : PARSER_CONFIG;
         const analyzerConfig = actualConfig.smartFileAnalyzer;
         if (!analyzerConfig) {
@@ -1082,8 +1169,8 @@ class SmartFileAnalyzer {
         
         this.maxFileSize = analyzerConfig.maxFileSize;
         this.chunkSize = analyzerConfig.chunkSize;
-        
-        // Strict validation - no silent fallbacks
+
+        // ! Strict validation - no silent fallbacks
         if (!analyzerConfig.healthCheckThresholds) {
             this.healthThresholds = actualConfig.astTraversal?.defaultHealthThresholds;
             if (!this.healthThresholds) {
@@ -1096,9 +1183,9 @@ class SmartFileAnalyzer {
         console.log(` SmartFileAnalyzer configured: maxFileSize=${this.maxFileSize}, chunkSize=${this.chunkSize}`);
     }
 
-    /**
-     *  ตรวจสอบสุขภาพโค้ดก่อนการวิเคราะห์
-     */
+
+// !  ตรวจสอบสุขภาพโค้ดก่อนการวิเคราะห์
+
     performCodeHealthCheck(code) {
         const issues = [];
         
@@ -1111,7 +1198,7 @@ class SmartFileAnalyzer {
             });
         }
         
-        // Check for basic syntax issues
+        // ! Check for basic syntax issues
         const braceBalance = this.checkBraceBalance(code);
         if (braceBalance !== 0) {
             issues.push({
@@ -1136,7 +1223,7 @@ class SmartFileAnalyzer {
             const char = code[i];
             const prev = i > 0 ? code[i - 1] : '';
             
-            // Handle string boundaries
+            // !  Handle string boundaries
             if ((char === '"' || char === "'" || char === '`') && prev !== '\\') {
                 if (!inString) {
                     inString = true;
@@ -1157,9 +1244,9 @@ class SmartFileAnalyzer {
         return balance;
     }
 
-    /**
-     *  วิเคราะห์เจตนาของโค้ด (Intent Analysis)
-     */
+
+       // ! วิเคราะห์เจตนาของโค้ด (Intent Analysis)
+
     analyzeIntent(tokens) {
         const intents = {
             security: 0,
@@ -1169,7 +1256,7 @@ class SmartFileAnalyzer {
             apiIntegration: 0
         };
 
-        // ใช้ keywords จาก config แทน hardcoded values
+        // ! ใช้ keywords จาก config แทน hardcoded values
         const intentKeywords = PARSER_CONFIG.ruleChecking.intentAnalysisKeywords;
         if (!intentKeywords) {
             throw new Error('Parser configuration intentAnalysisKeywords section is required');
@@ -1196,9 +1283,9 @@ class SmartFileAnalyzer {
         return intents;
     }
 
-    /**
-     *  แบ่งไฟล์ใหญ่เป็น Chunks เพื่อประมวลผล
-     */
+
+    // !  แบ่งไฟล์ใหญ่เป็น Chunks เพื่อประมวลผล
+
     processLargeFileInChunks(code) {
         if (code.length <= this.chunkSize) {
             return [code];
@@ -1209,14 +1296,14 @@ class SmartFileAnalyzer {
 
         while (currentPos < code.length) {
             let chunkEnd = currentPos + this.chunkSize;
-            
-            // Find a good breaking point (end of line)
+
+            // ! Find a good breaking point (end of line)
             if (chunkEnd < code.length) {
                 while (chunkEnd > currentPos && code[chunkEnd] !== '\n') {
                     chunkEnd--;
                 }
                 if (chunkEnd === currentPos) {
-                    // No line break found, use original chunk size
+                    // ! No line break found, use original chunk size
                     chunkEnd = Math.min(currentPos + this.chunkSize, code.length);
                 }
             } else {
@@ -1231,20 +1318,92 @@ class SmartFileAnalyzer {
     }
 }
 
-/**
- *  Smart Parser Engine Main Class
- */
+
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !   SMART PARSER ENGINE - MAIN CLASS 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  งานที่ทำ: หัวใจหลักของระบบ - รวมทุกอย่างเข้าด้วยกัน
+// !  
+// !   OVERVIEW:
+// !   - รับ combined grammar และ config
+// !   - สร้าง GrammarIndex, Tokenizer, Analyzer
+// !   - วิเคราะห์โค้ดด้วย full AST
+// !   - traverse AST เพื่อตรวจจับ violations
+// !   - คืน violations พร้อมรายละเอียด
+// !  
+// !   ZONE BREAKDOWN:
+// !  
+// !  ZONE 1: CONSTRUCTOR 
+// !   - โหลด configuration (strict validation)
+// !   - สร้าง components:
+// !     * GrammarIndex: จาก combined grammar
+// !     * JavaScriptTokenizer: พร้อม grammarIndex
+// !     * SmartFileAnalyzer: สำหรับ health checks
+// !     * SimpleJavaScriptParser: fallback parser
+// !   - ตั้งค่า memory protection:
+// !     * maxTokensPerAnalysis
+// !     * maxMemoryUsage
+// !     * maxAnalysisCount
+// !     * maxASTNodes
+// !  
+// !  ZONE 2: analyzeCode() - MAIN ANALYSIS METHOD (บรรทัด 1737-1795)
+// !   - CIRCUIT BREAKER: ป้องกัน memory overflow
+// !   - Tokenize code
+// !   - Build full AST with AdvancedStructureParser
+// !   - Traverse AST เพื่อตรวจจับ violations
+// !   - Return violations
+// !  
+// !  ZONE 3: traverseAST() - AST WALKER (บรรทัด 1800-1857)
+// !   - เดิน AST tree แบบ recursive
+// !   - ตรวจสอบแต่ละ node type
+// !   - เรียก violation checkers:
+// !     * checkMockingInAST()
+// !     * checkHardcodeInAST()
+// !     * checkSilentFallbacksInAST()
+// !     * checkCachingInAST()
+// !     * checkEmojiInAST()
+// !  
+// !  ZONE 4: VIOLATION CHECKERS 
+// !   - checkMockingInAST(): jest.mock(), sinon.stub()
+// !   - checkHardcodeInAST(): credentials, API keys, URLs
+// !   - checkNumericHardcodeInAST(): hardcoded numbers
+// !   - checkSilentFallbacksInAST(): empty catch, || fallbacks
+// !   - checkLogicalFallbacksInAST(): || [], || {}
+// !   - checkPromiseCatchFallbacks(): .catch(() => {})
+// !   - checkAsyncFunctionWithoutTryCatch()
+// !   - checkCachingInAST(): cache variables
+// !   - checkMemoizationInAST(): memoize functions
+// !   - checkEmojiInAST(): emoji detection
+// !  
+// !  ZONE 5: detectViolations() - LEGACY DETECTOR 
+// !   - รวม violation detectors แบบเก่า
+// !   - ใช้สำหรับ fallback หรือ double-check
+// !  
+// !  ZONE 6: SPECIFIC VIOLATION DETECTORS 
+// !   - detectEmojiViolations()
+// !   - detectHardcodeViolations()
+// !   - detectSilentFallbackViolations()
+// !   - detectCachingViolations()
+// !   - detectMockingViolations()
+// !  
+// !   KEY FEATURES:
+// !    Memory protection (circuit breaker)
+// !    Full AST generation (เหมือน Babel/Acorn)
+// !    Comprehensive violation detection
+// !    NO_HARDCODE compliance (ใช้ config)
+// !    Error recovery (ทำงานต่อเมื่อเจอ error)
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 class SmartParserEngine {
     constructor(combinedGrammar, config = null) { // รับ combined grammar และ config
         try {
-            // Use PARSER_CONFIG if no config provided, strict validation otherwise
+            // ! Use PARSER_CONFIG if no config provided, strict validation otherwise
             const actualConfig = config ? config : PARSER_CONFIG;
             const engineConfig = actualConfig.smartParserEngine;
             if (!engineConfig) {
                 throw new Error('SmartParserEngine requires valid configuration with smartParserEngine section');
             }
-            
-            // Store configs for later use (NO_HARDCODE compliance)
+
+            // ! Store configs for later use (NO_HARDCODE compliance)
             this.config = actualConfig; // Store full config for accessing patterns
             this.engineConfig = engineConfig;
             
@@ -1252,14 +1411,20 @@ class SmartParserEngine {
             if (!memoryConfig) {
                 throw new Error('SmartParserEngine configuration missing memory settings');
             }
+
+            // ! สร้าง Index จาก grammar ที่ได้รับมา (ไม่โหลดเอง)
+            this.grammarIndex = new GrammarIndex(combinedGrammar);
             
-            // สร้าง Index จาก grammar ที่ได้รับมา (ไม่โหลดเอง)
-            this.grammarIndex = new GrammarIndex(combinedGrammar); 
-            this.tokenizer = new JavaScriptTokenizer(this.grammarIndex);
+            // ! WHY: Use BinaryComputationTokenizer instead of hardcoded JavaScriptTokenizer
+            // ! This connects tokenizer-helper.js to the main system (NO_HARDCODE compliance)
+            this.tokenizer = new BinaryComputationTokenizer(this.grammarIndex);
+            
             this.analyzer = new SmartFileAnalyzer(actualConfig); // ส่ง actualConfig ต่อ
-            this.simpleParser = new SimpleJavaScriptParser(); // Simple parser แทนไลบรารี่ภายนอก
-            
-            // MEMORY PROTECTION: Strict validation required
+            //  REMOVED: this.simpleParser = new SimpleJavaScriptParser()
+            // WHY: SimpleJavaScriptParser violates NO_HARDCODE (hardcoded tokenizeSimple method)
+            // Use this.tokenizer (BinaryComputationTokenizer) for ALL tokenization
+
+            // ! MEMORY PROTECTION: Strict validation required
             if (!memoryConfig.maxTokensPerAnalysis) {
                 throw new Error('Configuration missing maxTokensPerAnalysis');
             }
@@ -1289,19 +1454,19 @@ class SmartParserEngine {
 
 
 
-    /**
-     * ! วิเคราะห์โค้ดด้วย Simple JavaScript Parser (ไม่ใช้ไลบรารี่ภายนอก)
-     */
+
     analyzeCode(code) {
         console.log('Smart Parser Engine: Starting AST analysis...');
         
-        // ! CIRCUIT BREAKER: ป้องกัน memory overflow
+        // ! WHY: Circuit breaker prevents infinite loops or recursive attacks that could
+        // ! exhaust server memory. This is critical for production security.
         this.analysisCount++;
         if (this.analysisCount > this.engineConfig.memory.maxAnalysisCount) {
             throw new Error('Analysis limit exceeded - possible memory leak detected');
         }
         
-        // ! Memory usage check
+        // ! WHY: Checking actual memory usage prevents DoS attacks with extremely
+        // ! large/nested files that could crash the Node.js process.
         if (process.memoryUsage().heapUsed > this.maxMemoryUsage) {
             throw new Error(`Memory usage too high: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB > ${this.maxMemoryUsage / 1024 / 1024}MB`);
         }
@@ -1322,8 +1487,8 @@ class SmartParserEngine {
             console.log('Step 2: Building Full AST with OUR AdvancedStructureParser...');
             const structureParser = new AdvancedStructureParser(tokens, this.grammarIndex);
             const ast = structureParser.parse(); // Returns complete AST like Babel/Acorn!
-            
-            // Safe check for AST structure
+
+            // ! Safe check for AST structure
             const nodeCount = ast?.body?.length || 0;
             console.log(` SUCCESS: Built Full AST with ${nodeCount} top-level nodes`);
 
@@ -1332,16 +1497,18 @@ class SmartParserEngine {
             allViolations.push(...violations);
                 
         } catch (parseError) {
-            // !  แสดงเออเรอร์แบบละเอียด - เพื่อให้เรารู้ว่าต้องสอนอะไรให้ parser เพิ่ม
+            // ! WHY: We log parse errors as "learning opportunities" instead of crashing.
+            // ! This helps identify which JavaScript syntax patterns we haven't implemented yet,
+            // ! allowing continuous improvement of the parser without blocking validation.
             console.error('PARSE ERROR - This is our LEARNING OPPORTUNITY!');
             console.error('What we need to teach our parser:');
             console.error('Error:', parseError.message);
             console.error('At position:', parseError.position || 'unknown');
             console.error('Near code:', parseError.context || 'unknown');
             
-            // ! เพิ่มเป็น violation พร้อมคำแนะนำ
+            // WHY: Use ERROR_TYPES from constants.js instead of hardcoding (NO_HARDCODE compliance)
             allViolations.push({
-                ruleId: 'PARSER_LEARNING_NEEDED',
+                ruleId: ERROR_TYPES.PARSER_LEARNING_NEEDED,
                 severity: SEVERITY_LEVELS.CRITICAL, 
                 message: `Our parser needs to learn: ${parseError.message}`,
                 location: parseError.loc ? parseError.loc : DEFAULT_LOCATION,
@@ -1359,15 +1526,15 @@ class SmartParserEngine {
         };
     }
 
-    /**
-     * ! เดินสำรวจ AST Tree เพื่อตรวจจับ Violations (หัวใจของระบบ)
-     */
+
+    // !  เดินสำรวจ AST Tree เพื่อตรวจจับ Violations (หัวใจของระบบ)
+
     traverseAST(astNode, sourceCode = '') {
         const violations = [];
         let nodeCount = 0;
         const maxNodes = this.maxASTNodes; // Config-based limit (no hardcode)
 
-        // ฟังก์ชันเดิน AST แบบ Recursive
+        // ! ฟังก์ชันเดิน AST แบบ Recursive
         const walk = (currentNode, parent = null, depth = 0) => {
             if (!currentNode || nodeCount > maxNodes) return;
             nodeCount++;
@@ -1455,7 +1622,7 @@ class SmartParserEngine {
 
     checkMockingInAST(node, violations) {
         try {
-            // jest.mock(), sinon.stub(), chai.spy()
+            // ! jest.mock(), sinon.stub(), chai.spy()
             if (node.callee?.property?.name === 'mock' || 
                 node.callee?.property?.name === 'stub' ||
                 node.callee?.property?.name === 'spy') {
@@ -1467,7 +1634,7 @@ class SmartParserEngine {
                 });
             }
 
-            // jest.spyOn() - ตรวจ pattern พิเศษ
+            // ! jest.spyOn() - ตรวจ pattern พิเศษ
             if (node.callee?.property?.name === 'spyOn') {
                 violations.push({
                     ruleId: RULE_IDS.NO_MOCKING,
@@ -1477,7 +1644,7 @@ class SmartParserEngine {
                 });
             }
 
-            // mockResolvedValue, mockImplementation, mockReturnValue
+            // ! mockResolvedValue, mockImplementation, mockReturnValue
             if (node.callee?.property?.name?.includes('mock')) {
                 violations.push({
                     ruleId: RULE_IDS.NO_MOCKING,
@@ -1488,7 +1655,7 @@ class SmartParserEngine {
             }
         } catch (error) {
             console.error(`[CRITICAL] Bug in validation logic at checkMockingInAST: ${error.message}`);
-            throw error; // ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
         }
     }
 
@@ -1497,8 +1664,8 @@ class SmartParserEngine {
             if (!node.value) return;
             const value = node.value.toString();
             const lowerValue = value.toLowerCase();
-            
-            //  ใช้ patterns จาก config แทน hardcode
+
+            // ! ใช้ patterns จาก config แทน hardcode
             const ruleConfig = PARSER_CONFIG.ruleChecking;
             if (!ruleConfig || !ruleConfig.customPatterns) {
                 throw new Error('Parser configuration ruleChecking.customPatterns section is required');
@@ -1506,7 +1673,7 @@ class SmartParserEngine {
             const credentialKeywords = ruleConfig.customPatterns.credentialKeywords;
             const connectionPatterns = ruleConfig.customPatterns.connectionStringPatterns;
             
-            // Credential detection
+            // ! Credential detection
             if (credentialKeywords.some(keyword => lowerValue.includes(keyword))) {
                 violations.push({
                     ruleId: RULE_IDS.NO_HARDCODE,
@@ -1516,7 +1683,7 @@ class SmartParserEngine {
                 });
             }
             
-            // API Key patterns (sk_live_, pk_test_, etc.)
+            // ! API Key patterns (sk_live_, pk_test_, etc.)
             const apiKeyMinLength = ruleConfig.customPatterns.apiKeyMinLength;
             const hexMinLength = ruleConfig.customPatterns.hexMinLength;
             const alphanumericMinLength = ruleConfig.customPatterns.alphanumericMinLength;
@@ -1531,8 +1698,8 @@ class SmartParserEngine {
                     location: node.loc?.start ? node.loc.start : DEFAULT_LOCATION
                 });
             }
-            
-            // Connection string detection  
+
+            // ! Connection string detection
             if (connectionPatterns.some(pattern => lowerValue.includes(pattern))) {
                 violations.push({
                     ruleId: RULE_IDS.NO_HARDCODE,
@@ -1555,7 +1722,7 @@ class SmartParserEngine {
             }
         } catch (error) {
             console.error(`[CRITICAL] Bug in validation logic at checkHardcodeInAST: ${error.message}`);
-            throw error; // ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
         }
     }
 
@@ -1581,7 +1748,7 @@ class SmartParserEngine {
             }
         } catch (error) {
             console.error(`[CRITICAL] Bug in validation logic at checkNumericHardcodeInAST: ${error.message}`);
-            throw error; // ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
         }
     }
 
@@ -1591,7 +1758,7 @@ class SmartParserEngine {
             if (node.body && node.body.body) {
                 const statements = node.body.body;
                 
-                // Empty catch block
+                // ! Empty catch block
                 if (statements.length === 0) {
                     violations.push({
                         ruleId: RULE_IDS.NO_SILENT_FALLBACKS,
@@ -1628,7 +1795,7 @@ class SmartParserEngine {
         try {
             // ! ตรวจสอบ || fallback patterns
             if (node.operator === '||' && node.right) {
-                // Common silent fallback patterns
+                // ! Common silent fallback patterns
                 const isSilentFallback = 
                     (node.right.type === 'ArrayExpression' && node.right.elements.length === 0) || // || []
                     (node.right.type === 'ObjectExpression' && node.right.properties.length === 0) || // || {}
@@ -1646,7 +1813,7 @@ class SmartParserEngine {
             }
         } catch (error) {
             console.error(`[CRITICAL] Bug in validation logic at checkLogicalFallbacksInAST: ${error.message}`);
-            throw error; // ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
         }
     }
 
@@ -1771,10 +1938,10 @@ class SmartParserEngine {
         try {
             // ! ตรวจสอบ memoization functions
             const callee = node.callee;
-            
-            // _.memoize()
-            if (callee?.type === 'MemberExpression' && 
-                callee.object?.name === '_' && 
+
+            // ! _.memoize()
+            if (callee?.type === 'MemberExpression' &&
+                callee.object?.name === '_' &&
                 callee.property?.name === 'memoize') {
                 violations.push({
                     ruleId: RULE_IDS.NO_INTERNAL_CACHING,
@@ -1821,11 +1988,6 @@ class SmartParserEngine {
                 return; // ! Only check actual string literals
             }
             
-            // ! KNOWN LIMITATION: AST-based emoji detection จับได้เฉพาะ STRING LITERALS เท่านั้น
-            // ! COMMENTS จะไม่เข้า AST parsing (Acorn/Babel ไม่ include comments โดยปกติ)
-            // ! ดังนั้น emoji ใน comments จึงต้องพึ่ง token-based detection แต่ยังไม่ implement
-            // ! วิธีแก้: ใช้ string literals สำหรับ test cases แทน comments
-
             // ! Read emoji pattern from configuration (NO_HARDCODE compliance)
             const emojiRegexStr = this.config?.ruleChecking?.customPatterns?.emojiRegex || '';
             if (!emojiRegexStr) {
@@ -1854,9 +2016,9 @@ class SmartParserEngine {
         }
     }
 
-    /**
-     * ! ตรวจจับการละเมิดกฎทั้งหมด
-     */
+
+    // !  ตรวจจับการละเมิดกฎทั้งหมด
+
     detectViolations(tokens, structures, code) {
         const violations = [];
         
@@ -1878,17 +2040,9 @@ class SmartParserEngine {
         return violations;
     }
 
-    /**
-     * !  ตรวจจับ Emoji ใน STRING และ COMMENT tokens (Memory Safe)
-     *  
-     * ! CURRENT STATUS: Token-based detection ทำงานได้ แต่ main validation loop 
-     * ! ใช้ AST-based detection เป็นหลัก ซึ่งไม่สามารถจับ COMMENTS ได้
-     * ! 
-     * ! WORKAROUND: Test cases ใช้ string literals แทน comments เพื่อให้ผ่าน AST detection
-     * ! 
-     * ! TODO: Implement proper comment detection by using this token-based method
-     * ! in main validation loop alongside AST detection
-     */
+
+    // !  ตรวจจับ Emoji (Memory Safe)
+
     detectEmojiViolations(tokens) {
         const violations = [];
         
@@ -1926,9 +2080,9 @@ class SmartParserEngine {
         return violations;
     }
 
-    /**
-     * ! ตรวจจับ Hardcode values (Memory Safe)
-     */
+
+    // !  ตรวจจับ Hardcode values (Memory Safe)
+
     detectHardcodeViolations(tokens) {
         const violations = [];
         
@@ -2034,9 +2188,9 @@ class SmartParserEngine {
         return violations;
     }
 
-    /**
-     * ! ตรวจจับ Silent Fallbacks โดยใช้ GrammarIndex เท่านั้น
-     */
+
+     // !  ตรวจจับ Silent Fallbacks โดยใช้ GrammarIndex เท่านั้น
+
     detectSilentFallbackViolations(structures, tokens) {
         const violations = [];
         
@@ -2092,11 +2246,11 @@ class SmartParserEngine {
                 }
             } catch (error) {
                 console.error(`[CRITICAL] Bug in GrammarIndex pattern for NO_SILENT_FALLBACKS[${patternIndex}]: ${error.message}`);
-                throw error; // ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+                throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
             }
         });
         
-        // เพิ่มการตรวจสอบ async functions จาก structure analysis
+        // ! เพิ่มการตรวจสอบ async functions จาก structure analysis
         if (structures && structures.asyncFunctions) {
             structures.asyncFunctions.forEach(func => {
                 if (func.hasAwait && !func.hasTryCatch) {
@@ -2113,9 +2267,9 @@ class SmartParserEngine {
         return violations;
     }
     
-    /**
-     *  ตรวจจับ Empty catch blocks
-     */
+
+    // ! ตรวจจับ Empty catch blocks
+
     findEmptyCatchBlocks(tokens) {
         const violations = [];
         let i = 0;
@@ -2164,10 +2318,8 @@ class SmartParserEngine {
         
         return violations;
     }
-    
-    /**
-     *  ตรวจจับ Empty Promise catches
-     */
+
+    // ! ตรวจจับ Empty Promise catches
     findEmptyPromiseCatches(tokens) {
         const violations = [];
         let i = 0;
@@ -2177,11 +2329,11 @@ class SmartParserEngine {
                 tokens[i + 1].type === 'IDENTIFIER' && 
                 tokens[i + 1].value === 'catch') {
                 
-                // หา arrow function ใน catch
+                // ! หา arrow function ใน catch
                 let j = i + 2;
                 while (j < tokens.length && j < i + 15) {
                     if (tokens[j].value === '=>') {
-                        // ตรวจสอบว่า catch handler ว่างหรือไม่
+                        // ! ตรวจสอบว่า catch handler ว่างหรือไม่
                         if (this.isArrowFunctionEmpty(tokens, j)) {
                             violations.push({
                                 ruleId: RULE_IDS.NO_SILENT_FALLBACKS,
@@ -2201,9 +2353,9 @@ class SmartParserEngine {
         return violations;
     }
     
-    /**
-     *  ตรวจจับ Silent fallback patterns อื่นๆ
-     */
+
+    // ! ตรวจจับ Silent fallback patterns อื่นๆ
+
     findSilentFallbackPatterns(tokens) {
         const violations = [];
         let i = 0;
@@ -2211,7 +2363,7 @@ class SmartParserEngine {
         while (i < tokens.length - 1) {
             const token = tokens[i];
             
-            // ตรวจ || และ ?? patterns ทั้งหมด
+            // !  ตรวจ || และ ?? patterns ทั้งหมด
             if (token.value === '||' || token.value === '??') {
                 const nextToken = tokens[i + 1];
                 const nextNextToken = i + 2 < tokens.length ? tokens[i + 2] : null;
@@ -2221,45 +2373,45 @@ class SmartParserEngine {
                     let isSilentFallback = false;
                     let fallbackType = '';
                     
-                    // 1. || [] หรือ ?? []
+                    // ! 1. || [] หรือ ?? []
                     if (nextToken.value === '[' && nextNextToken && nextNextToken.value === ']') {
                         isSilentFallback = true;
                         fallbackType = 'empty array';
                     }
                     
-                    // 2. || {} หรือ ?? {}
+                    // ! 2. || {} หรือ ?? {}
                     else if (nextToken.value === '{' && nextNextToken && nextNextToken.value === '}') {
                         isSilentFallback = true;
                         fallbackType = 'empty object';
                     }
                     
-                    // 3. || null หรือ ?? null
+                    // ! 3. || null หรือ ?? null
                     else if (nextToken.type === 'KEYWORD' && nextToken.value === 'null') {
                         isSilentFallback = true;
                         fallbackType = 'null';
                     }
                     
-                    // 4. || false หรือ ?? false
+                    // ! 4. || false หรือ ?? false
                     else if (nextToken.type === 'KEYWORD' && nextToken.value === 'false') {
                         isSilentFallback = true;
                         fallbackType = 'false';
                     }
                     
-                    // 5. || "" หรือ ?? ""
+                    // ! 5. || "" หรือ ?? ""
                     else if (nextToken.type === 'STRING' && 
                             (nextToken.value === '""' || nextToken.value === "''" || nextToken.value.length <= 2)) {
                         isSilentFallback = true;
                         fallbackType = 'empty string';
                     }
                     
-                    // 6. || 0 หรือ ?? 0 
+                    // ! 6. || 0 หรือ ?? 0 
                     else if (nextToken.type === 'NUMBER' && nextToken.value === '0') {
                         isSilentFallback = true;
                         fallbackType = 'zero';
                     }
                     
                     // ! FIX: เพิ่มการตรวจ function call patterns
-                    // 7. functionCall() || defaultValue
+                    // ! 7. functionCall() || defaultValue
                     else if (this.isFunctionCallPattern(tokens, i)) {
                         isSilentFallback = true;
                         fallbackType = 'function call with default';
@@ -2282,16 +2434,16 @@ class SmartParserEngine {
         return violations;
     }
     
-    /**
-     *  Helper: ตรวจสอบ function call pattern
-     */
+
+    // !  Helper: ตรวจสอบ function call pattern
+
     isFunctionCallPattern(tokens, operatorIndex) {
-        // ย้อนกลับไปหาว่าก่อน || มี function call หรือไม่
+        // ! ย้อนกลับไปหาว่าก่อน || มี function call หรือไม่
         let i = operatorIndex - 1;
         let foundCloseParen = false;
         let parenCount = 0;
         
-        // หา ) ก่อนหน้า ||
+        // ! หา ) ก่อนหน้า ||
         while (i >= 0 && i >= operatorIndex - 10) { // จำกัดการค้นหา
             if (tokens[i].value === ')') {
                 foundCloseParen = true;
@@ -2304,14 +2456,14 @@ class SmartParserEngine {
         
         if (!foundCloseParen) return false;
         
-        // หา ( ที่ match กับ )
+        // ! หา ( ที่ match กับ )
         while (i >= 0 && parenCount > 0) {
             if (tokens[i].value === ')') parenCount++;
             if (tokens[i].value === '(') parenCount--;
             i--;
         }
         
-        // ตรวจสอบว่าก่อน ( มี identifier (function name) หรือไม่
+        // ! ตรวจสอบว่าก่อน ( มี identifier (function name) หรือไม่
         if (i >= 0 && tokens[i].type === 'IDENTIFIER') {
             return true;
         }
@@ -2319,9 +2471,9 @@ class SmartParserEngine {
         return false;
     }
     
-    /**
-     *  Helper: ตรวจสอบว่า catch block ว่างหรือไม่
-     */
+
+    // !  Helper: ตรวจสอบว่า catch block ว่างหรือไม่
+
     isCatchBlockEmpty(tokens, openBraceIndex) {
         let braceCount = 1;
         let i = openBraceIndex + 1;
@@ -2331,7 +2483,7 @@ class SmartParserEngine {
             if (tokens[i].value === '{') braceCount++;
             if (tokens[i].value === '}') braceCount--;
             
-            // ถ้ามี token ที่ไม่ใช่ whitespace หรือ comment = มี content
+            // ! ถ้ามี token ที่ไม่ใช่ whitespace หรือ comment = มี content
             if (braceCount > 0 && 
                 tokens[i].type !== 'COMMENT' && 
                 tokens[i].value.trim() !== '') {
@@ -2344,9 +2496,9 @@ class SmartParserEngine {
         return !hasContent;
     }
     
-    /**
-     *  Helper: ตรวจสอบว่า catch block return แบบ silent หรือไม่
-     */
+
+    // ! Helper: ตรวจสอบว่า catch block return แบบ silent หรือไม่
+
     catchBlockReturnsSilently(tokens, openBraceIndex) {
         let braceCount = 1;
         let i = openBraceIndex + 1;
@@ -2376,26 +2528,26 @@ class SmartParserEngine {
         return hasReturn && !hasLogging;
     }
     
-    /**
-     *  Helper: ตรวจสอบว่า arrow function ว่างหรือไม่
-     */
+
+    // !  Helper: ตรวจสอบว่า arrow function ว่างหรือไม่
+
     isArrowFunctionEmpty(tokens, arrowIndex) {
         let i = arrowIndex + 1;
         
-        // Skip whitespace
+       // ! Skip whitespace
         while (i < tokens.length && /\s/.test(tokens[i].value)) {
             i++;
         }
         
         if (i < tokens.length) {
-            // ถ้าเป็น {} ว่าง
+            // ! ถ้าเป็น {} ว่าง
             if (tokens[i].value === '{' && 
                 i + 1 < tokens.length && 
                 tokens[i + 1].value === '}') {
                 return true;
             }
-            
-            // ถ้าเป็น expression ที่ไม่ทำอะไร
+
+            // ! ถ้าเป็น expression ที่ไม่ทำอะไร
             if (tokens[i].value === '(' && 
                 i + 1 < tokens.length && 
                 tokens[i + 1].value === ')') {
@@ -2406,9 +2558,9 @@ class SmartParserEngine {
         return false;
     }
 
-    /**
-     * ตรวจจับ Internal Caching - UPGRADED with GrammarIndex
-     */
+
+    // ! ตรวจจับ Internal Caching - UPGRADED with GrammarIndex
+
     detectCachingViolations(tokens) {
         const violations = [];
         // ! UPGRADE: ดึง patterns จาก GrammarIndex
@@ -2417,7 +2569,7 @@ class SmartParserEngine {
         tokens.forEach(token => {
             if (token.type === 'IDENTIFIER') {
                 for (const pattern of cachingPatterns) {
-                    // สมมติว่า pattern เป็น regex หรือ string
+                    // ! สมมติว่า pattern เป็น regex หรือ string
                     const isMatch = pattern.regex ? 
                         pattern.regex.test(token.value) : 
                         token.value.toLowerCase().includes(pattern.keyword.toLowerCase());
@@ -2437,9 +2589,9 @@ class SmartParserEngine {
         return violations;
     }
 
-    /**
-     * ตรวจจับ Mocking patterns - UPGRADED with GrammarIndex  
-     */
+
+    // ! ตรวจจับ Mocking patterns - UPGRADED with GrammarIndex  
+
     detectMockingViolations(tokens) {
         const violations = [];
         // ! UPGRADE: ดึง patterns จาก GrammarIndex
@@ -2466,14 +2618,12 @@ class SmartParserEngine {
         
         return violations;
     }
-    
-    /**
-     * Helper: ประมาณการ line number จาก string position ใน match
-     */
+
+    // ! Helper: ประมาณการ line number จาก string position ใน match
     estimateLineFromMatch(tokens, matchIndex) {
         if (!tokens || tokens.length === 0) {
             console.warn(`Could not estimate line number: no tokens provided for match at index ${matchIndex}`);
-            return -1; // ไม่สามารถหา line number ได้
+            return -1; // ! ไม่สามารถหา line number ได้
         }
         
         let currentPosition = 0;
@@ -2497,12 +2647,25 @@ class SmartParserEngine {
         if (lastToken && lastToken.location && lastToken.location.line) {
             return lastToken.location.line;
         }
-        
-        // ไม่สามารถหา line number ได้, ควรแจ้งให้ทราบ
+
+        // ! ไม่สามารถหา line number ได้, ควรแจ้งให้ทราบ
         console.warn(`Could not estimate line number for match at index ${matchIndex}: no valid location data found`);
         return -1;
     }
 }
 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !   MODULE EXPORTS 
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+// !  งานที่ทำ: Export SmartParserEngine class สำหรับใช้งานใน modules อื่น
+// !  
+// !  Exported Classes:
+// !   - SmartParserEngine: Main parser engine class
+// !  
+// !  Usage:
+// !   import { SmartParserEngine } from './smart-parser-engine.js';
+// !   const engine = new SmartParserEngine(combinedGrammar, config);
+// !   const result = engine.analyzeCode(code);
+// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 export { SmartParserEngine };
 

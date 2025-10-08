@@ -224,7 +224,13 @@ function activate(context) {
 async function scanDocument(document) {
     // Only scan supported file types
     if (!['javascript', 'typescript', 'javascriptreact', 'typescriptreact'].includes(document.languageId)) {
-        return null;
+        // !  NO_SILENT_FALLBACKS: คืน empty result แทน null
+        diagnosticCollection.set(document.uri, []);
+        return { 
+            violations: [],
+            skipped: true,
+            reason: 'Unsupported file type'
+        };
     }
     
     try {

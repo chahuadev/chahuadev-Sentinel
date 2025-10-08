@@ -33,10 +33,31 @@ const CONFIG_PATH = join(__dirname, 'parser-config.json');
 let FUZZY_CONFIG;
 try {
     const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
-    FUZZY_CONFIG = config.fuzzySearch || { maxDistance: 3, minSimilarity: 0.7, maxSuggestions: 3 };
+    FUZZY_CONFIG = config.fuzzySearch;
+    
+    // WHY: Strict validation - configuration MUST exist (NO_SILENT_FALLBACKS compliance)
+    if (!FUZZY_CONFIG) {
+        throw new Error('fuzzySearch configuration section is missing in parser-config.json');
+    }
+    
+    // Validate required fields
+    if (typeof FUZZY_CONFIG.maxDistance !== 'number' || 
+        typeof FUZZY_CONFIG.minSimilarity !== 'number' || 
+        typeof FUZZY_CONFIG.maxSuggestions !== 'number') {
+        throw new Error('fuzzySearch configuration missing required fields: maxDistance, minSimilarity, maxSuggestions');
+    }
+    
+    console.log('✅ Fuzzy search configuration loaded from:', CONFIG_PATH);
 } catch (error) {
-    // Fallback config
-    FUZZY_CONFIG = { maxDistance: 3, minSimilarity: 0.7, maxSuggestions: 3 };
+    // WHY: FAIL FAST, FAIL LOUD - No silent fallbacks allowed
+    console.error('❌ CRITICAL: Failed to load fuzzy search configuration');
+    console.error('   Config path:', CONFIG_PATH);
+    console.error('   Error:', error.message);
+    throw new Error(
+        `Fuzzy search configuration is required: ${CONFIG_PATH}\n` +
+        `Cannot proceed without valid configuration.\n` +
+        `NO_SILENT_FALLBACKS: We fail fast to prevent hidden bugs.`
+    );
 }
 
 /**
@@ -155,12 +176,12 @@ export function similarityRatio(source, target) {
  * 
  * Example:
  * findClosestMatch('functoin', ['function', 'for', 'const'])
- *  { match: 'function', distance: 2, similarity: 0.75 }
+ *  { found: true, match: 'function', distance: 2, similarity: 0.75 }
  * 
  * @param {string} input - Input string (possibly misspelled)
  * @param {Array<string>} candidates - List of valid strings
  * @param {number} maxDistance - Maximum acceptable distance (default: 3)
- * @returns {{match: string, distance: number, similarity: number}|null}
+ * @returns {{found: boolean, match: string|null, distance: number, similarity: number}}
  */
 export function findClosestMatch(input, candidates, maxDistance = FUZZY_CONFIG.maxDistance) {
     let bestMatch = null;
@@ -175,9 +196,18 @@ export function findClosestMatch(input, candidates, maxDistance = FUZZY_CONFIG.m
         }
     }
 
-    if (bestMatch === null) return null;
+    if (bestMatch === null) {
+        // !  NO_SILENT_FALLBACKS: คืน Object ที่มีสถานะชัดเจนแทน null
+        return {
+            found: false,
+            match: null,
+            distance: Infinity,
+            similarity: 0
+        };
+    }
 
     return {
+        found: true,
         match: bestMatch,
         distance: bestDistance,
         similarity: similarityRatio(input, bestMatch)
