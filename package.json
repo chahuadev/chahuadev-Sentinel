@@ -18,7 +18,7 @@
   ],
   "engines": {
     "vscode": "^1.74.0",
-    "node": ">=14.0.0"
+    "node": ">=22.0.0"
   },
   "categories": [
     "Linters"
@@ -162,10 +162,6 @@
     "README.md",
     "LICENSE"
   ],
-  "dependencies": {
-    "@babel/parser": "^7.28.4",
-    "acorn": "^8.15.0"
-  },
   "devDependencies": {
     "@types/node": "^16.18.126",
     "@types/vscode": "^1.104.0",
