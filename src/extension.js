@@ -392,32 +392,32 @@ function showSubtleNotification(message) {
     }
 }
 
-// ======================================================================
-// Security Enhanced Functions
-// ======================================================================
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! Security Enhanced Functions
+// ! ══════════════════════════════════════════════════════════════════════════════
 
-/**
- * Secure document scanning with comprehensive security validation
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Secure document scanning with comprehensive security validation
+ // ! ══════════════════════════════════════════════════════════════════════════════
 async function secureDocumentScan(document) {
     try {
-        // Validate document security
+        // ! Validate document security
         const readResult = await securityMiddleware.secureReadDocument(document);
         
         if (!readResult.success) {
             throw new Error('Document security validation failed');
         }
         
-        // Perform content security scan
+        // ! Perform content security scan
         const securityScan = await securityMiddleware.secureWorkspaceOperation(
             'SCAN', 
             readResult.filePath
         );
         
-        // Regular validation scan
+        // ! Regular validation scan
         const validationResults = await scanDocument(document);
         
-        // Add security issues to diagnostics if any
+        // ! Add security issues to diagnostics if any
         if (securityScan.securityIssues && securityScan.securityIssues.length > 0) {
             const securityDiagnostics = securityScan.securityIssues.map(issue => 
                 securityMiddleware.createSecureDiagnostic(
