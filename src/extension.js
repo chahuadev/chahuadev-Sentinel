@@ -78,7 +78,7 @@ function activate(context) {
         throw error; // Don't silently continue - extension should fail if security can't initialize
     }
     
-    // Real-time scanning on document change (throttled with security)
+    // ! Real-time scanning on document change (throttled with security)
     let scanTimeout;
     const documentChangeListener = vscode.workspace.onDidChangeTextDocument(async (event) => {
         const config = vscode.workspace.getConfiguration('chahuadev-sentinel');
@@ -143,7 +143,7 @@ function activate(context) {
         }
     });
     
-    // Command: Scan Workspace
+    // ! Command: Scan Workspace
     const scanWorkspaceCommand = vscode.commands.registerCommand('chahuadev-sentinel.scanWorkspace', async () => {
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
@@ -196,12 +196,12 @@ function activate(context) {
         });
     });
     
-    // Command: Configure Rules
+    // ! Command: Configure Rules
     const configureRulesCommand = vscode.commands.registerCommand('chahuadev-sentinel.toggleRules', () => {
         vscode.commands.executeCommand('workbench.action.openSettings', '@ext:chahuadev.chahuadev-sentinel');
     });
     
-    // Register all subscriptions
+    // ! Register all subscriptions
     context.subscriptions.push(
         documentChangeListener,
         saveListener,
@@ -210,7 +210,7 @@ function activate(context) {
         configureRulesCommand
     );
     
-    // Initial scan of active document
+    // ! Initial scan of active document
     if (vscode.window.activeTextEditor) {
         scanDocument(vscode.window.activeTextEditor.document).catch(error => {
             console.error('Initial document scan failed:', error);
@@ -220,9 +220,9 @@ function activate(context) {
     console.log(extensionConfig.messages.ready);
 }
 
-/**
- * Scan document and create subtle diagnostics with detailed hover info
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Scan document and create subtle diagnostics with detailed hover info
+ // ! ══════════════════════════════════════════════════════════════════════════════
 async function scanDocument(document) {
     // Only scan supported file types
     if (!['javascript', 'typescript', 'javascriptreact', 'typescriptreact'].includes(document.languageId)) {
@@ -245,7 +245,7 @@ async function scanDocument(document) {
         const results = await validationEngine.validateCode(code, document.fileName);
         
         const diagnostics = results.violations.map(violation => {
-            // Explicit validation instead of silent fallback
+            // ! Explicit validation instead of silent fallback
             if (!violation.location) {
                 throw new Error('Violation missing required location information');
             }
@@ -253,7 +253,7 @@ async function scanDocument(document) {
             const line = Math.max(0, (violation.location.line ?? 1) - 1);
             const column = Math.max(0, violation.location.column ?? 0);
             
-            // Create range for the violation
+            // ! Create range for the violation
             const config = vscode.workspace.getConfiguration('chahuadev-sentinel');
             const highlightLength = config.get('ui.highlightLength') || extensionConfig.defaultSettings.ui.highlightLength;
             
@@ -270,14 +270,14 @@ async function scanDocument(document) {
                 getSeverity(violation.severity)
             );
             
-            // Set source and code for identification
+            // ! Set source and code for identification
             diagnostic.source = 'Chahuadev Sentinel';
             diagnostic.code = {
                 value: violation.ruleId,
                 target: vscode.Uri.parse('https://github.com/chahuadev/chahuadev-vscode-extension#rules')
             };
             
-            // Add detailed information for hover
+            // ! Add detailed information for hover
             diagnostic.relatedInformation = [
                 new vscode.DiagnosticRelatedInformation(
                     new vscode.Location(document.uri, range),
@@ -285,13 +285,13 @@ async function scanDocument(document) {
                 )
             ];
             
-            // Add tags for better categorization
+            // ! Add tags for better categorization
             diagnostic.tags = getViolationTags(violation);
             
             return diagnostic;
         });
         
-        // Apply subtle blue styling by using Information severity for most issues
+        // ! Apply subtle blue styling by using Information severity for most issues
         const subtleDiagnostics = diagnostics.map(d => {
             const config = vscode.workspace.getConfiguration('chahuadev-sentinel');
             const notificationStyle = config.get('notificationStyle', 'subtle');
@@ -309,7 +309,7 @@ async function scanDocument(document) {
     } catch (error) {
         console.error(' Chahuadev Sentinel scan error:', error);
         
-        // Show error as diagnostic but re-throw for proper error handling
+        // ! Show error as diagnostic but re-throw for proper error handling
         const errorDiagnostic = new vscode.Diagnostic(
             new vscode.Range(0, 0, 0, 10),
             'Scan failed - check syntax',
@@ -318,13 +318,13 @@ async function scanDocument(document) {
         errorDiagnostic.source = 'Chahuadev Sentinel';
         
         diagnosticCollection.set(document.uri, [errorDiagnostic]);
-        throw error; // Don't silently return null
+        throw error; // ! Don't silently return null
     }
 }
 
-/**
- * Get short, non-intrusive message for inline display
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Get short, non-intrusive message for inline display
+ // ! ══════════════════════════════════════════════════════════════════════════════
 function getShortMessage(violation) {
     return extensionConfig.ruleMessages.short[violation.ruleId] || ' Quality';
 }
