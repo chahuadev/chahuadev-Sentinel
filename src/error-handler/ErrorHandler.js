@@ -138,16 +138,16 @@ class ErrorHandler {
         const logString = JSON.stringify(logEntry, null, 2) + '\n' + '='.repeat(80) + '\n';
         
         // 1. แสดงใน Console
-        console.error('\n' + '🔴'.repeat(40));
+        console.error('\n' +.repeat(40));
         console.error('ERROR CAUGHT BY CENTRALIZED HANDLER');
-        console.error('🔴'.repeat(40));
+        console.error(.repeat(40));
         console.error(`Time: ${errorInfo.timestampLocal}`);
         console.error(`Name: ${errorInfo.name}`);
         console.error(`Message: ${errorInfo.message}`);
         console.error(`Operational: ${errorInfo.isOperational}`);
         console.error(`Critical: ${errorInfo.isCritical}`);
         console.error(`Severity: ${errorInfo.severity}`);
-        console.error('🔴'.repeat(40) + '\n');
+        console.error(.repeat(40) + '\n');
         
         // 2. เขียนลง Log File (ใช้ Sync เพื่อให้แน่ใจว่าถูกเขียนก่อน Process อาจจะ Crash)
         try {
@@ -155,9 +155,9 @@ class ErrorHandler {
             
             // 3. ถ้าเป็น Critical Error เขียนลงไฟล์พิเศษด้วย
             if (errorInfo.isCritical) {
-                const criticalLog = `${'⚠️ '.repeat(20)}\n` +
+                const criticalLog = `${.repeat(20)}\n` +
                                    `CRITICAL ERROR DETECTED\n` +
-                                   `${'⚠️ '.repeat(20)}\n` +
+                                   `${.repeat(20)}\n` +
                                    logString;
                 fs.appendFileSync(this.criticalErrorPath, criticalLog);
             }
@@ -174,7 +174,7 @@ class ErrorHandler {
      */
     decideProcessFate(errorInfo) {
         if (errorInfo.isCritical) {
-            console.error('\n💥💥💥 CRITICAL ERROR DETECTED 💥💥💥');
+            console.error('\nCRITICAL ERROR DETECTED');
             console.error('This is a non-operational error (likely a bug).');
             console.error('Application will shut down to prevent data corruption.');
             console.error('Process Manager (PM2/systemd) should restart the application.');
@@ -199,7 +199,7 @@ class ErrorHandler {
         // - Sentry.io
         
         const alertMessage = `
-🚨 CRITICAL ERROR ALERT 🚨
+CRITICAL ERROR ALERT 
 Time: ${errorInfo.timestampLocal}
 Name: ${errorInfo.name}
 Message: ${errorInfo.message}
@@ -265,7 +265,7 @@ const errorHandler = new ErrorHandler();
 export function setupGlobalErrorHandlers() {
     // 1. Uncaught Exception (Synchronous errors)
     process.on('uncaughtException', (error) => {
-        console.error('\n❌ UNCAUGHT EXCEPTION DETECTED ❌');
+        console.error('\nUNCAUGHT EXCEPTION DETECTED');
         errorHandler.handleError(error, {
             type: 'UNCAUGHT_EXCEPTION',
             fatal: true
@@ -275,7 +275,7 @@ export function setupGlobalErrorHandlers() {
     
     // 2. Unhandled Promise Rejection (Async errors)
     process.on('unhandledRejection', (reason, promise) => {
-        console.error('\n❌ UNHANDLED PROMISE REJECTION DETECTED ❌');
+        console.error('\nUNHANDLED PROMISE REJECTION DETECTED');
         
         // reason อาจไม่ใช่ Error object
         const error = reason instanceof Error ? reason : new Error(String(reason));
@@ -290,7 +290,7 @@ export function setupGlobalErrorHandlers() {
     
     // 3. Process Warning (สำหรับ deprecation warnings)
     process.on('warning', (warning) => {
-        console.warn('\n⚠️  PROCESS WARNING ⚠️');
+        console.warn('\nPROCESS WARNING');
         console.warn(warning.name);
         console.warn(warning.message);
         console.warn(warning.stack);
@@ -306,7 +306,7 @@ export function setupGlobalErrorHandlers() {
         });
     });
     
-    console.log('✅ Global error handlers initialized');
+    console.log('Global error handlers initialized');
 }
 
 export default errorHandler;
