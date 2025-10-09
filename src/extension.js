@@ -224,7 +224,7 @@ function activate(context) {
  // ! Scan document and create subtle diagnostics with detailed hover info
  // ! ══════════════════════════════════════════════════════════════════════════════
 async function scanDocument(document) {
-    // Only scan supported file types
+    // ! Only scan supported file types
     if (!['javascript', 'typescript', 'javascriptreact', 'typescriptreact'].includes(document.languageId)) {
         // !  NO_SILENT_FALLBACKS: คืน empty result แทน null
         diagnosticCollection.set(document.uri, []);
@@ -329,9 +329,9 @@ function getShortMessage(violation) {
     return extensionConfig.ruleMessages.short[violation.ruleId] || ' Quality';
 }
 
-/**
- * Get comprehensive message with suggestions for hover
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Get comprehensive message with suggestions for hover
+ // ! ══════════════════════════════════════════════════════════════════════════════
 function getFullMessage(violation) {
     const ruleConfig = extensionConfig.ruleMessages.detailed[violation.ruleId];
     
@@ -343,9 +343,9 @@ function getFullMessage(violation) {
     return `Code Quality Issue: ${violation.message}\n\n Follow Chahuadev coding standards for better maintainability.`;
 }
 
-/**
- * Convert severity to VS Code diagnostic severity with subtle default
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Convert severity to VS Code diagnostic severity with subtle default
+ // ! ══════════════════════════════════════════════════════════════════════════════
 function getSeverity(severity) {
     switch (severity?.toUpperCase()) {
         case 'CRITICAL': return vscode.DiagnosticSeverity.Error;
@@ -356,22 +356,22 @@ function getSeverity(severity) {
     }
 }
 
-/**
- * Get diagnostic tags for better categorization
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Get diagnostic tags for better categorization
+ // ! ══════════════════════════════════════════════════════════════════════════════
 function getViolationTags(violation) {
     const tags = [];
     
     if (violation.ruleId === 'NO_HARDCODE' && violation.message.includes('credential')) {
-        tags.push(vscode.DiagnosticTag.Deprecated); // Security-related
+        tags.push(vscode.DiagnosticTag.Deprecated); // ! Security-related
     }
     
     return tags;
 }
 
-/**
- * Show subtle, non-intrusive notification
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Show subtle, non-intrusive notification
+ // ! ══════════════════════════════════════════════════════════════════════════════
 function showSubtleNotification(message) {
     const config = vscode.workspace.getConfiguration('chahuadev-sentinel');
     const style = config.get('notificationStyle') || extensionConfig.defaultSettings.ui.notificationStyle;
