@@ -75,7 +75,7 @@ function activate(context) {
     } catch (error) {
         console.error(' Failed to initialize security system:', error);
         vscode.window.showErrorMessage(extensionConfig.messages.securityInitFailed);
-        throw error; // Don't silently continue - extension should fail if security can't initialize
+        throw error; // ! Don't silently continue - extension should fail if security can't initialize
     }
     
     // ! Real-time scanning on document change (throttled with security)
@@ -92,7 +92,7 @@ function activate(context) {
                 await secureDocumentScan(event.document);
             } catch (error) {
                 console.error(' Security error in document scan:', error.message);
-                throw error; // Re-throw to let caller handle properly
+                throw error; // ! Re-throw to let caller handle properly
             }
         }, throttleMs);
     });
@@ -108,7 +108,7 @@ function activate(context) {
         } catch (error) {
             console.error(' Security error in save scan:', error.message);
             await securityMiddleware.showSecureNotification(extensionConfig.messages.securityError, 'error');
-            throw error; // Re-throw for proper error handling
+            throw error; // ! Re-throw for proper error handling
         }
     });
     
