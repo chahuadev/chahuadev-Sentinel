@@ -17,7 +17,7 @@ const extensionConfig = JSON.parse(readFileSync(new URL('./extension-config.json
 // ! ══════════════════════════════════════════════════════════════════════════════
  // ! VS Code Extension Entry Point for Chahuadev Sentinel
  // ! Provides subtle blue notifications with detailed hover information
- * Enhanced with Fortress-level security protection
+ // ! Enhanced with Fortress-level security protection
  // ! ══════════════════════════════════════════════════════════════════════════════
 
 let diagnosticCollection;
