@@ -114,10 +114,10 @@ class ErrorHandler {
         };
     }
     
-    /**
-     * บันทึก Error ลง Log File
-     * ! NO_SILENT_FALLBACKS: ใช้ appendFileSync เพื่อให้แน่ใจว่า Log ถูกเขียนทันที
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+     // ! บันทึก Error ลง Log File
+     // ! ! NO_SILENT_FALLBACKS: ใช้ appendFileSync เพื่อให้แน่ใจว่า Log ถูกเขียนทันที
+     // ! ══════════════════════════════════════════════════════════════════════════════
     logError(errorInfo) {
         // สร้าง Log Entry แบบ JSON
         const logEntry = {
@@ -167,10 +167,10 @@ class ErrorHandler {
         }
     }
     
-    /**
-     * ตัดสินใจว่าจะปิด Process หรือไม่
-     * ! NO_SILENT_FALLBACKS: Error ที่เป็นบั๊กต้อง Crash ทันที
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+     // ! ตัดสินใจว่าจะปิด Process หรือไม่
+     // ! ! NO_SILENT_FALLBACKS: Error ที่เป็นบั๊กต้อง Crash ทันที
+     // ! ══════════════════════════════════════════════════════════════════════════════
     decideProcessFate(errorInfo) {
         if (errorInfo.isCritical) {
             console.error('\nCRITICAL ERROR DETECTED');
