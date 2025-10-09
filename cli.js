@@ -282,8 +282,15 @@ async function main() {
         verbose: args.includes('--verbose'),
         json: args.includes('--json'),
         help: args.includes('--help') || args.includes('-h'),
-        version: args.includes('--version') || args.includes('-v')
+        version: args.includes('--version') || args.includes('-v'),
+        withLogs: args.includes('--with-logs') || args.includes('-l')
     };
+
+    // WHY: If --with-logs is enabled, delegate to professional logger system (NO_HARDCODE)
+    if (options.withLogs) {
+        const { main: loggerMain } = await import('./src/grammars/shared/logger.js');
+        return loggerMain();
+    }
 
     const cli = new ChahuadevCLI();
 
