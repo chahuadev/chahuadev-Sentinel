@@ -186,9 +186,9 @@ class ErrorHandler {
         }
     }
     
-    /**
-     * แจ้งเตือน Critical Error (สามารถเชื่อมต่อกับ Monitoring Service)
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+     // ! แจ้งเตือน Critical Error (สามารถเชื่อมต่อกับ Monitoring Service)
+     // ! ══════════════════════════════════════════════════════════════════════════════
     alertCriticalError(errorInfo) {
         // ในอนาคตสามารถส่งไปที่:
         // - Slack/Discord Webhook
