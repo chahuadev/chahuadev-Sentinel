@@ -183,7 +183,7 @@ function activate(context) {
                     scannedCount++;
                 } catch (error) {
                     console.error('Scan error:', error);
-                    throw error; // Re-throw to surface scanning issues
+                    throw error; // ! Re-throw to surface scanning issues
                 }
             }
             
