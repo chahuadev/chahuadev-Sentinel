@@ -37,37 +37,37 @@ Contact: ${extensionConfig.projectInfo.contact}
 }
 
 function activate(context) {
-    // Show project information
+    // ! Show project information
     showProjectInfo();
     console.log(extensionConfig.messages.activation);
     
     try {
-        // Get configuration from VS Code settings with fallback
+        // ! Get configuration from VS Code settings with fallback
         const userConfig = vscode.workspace.getConfiguration('chahuadev-sentinel');
         const securityLevel = userConfig.get('securityLevel') || extensionConfig.defaultSettings.securityLevel;
         
-        // Initialize security system
+        // ! Initialize security system
         const securityConfig = createSecurityConfig({
             level: securityLevel,
             vscodeSettings: userConfig
         });
         
-        // SECURITY FIX: Dependency Injection for NO_MOCKING compliance
-        // Pass vscode instance to SecurityMiddleware instead of letting it create mocks
+        // ! SECURITY FIX: Dependency Injection for NO_MOCKING compliance
+        // ! Pass vscode instance to SecurityMiddleware instead of letting it create mocks
         securityMiddleware = new SecurityMiddleware(vscode, securityConfig.policies);
         console.log(`  Security middleware initialized (${securityLevel} level)`);
         
-        // Initialize validation engine
+        // ! Initialize validation engine
         validationEngine = new ValidationEngine();
         validationEngine.initializeParserStudy().catch(error => {
             throw new Error(`Failed to initialize validation engine: ${error.message}`);
         });
         
-        // Create diagnostic collection for subtle blue notifications
+        // ! Create diagnostic collection for subtle blue notifications
         diagnosticCollection = vscode.languages.createDiagnosticCollection('chahuadev-sentinel');
         context.subscriptions.push(diagnosticCollection);
         
-        // Register security status command
+        // ! Register security status command
         context.subscriptions.push(
             vscode.commands.registerCommand('chahuadev-sentinel.securityStatus', showSecurityStatus)
         );
@@ -84,7 +84,7 @@ function activate(context) {
         const config = vscode.workspace.getConfiguration('chahuadev-sentinel');
         if (!config.get('enableRealTimeScanning', true)) return;
         
-        // Throttle scanning to avoid performance issues
+        // ! Throttle scanning to avoid performance issues
         clearTimeout(scanTimeout);
         const throttleMs = config.get('scanThrottleMs') || extensionConfig.defaultSettings.timing.scanThrottleMs;
         scanTimeout = setTimeout(async () => {
@@ -97,7 +97,7 @@ function activate(context) {
         }, throttleMs);
     });
     
-    // Scan on save with security
+    // ! Scan on save with security
     const saveListener = vscode.workspace.onDidSaveTextDocument(async (document) => {
         const config = vscode.workspace.getConfiguration('chahuadev-sentinel');
         if (!config.get('scanOnSave', true)) return;
@@ -112,7 +112,7 @@ function activate(context) {
         }
     });
     
-    // Command: Scan Current File
+    // ! Command: Scan Current File
     const scanFileCommand = vscode.commands.registerCommand('chahuadev-sentinel.scanFile', async () => {
         const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor) {
