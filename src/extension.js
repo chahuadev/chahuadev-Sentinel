@@ -421,13 +421,13 @@ async function secureDocumentScan(document) {
         if (securityScan.securityIssues && securityScan.securityIssues.length > 0) {
             const securityDiagnostics = securityScan.securityIssues.map(issue => 
                 securityMiddleware.createSecureDiagnostic(
-                    new vscode.Range(0, 0, 0, 0), // Top of file
+                    new vscode.Range(0, 0, 0, 0), // ! Top of file
                     `Security Alert: ${issue.issue}`,
                     vscode.DiagnosticSeverity.Warning
                 )
             );
             
-            // Merge with existing diagnostics
+            // ! Merge with existing diagnostics
             const existingDiagnostics = diagnosticCollection.get(document.uri) || [];
             diagnosticCollection.set(document.uri, [...existingDiagnostics, ...securityDiagnostics]);
         }
@@ -444,7 +444,7 @@ async function secureDocumentScan(document) {
     } catch (error) {
         console.error(' Secure document scan failed:', error);
         
-        // Show security alert to user
+        // ! Show security alert to user
         await securityMiddleware.showSecureNotification(
             `Security scan failed: ${error.message}`,
             'warning'
@@ -489,7 +489,7 @@ async function showSecurityStatus() {
     } catch (error) {
         console.error('Failed to show security status:', error);
         vscode.window.showErrorMessage(extensionConfig.messages.securityStatusFailed);
-        throw error; // Re-throw for proper error handling
+        throw error; // ! Re-throw for proper error handling
     }
 }
 
