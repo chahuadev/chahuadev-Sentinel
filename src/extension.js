@@ -454,9 +454,9 @@ async function secureDocumentScan(document) {
     }
 }
 
-/**
- * Show security status and statistics
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Show security status and statistics
+ // ! ══════════════════════════════════════════════════════════════════════════════
 async function showSecurityStatus() {
     try {
         if (!securityMiddleware) {
@@ -493,9 +493,9 @@ async function showSecurityStatus() {
     }
 }
 
-/**
- * Show detailed security report in new document
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Show detailed security report in new document
+ // ! ══════════════════════════════════════════════════════════════════════════════
 async function showDetailedSecurityReport(report) {
     try {
         const reportContent = JSON.stringify(report, null, 2);
