@@ -212,16 +212,16 @@ This error requires immediate attention!
         // TODO: ส่ง alert ไปยัง monitoring service
     }
     
-    /**
-     * ตรวจสอบว่า Error นี้เป็น Trusted Error หรือไม่
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+     // ! ตรวจสอบว่า Error นี้เป็น Trusted Error หรือไม่
+     // ! ══════════════════════════════════════════════════════════════════════════════
     isTrustedError(error) {
         return error.isOperational === true;
     }
     
-    /**
-     * สร้าง Error Report สำหรับดูภาพรวม
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+     // ! สร้าง Error Report สำหรับดูภาพรวม
+     // ! ══════════════════════════════════════════════════════════════════════════════
     async generateErrorReport() {
         try {
             if (!fs.existsSync(this.errorLogPath)) {
@@ -257,10 +257,10 @@ This error requires immediate attention!
 // Export Singleton Instance
 const errorHandler = new ErrorHandler();
 
-/**
- * Setup Global Error Handlers
- * ! NO_SILENT_FALLBACKS: ดักจับ Error ที่หลุดลอดมาได้ทุกอัน
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Setup Global Error Handlers
+ // ! NO_SILENT_FALLBACKS: ดักจับ Error ที่หลุดลอดมาได้ทุกอัน
+ // ! ══════════════════════════════════════════════════════════════════════════════
 export function setupGlobalErrorHandlers() {
     // 1. Uncaught Exception (Synchronous errors)
     process.on('uncaughtException', (error) => {
