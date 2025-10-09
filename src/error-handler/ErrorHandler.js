@@ -1,24 +1,23 @@
 #!/usr/bin/env node
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-/**
- * Centralized Error Handler
- * 
- * ! NO_SILENT_FALLBACKS Compliance - "SILENCE IS A FORM OF DAMAGE"
- * 
- * หลักการ:
- * 1. ทุก Error ต้องถูกส่งมาที่นี่ (Single Point of Truth)
- * 2. ทุก Error ต้องถูก Log (No Silent Failures)
- * 3. ทุก Error ต้องมีการจัดประเภท (Operational vs Programming)
- * 4. Error ที่เป็นบั๊ก (Non-Operational) ต้อง Crash Process ทันที
- * 
- * Flow: Code → throw Error → ErrorHandler → Logger → Log File
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Centralized Error Handler
+  
+ // ! ! NO_SILENT_FALLBACKS Compliance - "SILENCE IS A FORM OF DAMAGE"
+  
+ // ! หลักการ:
+ // ! 1. ทุก Error ต้องถูกส่งมาที่นี่ (Single Point of Truth)
+ // ! 2. ทุก Error ต้องถูก Log (No Silent Failures)
+ // ! 3. ทุก Error ต้องมีการจัดประเภท (Operational vs Programming)
+ // ! 4. Error ที่เป็นบั๊ก (Non-Operational) ต้อง Crash Process ทันที
+  
+ // ! Flow: Code → throw Error → ErrorHandler → Logger → Log File
+// ! ══════════════════════════════════════════════════════════════════════════════
 
 import fs from 'fs';
 import path from 'path';
