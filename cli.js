@@ -9,10 +9,13 @@
 /**
  * Chahuadev Sentinel CLI
  * Command-line interface for code quality checking
+ * WITH SECURITY PROTECTION
  */
 
-import { ABSOLUTE_RULES } from './src/validator.js';
+import { ABSOLUTE_RULES } from './src/rules/validator.js';
 import { createSmartParserEngine } from './src/grammars/index.js';
+import { SecurityManager } from './src/security/security-manager.js';
+import { createSecurityConfig } from './src/security/security-config.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -30,10 +33,36 @@ class ChahuadevCLI {
             totalViolations: 0,
             processedFiles: 0
         };
+        this.securityManager = null;
     }
 
     async initialize() {
         try {
+            // Initialize security system
+            console.log('[SECURITY] Initializing security protection...');
+            
+            // ! NO_INTERNAL_CACHING: Create rate limit store and inject it
+            const rateLimitStore = new Map();
+            console.log('[SECURITY] Using in-memory rate limiting (suitable for CLI single-process)');
+            
+            // Create SecurityManager with injected store
+            this.securityManager = new SecurityManager({
+                rateLimitStore: rateLimitStore
+            });
+            
+            // Show security status
+            const securityReport = this.securityManager.generateSecurityReport();
+            console.log(`[SECURITY] Protection Level: ${securityReport.securityLevel}`);
+            console.log(`[SECURITY] Status: ${securityReport.status}`);
+            
+            // Show vulnerabilities if any
+            if (securityReport.vulnerabilities && securityReport.vulnerabilities.length > 0) {
+                console.log(`[WARNING] Found ${securityReport.vulnerabilities.length} potential security concerns:`);
+                securityReport.vulnerabilities.forEach((vuln, index) => {
+                    console.log(`  ${index + 1}. ${vuln.type}: ${vuln.description}`);
+                });
+            }
+            
             // อ่านกฎจาก validator.js (หนังสือ) และส่งต่อให้ parser engine
             this.rules = ABSOLUTE_RULES;
             this.engine = await createSmartParserEngine(ABSOLUTE_RULES);

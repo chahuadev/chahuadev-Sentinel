@@ -18,12 +18,14 @@
  * - Error log (บันทึกข้อผิดพลาด)
  * - Summary report (รายงานสรุป)
  * - Performance metrics (ข้อมูลประสิทธิภาพ)
+ * - Security report (รายงานความปลอดภัย)
  */
 
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { SecurityManager } from '../../security/security-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +42,17 @@ class ProfessionalScanLogger {
     constructor() {
         this.projectName = 'Chahuadev-Sentinel';
         this.logsDir = path.join(process.cwd(), 'logs');
+        
+        // Initialize security manager
+        console.log('[SECURITY] Initializing security protection for logging...');
+        
+        // ! NO_INTERNAL_CACHING: Inject rate limit store
+        const rateLimitStore = new Map();
+        console.warn('[SECURITY] Using in-memory rate limiting for logger. For production, inject Redis.');
+        
+        this.securityManager = new SecurityManager({
+            rateLimitStore: rateLimitStore
+        });
 
         try {
             // สร้างโฟลเดอร์ logs หลักถ้ายังไม่มี
@@ -77,11 +90,15 @@ class ProfessionalScanLogger {
             errors: path.join(this.sessionLogsDir, `errors-${this.timestamp}.log`),
             summary: path.join(this.sessionLogsDir, `SUMMARY-${this.timestamp}.log`),
             performance: path.join(this.sessionLogsDir, `performance-${this.timestamp}.log`),
-            audit: path.join(this.sessionLogsDir, `audit-${this.timestamp}.log`)
+            audit: path.join(this.sessionLogsDir, `audit-${this.timestamp}.log`),
+            security: path.join(this.sessionLogsDir, `SECURITY-${this.timestamp}.log`)
         };
 
         // เขียน session header
         this.writeSessionHeader();
+        
+        // เขียน security report
+        this.writeSecurityReport();
     }
 
     writeSessionHeader() {
@@ -97,6 +114,55 @@ class ProfessionalScanLogger {
                 throw new Error(`Logging system initialization failed for ${logFile}: ${err.message}`);
             }
         });
+    }
+
+    writeSecurityReport() {
+        const report = this.securityManager.generateSecurityReport();
+        const timestamp = new Date().toISOString();
+        
+        let securityLog = `\n${'='.repeat(80)}\n`;
+        securityLog += `SECURITY REPORT - ${timestamp}\n`;
+        securityLog += `${'='.repeat(80)}\n\n`;
+        securityLog += `Configuration Level: ${report.securityLevel || 'STANDARD'}\n`;
+        securityLog += `Status: ${report.status}\n`;
+        securityLog += `Timestamp: ${report.timestamp}\n`;
+        securityLog += `\nStatistics:\n`;
+        securityLog += `  - Total Events: ${report.statistics?.totalEvents || 0}\n`;
+        securityLog += `  - Recent Events: ${report.statistics?.recentEvents || 0}\n`;
+        securityLog += `  - Violations: ${report.statistics?.violations || 0}\n`;
+        
+        if (report.recentViolations && report.recentViolations.length > 0) {
+            securityLog += `\n${'='.repeat(80)}\n`;
+            securityLog += `RECENT VIOLATIONS\n`;
+            securityLog += `${'='.repeat(80)}\n\n`;
+            
+            report.recentViolations.forEach((violation, index) => {
+                securityLog += `${index + 1}. Type: ${violation.type}\n`;
+                securityLog += `   Message: ${violation.message}\n`;
+                securityLog += `   Timestamp: ${violation.timestamp}\n\n`;
+            });
+        } else {
+            securityLog += `\nNo recent violations detected.\n`;
+        }
+        
+        securityLog += `\n${'='.repeat(80)}\n\n`;
+        
+        try {
+            fs.appendFileSync(this.logFiles.security, securityLog, 'utf8');
+            console.log(`[SECURITY] Security report written to: ${this.logFiles.security}`);
+            
+            // แสดง vulnerability summary ใน console สำหรับความโปร่งใส
+            if (report.vulnerabilities && report.vulnerabilities.length > 0) {
+                console.log(`[SECURITY] Transparency Report: ${report.vulnerabilities.length} known vulnerabilities at ${report.config.level} level`);
+                report.vulnerabilities.forEach((vuln, index) => {
+                    console.log(`  ${index + 1}. ${vuln.type}: ${vuln.description}`);
+                });
+            }
+        } catch (err) {
+            console.error(`CRITICAL: Failed to write security report`, err);
+            // WHY: Security logging is critical for transparency - must fail loudly (NO_SILENT_FALLBACKS)
+            throw new Error(`Security report logging failed: ${err.message}`);
+        }
     }
 
     formatLogEntry(level, category, message, data = null) {

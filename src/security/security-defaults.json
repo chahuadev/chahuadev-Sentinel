@@ -38,6 +38,7 @@
     "DANGEROUS_CHARS_PATTERN": "[<>\"|?*\\x00-\\x1f]",
     "PATH_TRAVERSAL_PATTERN": "\\.\\.[\\\\/]",
     "MAX_REQUESTS_PER_MINUTE": 60,
+    "MAX_RATE_LIMIT_KEYS": 100000,
     "ENABLE_SECURITY_LOGGING": true,
     "LOG_SENSITIVE_DATA": false
   },

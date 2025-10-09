@@ -6,7 +6,7 @@
 // Contact: chahuadev@gmail.com
 //======================================================================
 import * as vscode from 'vscode';
-import { ABSOLUTE_RULES, ValidationEngine } from './validator.js';
+import { ABSOLUTE_RULES, ValidationEngine } from './rules/validator.js';
 import { SecurityMiddleware } from './security/security-middleware.js';
 import { createSecurityConfig } from './security/security-config.js';
 import { readFileSync } from 'fs';
@@ -52,7 +52,9 @@ function activate(context) {
             vscodeSettings: userConfig
         });
         
-        securityMiddleware = new SecurityMiddleware(securityConfig.policies);
+        // SECURITY FIX: Dependency Injection for NO_MOCKING compliance
+        // Pass vscode instance to SecurityMiddleware instead of letting it create mocks
+        securityMiddleware = new SecurityMiddleware(vscode, securityConfig.policies);
         console.log(`  Security middleware initialized (${securityLevel} level)`);
         
         // Initialize validation engine

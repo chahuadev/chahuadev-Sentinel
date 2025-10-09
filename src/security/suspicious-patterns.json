@@ -1,0 +1,68 @@
+{
+  "SUSPICIOUS_PATTERNS": [
+    {
+      "name": "Dynamic Code Evaluation",
+      "pattern": "eval\\s*\\(",
+      "flags": "gi",
+      "severity": "HIGH",
+      "description": "Dynamic code evaluation detected",
+      "category": "CODE_INJECTION"
+    },
+    {
+      "name": "Function Constructor",
+      "pattern": "new\\s+Function\\s*\\(",
+      "flags": "gi",
+      "severity": "HIGH",
+      "description": "Dynamic function creation detected",
+      "category": "CODE_INJECTION"
+    },
+    {
+      "name": "Function Constructor Alternative",
+      "pattern": "Function\\s*\\(",
+      "flags": "gi",
+      "severity": "HIGH",
+      "description": "Dynamic function creation detected",
+      "category": "CODE_INJECTION"
+    },
+    {
+      "name": "Script Injection",
+      "pattern": "<script[^>]*>[\\s\\S]*?<\\/script>",
+      "flags": "gi",
+      "severity": "MEDIUM",
+      "description": "Script tag detected in content",
+      "category": "XSS_RISK"
+    },
+    {
+      "name": "DOM Write Manipulation",
+      "pattern": "document\\.write\\s*\\(",
+      "flags": "gi",
+      "severity": "MEDIUM",
+      "description": "Direct DOM write manipulation detected",
+      "category": "XSS_RISK"
+    },
+    {
+      "name": "Inner HTML Manipulation",
+      "pattern": "innerHTML\\s*=",
+      "flags": "gi",
+      "severity": "MEDIUM",
+      "description": "Direct innerHTML manipulation detected",
+      "category": "XSS_RISK"
+    },
+    {
+      "name": "String-based setTimeout",
+      "pattern": "setTimeout\\s*\\(\\s*[\"']",
+      "flags": "gi",
+      "severity": "MEDIUM",
+      "description": "String-based setTimeout detected",
+      "category": "CODE_INJECTION"
+    },
+    {
+      "name": "String-based setInterval",
+      "pattern": "setInterval\\s*\\(\\s*[\"']",
+      "flags": "gi",
+      "severity": "MEDIUM",
+      "description": "String-based setInterval detected",
+      "category": "CODE_INJECTION"
+    }
+  ]
+}

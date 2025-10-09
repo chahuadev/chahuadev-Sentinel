@@ -18,7 +18,14 @@ async function initializeVSCode() {
     try {
         // Try to import vscode module (only available in VS Code extension context)
         const vscodeModule = await import('vscode');
-        vscode = vscodeModule.default || vscodeModule;
+        // ! NO_SILENT_FALLBACKS: Explicit check for module structure
+        if (vscodeModule.default) {
+            vscode = vscodeModule.default;
+        } else if (vscodeModule) {
+            vscode = vscodeModule;
+        } else {
+            throw new Error('VS Code module loaded but is empty');
+        }
     } catch (e) {
         // Running outside VS Code environment (e.g., during testing)
         vscode = {
@@ -71,6 +78,16 @@ import {
  */
 class SecurityMiddleware {
     constructor(options = {}) {
+        // ! NO_INTERNAL_CACHING: Inject rate limit store
+        // ! For production: Pass Redis client
+        // ! For testing/development: Pass Map instance
+        if (!options.rateLimitStore) {
+            // Default to in-memory Map for development
+            // Production should override this with Redis
+            options.rateLimitStore = new Map();
+            console.warn('[SECURITY] Using in-memory rate limiting. For production with multiple instances, inject Redis: new SecurityMiddleware({ rateLimitStore: redisClient })');
+        }
+        
         this.securityManager = new SecurityManager(options);
         this.isEnabled = true;
         this.vscode = null;
@@ -99,7 +116,7 @@ class SecurityMiddleware {
             await this.securityManager.validateFile(filePath, 'READ');
             
             // Rate limiting check
-            this.securityManager.checkRateLimit(`read_${filePath}`);
+            await this.securityManager.checkRateLimit(`read_${filePath}`);
             
             // Get document content safely
             const content = document.getText();
@@ -137,7 +154,7 @@ class SecurityMiddleware {
             const validatedPath = await this.securityManager.validateFile(targetPath, operation);
             
             // Rate limiting
-            this.securityManager.checkRateLimit(`workspace_${operation}`);
+            await this.securityManager.checkRateLimit(`workspace_${operation}`);
             
             switch (operation) {
                 case 'READ':
@@ -167,15 +184,25 @@ class SecurityMiddleware {
             }
             
             // Rate limiting for regex operations
-            this.securityManager.checkRateLimit('regex_execution');
+            await this.securityManager.checkRateLimit('regex_execution');
             
             // Safe regex execution with ReDoS protection
             const result = await this.securityManager.safeRegexExecution(pattern, text, context);
             
+            // ! NO_SILENT_FALLBACKS: Explicit pattern source extraction
+            let patternString;
+            if (pattern.source) {
+                patternString = pattern.source;
+            } else if (typeof pattern === 'string') {
+                patternString = pattern;
+            } else {
+                throw new SecurityError('Pattern must be RegExp or string');
+            }
+            
             return {
                 success: true,
                 matches: result,
-                pattern: pattern.source || pattern,
+                pattern: patternString,
                 contextInfo: context
             };
             
@@ -192,14 +219,20 @@ class SecurityMiddleware {
     /**
      * Secure diagnostic creation with validation
      */
-    createSecureDiagnostic(range, message, severity = null) {
+    async createSecureDiagnostic(range, message, severity = null) {
         try {
             // Initialize vscode if not available
             if (!this.vscode) {
                 this.vscode = vscode;
             }
             
-            const defaultSeverity = severity || this.vscode.DiagnosticSeverity.Information;
+            // ! NO_SILENT_FALLBACKS: Explicit severity determination
+            let defaultSeverity;
+            if (severity !== null && severity !== undefined) {
+                defaultSeverity = severity;
+            } else {
+                defaultSeverity = this.vscode.DiagnosticSeverity.Information;
+            }
             
             // Validate inputs
             if (!range || !message) {
@@ -210,7 +243,7 @@ class SecurityMiddleware {
             const sanitizedMessage = this.sanitizeMessage(message);
             
             // Rate limiting for diagnostic creation
-            this.securityManager.checkRateLimit('diagnostic_creation');
+            await this.securityManager.checkRateLimit('diagnostic_creation');
             
             return new this.vscode.Diagnostic(range, sanitizedMessage, defaultSeverity);
             
@@ -234,7 +267,7 @@ class SecurityMiddleware {
             const sanitizedMessage = this.sanitizeMessage(message);
             
             // Rate limiting for notifications
-            this.securityManager.checkRateLimit('notifications');
+            await this.securityManager.checkRateLimit('notifications');
             
             // Validate actions
             const validActions = actions.filter(action => 
@@ -336,8 +369,15 @@ class SecurityMiddleware {
             // Basic security scan of file content
             const securityIssues = [];
             
-            // Get suspicious patterns from security configuration instead of hardcoding
-            const suspiciousPatterns = this.securityManager.config.content?.suspiciousPatterns || [];
+            // ! NO_SILENT_FALLBACKS: Explicit pattern extraction with validation
+            let suspiciousPatterns;
+            if (this.securityManager.config.content && this.securityManager.config.content.suspiciousPatterns) {
+                suspiciousPatterns = this.securityManager.config.content.suspiciousPatterns;
+            } else {
+                // ! FAIL LOUD: Log warning when patterns are missing
+                console.warn('[SECURITY] No suspicious patterns configured - file scanning will be limited');
+                suspiciousPatterns = [];
+            }
             
             // Scan content against each configured pattern
             for (const patternConfig of suspiciousPatterns) {
@@ -444,14 +484,35 @@ class SecurityMiddleware {
     
     /**
      * Handle security errors with appropriate logging and actions (Enhanced)
+     * ! NO_SILENT_FALLBACKS: Explicit checks for error properties
      */
     handleSecurityError(error, operation) {
+        // ! NO_SILENT_FALLBACKS: Explicit errorCode check
+        let errorCode = 'UNKNOWN';
+        if (error.errorCode) {
+            if (typeof error.errorCode !== 'string') {
+                console.error('[SECURITY] CRITICAL: error.errorCode is not a string', typeof error.errorCode);
+            } else {
+                errorCode = error.errorCode;
+            }
+        }
+        
+        // ! NO_SILENT_FALLBACKS: Explicit severity check
+        let severity = 'HIGH';
+        if (error.severity) {
+            if (typeof error.severity !== 'string') {
+                console.error('[SECURITY] CRITICAL: error.severity is not a string', typeof error.severity);
+            } else {
+                severity = error.severity;
+            }
+        }
+        
         // Log security event with sanitized message (message will be sanitized in logSecurityEvent)
         this.securityManager.logSecurityEvent('SECURITY_ERROR', error.message, {
             operation,
             errorType: error.constructor.name,
-            errorCode: error.errorCode || 'UNKNOWN',
-            severity: error.severity || 'HIGH',
+            errorCode: errorCode,
+            severity: severity,
             // Sanitize stack trace to prevent log injection
             stack: error.stack ? error.stack.replace(/\r?\n/g, ' | ').substring(0, 500) : 'No stack trace'
         });
@@ -590,7 +651,7 @@ function withSecurity(securityMiddleware, operation) {
                 }
                 
                 // Rate limiting
-                securityMiddleware.securityManager.checkRateLimit(`method_${propertyKey}`);
+                await securityMiddleware.securityManager.checkRateLimit(`method_${propertyKey}`);
                 
                 // Execute original method
                 const result = await originalMethod.apply(this, args);

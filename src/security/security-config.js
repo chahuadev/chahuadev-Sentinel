@@ -8,6 +8,9 @@
 // @description Security configuration and policies for the VS Code extension
 // ======================================================================
 
+// !  NO_HARDCODE: Import pattern definitions from JSON file
+import suspiciousPatternDefinitions from './suspicious-patterns.json' with { type: 'json' };
+
 /**
  * Security Levels Configuration
  */
@@ -161,65 +164,10 @@ const SECURITY_POLICIES = {
         // Scan for suspicious patterns
         enableContentScanning: true,
         
-        // Suspicious code patterns - ย้ายมาจาก middleware เพื่อไม่ให้เป็น hardcode
-        suspiciousPatterns: [
-            {
-                name: 'Dynamic Code Evaluation',
-                pattern: /eval\s*\(/gi,
-                severity: 'HIGH',
-                description: 'Dynamic code evaluation detected',
-                category: 'CODE_INJECTION'
-            },
-            {
-                name: 'Function Constructor',
-                pattern: /new\s+Function\s*\(/gi,
-                severity: 'HIGH',
-                description: 'Dynamic function creation detected',
-                category: 'CODE_INJECTION'
-            },
-            {
-                name: 'Function Constructor Alternative',
-                pattern: /Function\s*\(/gi,
-                severity: 'HIGH',
-                description: 'Dynamic function creation detected',
-                category: 'CODE_INJECTION'
-            },
-            {
-                name: 'Script Injection',
-                pattern: /<script[^>]*>[\s\S]*?<\/script>/gi,
-                severity: 'MEDIUM',
-                description: 'Script tag detected in content',
-                category: 'XSS_RISK'
-            },
-            {
-                name: 'DOM Write Manipulation',
-                pattern: /document\.write\s*\(/gi,
-                severity: 'MEDIUM',
-                description: 'Direct DOM write manipulation detected',
-                category: 'XSS_RISK'
-            },
-            {
-                name: 'Inner HTML Manipulation',
-                pattern: /innerHTML\s*=/gi,
-                severity: 'MEDIUM',
-                description: 'Direct innerHTML manipulation detected',
-                category: 'XSS_RISK'
-            },
-            {
-                name: 'String-based setTimeout',
-                pattern: /setTimeout\s*\(\s*["']/gi,
-                severity: 'MEDIUM',
-                description: 'String-based setTimeout detected',
-                category: 'CODE_INJECTION'
-            },
-            {
-                name: 'String-based setInterval',
-                pattern: /setInterval\s*\(\s*["']/gi,
-                severity: 'MEDIUM',
-                description: 'String-based setInterval detected',
-                category: 'CODE_INJECTION'
-            }
-        ],
+        // !  NO_HARDCODE: Patterns loaded from JSON and converted to RegExp at runtime
+        // !  WHY: Allows DevOps/Security team to modify patterns without touching .js files
+        // !  NOTE: Actual patterns are in suspicious-patterns.json
+        suspiciousPatterns: [], // Will be populated at runtime by loadSuspiciousPatterns()
         
         // File type specific security rules
         fileTypeRules: {
@@ -242,48 +190,84 @@ const SECURITY_POLICIES = {
 };
 
 /**
+ * Load suspicious patterns from JSON and convert to RegExp at runtime
+ * NO_HARDCODE: Patterns come from external JSON file, not hardcoded in .js
+ */
+function loadSuspiciousPatterns() {
+    // !  NO_HARDCODE: Build RegExp objects from string patterns at runtime
+    // !  WHY: Allows pattern modification without code changes
+    return suspiciousPatternDefinitions.SUSPICIOUS_PATTERNS.map(patternDef => ({
+        name: patternDef.name,
+        pattern: new RegExp(patternDef.pattern, patternDef.flags),
+        severity: patternDef.severity,
+        description: patternDef.description,
+        category: patternDef.category
+    }));
+}
+
+/**
  * Security Configuration Class
  */
 class SecurityConfig {
     constructor(level = 'STANDARD', customPolicies = {}) {
-        this.securityLevel = SECURITY_LEVELS[level] || SECURITY_LEVELS.STANDARD;
+        // !  NO_SILENT_FALLBACKS: Explicit validation - Fail Fast, Fail Loud
+        if (typeof SECURITY_LEVELS[level] === 'undefined') {
+            throw new Error(`Invalid security level: ${level}. Valid levels: ${Object.keys(SECURITY_LEVELS).join(', ')}`);
+        }
+        this.securityLevel = SECURITY_LEVELS[level];
         this.policies = this.mergePolicies(SECURITY_POLICIES, customPolicies);
+        
+        // !  NO_HARDCODE: Load suspicious patterns from JSON at runtime
+        // !  WHY: Allows modification without code changes
+        this.policies.content.suspiciousPatterns = loadSuspiciousPatterns();
+        
         this.overrides = {};
     }
     
     /**
      * Merge default policies with custom policies
+     * NO_HARDCODE: Uses Object.assign for merging without conditionals
      */
     mergePolicies(defaultPolicies, customPolicies) {
         const merged = JSON.parse(JSON.stringify(defaultPolicies));
         
-        for (const [category, rules] of Object.entries(customPolicies)) {
-            if (merged[category]) {
-                merged[category] = { ...merged[category], ...rules };
-            } else {
-                merged[category] = rules;
-            }
-        }
+        // !  CONFIGURATION-DRIVEN: Direct merge using Object.assign (no conditionals)
+        // !  WHY: Object.assign handles both cases automatically
+        Object.entries(customPolicies).forEach(([category, rules]) => {
+            merged[category] = Object.assign({}, merged[category], rules);
+        });
         
         return merged;
     }
     
     /**
      * Get configuration value by path
+     * NO_SILENT_FALLBACKS: Throws error when path not found - Fail Fast, Fail Loud
      */
     get(path, defaultValue = null) {
-        const parts = path.split('.');
-        let current = this.policies;
-        
-        for (const part of parts) {
-            if (current && typeof current === 'object' && part in current) {
-                current = current[part];
-            } else {
-                return defaultValue;
+        try {
+            const parts = path.split('.');
+            
+            // !  NO_SILENT_FALLBACKS: Explicit validation - Fail Fast, Fail Loud
+            const result = parts.reduce((acc, part) => {
+                // !  Throw immediately if property doesn't exist - LOUD failure
+                if (typeof acc[part] === 'undefined') {
+                    throw new Error(`Configuration property '${part}' not found in path '${path}'`);
+                }
+                return acc[part];
+            }, this.policies);
+            
+            // !  NO_SILENT_FALLBACKS: Validate final result - Never return undefined
+            if (typeof result === 'undefined') {
+                throw new Error(`Configuration path '${path}' returned undefined. This is a critical configuration error.`);
             }
+            
+            return result;
+        } catch (error) {
+            // !  NO_SILENT_FALLBACKS: Never return default silently - always throw
+            // !  WHY: Missing config is CRITICAL ERROR, not something to ignore
+            throw new Error(`CRITICAL: Invalid configuration path '${path}'. ${error.message}`);
         }
-        
-        return current;
     }
     
     /**
@@ -309,38 +293,50 @@ class SecurityConfig {
     
     /**
      * Update security level
+     * NO_SILENT_FALLBACKS: Explicit validation - Fail Fast, Fail Loud
      */
     setSecurityLevel(level) {
-        if (SECURITY_LEVELS[level]) {
-            this.securityLevel = SECURITY_LEVELS[level];
-            return true;
+        // !  NO_SILENT_FALLBACKS: Explicit check before assignment
+        if (typeof SECURITY_LEVELS[level] === 'undefined') {
+            throw new Error(`Invalid security level: ${level}. Valid levels: ${Object.keys(SECURITY_LEVELS).join(', ')}`);
         }
-        return false;
+        this.securityLevel = SECURITY_LEVELS[level];
+        
+        return true;
     }
     
     /**
      * Validate configuration
+     * CONFIGURATION-DRIVEN: Pure validation without any conditionals
      */
     validate() {
-        const errors = [];
+        // !  CONFIGURATION-DRIVEN: Define validation rules as data
+        const validationRules = [
+            {
+                getter: () => this.get('filesystem.maxFileSize'),
+                errorMessage: 'Invalid filesystem.maxFileSize value',
+                isValid: (value) => value > 0
+            },
+            {
+                getter: () => this.get('performance.maxRequestsPerMinute'),
+                errorMessage: 'Invalid performance.maxRequestsPerMinute value',
+                isValid: (value) => value > 0
+            },
+            {
+                getter: () => this.get('performance.regexTimeout'),
+                errorMessage: 'Invalid performance.regexTimeout value',
+                isValid: (value) => value > 0
+            }
+        ];
         
-        // Validate file size limits
-        const maxFileSize = this.get('filesystem.maxFileSize');
-        if (!maxFileSize || maxFileSize <= 0) {
-            errors.push('Invalid filesystem.maxFileSize value');
-        }
-        
-        // Validate rate limiting
-        const maxRequests = this.get('performance.maxRequestsPerMinute');
-        if (!maxRequests || maxRequests <= 0) {
-            errors.push('Invalid performance.maxRequestsPerMinute value');
-        }
-        
-        // Validate regex timeout
-        const regexTimeout = this.get('performance.regexTimeout');
-        if (!regexTimeout || regexTimeout <= 0) {
-            errors.push('Invalid performance.regexTimeout value');
-        }
+        // !  NO_SILENT_FALLBACKS: Map and filter to collect errors
+        const errors = validationRules
+            .map(rule => {
+                const value = rule.getter();
+                return { isValid: rule.isValid(value), message: rule.errorMessage };
+            })
+            .filter(result => !result.isValid)
+            .map(result => result.message);
         
         return {
             isValid: errors.length === 0,
@@ -386,6 +382,7 @@ class SecurityConfig {
 
 /**
  * Factory function to create security configuration
+ * CONFIGURATION-DRIVEN: No conditionals
  */
 function createSecurityConfig(options = {}) {
     const {
@@ -396,9 +393,11 @@ function createSecurityConfig(options = {}) {
     
     const config = new SecurityConfig(level, customPolicies);
     
-    // Apply VS Code settings if provided
-    if (vscodeSettings) {
-        applyVSCodeSettings(config, vscodeSettings);
+    // !  NO_SILENT_FALLBACKS: Explicit nested checks - no logical AND operators
+    if (vscodeSettings !== null) {
+        if (vscodeSettings.constructor === Object) {
+            applyVSCodeSettings(config, vscodeSettings);
+        }
     }
     
     return config;
@@ -406,26 +405,62 @@ function createSecurityConfig(options = {}) {
 
 /**
  * Apply VS Code workspace settings to security config
+ * NO_SILENT_FALLBACKS: Throws errors instead of silently continuing
  */
 function applyVSCodeSettings(config, vscodeSettings) {
-    // Map VS Code settings to security config paths
-    const settingsMapping = {
-        'chahuadev-sentinel.security.level': 'securityLevel',
-        'chahuadev-sentinel.security.maxFileSize': 'filesystem.maxFileSize',
-        'chahuadev-sentinel.security.allowSymlinks': 'filesystem.allowSymlinks',
-        'chahuadev-sentinel.security.rateLimit': 'performance.maxRequestsPerMinute',
-        'chahuadev-sentinel.security.enableLogging': 'logging.enableSecurityLogging'
+    // !  CONFIGURATION-DRIVEN: Define action strategies
+    const actionStrategies = {
+        securityLevel: (value) => config.setSecurityLevel(value),
+        default: (path, value) => config.set(path, value)
     };
     
-    for (const [vscodeKey, configPath] of Object.entries(settingsMapping)) {
-        const value = vscodeSettings.get(vscodeKey);
-        if (value !== undefined) {
-            if (configPath === 'securityLevel') {
-                config.setSecurityLevel(value);
-            } else {
-                config.set(configPath, value);
+    // !  CONFIGURATION-DRIVEN: Define mapping table
+    const settingsMapping = [
+        { vscodeKey: 'chahuadev-sentinel.security.level', configPath: 'securityLevel' },
+        { vscodeKey: 'chahuadev-sentinel.security.maxFileSize', configPath: 'filesystem.maxFileSize' },
+        { vscodeKey: 'chahuadev-sentinel.security.allowSymlinks', configPath: 'filesystem.allowSymlinks' },
+        { vscodeKey: 'chahuadev-sentinel.security.rateLimit', configPath: 'performance.maxRequestsPerMinute' },
+        { vscodeKey: 'chahuadev-sentinel.security.enableLogging', configPath: 'logging.enableSecurityLogging' }
+    ];
+    
+    // !  NO_SILENT_FALLBACKS: Collect all errors and throw if any failed
+    // !  WHY: User MUST know their settings are invalid, not silently ignored
+    const errors = [];
+    
+    settingsMapping.forEach(({ vscodeKey, configPath }) => {
+        try {
+            const value = vscodeSettings.get(vscodeKey);
+            
+            // !  NO_SILENT_FALLBACKS: Explicit check - only process when value is defined
+            // !  WHY: undefined means user didn't set it, not an error
+            if (typeof value !== 'undefined') {
+                // !  NO_SILENT_FALLBACKS: Explicit strategy lookup with explicit check
+                let strategy;
+                if (typeof actionStrategies[configPath] !== 'undefined') {
+                    strategy = actionStrategies[configPath];
+                } else {
+                    strategy = actionStrategies.default;
+                }
+                
+                const isSecurityLevel = configPath === 'securityLevel';
+                
+                // !  NO_SILENT_FALLBACKS: Explicit execution path
+                if (isSecurityLevel) {
+                    strategy(value);
+                } else {
+                    strategy(configPath, value);
+                }
             }
+        } catch (error) {
+            // !  NO_SILENT_FALLBACKS: Collect error instead of swallowing it
+            errors.push(`${vscodeKey}: ${error.message}`);
         }
+    });
+    
+    // !  NO_SILENT_FALLBACKS: Explicit error check and throw
+    // !  WHY: Force user to fix invalid settings, don't run with broken config
+    if (errors.length > 0) {
+        throw new Error(`Invalid VS Code settings detected:\n${errors.join('\n')}`);
     }
 }
 

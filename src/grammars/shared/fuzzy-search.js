@@ -47,10 +47,10 @@ try {
         throw new Error('fuzzySearch configuration missing required fields: maxDistance, minSimilarity, maxSuggestions');
     }
     
-    console.log('✅ Fuzzy search configuration loaded from:', CONFIG_PATH);
+    console.log(' Fuzzy search configuration loaded from:', CONFIG_PATH);
 } catch (error) {
     // WHY: FAIL FAST, FAIL LOUD - No silent fallbacks allowed
-    console.error('❌ CRITICAL: Failed to load fuzzy search configuration');
+    console.error(' CRITICAL: Failed to load fuzzy search configuration');
     console.error('   Config path:', CONFIG_PATH);
     console.error('   Error:', error.message);
     throw new Error(

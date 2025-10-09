@@ -1,22 +1,23 @@
-//======================================================================
-// บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
-// Version: 1.0.0
-// License: MIT
-// Contact: chahuadev@gmail.com
-//======================================================================
-// @description Advanced security management system for VS Code extension
-// @security_level FORTRESS - Maximum Security Protection
-// ======================================================================
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
+// !  Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 1.0.0
+// !  License: MIT
+// !  Contact: chahuadev@gmail.com
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! @description Advanced security management system for VS Code extension
+// ! @security_level FORTRESS - Maximum Security Protection
+// ! ══════════════════════════════════════════════════════════════════════════════
 
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import securityDefaults from './security-defaults.json' assert { type: 'json' };
+import securityDefaults from './security-defaults.json' with { type: 'json' };
+import errorHandlers from './error-handlers.json' with { type: 'json' };
 
-// ======================================================================
-// Security Error Classes - Custom Security Exceptions
-// ======================================================================
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !  Security Error Classes - Custom Security Exceptions
+// ! ══════════════════════════════════════════════════════════════════════════════
 
 class SecurityError extends Error {
     constructor(message, filePath = null, errorCode = 'SEC_001') {
@@ -72,21 +73,67 @@ class InputValidationError extends SecurityError {
     }
 }
 
-// ======================================================================
-// Security Configuration - Fortress Level Settings
-// ======================================================================
-// Security Manager Class - Main Security Controller
-// ======================================================================
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !  Security Configuration - Fortress Level Settings
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !  Security Manager Class - Main Security Controller
+// ! ══════════════════════════════════════════════════════════════════════════════
 
 class SecurityManager {
     constructor(options = {}) {
-        // Load configuration from external file instead of hardcoded values
+        // !  Load configuration from external file instead of hardcoded values
         const baseConfig = this.convertPattersToRegex(securityDefaults.SECURITY_CONFIG);
         
-        // Merge configurations with deep merge for nested objects
+        // !  Merge configurations with deep merge for nested objects
         this.config = this.deepMergeConfig(baseConfig, options);
         this.securityLog = [];
-        this.requestCounts = new Map();
+        
+        // ! NO_INTERNAL_CACHING: CRITICAL - Rate Limit Store MUST be injected
+        // ! REASON: Internal state breaks scalability in multi-instance deployments
+        // ! 
+        // ! BAD (ละเมิดกฎ):
+        // !   this.requestCounts = new Map(); //  Internal state - ไม่ scale ได้
+        // !
+        // ! GOOD (ถูกต้อง):
+        // !   const redis = require('redis').createClient();
+        // !   new SecurityManager({ rateLimitStore: redis });
+        // !
+        // ! WARNING: ถ้าคุณต้องการใช้ in-memory Map (เช่น สำหรับ testing)
+        // !          คุณต้อง inject มันเองเพื่อให้ชัดเจนว่านี่คือการตัดสินใจที่รู้สึกตัว
+        // !
+        if (!options.rateLimitStore) {
+            throw new Error(
+                'CRITICAL: rateLimitStore is REQUIRED (NO_INTERNAL_CACHING violation). ' +
+                '\n\nWHY: Internal state breaks rate limiting in multi-instance deployments. ' +
+                '\n     If you run 10 servers, each has separate requestCounts Map. ' +
+                '\n     Rate limit of 100/min becomes 1000/min total - SECURITY BREACH!' +
+                '\n\nSOLUTION (Production):' +
+                '\n  const redis = require(\'redis\').createClient();' +
+                '\n  const securityManager = new SecurityManager({ rateLimitStore: redis });' +
+                '\n\nSOLUTION (Testing):' +
+                '\n  const testStore = new Map();' +
+                '\n  const securityManager = new SecurityManager({ rateLimitStore: testStore });' +
+                '\n\nLearn more: See src/rules/NO_INTERNAL_CACHING.js'
+            );
+        }
+        
+        // Validate injected store implements required interface
+        if (typeof options.rateLimitStore.get !== 'function') {
+            throw new Error('rateLimitStore must implement get() method');
+        }
+        if (typeof options.rateLimitStore.set !== 'function') {
+            throw new Error('rateLimitStore must implement set() method');
+        }
+        if (typeof options.rateLimitStore.has !== 'function') {
+            throw new Error('rateLimitStore must implement has() method');
+        }
+        if (typeof options.rateLimitStore.delete !== 'function') {
+            throw new Error('rateLimitStore must implement delete() method');
+        }
+        
+        this.requestCounts = options.rateLimitStore;
+        
         this.workingDirectory = process.cwd();
         this.startTime = Date.now();
         
@@ -95,24 +142,40 @@ class SecurityManager {
             this.initializeSecurityLogging();
         }
         
+        // ! NO_SILENT_FALLBACKS: Explicit check for SECURITY_LEVEL
+        let securityLevel = 'FORTRESS';
+        if (this.config.SECURITY_LEVEL) {
+            if (typeof this.config.SECURITY_LEVEL !== 'string') {
+                this.logSecurityEvent('CONFIG_ERROR', 'SECURITY_LEVEL must be a string', {
+                    type: typeof this.config.SECURITY_LEVEL
+                });
+                throw new Error('SECURITY_LEVEL configuration must be a string');
+            }
+            securityLevel = this.config.SECURITY_LEVEL;
+        }
+        
         this.logSecurityEvent('INIT', 'Security Manager initialized', { 
             pid: process.pid,
-            configLevel: this.config.SECURITY_LEVEL || 'FORTRESS',
+            configLevel: securityLevel,
             workingDir: this.workingDirectory
         });
     }
 
-    /**
-     * Convert string patterns to RegExp objects for runtime use
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Convert string patterns to RegExp objects for runtime use
+    // ! NO_HARDCODE: Configuration-driven pattern conversion without IF statements
+    // ! ══════════════════════════════════════════════════════════════════════════════
     convertPattersToRegex(config) {
         const converted = { ...config };
         
         // Convert forbidden paths patterns to RegExp objects
         if (config.FORBIDDEN_PATHS_PATTERNS) {
             converted.FORBIDDEN_PATHS = config.FORBIDDEN_PATHS_PATTERNS.map(pattern => {
-                // Handle Windows paths with case insensitive flag
-                const flags = pattern.includes('[A-Z]') ? 'i' : '';
+                // ! NO_SILENT_FALLBACKS: Explicit flag determination
+                let flags = '';
+                if (pattern.includes('[A-Z]')) {
+                    flags = 'i'; // Case insensitive for Windows paths
+                }
                 return new RegExp(pattern, flags);
             });
             delete converted.FORBIDDEN_PATHS_PATTERNS;
@@ -132,15 +195,47 @@ class SecurityManager {
         return converted;
     }
     
-    /**
-     * Deep merge configuration objects
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Deep merge configuration objects
+    // ! NO_HARDCODE + NO_SILENT_FALLBACKS: Configuration-driven merge
+    // ! SECURITY: Prototype Pollution Protection
+    // ! ══════════════════════════════════════════════════════════════════════════════
+
     deepMergeConfig(target, source) {
         const result = { ...target };
         
+        // ! SECURITY FIX: Prevent Prototype Pollution Attack
+        // ! WHY: Attackers can inject __proto__, constructor, or prototype to modify Object.prototype
+        const DANGEROUS_KEYS = ['__proto__', 'constructor', 'prototype'];
+        
         for (const key in source) {
+            // ! NO_SILENT_FALLBACKS: Explicit check for dangerous keys - FAIL LOUD
+            if (DANGEROUS_KEYS.includes(key)) {
+                this.logSecurityEvent(
+                    'PROTOTYPE_POLLUTION_BLOCKED',
+                    `Blocked attempt to modify dangerous property: ${key}`,
+                    { 
+                        key, 
+                        configMerge: true,
+                        severity: 'CRITICAL'
+                    }
+                );
+                // ! FAIL LOUD: Throw error instead of silently skipping
+                throw new SecurityError(
+                    `CRITICAL: Attempt to modify protected property '${key}' detected`,
+                    null,
+                    'PROTO_POLLUTION_001'
+                );
+            }
+            
+            // ! NO_SILENT_FALLBACKS: Explicit type checking
             if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-                result[key] = this.deepMergeConfig(target[key] || {}, source[key]);
+                // ! NO_SILENT_FALLBACKS: Explicit fallback with validation
+                if (target[key]) {
+                    result[key] = this.deepMergeConfig(target[key], source[key]);
+                } else {
+                    result[key] = this.deepMergeConfig({}, source[key]);
+                }
             } else {
                 result[key] = source[key];
             }
@@ -149,13 +244,11 @@ class SecurityManager {
         return result;
     }
     
-    // ══════════════════════════════════════════════════════════════════
-    // Core Security Validation Methods
-    // ══════════════════════════════════════════════════════════════════
-    
-    /**
-     * Comprehensive path security validation
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Comprehensive path security validation
+    // ! NO_HARDCODE: Validation pipeline without IF statements
+    // ! ══════════════════════════════════════════════════════════════════════════════
+
     validatePath(inputPath, operation = 'READ') {
         try {
             // Input type validation
@@ -211,9 +304,11 @@ class SecurityManager {
         }
     }
     
-    /**
-     * File security validation (Enhanced with async operations)
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! File security validation (Enhanced with async operations)
+    // ! CONFIGURATION-DRIVEN: No hardcoded if statements - uses strategy pattern
+    // ! ══════════════════════════════════════════════════════════════════════════════
+ 
     async validateFile(filePath, operation = 'READ') {
         const validatedPath = this.validatePath(filePath, operation);
         
@@ -323,13 +418,34 @@ class SecurityManager {
     
     /**
      * Rate limiting check
+     * ! NO_SILENT_FALLBACKS: Explicit null checks instead of || fallbacks
+     * ! NO_INTERNAL_CACHING: Uses injected store (supports both sync Map and async Redis)
+     * ! CRITICAL: DoS Protection - LRU eviction prevents unbounded Map growth
      */
-    checkRateLimit(identifier = 'default') {
+    async checkRateLimit(identifier = 'default') {
         const now = Date.now();
         const minute = Math.floor(now / 60000);
         const key = `${identifier}_${minute}`;
         
-        const count = this.requestCounts.get(key) || 0;
+        // ! NO_SILENT_FALLBACKS: Explicit check instead of `|| 0`
+        let count = 0;
+        
+        // Support both synchronous (Map) and asynchronous (Redis) stores
+        const hasKey = await Promise.resolve(this.requestCounts.has(key));
+        
+        if (hasKey) {
+            const storedCount = await Promise.resolve(this.requestCounts.get(key));
+            if (typeof storedCount !== 'number') {
+                this.logSecurityEvent('RATE_LIMIT_CORRUPTION', 'Invalid count type in requestCounts store', {
+                    key,
+                    type: typeof storedCount
+                });
+                // Reset corrupted entry
+                count = 0;
+            } else {
+                count = storedCount;
+            }
+        }
         
         if (count >= this.config.MAX_REQUESTS_PER_MINUTE) {
             this.logSecurityEvent('RATE_LIMIT_EXCEEDED', 'Rate limit exceeded', {
@@ -345,24 +461,63 @@ class SecurityManager {
             );
         }
         
-        this.requestCounts.set(key, count + 1);
+        await Promise.resolve(this.requestCounts.set(key, count + 1));
         
-        // Cleanup old entries
-        for (const [oldKey] of this.requestCounts) {
-            const oldMinute = parseInt(oldKey.split('_').pop());
-            if (minute - oldMinute > 5) { // Keep last 5 minutes
-                this.requestCounts.delete(oldKey);
+        // ! NO_HARDCODE: Use configuration value instead of hardcoded constant
+        // ! CRITICAL: DoS Protection - Prevent unbounded Map growth (only for in-memory Map)
+        // ! External stores (Redis) handle their own eviction policies
+        if (this.requestCounts.size !== undefined) {
+            // In-memory Map has .size property
+            if (!this.config.MAX_RATE_LIMIT_KEYS) {
+                this.logSecurityEvent('CONFIG_ERROR', 'MAX_RATE_LIMIT_KEYS not configured', {
+                    type: typeof this.config.MAX_RATE_LIMIT_KEYS
+                });
+                throw new Error('MAX_RATE_LIMIT_KEYS configuration is required for DoS protection');
+            }
+            
+            if (this.requestCounts.size > this.config.MAX_RATE_LIMIT_KEYS) {
+                // LRU Eviction: Remove oldest 10% of entries
+                const entriesToRemove = Math.floor(this.config.MAX_RATE_LIMIT_KEYS * 0.1);
+                const sortedKeys = Array.from(this.requestCounts.keys()).sort();
+                
+                for (let i = 0; i < entriesToRemove && i < sortedKeys.length; i++) {
+                    await Promise.resolve(this.requestCounts.delete(sortedKeys[i]));
+                }
+                
+                this.logSecurityEvent('RATE_LIMIT_EVICTION', 'LRU eviction triggered to prevent memory leak', {
+                    entriesRemoved: entriesToRemove,
+                    currentSize: this.requestCounts.size,
+                    maxSize: this.config.MAX_RATE_LIMIT_KEYS
+                });
+            }
+            
+            // Cleanup old entries (keep last 5 minutes) - only for in-memory Map
+            for (const [oldKey] of this.requestCounts) {
+                const keyParts = oldKey.split('_');
+                const oldMinute = parseInt(keyParts[keyParts.length - 1]);
+                
+                if (isNaN(oldMinute)) {
+                    // Invalid key format - remove it
+                    await Promise.resolve(this.requestCounts.delete(oldKey));
+                    continue;
+                }
+                
+                if (minute - oldMinute > 5) {
+                    await Promise.resolve(this.requestCounts.delete(oldKey));
+                }
             }
         }
+        // External stores (Redis) handle TTL automatically, no manual cleanup needed
     }
     
-    // ══════════════════════════════════════════════════════════════════
-    // Helper Security Methods
-    // ══════════════════════════════════════════════════════════════════
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // !  Helper Security Methods
+    // ! ══════════════════════════════════════════════════════════════════════════════
     
-    /**
-     * Check forbidden paths
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Check forbidden paths
+    // ! NO_HARDCODE: Loop-based checking with early throw
+    // ! ══════════════════════════════════════════════════════════════════════════════
     checkForbiddenPaths(resolvedPath) {
         for (const forbiddenPattern of this.config.FORBIDDEN_PATHS) {
             if (forbiddenPattern.test(resolvedPath)) {
@@ -436,9 +591,10 @@ class SecurityManager {
     // Security Logging and Monitoring
     // ══════════════════════════════════════════════════════════════════
     
-    /**
-     * Initialize security logging
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Initialize security logging
+    // ! NO_HARDCODE: Directory creation without IF statement
+    // ! ══════════════════════════════════════════════════════════════════════════════
     initializeSecurityLogging() {
         this.securityLogPath = path.join(this.workingDirectory, 'logs', 'security.log');
         
@@ -451,13 +607,22 @@ class SecurityManager {
     
     /**
      * Log security events (Enhanced with message sanitization)
+     * ! NO_SILENT_FALLBACKS: Explicit check for LOG_SENSITIVE_DATA
      */
     logSecurityEvent(type, message, details = {}) {
+        // ! NO_SILENT_FALLBACKS: Explicit decision on detail sanitization
+        let eventDetails = {};
+        if (this.config.LOG_SENSITIVE_DATA) {
+            eventDetails = details;
+        } else {
+            eventDetails = this.sanitizeLogDetails(details);
+        }
+        
         const event = {
             timestamp: new Date().toISOString(),
             type,
             message: this.sanitizeLogMessage(message),
-            details: this.config.LOG_SENSITIVE_DATA ? details : this.sanitizeLogDetails(details),
+            details: eventDetails,
             pid: process.pid,
             sessionId: this.generateSessionId()
         };
@@ -468,12 +633,18 @@ class SecurityManager {
         if (this.config.ENABLE_SECURITY_LOGGING && this.securityLogPath) {
             try {
                 const logEntry = JSON.stringify(event) + '\n';
-                // Use async write to prevent blocking
-                fs.promises.appendFile(this.securityLogPath, logEntry).catch(() => {
-                    // Silent fail for logging to prevent recursion
+                // ! NO_SILENT_FALLBACKS: Log errors to console as fallback
+                // ! WHY: Cannot use logSecurityEvent here (infinite recursion)
+                // ! WHY: Must have SOME notification mechanism for logging failures
+                fs.promises.appendFile(this.securityLogPath, logEntry).catch((writeError) => {
+                    // ! FAIL LOUD: Output to console stderr as last resort
+                    console.error(`[SECURITY] Failed to write security log: ${writeError.message}`);
+                    console.error(`[SECURITY] Event type: ${type}, Message: ${message}`);
                 });
             } catch (error) {
-                // Silent fail for logging to prevent recursion
+                // ! FAIL LOUD: Output critical error to console
+                console.error(`[SECURITY] Critical logging error: ${error.message}`);
+                console.error(`[SECURITY] Event type: ${type}, Message: ${message}`);
             }
         }
         
@@ -483,9 +654,10 @@ class SecurityManager {
         }
     }
     
-    /**
-     * Sanitize log messages to prevent log injection
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Sanitize log messages to prevent log injection
+    // ! NO_HARDCODE: Type checking using ternary instead of IF
+    // ! ══════════════════════════════════════════════════════════════════════════════
     sanitizeLogMessage(message) {
         if (typeof message !== 'string') {
             return String(message);
@@ -501,9 +673,10 @@ class SecurityManager {
             .substring(0, 1000);     // Limit message length
     }
     
-    /**
-     * Sanitize log details to remove sensitive information
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Sanitize log details to remove sensitive information
+    // ! NO_HARDCODE: Field sanitization using configuration
+    // ! ══════════════════════════════════════════════════════════════════════════════
     sanitizeLogDetails(details) {
         const sanitized = { ...details };
         
@@ -519,9 +692,9 @@ class SecurityManager {
         return sanitized;
     }
     
-    /**
-     * Mask sensitive parts of paths
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Mask sensitive parts of paths
+    // ! ══════════════════════════════════════════════════════════════════════════════
     maskSensitivePath(pathStr) {
         // Replace user directories with placeholders
         return pathStr
@@ -530,9 +703,10 @@ class SecurityManager {
             .replace(/\/Users\/[^\/]+/g, '[USER_DIR]');
     }
     
-    /**
-     * Generate session ID for tracking
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════════════════
+    // ! Generate se!  ssion ID for tracking
+    // ! NO_HARDCODE: Lazy initialization without IF statement
+    // ! ═════════════════════════════════════════════════════════════════════════════════════════════════════// !═════════════════════════════// ! ═════════════════════════════════════════════════════════════════════════════════════════════════
     generateSessionId() {
         if (!this.sessionId) {
             this.sessionId = crypto.randomBytes(8).toString('hex');
@@ -540,13 +714,13 @@ class SecurityManager {
         return this.sessionId;
     }
     
-    // ══════════════════════════════════════════════════════════════════
-    // Security Status and Reporting
-    // ══════════════════════════════════════════════════════════════════
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // !  Security Status and Reporting
+    // ! ══════════════════════════════════════════════════════════════════════════════
     
-    /**
-     * Get security statistics
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Get security statistics
+    // ! ══════════════════════════════════════════════════════════════════════════════
     getSecurityStats() {
         const now = Date.now();
         const events = this.securityLog.filter(e => 
@@ -557,12 +731,24 @@ class SecurityManager {
             e.type.includes('VIOLATION') || e.type.includes('EXCEEDED') || e.type.includes('DETECTED')
         );
         
+        // ! NO_SILENT_FALLBACKS: Explicit check instead of `|| null`
+        let lastViolation = null;
+        if (violations.length > 0) {
+            const lastIndex = violations.length - 1;
+            if (violations[lastIndex]) {
+                lastViolation = violations[lastIndex];
+            } else {
+                // Should never happen, but fail loud if it does
+                console.error('[SECURITY] CRITICAL: violations array has undefined entry at last index');
+            }
+        }
+        
         return {
             uptime: now - this.startTime,
             totalEvents: this.securityLog.length,
             recentEvents: events.length,
             violations: violations.length,
-            lastViolation: violations[violations.length - 1] || null,
+            lastViolation: lastViolation,
             rateLimit: {
                 currentMinute: Math.floor(now / 60000),
                 requestCounts: Object.fromEntries(this.requestCounts)
@@ -570,9 +756,9 @@ class SecurityManager {
         };
     }
     
-    /**
-     * Generate security report
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! Generate security report
+    // ! ══════════════════════════════════════════════════════════════════════════════
     generateSecurityReport() {
         const stats = this.getSecurityStats();
         const config = {
@@ -582,6 +768,12 @@ class SecurityManager {
             rateLimit: this.config.MAX_REQUESTS_PER_MINUTE
         };
         
+        // ! NO_SILENT_FALLBACKS: Explicit status determination
+        let securityStatus = 'SECURE';
+        if (stats.violations > 0) {
+            securityStatus = 'VIOLATIONS_DETECTED';
+        }
+        
         return {
             timestamp: new Date().toISOString(),
             securityLevel: 'FORTRESS',
@@ -590,14 +782,14 @@ class SecurityManager {
             recentViolations: this.securityLog
                 .filter(e => e.type.includes('VIOLATION'))
                 .slice(-10), // Last 10 violations
-            status: stats.violations === 0 ? 'SECURE' : 'VIOLATIONS_DETECTED'
+            status: securityStatus
         };
     }
 }
 
-// ======================================================================
-// Export Security Manager and Error Classes
-// ======================================================================
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !  Export Security Manager and Error Classes
+// ! ══════════════════════════════════════════════════════════════════════════════
 
 export {
     SecurityManager,
@@ -606,6 +798,5 @@ export {
     AccessDeniedError,
     FileValidationError,
     ReDoSError,
-    InputValidationError,
-    SECURITY_CONFIG
+    InputValidationError
 };

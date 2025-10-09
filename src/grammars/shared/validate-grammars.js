@@ -14,7 +14,7 @@ import { JAVASCRIPT_GRAMMAR } from '../javascript.grammar.js';
 import { TYPESCRIPT_GRAMMAR } from '../typescript.grammar.js';
 import { JAVA_GRAMMAR } from '../java.grammar.js';
 import { JSX_GRAMMAR } from '../jsx.grammar.js';
-import config from './parser-config.json' assert { type: 'json' };
+import config from './parser-config.json' with { type: 'json' };
 
 const VALIDATION_CONFIG = config.validationReporting;
 

@@ -1,0 +1,82 @@
+{
+  "ERROR_HANDLERS": {
+    "ENOENT": {
+      "errorClass": "FileValidationError",
+      "message": "File does not exist",
+      "severity": "MEDIUM"
+    },
+    "EACCES": {
+      "errorClass": "AccessDeniedError",
+      "message": "Permission denied: Access not allowed",
+      "severity": "HIGH"
+    },
+    "EPERM": {
+      "errorClass": "AccessDeniedError",
+      "message": "Permission denied: Operation not permitted",
+      "severity": "HIGH"
+    },
+    "ELOOP": {
+      "errorClass": "AccessDeniedError",
+      "message": "Symbolic links are not allowed",
+      "severity": "CRITICAL",
+      "note": "ELOOP occurs when O_NOFOLLOW is set and path is a symlink"
+    },
+    "EMFILE": {
+      "errorClass": "SecurityError",
+      "message": "Too many open files - resource exhaustion detected",
+      "severity": "CRITICAL"
+    },
+    "ENFILE": {
+      "errorClass": "SecurityError",
+      "message": "System file table overflow",
+      "severity": "CRITICAL"
+    },
+    "EISDIR": {
+      "errorClass": "FileValidationError",
+      "message": "Expected file but found directory",
+      "severity": "MEDIUM"
+    },
+    "ENOTDIR": {
+      "errorClass": "FileValidationError",
+      "message": "Path component is not a directory",
+      "severity": "MEDIUM"
+    }
+  },
+  "VALIDATION_RULES": {
+    "FILE_SIZE": {
+      "validator": "fileSizeValidator",
+      "errorClass": "FileValidationError",
+      "cleanupRequired": true,
+      "severity": "MEDIUM"
+    },
+    "FILE_TYPE": {
+      "validator": "fileTypeValidator",
+      "errorClass": "FileValidationError",
+      "cleanupRequired": true,
+      "severity": "MEDIUM"
+    },
+    "SYMLINK": {
+      "validator": "symlinkValidator",
+      "errorClass": "AccessDeniedError",
+      "cleanupRequired": true,
+      "severity": "HIGH"
+    }
+  },
+  "OPERATION_FLAGS": {
+    "READ": {
+      "flags": ["O_RDONLY"],
+      "requiresExisting": true,
+      "allowSymlinks": false
+    },
+    "WRITE": {
+      "flags": ["O_WRONLY", "O_CREAT"],
+      "requiresExisting": false,
+      "allowSymlinks": false
+    },
+    "READWRITE": {
+      "flags": ["O_RDWR"],
+      "requiresExisting": true,
+      "allowSymlinks": false
+    }
+  }
+}

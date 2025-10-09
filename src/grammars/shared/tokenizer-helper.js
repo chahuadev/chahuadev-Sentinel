@@ -503,7 +503,7 @@ export class BinaryComputationTokenizer {
         
         // WHY: Debug logging to see what's happening
         if (!operatorMatch || !operatorMatch.found) {
-            console.log(`⚠️  Operator NOT found: "${char}" at position ${start}`);
+            console.log(`  Operator NOT found: "${char}" at position ${start}`);
             console.log(`   Input context: "${this.input.substring(Math.max(0, start - 5), start + 10)}"`);
         }
         

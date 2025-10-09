@@ -25,7 +25,7 @@ import { RULE_IDS, ERROR_TYPES, SEVERITY_LEVELS, TOKEN_TYPES, DEFAULT_LOCATION }
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { ABSOLUTE_RULES } from '../../validator.js';
+import { ABSOLUTE_RULES } from '../../rules/validator.js';
 import GrammarIndex from './grammar-index.js';
 import { BinaryComputationTokenizer } from './tokenizer-helper.js';
 
@@ -510,7 +510,7 @@ class AdvancedStructureParser extends StructureParser {
             // ! WHY: Log error for debugging BUT still continue parsing (controlled recovery)
             // ! This is NOT a silent fallback - we log the error loudly
             // ! We continue parsing to find ALL violations in one pass (better UX)
-            console.error(`⚠️  Expression statement parsing error at position ${this.current}:`, error.message);
+            console.error(`  Expression statement parsing error at position ${this.current}:`, error.message);
             console.error(`   Token: "${this.peek()?.value || 'EOF'}" (type: ${this.peek()?.type})`);
             console.error(`   Skipping this token and continuing parse...`);
             
