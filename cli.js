@@ -144,7 +144,7 @@ ${cliConfig.helpText.footer}`);
                     results.push({ file, ...result });
                 } catch (fileError) {
                     // !  NO_SILENT_FALLBACKS: Log error but continue to next file
-                    console.error(`\n❌ Error processing ${file}:`);
+                    console.error(`\nError processing ${file}:`);
                     console.error(`   ${fileError.message}`);
                     results.push({ 
                         file, 

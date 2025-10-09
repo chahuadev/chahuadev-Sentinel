@@ -5,7 +5,7 @@
   <img src="https://raw.githubusercontent.com/chahuadev/chahuadev/main/icon.png" alt="Chahuadev Framework" width="150"/>
   <h1> Chahuadev Sentinel</h1>
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)](https://github.com/chahuadev/chahuadev-emoji-cleaner-tool)
+[![Version](https://img.shields.io/badge/version-1.0.0BATA-blue?style=for-the-badge)](https://github.com/chahuadev/chahuadev-emoji-cleaner-tool)
 [![Issues](https://img.shields.io/badge/Report_Issues-GitHub_Issues-red?style=for-the-badge&logo=github)](https://github.com/chahuadev/chahuadev-Sentinel/issues)
 [![Discussions](https://img.shields.io/badge/Feature_Requests-GitHub_Discussions-blue?style=for-the-badge&logo=github)](https://github.com/chahuadev/chahuadev-Sentinel/discussions)
 [![Contact](https://img.shields.io/badge/Contact-chahuadev@gmail.com-green?style=for-the-badge&logo=gmail)](mailto:chahuadev@gmail.com)
