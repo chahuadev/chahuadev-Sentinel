@@ -5,339 +5,116 @@
 // License: MIT
 // Contact: chahuadev@gmail.com
 //======================================================================
-// Grammar Search Proxy - Compliant Query-Response System
+// Grammar Entry/Exit Point - NO LOGIC, ONLY ROUTING
 // ============================================================================
-// ChahuadevR Engine Grammar Dictionary - Rules Compliant Access
+// หน้าที่: ทางเข้า-ทางออกเท่านั้น ไม่มีโลจิกใดๆ
+// ส่งต่อ request ไปยัง grammar-index.js และรอรับ response กลับมา
 // ============================================================================
 
-// Import search system components
 import { GrammarIndex } from './shared/grammar-index.js';
-import { Trie } from './shared/trie.js';
-import {
-    levenshteinDistance,
-    levenshteinDistanceOptimized,
-    damerauLevenshteinDistance,
-    findClosestMatch,
-    findTypoSuggestions,
-    similarityRatio
-} from './shared/fuzzy-search.js';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import errorHandler from '../error-handler/ErrorHandler.js';
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 /**
- * LocalGrammarProvider - Production implementation
- * จัดการการโหลด grammar จากไฟล์ local
- */
-class LocalGrammarProvider {
-    async checkSystem() {
-        return {
-            status: 'ready',
-            searchEngine: 'LocalGrammarEngine',
-            version: '1.0.0',
-            availableLanguages: ['javascript', 'typescript', 'java', 'jsx']
-        };
-    }
-
-    async loadGrammar(language) {
-        try {
-            // Load grammar from JSON file (Pure Data - NO_HARDCODE compliant)
-            const grammarPath = join(__dirname, `${language}.grammar.json`);
-            const grammarData = JSON.parse(readFileSync(grammarPath, 'utf8'));
-            
-            return {
-                status: 'success',
-                language,
-                grammar: grammarData,
-                searchIndex: new GrammarIndex(grammarData),
-                loadedAt: Date.now()
-            };
-        } catch (error) {
-            return {
-                status: 'error',
-                message: `Grammar not found: ${language}`,
-                error: error.message
-            };
-        }
-    }
-
-    async searchKeyword(keyword, targetLanguage) {
-        // Real implementation would search through grammar files
-        return {
-            status: 'success',
-            keyword,
-            found: true,
-            data: { type: 'keyword', language: targetLanguage }
-        };
-    }
-}
-
-/**
- * Grammar Search Proxy
- * ไม่เก็บข้อมูลเอง แต่ไปถามจากระบบค้นหาและรอคำตอบ
- * ใช้ Dependency Injection แทนการ hardcode stub behavior
- */
-class GrammarSearchProxy {
-    constructor(searchProvider = null) {
-        this.searchProvider = searchProvider || new LocalGrammarProvider();
-        this.isInitialized = false;
-        this.pendingQueries = new Map();
-        this.queryId = 0;
-    }
-
-    /**
-     * Initialize connection to search system
-     * @returns {Promise<boolean>}
-     */
-    async initialize() {
-        if (this.isInitialized) return true;
-        
-        try {
-            // Query search system for availability
-            console.log('QUERY: Connecting to grammar search system...');
-            
-            // Query search system
-            const searchSystemResponse = await this._querySearchSystem('SYSTEM_CHECK', {
-                action: 'initialize',
-                timestamp: Date.now()
-            });
-            
-            if (searchSystemResponse.status === 'ready') {
-                this.searchEngine = searchSystemResponse.searchEngine;
-                this.isInitialized = true;
-                console.log('SUCCESS: Grammar search system connected');
-                return true;
-            } else {
-                throw new Error('Search system not ready');
-            }
-        } catch (error) {
-            console.error('ERROR: Failed to connect to search system:', error.message);
-            return false;
-        }
-    }
-
-    /**
-     * Query search system using injected provider
-     * @param {string} queryType - Type of query
-     * @param {any} queryData - Query parameters
-     * @returns {Promise<any>} Search system response
-     * @private
-     */
-    async _querySearchSystem(queryType, queryData) {
-        const queryId = ++this.queryId;
-        
-        try {
-            console.log(`Sending query ${queryId}: ${queryType}`);
-            
-            let response;
-            switch (queryType) {
-                case 'SYSTEM_CHECK':
-                    response = await this.searchProvider.checkSystem();
-                    break;
-                case 'LOAD_GRAMMAR':
-                    response = await this.searchProvider.loadGrammar(queryData.language);
-                    break;
-                case 'SEARCH_KEYWORD':
-                    response = await this.searchProvider.searchKeyword(queryData.keyword, queryData.targetLanguage);
-                    break;
-                default:
-                    response = {
-                        status: 'error',
-                        message: `Unknown query type: ${queryType}`
-                    };
-            }
-            
-            console.log(`Received response ${queryId}:`, response.status);
-            return response;
-            
-        } catch (error) {
-            console.error(`Query ${queryId} failed:`, error.message);
-            throw error;
-        }
-    }
-
-    /**
-     * Request grammar from search system (don't store locally)
-     * @param {string} language - Language to request
-     * @returns {Promise<Object|null>} Grammar data from search system
-     */
-    async requestGrammar(language) {
-        if (!this.isInitialized) {
-            await this.initialize();
-        }
-
-        try {
-            console.log(`REQUEST: Loading grammar for ${language}`);
-            
-            const response = await this._querySearchSystem('LOAD_GRAMMAR', {
-                language: language
-            });
-            
-            if (response.status === 'success') {
-                console.log(`SUCCESS: Grammar ${language} loaded from search system`);
-                return response.grammar;
-            } else {
-                const error = new Error(`Grammar ${language} not found in search system`);
-                console.error('ERROR:', error.message);
-                throw error;
-            }
-        } catch (error) {
-            console.error(`ERROR: Failed to request grammar ${language}:`, error.message);
-            throw error; 
-        }
-    }
-
-    /**
-     * Search keyword through search system
-     * @param {string} keyword - Keyword to search
-     * @param {string} language - Target language
-     * @returns {Promise<Object|null>} Search result from search system
-     */
-    async searchKeyword(keyword, language) {
-        if (!this.isInitialized) {
-            await this.initialize();
-        }
-
-        try {
-            const response = await this._querySearchSystem('SEARCH_KEYWORD', {
-                keyword,
-                targetLanguage: language
-            });
-            
-            if (response.status === 'success') {
-                return response;
-            } else {
-                const error = new Error(`Keyword search failed: ${response.message || 'Unknown error'}`);
-                console.error('ERROR:', error.message);
-                throw error;
-            }
-        } catch (error) {
-            // !  NO_SILENT_FALLBACKS: FAIL LOUD - throw error instead of returning null
-            console.error(` Keyword search failed:`, error.message);
-            throw error;
-        }
-    }
-}
-
-// Create global search proxy instance
-const grammarProxy = new GrammarSearchProxy();
-
-/**
- * Grammar Request Functions - Always query search system
- */
-
-/**
- * Request JavaScript Grammar through search system
+ * Request JavaScript Grammar - ส่งต่อไป grammar-index.js
  * @returns {Promise<Object|null>}
  */
 export async function getJavaScriptGrammar() {
-    return await grammarProxy.requestGrammar('javascript');
+    return await GrammarIndex.loadGrammar('javascript');
 }
 
 /**
- * Request TypeScript Grammar through search system
+ * Request TypeScript Grammar - ส่งต่อไป grammar-index.js
  * @returns {Promise<Object|null>}
  */
 export async function getTypeScriptGrammar() {
-    return await grammarProxy.requestGrammar('typescript');
+    return await GrammarIndex.loadGrammar('typescript');
 }
 
 /**
- * Request Java Grammar through search system
+ * Request Java Grammar - ส่งต่อไป grammar-index.js
  * @returns {Promise<Object|null>}
  */
 export async function getJavaGrammar() {
-    return await grammarProxy.requestGrammar('java');
+    return await GrammarIndex.loadGrammar('java');
 }
 
 /**
- * Request JSX Grammar through search system
+ * Request JSX Grammar - ส่งต่อไป grammar-index.js
  * @returns {Promise<Object|null>}
  */
 export async function getJSXGrammar() {
-    return await grammarProxy.requestGrammar('jsx');
+    return await GrammarIndex.loadGrammar('jsx');
 }
 
 /**
- * Request Complete Grammar Set through search system
+ * Request Complete Grammar Set - ส่งต่อไป grammar-index.js
  * @returns {Promise<Object>}
  */
 export async function getCompleteGrammar() {
-    console.log(' Requesting complete grammar set from search system...');
-    
-    const [javascript, typescript, java, jsx] = await Promise.all([
-        grammarProxy.requestGrammar('javascript'),
-        grammarProxy.requestGrammar('typescript'), 
-        grammarProxy.requestGrammar('java'),
-        grammarProxy.requestGrammar('jsx')
-    ]);
-
-    return {
-        javascript,
-        typescript,
-        java,
-        jsx
-    };
+    return await GrammarIndex.loadAllGrammars();
 }
 
 /**
- * Search across all grammars through search system
- * @param {string} query - Search query
- * @returns {Promise<Object>} Search results from search system
+ * Search in grammar by section and name - ส่งต่อไป grammar-index.js
+ * @param {string} language - ภาษา (javascript, typescript, java, jsx)
+ * @param {string} sectionName - ชื่อ section (keywords, operators, etc.)
+ * @param {string} itemName - ชื่อ item ที่ต้องการค้นหา
+ * @returns {Promise<Object>}
  */
-export async function searchAllGrammars(query) {
-    console.log(` Searching "${query}" across all grammars via search system...`);
-    
-    const results = await Promise.all([
-        grammarProxy.searchKeyword(query, 'javascript'),
-        grammarProxy.searchKeyword(query, 'typescript'),
-        grammarProxy.searchKeyword(query, 'java'),
-        grammarProxy.searchKeyword(query, 'jsx')
-    ]);
-    
-    return {
-        javascript: results[0],
-        typescript: results[1], 
-        java: results[2],
-        jsx: results[3],
-        query,
-        searchedAt: new Date().toISOString()
-    };
+export async function searchGrammar(language, sectionName, itemName) {
+    return await GrammarIndex.search(language, sectionName, itemName);
 }
 
 /**
- * Create SmartParserEngine with Complete Grammar Setup
- * @param {Object} absoluteRules - ABSOLUTE_RULES from validator
- * @returns {Promise<SmartParserEngine>} Configured engine
+ * Search by section number - ส่งต่อไป grammar-index.js
+ * @param {string} language - ภาษา
+ * @param {number} sectionNumber - หมายเลข section
+ * @param {string} itemName - ชื่อ item
+ * @returns {Promise<Object>}
  */
-export async function createSmartParserEngine(absoluteRules) {
-    console.log(' Creating SmartParserEngine with complete grammar setup...');
-    
-    // โหลด grammar ทุกภาษาผ่านระบบค้นหา
-    const completeGrammar = await getCompleteGrammar();
-    
-    // รวม ABSOLUTE_RULES กับ grammar ทุกภาษา
-    const combinedGrammar = {
-        ...completeGrammar.javascript,
-        ...completeGrammar.typescript,
-        ...completeGrammar.java,
-        ...completeGrammar.jsx,
-        ...absoluteRules
-    };
-    
-    // สร้าง SmartParserEngine พร้อม combined grammar
-    const { SmartParserEngine } = await import('./shared/smart-parser-engine.js');
-    return new SmartParserEngine(combinedGrammar);
+export async function searchBySectionNumber(language, sectionNumber, itemName) {
+    return await GrammarIndex.searchBySection(language, sectionNumber, itemName);
 }
 
-// Re-export search system components
-export { GrammarIndex, Trie, findClosestMatch, levenshteinDistance };
+/**
+ * Get section info - ส่งต่อไป grammar-index.js
+ * @param {string} language - ภาษา
+ * @param {string} sectionName - ชื่อ section
+ * @returns {Promise<Object>}
+ */
+export async function getSectionInfo(language, sectionName) {
+    return await GrammarIndex.getSectionMetadata(language, sectionName);
+}
 
-// Re-export SmartParserEngine class for direct use
-export { SmartParserEngine } from './shared/smart-parser-engine.js';
+/**
+ * Search by type (สำหรับ Tokenizer) - ส่งต่อไป grammar-index.js
+ * @param {string} language - ภาษา (javascript, typescript, java, jsx)
+ * @param {string} type - ประเภท (keyword, operator, punctuation, etc.)
+ * @param {string} itemName - ชื่อ item ที่ต้องการค้นหา
+ * @returns {Promise<Object>} ผลลัพธ์การค้นหา
+ */
+export async function searchByType(language, type, itemName) {
+    return await GrammarIndex.searchByType(language, type, itemName);
+}
 
+/**
+ * Batch search (ค้นหาหลายรายการพร้อมกัน) - ส่งต่อไป grammar-index.js
+ * @param {string} language - ภาษา
+ * @param {Array<{type: string, itemName: string}>} requests - รายการคำขอ
+ * @returns {Promise<Array<Object>>} ผลลัพธ์ทั้งหมด
+ */
+export async function batchSearch(language, requests) {
+    return await GrammarIndex.batchSearch(language, requests);
+}
+
+/**
+ * Identify type of item - ส่งต่อไป grammar-index.js
+ * @param {string} language - ภาษา
+ * @param {string} itemName - ชื่อ item
+ * @returns {Promise<Object>} { found, type, section, data }
+ */
+export async function identifyType(language, itemName) {
+    return await GrammarIndex.identifyType(language, itemName);
+}
+
+// Re-export GrammarIndex for direct access if needed
+export { GrammarIndex };

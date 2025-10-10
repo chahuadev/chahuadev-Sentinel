@@ -1,4 +1,27 @@
 {
+  "__grammar_header": "══════════════════════════════════════════════════════════════════════════════",
+  "__grammar_language": "JavaScript",
+  "__grammar_version": "ES2024 (ECMAScript 2024)",
+  "__grammar_title": "JavaScript Language Grammar Definition",
+  "__grammar_description": "Complete grammar rules for JavaScript - Keywords, Literals, Operators, Punctuation",
+  "__grammar_purpose": "ให้ GrammarIndex (Brain) รู้จักทุก syntax elements ของภาษา JavaScript เพื่อ classify tokens อย่างถูกต้อง",
+  "__grammar_total_sections": 5,
+  "__grammar_sections": ["keywords", "literals", "operators", "punctuation", "tokenMetadata"],
+  "__grammar_used_by": ["GrammarIndex", "JavaScriptParser", "TokenClassifier", "ESLint"],
+  "__grammar_footer": "══════════════════════════════════════════════════════════════════════════════",
+
+  "__section_01": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_01_number": "01",
+  "__section_01_name": "keywords",
+  "__section_01_title": "【SECTION 01】JavaScript Keywords & Reserved Words",
+  "__section_01_language": "JavaScript",
+  "__section_01_total_items": 64,
+  "__section_01_description": "All JavaScript reserved keywords including ES1-ES2024, strict mode, and contextual keywords",
+  "__section_01_purpose": "กำหนด keywords ทั้งหมดของ JavaScript เช่น if, for, async, await, class พร้อม ES version และ disambiguation rules",
+  "__section_01_responsibility": "ให้ Brain รู้ว่า keyword แต่ละตัวมาจาก ES version ไหน, ใช้ใน context ไหน, strict mode หรือไม่",
+  "__section_01_used_by": ["KeywordRecognizer", "ContextAnalyzer", "StrictModeValidator"],
+  "__section_01_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "keywords": {
     "if": {
       "category": "control",
@@ -2613,6 +2636,19 @@
       "contextual": true
     }
   },
+
+  "__section_02": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_02_number": "02",
+  "__section_02_name": "literals",
+  "__section_02_title": "【SECTION 02】JavaScript Literals",
+  "__section_02_language": "JavaScript",
+  "__section_02_total_items": 4,
+  "__section_02_description": "JavaScript literal values: true, false, null, undefined",
+  "__section_02_purpose": "กำหนด literal values ที่เป็น reserved keywords ใน JavaScript",
+  "__section_02_responsibility": "ให้ Brain รู้จัก boolean literals, null, และ undefined เพื่อ classify เป็น LITERAL token",
+  "__section_02_used_by": ["LiteralRecognizer", "ConstantEvaluator", "TypeInferencer"],
+  "__section_02_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "literals": {
     "true": {
       "type": "boolean",
@@ -3279,6 +3315,19 @@
       }
     }
   },
+
+  "__section_03": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_03_number": "03",
+  "__section_03_name": "operators",
+  "__section_03_title": "【SECTION 03】JavaScript Operators",
+  "__section_03_language": "JavaScript",
+  "__section_03_total_items": 70,
+  "__section_03_description": "All JavaScript operators: arithmetic, logical, bitwise, assignment, comparison, nullish coalescing, optional chaining",
+  "__section_03_purpose": "กำหนด operators ทั้งหมดใน JavaScript พร้อม precedence, associativity, และ ES version",
+  "__section_03_responsibility": "ให้ Brain รู้จัก operator แต่ละตัว เพื่อ parse expressions และตรวจสอบ precedence ได้ถูกต้อง",
+  "__section_03_used_by": ["OperatorMatcher", "ExpressionParser", "PrecedenceResolver"],
+  "__section_03_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "punctuation": {
     "[": {
       "type": "bracket",
@@ -3611,6 +3660,31 @@
       "errorMessage": "Ternary operator '?' must be followed by an expression and ':' with alternative expression."
     }
   },
+
+  "__section_04": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_04_number": "04",
+  "__section_04_name": "punctuation",
+  "__section_04_title": "【SECTION 04】JavaScript Punctuation & Separators",
+  "__section_04_language": "JavaScript",
+  "__section_04_total_items": 20,
+  "__section_04_description": "JavaScript punctuation marks: parentheses, brackets, braces, semicolon, comma, dot, arrow, spread operator",
+  "__section_04_purpose": "กำหนด punctuation marks และ separators ที่ใช้ในการ structure code พร้อม disambiguation rules",
+  "__section_04_responsibility": "ให้ Brain รู้จัก punctuation และแยกแยะ context เช่น . (dot) vs ... (spread), ? (ternary) vs ?. (optional chaining)",
+  "__section_04_used_by": ["PunctuationMatcher", "ContextDisambiguator", "SyntaxParser"],
+  "__section_04_footer": "══════════════════════════════════════════════════════════════════════════════",
+
+  "__section_05": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_05_number": "05",
+  "__section_05_name": "tokenMetadata",
+  "__section_05_title": "【SECTION 05】Token Metadata & Context Flags",
+  "__section_05_language": "JavaScript",
+  "__section_05_total_items": 15,
+  "__section_05_description": "Token metadata for parsing context: flags, contexts, and behavior indicators",
+  "__section_05_purpose": "กำหนด metadata flags เช่น beforeExpr, startsExpr, isLoop เพื่อช่วยใน context-sensitive parsing",
+  "__section_05_responsibility": "ให้ Brain เข้าใจ context ของ token เช่น { คือ object literal หรือ block statement",
+  "__section_05_used_by": ["ContextAnalyzer", "AST Builder", "Ambiguity Resolver"],
+  "__section_05_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "tokenMetadata": {
     "flags": {
       "beforeExpr": "Token can precede expression",

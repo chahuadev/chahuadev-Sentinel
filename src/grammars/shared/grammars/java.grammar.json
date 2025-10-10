@@ -1,4 +1,27 @@
 {
+  "__grammar_header": "══════════════════════════════════════════════════════════════════════════════",
+  "__grammar_language": "Java",
+  "__grammar_version": "SE 21 (LTS)",
+  "__grammar_title": "Java Language Grammar Definition",
+  "__grammar_description": "Complete grammar rules for Java language - Keywords, Types, Operators, Annotations",
+  "__grammar_purpose": "ให้ GrammarIndex (Brain) รู้จักทุก syntax elements ของภาษา Java เพื่อ classify tokens อย่างถูกต้อง",
+  "__grammar_total_sections": 7,
+  "__grammar_sections": ["keywords", "primitiveTypes", "literals", "operators", "separators", "annotations", "generics"],
+  "__grammar_used_by": ["GrammarIndex", "JavaParser", "TokenClassifier"],
+  "__grammar_footer": "══════════════════════════════════════════════════════════════════════════════",
+
+  "__section_01": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_01_number": "01",
+  "__section_01_name": "keywords",
+  "__section_01_title": "【SECTION 01】Java Keywords & Modifiers",
+  "__section_01_language": "Java",
+  "__section_01_total_items": 68,
+  "__section_01_description": "All Java reserved keywords including modifiers, control flow, and contextual keywords",
+  "__section_01_purpose": "กำหนด keywords ทั้งหมดของ Java เช่น abstract, class, if, for พร้อม context และ disambiguation rules",
+  "__section_01_responsibility": "ให้ Brain รู้ว่า keyword แต่ละตัวใช้ใน context ไหน, ตามหลังด้วยอะไร, combine กับ modifier อื่นได้ไหม",
+  "__section_01_used_by": ["KeywordRecognizer", "ContextAnalyzer", "ModifierValidator"],
+  "__section_01_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "keywords": {
     "abstract": {
       "category": "modifier",
@@ -1334,6 +1357,19 @@
       "contextual": true
     }
   },
+
+  "__section_02": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_02_number": "02",
+  "__section_02_name": "primitiveTypes",
+  "__section_02_title": "【SECTION 02】Java Primitive Types",
+  "__section_02_language": "Java",
+  "__section_02_total_items": 8,
+  "__section_02_description": "All 8 primitive data types in Java: boolean, byte, short, int, long, float, double, char",
+  "__section_02_purpose": "กำหนด primitive types ทั้งหมดพร้อมข้อมูล size, default value, range เพื่อ type checking",
+  "__section_02_responsibility": "ให้ Brain รู้จัก primitive types และสามารถ validate type assignments ได้ถูกต้อง",
+  "__section_02_used_by": ["TypeChecker", "TypeInferencer", "VariableDeclarationParser"],
+  "__section_02_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "primitiveTypes": {
     "boolean": {
       "category": "type",
@@ -1376,6 +1412,19 @@
       "source": "ANTLR"
     }
   },
+
+  "__section_03": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_03_number": "03",
+  "__section_03_name": "literals",
+  "__section_03_title": "【SECTION 03】Java Literals",
+  "__section_03_language": "Java",
+  "__section_03_total_items": 3,
+  "__section_03_description": "Java literal values: true, false, null",
+  "__section_03_purpose": "กำหนด literal values ที่เป็น reserved keywords ใน Java",
+  "__section_03_responsibility": "ให้ Brain รู้จัก boolean literals และ null literal เพื่อ classify เป็น LITERAL token แทน IDENTIFIER",
+  "__section_03_used_by": ["LiteralRecognizer", "ConstantEvaluator"],
+  "__section_03_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "literals": {
     "true": {
       "type": "boolean",
@@ -1440,6 +1489,19 @@
       "javaVersion": "SE15"
     }
   },
+
+  "__section_04": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_04_number": "04",
+  "__section_04_name": "operators",
+  "__section_04_title": "【SECTION 04】Java Operators",
+  "__section_04_language": "Java",
+  "__section_04_total_items": 50,
+  "__section_04_description": "All Java operators: arithmetic, relational, logical, bitwise, assignment, ternary, etc.",
+  "__section_04_purpose": "กำหนด operators ทั้งหมดใน Java พร้อมประเภท precedence และ associativity",
+  "__section_04_responsibility": "ให้ Brain รู้จัก operator แต่ละตัว เพื่อ parse expressions และตรวจสอบ precedence ได้ถูกต้อง",
+  "__section_04_used_by": ["OperatorMatcher", "ExpressionParser", "PrecedenceResolver"],
+  "__section_04_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "operators": {
     "+": {
       "type": "arithmetic",
@@ -1610,6 +1672,19 @@
       "javaVersion": "SE5"
     }
   },
+
+  "__section_05": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_05_number": "05",
+  "__section_05_name": "separators",
+  "__section_05_title": "【SECTION 05】Java Separators & Punctuation",
+  "__section_05_language": "Java",
+  "__section_05_total_items": 12,
+  "__section_05_description": "Java separators: parentheses, brackets, braces, semicolon, comma, period, etc.",
+  "__section_05_purpose": "กำหนด punctuation marks และ separators ที่ใช้ในการ structure code",
+  "__section_05_responsibility": "ให้ Brain รู้จัก separators เพื่อ parse statements, expressions, และ code blocks ได้ถูกต้อง",
+  "__section_05_used_by": ["SeparatorMatcher", "BlockParser", "StatementParser"],
+  "__section_05_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "separators": {
     "(": {
       "type": "paren",
@@ -1657,6 +1732,19 @@
       "source": "ANTLR"
     }
   },
+
+  "__section_06": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_06_number": "06",
+  "__section_06_name": "annotations",
+  "__section_06_title": "【SECTION 06】Java Annotations",
+  "__section_06_language": "Java",
+  "__section_06_total_items": 10,
+  "__section_06_description": "Built-in Java annotations: @Override, @Deprecated, @SuppressWarnings, @FunctionalInterface, etc.",
+  "__section_06_purpose": "กำหนด built-in annotations ของ Java พร้อม target elements และ Java version",
+  "__section_06_responsibility": "ให้ Brain รู้จัก annotations และ validate ว่าใช้กับ element ที่ถูกต้องหรือไม่",
+  "__section_06_used_by": ["AnnotationParser", "MetadataProcessor"],
+  "__section_06_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "annotations": {
     "@Override": {
       "target": "METHOD",
@@ -1709,6 +1797,19 @@
       "javaVersion": "SE8"
     }
   },
+
+  "__section_07": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_07_number": "07",
+  "__section_07_name": "generics",
+  "__section_07_title": "【SECTION 07】Java Generics Syntax",
+  "__section_07_language": "Java",
+  "__section_07_total_items": 5,
+  "__section_07_description": "Generics syntax elements: <, >, ?, extends, super for parameterized types",
+  "__section_07_purpose": "กำหนด syntax elements ที่ใช้ใน generics เช่น List<T>, ? extends Number",
+  "__section_07_responsibility": "ให้ Brain รู้จัก generics syntax และ parse type parameters ได้ถูกต้อง",
+  "__section_07_used_by": ["GenericsParser", "TypeParameterResolver"],
+  "__section_07_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "generics": {
     "<": {
       "type": "generic",

@@ -1,4 +1,23 @@
 {
+  "__grammar_name": "JSX Grammar",
+  "__grammar_language": "JSX/React",
+  "__grammar_version": "React 18.x",
+  "__grammar_spec": "JSX Specification + React Extensions",
+  "__grammar_purpose": "กำหนด grammar สำหรับ JSX syntax ที่ใช้ใน React และ frameworks อื่นๆ ครอบคลุม elements, expressions, attributes, hooks, และ transforms",
+  "__grammar_sections": 14,
+  "__grammar_description": "Complete JSX/React grammar with elements, expressions, attributes, built-in components, namespaces, hooks patterns, component patterns, children types, special props, transforms, babel options, TSX modes, patterns, and escaping rules",
+  "__grammar_used_by": "JSXParser, ReactTransformer, BabelCompiler, TypeScriptCompiler",
+  "__grammar_header": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
+  "__section_01_number": 1,
+  "__section_01_name": "elements",
+  "__section_01_title": "📝 Section 01: JSX Elements & Tags",
+  "__section_01_language": "JSX",
+  "__section_01_total_items": 8,
+  "__section_01_description": "Core JSX element syntax including opening/closing tags, self-closing tags, fragments, and tag delimiters",
+  "__section_01_purpose": "เก็บ syntax พื้นฐานของ JSX elements รวมถึง opening tags (<), closing tags (>), self-closing (/), fragments (<>), และ disambiguation rules",
+  "__section_01_responsibility": "Provides JSX element syntax: <, >, />, <Fragment>, </>, tag opening/closing, self-closing elements, HTML vs Component disambiguation",
+  "__section_01_used_by": "JSXParser, JSXElementParser, ReactTransformer",
+  "__section_01_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "elements": {
     "<": {
       "type": "tag-start",
@@ -408,6 +427,16 @@
       ]
     }
   },
+  "__section_02_number": 2,
+  "__section_02_name": "expressions",
+  "__section_02_title": "📝 Section 02: JSX Expressions",
+  "__section_02_language": "JSX",
+  "__section_02_total_items": 9,
+  "__section_02_description": "JavaScript expression embedding within JSX using curly braces, including props, children, spread operators, and conditionals",
+  "__section_02_purpose": "เก็บ syntax สำหรับฝัง JavaScript expressions ใน JSX ด้วย curly braces ({ }), รวมถึง spread operators (...), conditionals, และ expression containers",
+  "__section_02_responsibility": "Provides JSX expression syntax: {expression}, {...spread}, conditional rendering, embedded JavaScript, prop values, children expressions",
+  "__section_02_used_by": "JSXExpressionParser, ExpressionEvaluator, ReactRuntime",
+  "__section_02_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "expressions": {
     "{": {
       "type": "expression-start",
@@ -615,6 +644,16 @@
       ]
     }
   },
+  "__section_03_number": 3,
+  "__section_03_name": "attributes",
+  "__section_03_title": "📝 Section 03: JSX Attributes & Props",
+  "__section_03_language": "JSX",
+  "__section_03_total_items": 7,
+  "__section_03_description": "React-specific prop names and attribute mappings from HTML to JSX (className, htmlFor, dangerouslySetInnerHTML, etc.)",
+  "__section_03_purpose": "เก็บ attributes และ props ที่ React ใช้ รวมถึงชื่อที่แปลงจาก HTML (class → className, for → htmlFor) และ special props",
+  "__section_03_responsibility": "Provides JSX attribute mappings: className (class), htmlFor (for), dangerouslySetInnerHTML, style object, event handlers (onClick, onChange)",
+  "__section_03_used_by": "JSXAttributeParser, PropValidator, ReactDOM",
+  "__section_03_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "attributes": {
     "className": {
       "htmlEquivalent": "class",
@@ -703,6 +742,16 @@
       "description": "Inline styles as object"
     }
   },
+  "__section_04_number": 4,
+  "__section_04_name": "builtInComponents",
+  "__section_04_title": "📝 Section 04: React Built-in Components",
+  "__section_04_language": "JSX/React",
+  "__section_04_total_items": 10,
+  "__section_04_description": "React's built-in components like Fragment, Suspense, StrictMode, Profiler, and their props/usage patterns",
+  "__section_04_purpose": "เก็บ components ที่ React มีมาให้ built-in เช่น Fragment (<>), Suspense, StrictMode, Profiler รวมถึง props และวิธีใช้งาน",
+  "__section_04_responsibility": "Provides React built-in components: Fragment, Suspense, StrictMode, Profiler, ErrorBoundary, Portal, Context providers/consumers",
+  "__section_04_used_by": "ReactRenderer, ComponentResolver, JSXTransformer",
+  "__section_04_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "builtInComponents": {
     "Fragment": {
       "source": "React",
@@ -1094,6 +1143,16 @@
       ]
     }
   },
+  "__section_05_number": 5,
+  "__section_05_name": "namespaces",
+  "__section_05_title": "📝 Section 05: JSX Namespaces (SVG, MathML)",
+  "__section_05_language": "JSX",
+  "__section_05_total_items": 12,
+  "__section_05_description": "XML namespace support for SVG and MathML elements within JSX",
+  "__section_05_purpose": "เก็บ XML namespaces สำหรับ SVG elements (svg, path, circle, rect, g) และ MathML elements (math, mrow, mi, mo, mn) ที่ใช้ใน JSX",
+  "__section_05_responsibility": "Provides namespace declarations for SVG (Scalable Vector Graphics) and MathML (Mathematical Markup Language) elements in JSX",
+  "__section_05_used_by": "JSXNamespaceParser, SVGRenderer, MathMLRenderer",
+  "__section_05_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "namespaces": {
     "svg": {},
     "path": {},
@@ -1106,6 +1165,16 @@
     "mo": {},
     "mn": {}
   },
+  "__section_06_number": 6,
+  "__section_06_name": "hooksPattern",
+  "__section_06_title": "📝 Section 06: React Hooks Pattern",
+  "__section_06_language": "JSX/React",
+  "__section_06_total_items": 1,
+  "__section_06_description": "Naming convention pattern for React Hooks (must start with 'use' prefix)",
+  "__section_06_purpose": "เก็บกฎการตั้งชื่อ React Hooks ที่ต้องขึ้นต้นด้วย 'use' เช่น useState, useEffect, useCustomHook",
+  "__section_06_responsibility": "Provides hooks naming pattern: must start with 'use' prefix (useState, useEffect, useContext, custom hooks)",
+  "__section_06_used_by": "ReactHooksLinter, ESLintReactHooks, HooksValidator",
+  "__section_06_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "hooksPattern": {
     "pattern": {},
     "description": "Custom hooks must start with \"use\"",
@@ -1116,6 +1185,16 @@
       "useCustomHook"
     ]
   },
+  "__section_07_number": 7,
+  "__section_07_name": "componentPattern",
+  "__section_07_title": "📝 Section 07: Component Naming Pattern",
+  "__section_07_language": "JSX/React",
+  "__section_07_total_items": 1,
+  "__section_07_description": "Naming convention for React components (must start with uppercase letter)",
+  "__section_07_purpose": "เก็บกฎการตั้งชื่อ React Components ที่ต้องขึ้นต้นด้วยตัวพิมพ์ใหญ่เพื่อแยกจาก HTML tags เช่น Button, UserProfile",
+  "__section_07_responsibility": "Provides component naming pattern: must start with uppercase letter to distinguish from HTML tags (Button vs button)",
+  "__section_07_used_by": "JSXParser, ComponentResolver, ReactTransformer",
+  "__section_07_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "componentPattern": {
     "pattern": {},
     "description": "Components must start with uppercase letter",
@@ -1126,6 +1205,16 @@
       "UserProfile"
     ]
   },
+  "__section_08_number": 8,
+  "__section_08_name": "childrenTypes",
+  "__section_08_title": "📝 Section 08: JSX Children Types",
+  "__section_08_language": "JSX",
+  "__section_08_total_items": 8,
+  "__section_08_description": "Types of content that can be children of JSX elements: elements, text, expressions, fragments, arrays, booleans, null, undefined",
+  "__section_08_purpose": "เก็บประเภทของ children ที่ JSX รองรับ: JSXElement, JSXText, JSXExpression, JSXFragment, arrays, booleans (ignored), null/undefined (ignored)",
+  "__section_08_responsibility": "Provides JSX children type system: JSXElement, JSXText, JSXExpression, JSXFragment, arrays, conditional rendering (boolean/null/undefined)",
+  "__section_08_used_by": "JSXChildrenParser, ReactRenderer, ChildrenValidator",
+  "__section_08_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "childrenTypes": {
     "JSXElement": {
       "description": "Nested JSX element",
@@ -1186,6 +1275,16 @@
       "source": "React"
     }
   },
+  "__section_09_number": 9,
+  "__section_09_name": "specialProps",
+  "__section_09_title": "📝 Section 09: Special Props",
+  "__section_09_language": "JSX/React",
+  "__section_09_total_items": 3,
+  "__section_09_description": "React's special props with reserved behavior: children, key, ref",
+  "__section_09_purpose": "เก็บ props พิเศษของ React ที่มีพฤติกรรมเฉพาะ: children (content), key (list identifier), ref (DOM reference)",
+  "__section_09_responsibility": "Provides special props: children (ReactNode), key (string|number for lists), ref (RefObject|RefCallback for DOM access)",
+  "__section_09_used_by": "ReactReconciler, PropValidator, RefManager",
+  "__section_09_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "transforms": {
     "classic": {
       "description": "React.createElement() calls",
@@ -1200,6 +1299,16 @@
       "version": "React 17+"
     }
   },
+  "__section_10_number": 10,
+  "__section_10_name": "babelOptions",
+  "__section_10_title": "📝 Section 10: Babel Transform Options",
+  "__section_10_language": "JSX/Babel",
+  "__section_10_total_items": 5,
+  "__section_10_description": "Babel compiler options for JSX transformation: pragma, pragmaFrag, runtime, importSource, development mode",
+  "__section_10_purpose": "เก็บตัวเลือกการแปลง JSX ของ Babel: pragma (factory function), pragmaFrag (Fragment), runtime (classic/automatic), importSource",
+  "__section_10_responsibility": "Provides Babel JSX transform options: pragma (React.createElement), pragmaFrag (React.Fragment), runtime mode, import source configuration",
+  "__section_10_used_by": "BabelCompiler, JSXTransformer, WebpackBabelLoader",
+  "__section_10_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "babelOptions": {
     "pragma": {
       "default": "React.createElement",
@@ -1230,6 +1339,16 @@
       "description": "JSX runtime import source"
     }
   },
+  "__section_11_number": 11,
+  "__section_11_name": "tsxModes",
+  "__section_11_title": "📝 Section 11: TypeScript JSX Modes",
+  "__section_11_language": "TSX/TypeScript",
+  "__section_11_total_items": 4,
+  "__section_11_description": "TypeScript compiler JSX transformation modes: preserve, react, react-native, react-jsx (automatic)",
+  "__section_11_purpose": "เก็บโหมดการแปลง JSX ของ TypeScript Compiler: preserve (.jsx), react (createElement), react-native, react-jsx (automatic)",
+  "__section_11_responsibility": "Provides TypeScript JSX modes: preserve (keep JSX), react (createElement), react-native (JSX for native), react-jsx (automatic runtime)",
+  "__section_11_used_by": "TypeScriptCompiler, TSXTransformer, TSConfig",
+  "__section_11_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "tsxModes": {
     "preserve": {
       "description": "Keep JSX for subsequent transform",
@@ -1252,6 +1371,16 @@
       "output": ".js"
     }
   },
+  "__section_12_number": 12,
+  "__section_12_name": "patterns",
+  "__section_12_title": "📝 Section 12: Common JSX Patterns",
+  "__section_12_language": "JSX/React",
+  "__section_12_total_items": 4,
+  "__section_12_description": "Common JSX usage patterns: conditional rendering, list rendering, prop spreading, children patterns (render props, cloneElement)",
+  "__section_12_purpose": "เก็บ patterns ที่ใช้บ่อยใน JSX: conditional rendering (ternary, &&, ||, ??), list rendering (.map), prop spreading, render props",
+  "__section_12_responsibility": "Provides JSX patterns: conditionals (ternary, &&, ??, ||), list rendering with .map(), prop spreading, children patterns (render props, cloneElement)",
+  "__section_12_used_by": "ReactDeveloper, JSXLinter, BestPracticesChecker",
+  "__section_12_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "patterns": {
     "conditionalRendering": {
       "ternary": "condition ? <A /> : <B />",

@@ -1,4 +1,27 @@
 {
+  "__grammar_header": "══════════════════════════════════════════════════════════════════════════════",
+  "__grammar_language": "TypeScript",
+  "__grammar_version": "5.3 (Latest)",
+  "__grammar_title": "TypeScript Language Grammar Definition",
+  "__grammar_description": "Complete grammar rules for TypeScript - Type System, Modifiers, Operators, Decorators",
+  "__grammar_purpose": "ให้ GrammarIndex (Brain) รู้จักทุก syntax elements ของภาษา TypeScript รวมถึง type system และ advanced features",
+  "__grammar_total_sections": 11,
+  "__grammar_sections": ["typeKeywords", "modifiers", "typeOperators", "declarations", "moduleKeywords", "specialKeywords", "typeOperatorSymbols", "decorators", "syntaxKinds", "tripleSlashDirectives", "typeCompatibility"],
+  "__grammar_used_by": ["GrammarIndex", "TypeScriptParser", "TypeChecker", "TSC"],
+  "__grammar_footer": "══════════════════════════════════════════════════════════════════════════════",
+
+  "__section_01": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_01_number": "01",
+  "__section_01_name": "typeKeywords",
+  "__section_01_title": "【SECTION 01】TypeScript Type Keywords",
+  "__section_01_language": "TypeScript",
+  "__section_01_total_items": 15,
+  "__section_01_description": "TypeScript type keywords: any, unknown, never, void, number, string, boolean, symbol, bigint, object, null, undefined",
+  "__section_01_purpose": "กำหนด type keywords ของ TypeScript เพื่อใช้ใน type annotations และ type declarations",
+  "__section_01_responsibility": "ให้ Brain รู้จัก type keywords และสามารถ parse type annotations ได้ถูกต้อง",
+  "__section_01_used_by": ["TypeParser", "TypeChecker", "TypeAnnotationResolver"],
+  "__section_01_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "typeKeywords": {
     "any": {
       "category": "type",
@@ -894,6 +917,19 @@
       "optionalSyntax": "param?: string  // Same as param: string | undefined"
     }
   },
+
+  "__section_02": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_02_number": "02",
+  "__section_02_name": "modifiers",
+  "__section_02_title": "【SECTION 02】TypeScript Modifiers",
+  "__section_02_language": "TypeScript",
+  "__section_02_total_items": 12,
+  "__section_02_description": "TypeScript modifiers: public, private, protected, readonly, static, abstract, async, const, declare, override, accessor",
+  "__section_02_purpose": "กำหนด modifiers ที่ใช้กับ class members, variables, และ functions",
+  "__section_02_responsibility": "ให้ Brain รู้จัก modifiers และ validate ว่าใช้ใน context ที่ถูกต้อง เช่น private ใช้กับ class member เท่านั้น",
+  "__section_02_used_by": ["ModifierParser", "AccessibilityChecker", "ClassMemberValidator"],
+  "__section_02_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "modifiers": {
     "public": {
       "category": "access",
@@ -1856,6 +1892,19 @@
       "typeTheory": "Covariance for output types"
     }
   },
+
+  "__section_03": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_03_number": "03",
+  "__section_03_name": "typeOperators",
+  "__section_03_title": "【SECTION 03】TypeScript Type Operators",
+  "__section_03_language": "TypeScript",
+  "__section_03_total_items": 10,
+  "__section_03_description": "TypeScript type operators: keyof, typeof, infer, is, asserts, satisfies, unique, extends, in, out",
+  "__section_03_purpose": "กำหนด type operators ที่ใช้ใน advanced type manipulations และ type inference",
+  "__section_03_responsibility": "ให้ Brain รู้จัก type operators เช่น keyof T, typeof x, infer U เพื่อ parse complex types",
+  "__section_03_used_by": ["TypeOperatorParser", "TypeInferencer", "ConditionalTypeResolver"],
+  "__section_03_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "typeOperators": {
     "keyof": {
       "category": "type-operator",
@@ -2331,6 +2380,19 @@
       ]
     }
   },
+
+  "__section_04": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_04_number": "04",
+  "__section_04_name": "declarations",
+  "__section_04_title": "【SECTION 04】TypeScript Declaration Keywords",
+  "__section_04_language": "TypeScript",
+  "__section_04_total_items": 8,
+  "__section_04_description": "TypeScript declaration keywords: type, interface, namespace, module, enum, declare, global",
+  "__section_04_purpose": "กำหนด keywords ที่ใช้ในการประกาศ types, interfaces, namespaces, และ ambient declarations",
+  "__section_04_responsibility": "ให้ Brain รู้จัก declaration keywords และ parse type declarations, interface declarations, namespace declarations",
+  "__section_04_used_by": ["DeclarationParser", "TypeAliasResolver", "NamespaceResolver"],
+  "__section_04_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "declarations": {
     "type": {
       "category": "declaration",
@@ -2729,6 +2791,19 @@
       "processAugmentation": "declare global { namespace NodeJS { interface ProcessEnv { ... } } }"
     }
   },
+
+  "__section_05": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_05_number": "05",
+  "__section_05_name": "moduleKeywords",
+  "__section_05_title": "【SECTION 05】TypeScript Module Keywords",
+  "__section_05_language": "TypeScript",
+  "__section_05_total_items": 12,
+  "__section_05_description": "Module system keywords: import, export, from, as, default, require, with assertions, type-only imports",
+  "__section_05_purpose": "กำหนด keywords ที่เกี่ยวข้องกับ module system ของ TypeScript/ES modules",
+  "__section_05_responsibility": "ให้ Brain รู้จัก module keywords และ parse import/export statements พร้อม type-only imports",
+  "__section_05_used_by": ["ModuleResolver", "ImportParser", "ExportParser"],
+  "__section_05_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "moduleKeywords": {
     "import": {
       "category": "module",
@@ -3266,6 +3341,19 @@
       "replaces": "assert keyword"
     }
   },
+
+  "__section_06": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_06_number": "06",
+  "__section_06_name": "specialKeywords",
+  "__section_06_title": "【SECTION 06】TypeScript Special Keywords",
+  "__section_06_language": "TypeScript",
+  "__section_06_total_items": 8,
+  "__section_06_description": "Special keywords: constructor, this, super, get, set, new.target, import.meta",
+  "__section_06_purpose": "กำหนด special keywords ที่มีความหมายพิเศษใน TypeScript/JavaScript",
+  "__section_06_responsibility": "ให้ Brain รู้จัก special keywords และ context-specific behaviors",
+  "__section_06_used_by": ["SpecialKeywordParser", "ClassConstructorParser", "MetaPropertyResolver"],
+  "__section_06_footer": "══════════════════════════════════════════════════════════════════════════════",
+
   "specialKeywords": {
     "constructor": {
       "category": "special",
@@ -3593,6 +3681,16 @@
       "vsExtends": "extends = inheritance, implements = contract"
     }
   },
+  "__section_07_number": 7,
+  "__section_07_name": "typeOperatorSymbols",
+  "__section_07_title": "📝 Section 07: Type Operator Symbols",
+  "__section_07_language": "TypeScript",
+  "__section_07_total_items": 8,
+  "__section_07_description": "Symbolic operators used in TypeScript's type system for composing, transforming, and querying types",
+  "__section_07_purpose": "เก็บสัญลักษณ์พิเศษที่ใช้ในระบบไทป์ เช่น union (|), intersection (&), optional (?), non-null assertion (!), rest (...) สำหรับการสร้างไทป์ที่ซับซ้อน",
+  "__section_07_responsibility": "Provides symbolic type operators: union (|), intersection (&), optional (?), non-null assertion (!), rest/spread (...), conditional extends, mapped type modifiers, template literal types",
+  "__section_07_used_by": "TypeChecker, TypeResolver, TypeInference",
+  "__section_07_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "typeOperatorSymbols": {
     "|": {
       "type": "union",
@@ -3661,6 +3759,16 @@
     }
   },
   "jsxKeywords": {},
+  "__section_08_number": 8,
+  "__section_08_name": "decorators",
+  "__section_08_title": "📝 Section 08: Decorators",
+  "__section_08_language": "TypeScript",
+  "__section_08_total_items": 1,
+  "__section_08_description": "Decorator syntax for annotating classes, methods, properties, and parameters with metadata",
+  "__section_08_purpose": "เก็บไวยากรณ์ decorator (@) สำหรับการเพิ่ม metadata ให้กับ classes, methods, properties ใช้ใน Angular, NestJS, TypeORM",
+  "__section_08_responsibility": "Provides decorator syntax (@symbol) for metaprogramming and AOP patterns, used in frameworks like Angular, NestJS, TypeORM",
+  "__section_08_used_by": "DecoratorParser, MetadataResolver, ReflectionAPI",
+  "__section_08_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "decorators": {
     "@": {
       "type": "decorator",
@@ -3668,6 +3776,16 @@
       "tsVersion": "5.0"
     }
   },
+  "__section_09_number": 9,
+  "__section_09_name": "syntaxKinds",
+  "__section_09_title": "📝 Section 09: Syntax Kinds & Token Classifications",
+  "__section_09_language": "TypeScript",
+  "__section_09_total_items": 50,
+  "__section_09_description": "Comprehensive token classification system from TypeScript Compiler API (SyntaxKind enum) for AST node types",
+  "__section_09_purpose": "เก็บระบบจำแนกโทเค็นทั้งหมดจาก TypeScript Compiler API (SyntaxKind) ใช้ใน AST parsing, syntax highlighting, และ code analysis",
+  "__section_09_responsibility": "Provides complete SyntaxKind classifications: comments, identifiers, keywords, literals, operators, punctuation, JSX elements, type nodes",
+  "__section_09_used_by": "ASTParser, SyntaxHighlighter, CodeAnalyzer, TSCompilerAPI",
+  "__section_09_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "syntaxKinds": {
     "classifications": {
       "comment": "Comment token",
@@ -3690,6 +3808,16 @@
       "parameterName": "Parameter name token"
     }
   },
+  "__section_10_number": 10,
+  "__section_10_name": "tripleSlashDirectives",
+  "__section_10_title": "📝 Section 10: Triple-Slash Directives",
+  "__section_10_language": "TypeScript",
+  "__section_10_total_items": 3,
+  "__section_10_description": "File-level compiler directives starting with /// for external references, module configuration, and build hints",
+  "__section_10_purpose": "เก็บคำสั่ง compiler ระดับไฟล์ที่ขึ้นต้นด้วย /// ใช้สำหรับ reference external files, AMD modules, และ build configuration",
+  "__section_10_responsibility": "Provides triple-slash directives: /// <reference path|types|lib>, /// <amd-module>, /// <amd-dependency> for file-level compiler instructions",
+  "__section_10_used_by": "TypeScriptCompiler, ModuleResolver, BuildSystem",
+  "__section_10_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "tripleSlashDirectives": {
     "/// <reference": {
       "type": "reference",
@@ -3707,6 +3835,16 @@
       "tsVersion": "1.5"
     }
   },
+  "__section_11_number": 11,
+  "__section_11_name": "typeCompatibility",
+  "__section_11_title": "📝 Section 11: Type Compatibility Rules",
+  "__section_11_language": "TypeScript",
+  "__section_11_total_items": 5,
+  "__section_11_description": "Type system compatibility rules for structural typing, variance (covariance, contravariance, bivariance, invariance)",
+  "__section_11_purpose": "เก็บกฎการเช็คความเข้ากันได้ของไทป์ในระบบ structural typing รวมถึง variance rules สำหรับ return types, parameters, และ generics",
+  "__section_11_responsibility": "Provides type compatibility rules: structural typing, covariance (returns), contravariance (params), bivariance (methods), invariance (generics)",
+  "__section_11_used_by": "TypeChecker, TypeCompatibilityChecker, StructuralTypeSystem",
+  "__section_11_footer": "════════════════════════════════════════════════════════════════════════════════════════════════════════",
   "typeCompatibility": {
     "structural": "TypeScript uses structural type system",
     "covariance": "Return types are covariant",
