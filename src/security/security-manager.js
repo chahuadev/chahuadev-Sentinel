@@ -27,6 +27,13 @@ class SecurityError extends Error {
         this.errorCode = errorCode;
         this.timestamp = new Date().toISOString();
         this.severity = 'HIGH';
+        
+        // ! NO_SILENT_FALLBACKS: Security Errors are Operational (expected, not bugs)
+        // ! isOperational = true means "this error is expected and handled"
+        // ! Used by Centralized Error Handler to decide whether to crash process
+        this.isOperational = true;
+        
+        Error.captureStackTrace(this, this.constructor);
     }
 }
 

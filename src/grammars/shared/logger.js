@@ -26,6 +26,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { SecurityManager } from '../../security/security-manager.js';
+import errorHandler from '../../error-handler/ErrorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,7 +80,14 @@ class ProfessionalScanLogger {
         } catch (err) {
             console.error(`CRITICAL: Failed to create logging directory structure`, err);
             // WHY: Cannot proceed without logging infrastructure - must fail loudly (NO_SILENT_FALLBACKS)
-            throw new Error(`Logging system initialization failed: Unable to create directories - ${err.message}`);
+            const error = new Error(`Logging system initialization failed: Unable to create directories - ${err.message}`);
+            error.isOperational = false; // Infrastructure failure = bug
+            errorHandler.handleError(error, {
+                source: 'logger.js',
+                method: 'constructor',
+                action: 'directory_creation'
+            });
+            throw error;
         }
 
         this.startTime = Date.now();
@@ -111,7 +119,14 @@ class ProfessionalScanLogger {
             } catch (err) {
                 console.error(`CRITICAL: Failed to write session header to log file: ${logFile}`, err);
                 // WHY: Logging system failure is critical - if we cannot log, we must fail loudly (NO_SILENT_FALLBACKS)
-                throw new Error(`Logging system initialization failed for ${logFile}: ${err.message}`);
+                const error = new Error(`Logging system initialization failed for ${logFile}: ${err.message}`);
+                error.isOperational = false;
+                errorHandler.handleError(error, {
+                    source: 'logger.js',
+                    method: 'writeSessionHeader',
+                    logFile: logFile
+                });
+                throw error;
             }
         });
     }
@@ -161,7 +176,13 @@ class ProfessionalScanLogger {
         } catch (err) {
             console.error(`CRITICAL: Failed to write security report`, err);
             // WHY: Security logging is critical for transparency - must fail loudly (NO_SILENT_FALLBACKS)
-            throw new Error(`Security report logging failed: ${err.message}`);
+            const error = new Error(`Security report logging failed: ${err.message}`);
+            error.isOperational = false;
+            errorHandler.handleError(error, {
+                source: 'logger.js',
+                method: 'writeSecurityReport'
+            });
+            throw error;
         }
     }
 
