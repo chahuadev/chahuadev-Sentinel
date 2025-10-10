@@ -7,9 +7,9 @@
 // !  Contact: chahuadev@gmail.com
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! Centralized Error Handler
-// ! ══════════════════════════════════════════════════════════════════════════════ 
+// ! ══════════════════════════════════════════════════════════════════════════════  
 // ! ! NO_SILENT_FALLBACKS Compliance - "SILENCE IS A FORM OF DAMAGE"
-// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! ══════════════════════════════════════════════════════════════════════════════ 
 // ! หลักการ:
 // ! 1. ทุก Error ต้องถูกส่งมาที่นี่ (Single Point of Truth)
 // ! 2. ทุก Error ต้องถูก Log (No Silent Failures)
@@ -19,14 +19,13 @@
 // ! Flow: Code → throw Error → ErrorHandler → Logger → Log File
 // ! ══════════════════════════════════════════════════════════════════════════════
 
-
 import fs from 'fs';
 import path from 'path';
 import { ERROR_HANDLER_CONFIG } from './error-handler-config.js';
 
-/**
- * Error Handler Class (Singleton)
- */
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ══════════════════════════════════════════════════════════════════════════════ Error Handler Class (Singleton)
+// ! ══════════════════════════════════════════════════════════════════════════════
 class ErrorHandler {
     constructor() {
         this.logDir = path.join(
@@ -41,19 +40,19 @@ class ErrorHandler {
         this.initializeLogDirectory();
     }
     
-    /**
-     * สร้างโฟลเดอร์สำหรับบันทึก Error
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! สร้างโฟลเดอร์สำหรับบันทึก Error
+    // ! ══════════════════════════════════════════════════════════════════════════════
     initializeLogDirectory() {
         if (!fs.existsSync(this.logDir)) {
             fs.mkdirSync(this.logDir, { recursive: true });
         }
     }
     
-    /**
-     * ฟังก์ชันหลักในการจัดการ Error
-     * ! NO_SILENT_FALLBACKS: ทุก Error ต้องถูก Log และจัดการ
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! ฟังก์ชันหลักในการจัดการ Error
+    // ! NO_SILENT_FALLBACKS: ทุก Error ต้องถูก Log และจัดการ
+    // ! ══════════════════════════════════════════════════════════════════════════════
     handleError(error, context = {}) {
         try {
             // 1. จัดประเภท Error
@@ -83,17 +82,17 @@ class ErrorHandler {
         }
     }
     
-    /**
-     * จัดประเภท Error เพื่อให้รู้ว่าจะจัดการอย่างไร
-     * ! NO_SILENT_FALLBACKS: ใช้ explicit checks แทน || operators
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! จัดประเภท Error เพื่อให้รู้ว่าจะจัดการอย่างไร
+    // ! NO_SILENT_FALLBACKS: ใช้ explicit checks แทน || operators
+    // ! ══════════════════════════════════════════════════════════════════════════════
     categorizeError(error, context) {
         const now = new Date();
         
         // ตรวจสอบว่าเป็น Error ที่เรารู้จักหรือไม่
         const isKnownError = error.name && error.isOperational !== undefined;
         
-        // ตรวจสอบและจัดการ error.name
+        // ! NO_SILENT_FALLBACKS: ตรวจสอบและจัดการ error.name
         let errorName;
         if (error.name) {
             errorName = error.name;
@@ -102,7 +101,7 @@ class ErrorHandler {
             errorName = ERROR_HANDLER_CONFIG.DEFAULT_ERROR_NAME;
         }
         
-        // ตรวจสอบและจัดการ error.message
+        // ! NO_SILENT_FALLBACKS: ตรวจสอบและจัดการ error.message
         let errorMessage;
         if (error.message) {
             errorMessage = error.message;
@@ -111,7 +110,7 @@ class ErrorHandler {
             errorMessage = ERROR_HANDLER_CONFIG.DEFAULT_ERROR_MESSAGE;
         }
         
-        // ตรวจสอบและจัดการ error.stack
+        // ! NO_SILENT_FALLBACKS: ตรวจสอบและจัดการ error.stack
         let errorStack;
         if (error.stack) {
             errorStack = error.stack;
@@ -120,7 +119,7 @@ class ErrorHandler {
             errorStack = ERROR_HANDLER_CONFIG.DEFAULT_ERROR_STACK;
         }
         
-        // ตรวจสอบและจัดการ error.statusCode
+        // ! NO_HARDCODE: ตรวจสอบและจัดการ error.statusCode
         let statusCode;
         if (error.statusCode) {
             statusCode = error.statusCode;
@@ -128,7 +127,7 @@ class ErrorHandler {
             statusCode = ERROR_HANDLER_CONFIG.DEFAULT_STATUS_CODE;
         }
         
-        // ตรวจสอบและจัดการ error.errorCode
+        // ! NO_HARDCODE: ตรวจสอบและจัดการ error.errorCode
         let errorCode;
         if (error.errorCode) {
             errorCode = error.errorCode;
@@ -136,7 +135,7 @@ class ErrorHandler {
             errorCode = ERROR_HANDLER_CONFIG.DEFAULT_ERROR_CODE;
         }
         
-        // ตรวจสอบและจัดการ error.severity
+        // ! NO_HARDCODE: ตรวจสอบและจัดการ error.severity
         let severity;
         if (error.severity) {
             severity = error.severity;
@@ -148,7 +147,7 @@ class ErrorHandler {
             }
         }
         
-        // ตรวจสอบและจัดการ error.filePath
+        // ! NO_SILENT_FALLBACKS: ตรวจสอบและจัดการ error.filePath
         let filePath;
         if (error.filePath) {
             filePath = error.filePath;
@@ -156,7 +155,7 @@ class ErrorHandler {
             filePath = null;
         }
         
-        // ตรวจสอบและจัดการ error.details
+        // ! NO_SILENT_FALLBACKS: ตรวจสอบและจัดการ error.details
         let details;
         if (error.details) {
             details = error.details;
@@ -179,7 +178,7 @@ class ErrorHandler {
             // การจัดประเภท
             isOperational: error.isOperational === true, // คาดเดาได้หรือไม่
             isKnownError: isKnownError, // เป็น Error ที่เราสร้างขึ้นมาเองหรือไม่
-            isCritical: !error.isOperational,
+            isCritical: !error.isOperational, // Critical = ไม่คาดเดา
             
             // ข้อมูลเพิ่มเติม
             statusCode: statusCode,
@@ -192,10 +191,10 @@ class ErrorHandler {
         };
     }
     
-    /**
-     * บันทึก Error ลง Log File
-     * ! NO_SILENT_FALLBACKS: ใช้ appendFileSync เพื่อให้แน่ใจว่า Log ถูกเขียนทันที
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! บันทึก Error ลง Log File
+    // ! ! NO_SILENT_FALLBACKS: ใช้ appendFileSync เพื่อให้แน่ใจว่า Log ถูกเขียนทันที
+    // ! ══════════════════════════════════════════════════════════════════════════════
     logError(errorInfo) {
         // สร้าง Log Entry แบบ JSON
         const logEntry = {
@@ -214,7 +213,7 @@ class ErrorHandler {
         
         const logString = JSON.stringify(logEntry, null, 2) + '\n' + ERROR_HANDLER_CONFIG.LOG_SEPARATOR + '\n';
         
-        // 1. แสดงใน Console
+        // ! 1. แสดงใน Console
         console.error('\n' + ERROR_HANDLER_CONFIG.LOG_SEPARATOR);
         console.error(ERROR_HANDLER_CONFIG.MSG_ERROR_CAUGHT);
         console.error(ERROR_HANDLER_CONFIG.LOG_SEPARATOR);
@@ -226,11 +225,11 @@ class ErrorHandler {
         console.error(`Severity: ${errorInfo.severity}`);
         console.error(ERROR_HANDLER_CONFIG.LOG_SEPARATOR + '\n');
         
-        // 2. เขียนลง Log File (ใช้ Sync เพื่อให้แน่ใจว่าถูกเขียนก่อน Process อาจจะ Crash)
+        // ! 2. เขียนลง Log File (ใช้ Sync เพื่อให้แน่ใจว่าถูกเขียนก่อน Process อาจจะ Crash)
         try {
             fs.appendFileSync(this.errorLogPath, logString);
             
-            // 3. ถ้าเป็น Critical Error เขียนลงไฟล์พิเศษด้วย
+            // ! 3. ถ้าเป็น Critical Error เขียนลงไฟล์พิเศษด้วย
             if (errorInfo.isCritical) {
                 const criticalLog = `${ERROR_HANDLER_CONFIG.LOG_WARNING_PREFIX.repeat(ERROR_HANDLER_CONFIG.LOG_WARNING_REPEAT)}\n` +
                                    `CRITICAL ERROR DETECTED\n` +
@@ -239,16 +238,16 @@ class ErrorHandler {
                 fs.appendFileSync(this.criticalErrorPath, criticalLog);
             }
         } catch (writeError) {
-            // ถ้าเขียน Log File ไม่ได้ ต้องแสดงใน Console
+            // ! ถ้าเขียน Log File ไม่ได้ ต้องแสดงใน Console
             console.error(ERROR_HANDLER_CONFIG.MSG_LOG_WRITE_FAILURE, writeError.message);
             console.error('Original error that could not be logged:', errorInfo);
         }
     }
     
-    /**
-     * ตัดสินใจว่าจะปิด Process หรือไม่
-     * ! NO_SILENT_FALLBACKS: Error ที่เป็นบั๊กต้อง Crash ทันที
-     */
+    // ! ══════════════════════════════════════════════════════════════════════════════
+    // ! ตัดสินใจว่าจะปิด Process หรือไม่
+    // !  NO_SILENT_FALLBACKS: Error ที่เป็นบั๊กต้อง Crash ทันที
+    // ! ══════════════════════════════════════════════════════════════════════════════
     decideProcessFate(errorInfo) {
         if (errorInfo.isCritical) {
             console.error('\n' + ERROR_HANDLER_CONFIG.MSG_CRITICAL_DETECTED);
@@ -264,17 +263,17 @@ class ErrorHandler {
         }
     }
     
-    /**
-     * แจ้งเตือน Critical Error (สามารถเชื่อมต่อกับ Monitoring Service)
-     */
+     // ! ══════════════════════════════════════════════════════════════════════════════
+     // ! แจ้งเตือน Critical Error (สามารถเชื่อมต่อกับ Monitoring Service)
+     // ! ══════════════════════════════════════════════════════════════════════════════
     alertCriticalError(errorInfo) {
-        // ในอนาคตสามารถส่งไปที่:
-        // - Slack/Discord Webhook
-        // - Email
-        // - SMS
-        // - PagerDuty
-        // - Sentry.io
-        
+        // ! ในอนาคตสามารถส่งไปที่:
+        // ! - Slack/Discord Webhook
+        // ! - Email
+        // ! - SMS
+        // ! - PagerDuty
+        // ! - Sentry.io
+
         const alertMessage = `
 ${ERROR_HANDLER_CONFIG.MSG_CRITICAL_ALERT}
 Time: ${errorInfo.timestampLocal}
@@ -290,16 +289,16 @@ This error requires immediate attention!
         // TODO: ส่ง alert ไปยัง monitoring service
     }
     
-    /**
-     * ตรวจสอบว่า Error นี้เป็น Trusted Error หรือไม่
-     */
+     // ! ══════════════════════════════════════════════════════════════════════════════
+     // ! ตรวจสอบว่า Error นี้เป็น Trusted Error หรือไม่
+     // ! ══════════════════════════════════════════════════════════════════════════════
     isTrustedError(error) {
         return error.isOperational === true;
     }
     
-    /**
-     * สร้าง Error Report สำหรับดูภาพรวม
-     */
+     // ! ══════════════════════════════════════════════════════════════════════════════
+     // ! สร้าง Error Report สำหรับดูภาพรวม
+     // ! ══════════════════════════════════════════════════════════════════════════════
     async generateErrorReport() {
         try {
             if (!fs.existsSync(this.errorLogPath)) {
@@ -332,27 +331,27 @@ This error requires immediate attention!
     }
 }
 
-// Export Singleton Instance
+// ! Export Singleton Instance
 const errorHandler = new ErrorHandler();
 
-/**
- * Setup Global Error Handlers
- * ! NO_SILENT_FALLBACKS: ดักจับ Error ที่หลุดลอดมาได้ทุกอัน
- */
+ // ! ══════════════════════════════════════════════════════════════════════════════
+ // ! Setup Global Error Handlers
+ // ! NO_SILENT_FALLBACKS: ดักจับ Error ที่หลุดลอดมาได้ทุกอัน
+ // ! ══════════════════════════════════════════════════════════════════════════════
 export function setupGlobalErrorHandlers() {
-    // 1. Uncaught Exception (Synchronous errors)
+    // ! 1. Uncaught Exception (Synchronous errors)
     process.on('uncaughtException', (error) => {
-        console.error('\n' + ERROR_HANDLER_CONFIG.MSG_UNCAUGHT_EXCEPTION);
+        console.error('\nUNCAUGHT EXCEPTION DETECTED');
         errorHandler.handleError(error, {
             type: 'UNCAUGHT_EXCEPTION',
             fatal: true
         });
-        // handleError จะจัดการการปิด Process เอง
+        // ! handleError จะจัดการการปิด Process เอง
     });
     
-    // 2. Unhandled Promise Rejection (Async errors)
+    // ! 2. Unhandled Promise Rejection (Async errors)
     process.on('unhandledRejection', (reason, promise) => {
-        console.error('\n' + ERROR_HANDLER_CONFIG.MSG_UNHANDLED_REJECTION);
+        console.error('\nUNHANDLED PROMISE REJECTION DETECTED');
         
         // reason อาจไม่ใช่ Error object
         const error = reason instanceof Error ? reason : new Error(String(reason));
@@ -365,9 +364,9 @@ export function setupGlobalErrorHandlers() {
         });
     });
     
-    // 3. Process Warning (สำหรับ deprecation warnings)
+    // ! 3. Process Warning (สำหรับ deprecation warnings)
     process.on('warning', (warning) => {
-        console.warn('\n' + ERROR_HANDLER_CONFIG.MSG_PROCESS_WARNING);
+        console.warn('\nPROCESS WARNING');
         console.warn(warning.name);
         console.warn(warning.message);
         console.warn(warning.stack);
@@ -383,7 +382,7 @@ export function setupGlobalErrorHandlers() {
         });
     });
     
-    console.log(ERROR_HANDLER_CONFIG.MSG_HANDLERS_INITIALIZED);
+    console.log('Global error handlers initialized');
 }
 
 export default errorHandler;

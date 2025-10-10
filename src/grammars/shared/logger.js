@@ -213,7 +213,14 @@ class ProfessionalScanLogger {
         } catch (err) {
             console.error(`CRITICAL: Failed to write audit log: ${this.logFiles.audit}`, err);
             // WHY: Audit trail is critical for compliance and debugging - must fail loudly (NO_SILENT_FALLBACKS)
-            throw new Error(`Audit logging failed: ${err.message}`);
+            const error = new Error(`Audit logging failed: ${err.message}`);
+            error.isOperational = false;
+            errorHandler.handleError(error, {
+                source: 'logger.js',
+                method: 'audit',
+                action: action
+            });
+            throw error;
         }
     }
 
@@ -224,7 +231,14 @@ class ProfessionalScanLogger {
         } catch (err) {
             console.error(`CRITICAL: Failed to write performance log: ${this.logFiles.performance}`, err);
             // WHY: Performance metrics are essential for system monitoring - must fail loudly (NO_SILENT_FALLBACKS)
-            throw new Error(`Performance logging failed: ${err.message}`);
+            const error = new Error(`Performance logging failed: ${err.message}`);
+            error.isOperational = false;
+            errorHandler.handleError(error, {
+                source: 'logger.js',
+                method: 'performance',
+                operation: operation
+            });
+            throw error;
         }
     }
 
@@ -332,6 +346,17 @@ class ScanProcessor {
                 exitCode: error.status || 1
             });
 
+            // WHY: This is expected behavior when violations are found (operational error)
+            const operationalError = new Error(`CLI exited with code ${error.status}`);
+            operationalError.isOperational = true;
+            operationalError.statusCode = error.status;
+            errorHandler.handleError(operationalError, {
+                source: 'logger.js',
+                method: 'runValidation',
+                targetDir: targetDir,
+                expectedBehavior: true
+            });
+
             colorLog(`  [OK] Validation completed with exit code: ${error.status}`, 'yellow');
             return { output: error.stdout || error.stderr || '', exitCode: error.status || 1 };
         }
@@ -377,7 +402,15 @@ class ScanProcessor {
             } catch (err) {
                 console.error(`CRITICAL: Failed to write violation log: ${filepath}`, err);
                 // WHY: Cannot continue without proper violation logging - must fail loudly (NO_SILENT_FALLBACKS)
-                throw new Error(`Failed to create violation log for ${rule}: ${err.message}`);
+                const error = new Error(`Failed to create violation log for ${rule}: ${err.message}`);
+                error.isOperational = false;
+                errorHandler.handleError(error, {
+                    source: 'logger.js',
+                    method: 'classifyViolations',
+                    rule: rule,
+                    filepath: filepath
+                });
+                throw error;
             }
             
             this.logger.audit('VIOLATION_LOG_CREATED', { rule, count, filepath });
