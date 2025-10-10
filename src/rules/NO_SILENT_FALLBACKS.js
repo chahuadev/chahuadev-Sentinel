@@ -1,3 +1,4 @@
+
 // ! ======================================================================
 // !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
 // !  Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
@@ -13,6 +14,8 @@
 // ! ======================================================================
 // ! ABSOLUTE RULES DEFINITION - 5 กฎเหล็กของ Chahuadev
 // ! ======================================================================
+import errorHandler from '../error-handler/ErrorHandler.js';
+
 const ABSOLUTE_RULES = {
 // ! ======================================================================
 // ! NO_SILENT_FALLBACKS - ห้ามใช้ Fallback ที่ซ่อนปัญหา (กฎเหล็กข้อที่ 3)

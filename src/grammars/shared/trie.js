@@ -22,6 +22,10 @@
 // !  - Longest Match: O(m)
 // !  ============================================================================
 
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
+
+
 export class TrieNode {
     constructor() {
         /** @type {Map<string, TrieNode>} */
@@ -293,7 +297,7 @@ export class Trie {
                 const connector = isLastChild ? '└─' : '├─';
                 const extension = isLastChild ? '  ' : '│ ';
 
-                const marker = childNode.isEndOfWord ? '' : '';
+                const marker = childNode.isEndOfWord ? '[WORD]' : '[NODE]';
                 const word = childNode.isEndOfWord ? ` [${childNode.word}]` : '';
 
                 lines.push(`${prefix}${connector}${marker} ${char}${word}`);

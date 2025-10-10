@@ -18,6 +18,8 @@
 // !  5. Memory Usage
 // !  ============================================================================
 
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
 import { performance } from 'perf_hooks';
 import { GrammarIndex } from './grammar-index.js';
 import { Trie } from './trie.js';

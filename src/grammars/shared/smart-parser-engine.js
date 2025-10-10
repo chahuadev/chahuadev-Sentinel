@@ -28,6 +28,9 @@ import { dirname, join } from 'path';
 import { ABSOLUTE_RULES } from '../../rules/validator.js';
 import GrammarIndex from './grammar-index.js';
 import { BinaryComputationTokenizer } from './tokenizer-helper.js';
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
+
 
 // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 // !  CONFIGURATION LOADER 
@@ -2661,11 +2664,12 @@ class SmartParserEngine {
 // !  
 // !  Exported Classes:
 // !   - SmartParserEngine: Main parser engine class
+// !   - AdvancedStructureParser: AST parser for error detection
 // !  
 // !  Usage:
 // !   import { SmartParserEngine } from './smart-parser-engine.js';
 // !   const engine = new SmartParserEngine(combinedGrammar, config);
 // !   const result = engine.analyzeCode(code);
 // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-export { SmartParserEngine };
+export { SmartParserEngine, AdvancedStructureParser };
 

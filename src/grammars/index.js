@@ -21,6 +21,14 @@ import {
     findTypoSuggestions,
     similarityRatio
 } from './shared/fuzzy-search.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import errorHandler from '../error-handler/ErrorHandler.js';
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * LocalGrammarProvider - Production implementation
@@ -38,13 +46,15 @@ class LocalGrammarProvider {
 
     async loadGrammar(language) {
         try {
-            const grammarModule = await import(`./${language}.grammar.js`);
-            const grammarKey = `${language.toUpperCase()}_GRAMMAR`;
+            // Load grammar from JSON file (Pure Data - NO_HARDCODE compliant)
+            const grammarPath = join(__dirname, `${language}.grammar.json`);
+            const grammarData = JSON.parse(readFileSync(grammarPath, 'utf8'));
+            
             return {
                 status: 'success',
                 language,
-                grammar: grammarModule[grammarKey],
-                searchIndex: new GrammarIndex(grammarModule[grammarKey]),
+                grammar: grammarData,
+                searchIndex: new GrammarIndex(grammarData),
                 loadedAt: Date.now()
             };
         } catch (error) {

@@ -170,9 +170,8 @@
   },
   "scripts": {
     "test": "node scan-real-files.js '*'",
-    "scan:logs": "node cli.js --with-logs src",
-    "scan:simple": "node cli.js src",
     "lint": "node cli.js .",
+    "clean-emoji": "node emoji-cleaner.js .",
     "validate-project": "node scan-real-files.js '*' && echo 'Project validation complete'",
     "install-parsers": "npm install acorn @babel/parser",
     "vscode:prepublish": "npm run compile",

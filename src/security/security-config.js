@@ -9,6 +9,8 @@
 // ======================================================================
 
 // !  NO_HARDCODE: Import pattern definitions from JSON file
+import errorHandler from '../error-handler/ErrorHandler.js';
+
 import suspiciousPatternDefinitions from './suspicious-patterns.json' with { type: 'json' };
 
 /**

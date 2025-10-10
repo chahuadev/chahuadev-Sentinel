@@ -5,6 +5,7 @@
 // !  License: MIT
 // !  Contact: chahuadev@gmail.com
 // ! ══════════════════════════════════════════════════════════════════════════════
+import errorHandler from './error-handler/ErrorHandler.js';
 import * as vscode from 'vscode';
 import { ABSOLUTE_RULES, ValidationEngine } from './rules/validator.js';
 import { SecurityMiddleware } from './security/security-middleware.js';
@@ -14,7 +15,7 @@ import { readFileSync } from 'fs';
 // Load extension configuration
 const extensionConfig = JSON.parse(readFileSync(new URL('./extension-config.json', import.meta.url), 'utf8'));
 
-// ! ══════════════════════════════════════════════════════════════════════════════
+ // ! ══════════════════════════════════════════════════════════════════════════════
  // ! VS Code Extension Entry Point for Chahuadev Sentinel
  // ! Provides subtle blue notifications with detailed hover information
  // ! Enhanced with Fortress-level security protection

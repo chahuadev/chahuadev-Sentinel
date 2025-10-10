@@ -1,482 +1,355 @@
-// ! ======================================================================
+// ! ══════════════════════════════════════════════════════════════════════════════
 // !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
-// !  Repository: https:// ! github.com/chahuadev/chahuadev-Sentinel.git
-// !  Version: 1.0.0
+// !  Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
+// !  Version: 2.0.0
 // !  License: MIT
 // !  Contact: chahuadev@gmail.com
-// ! ======================================================================
-// !  ChahuadevR Engine Grammar Dictionary - Core Language Support
-// !  ============================================================================
-// !  Tokenizer Integration Helper
-// !  ตัวอย่างการใช้ Grammar Index System ใน Tokenizer/Parser
-// !  ============================================================================
-// !  Performance Comparison:
-// !  ============================================================================
-// !  OLD METHOD (Loop through all operators):
-// !  - Try 3-character operators: ['===', '!==', '>>>', '...'] - O(n)
-// !  - Try 2-character operators: ['==', '!=', '>=', '<=', '<<', '>>', '&&', '||', '++', '--', ...] - O(n)
-// !  - Try 1-character operators: ['+', '-', '*', '/', '%', '&', '|', '^', '!', '~', '<', '>'] - O(n)
-// !  - Total: O(3n) worst case
-// !  ============================================================================
-// !  NEW METHOD (Trie longest match):
-// !  * - Walk through Trie: O(m) where m = longest operator length (usually  3)
-// !  * - Returns longest match immediately
-// !  * - Total: O(3) constant time for most operators
-// !  ============================================================================
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !  PURE BINARY TOKENIZER - "BLANK PAPER"
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !  PHILOSOPHY: Tokenizer คือ "กระดาษเปล่า" ที่ไม่รู้อะไรเลย
+// !  
+// !  หน้าที่เดียว: แปลง String → Binary (0b10001)
+// !  
+// !  ไม่มีหน้าที่:
+// !  - [NO] ไม่รู้ว่า "//" คือ comment
+// !  - [NO] ไม่รู้ว่า "/*" คือ comment เริ่มต้น
+// !  - [NO] ไม่รู้ว่า `"` คือ string
+// !  - [NO] ไม่รู้ว่า `'` คือ string
+// !  - [NO] ไม่รู้ว่า `\` คือ escape character
+// !  
+// !  ทุกอย่างต้องถาม Brain (GrammarIndex) เท่านั้น!
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! CRITICAL UNDERSTANDING: THREE LAYERS OF BINARY
+// ! ══════════════════════════════════════════════════════════════════════════════
+// !   DO NOT CONFUSE THESE THREE DIFFERENT BINARY LAYERS:
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ┌─────────────────────────────────────────────────────────────────────────┐
+// ! │ LAYER 1: MACHINE CODE (CPU Instructions)                               │
+// ! │  WE DO NOT WORK HERE                                                  │
+// ! │                                                                         │
+// ! │ Example: 10111000 00000101 = MOV AX, 5                                 │
+// ! │ - Opcodes + Operands that control CPU transistors directly             │
+// ! │ - Platform specific (x86, ARM, RISC-V)                                 │
+// ! │ - This is what COMPILER produces, NOT what we read                     │
+// ! └─────────────────────────────────────────────────────────────────────────┘
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ┌─────────────────────────────────────────────────────────────────────────┐
+// ! │ LAYER 2: CHARACTER ENCODING (ASCII/UTF-8)                              │
+// ! │  THIS IS WHERE WE START                                               │
+// ! │                                                                         │
+// ! │ Example: 01100011 = 'c' (ASCII code 99)                                │
+// ! │ - Universal text representation standard                                │
+// ! │ - Same across ALL platforms                                             │
+// ! │ - UniversalCharacterClassifier reads THESE numeric values               │
+// ! │ - Pure mathematics: 99 >= 97 && 99 <= 122 → LETTER                     │
+// ! └─────────────────────────────────────────────────────────────────────────┘
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ┌─────────────────────────────────────────────────────────────────────────┐
+// ! │ LAYER 3: SEMANTIC BINARY FLAGS (Our Innovation)                        │
+// ! │  THIS IS OUR OUTPUT                                                   │
+// ! │                                                                         │
+// ! │ Example: 0b00100000 = KEYWORD token type (bit 5 set)                   │
+// ! │ - Mathematical classification of meaning                                │
+// ! │ - Language-agnostic semantic representation                             │
+// ! │ - All bit positions defined in tokenizer-binary-config.json            │
+// ! └─────────────────────────────────────────────────────────────────────────┘
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! COMPLETE FLOW: Source Code → Semantic Binary Stream
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! Input:  "const x = 5;"
+// !
+// ! Step 1: File System (OS stores as binary)
+// !         const → 99,111,110,115,116 (ASCII codes)
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! Step 2: Character Classification (Pure Math)
+// !         99 ≥ 97 && 99 ≤ 122 → TRUE → LETTER flag (0b00001)
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! Step 3: Token Assembly (Ask Brain)
+// !         "const" → brain.isKeyword("const") → TRUE
+// !         Assign: binary = (1 << TOKEN_TYPES.KEYWORD.bit) = 0b00100000
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! Step 4: Output Semantic Stream
+// !         {type:"KEYWORD", binary:32, value:"const", start:0, end:5}
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! WHY THIS APPROACH IS POWERFUL
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! 1. LANGUAGE AGNOSTIC: Same tokenizer reads JS, Python, Rust, Go
+// !    Just swap Brain (GrammarIndex) with different grammar rules
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! 2. PLATFORM INDEPENDENT: Works on Intel, ARM, RISC-V identically
+// !    Because ASCII/UTF-8 is universal standard
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! 3. PRESERVES SEMANTICS: Variable name "userAge" keeps meaning
+// !    Unlike Machine Code where it becomes anonymous memory address
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! 4. MATHEMATICALLY PURE: Zero ambiguity
+// !    charCode >= 65 && charCode <= 90 is absolute truth
+// !    No regex, no string matching, pure integer comparisons
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! 5. ZERO HARDCODE: Every value from config
+// !    Change behavior by editing JSON only, never touch source code
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! GOLDEN RULE
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! "We are NOT reading Machine Code."
+// ! "We are reading Character Codes and converting them to"
+// ! "Semantic Binary Flags through pure mathematics."
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! Our Boundary:
+// !    Source Code → Binary Token Stream (OUR DOMAIN)
+// !    Binary Token Stream → Machine Code (COMPILER'S DOMAIN)
+// ! ══════════════════════════════════════════════════════════════════════════════
 
-import { GrammarIndex } from './grammar-index.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { GrammarIndex } from './grammar-index.js';
+import errorHandler from '../../error-handler/ErrorHandler.js';
 
-// !  Load Configuration (NO MORE HARDCODE!)
+
+
+// ! ══════════════════════════════════════════════════════════════════════════════
+// ! LOAD CONFIGURATION - NO_HARDCODE COMPLIANCE
+// ! ══════════════════════════════════════════════════════════════════════════════
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const CONFIG_PATH = join(__dirname, 'parser-config.json');
+const configPath = join(__dirname, 'tokenizer-binary-config.json');
 
-let TOKENIZER_CONFIG;
+let CONFIG;
 try {
-    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
-    TOKENIZER_CONFIG = config.tokenizer;
-    
-    // WHY: Strict validation - configuration MUST exist (NO_SILENT_FALLBACKS compliance)
-    if (!TOKENIZER_CONFIG) {
-        throw new Error('tokenizer configuration section is missing in parser-config.json');
-    }
-    
-    console.log('Tokenizer configuration loaded from:', CONFIG_PATH);
+    CONFIG = JSON.parse(readFileSync(configPath, 'utf-8'));
 } catch (error) {
-    // WHY: FAIL FAST, FAIL LOUD - No silent fallbacks allowed
-    console.error(' CRITICAL: Failed to load tokenizer configuration');
-    console.error('   Config path:', CONFIG_PATH);
-    console.error('   Error:', error.message);
-    throw new Error(
-        `Tokenizer configuration is required: ${CONFIG_PATH}\n` +
-        `Cannot proceed without valid configuration.\n` +
-        `NO_SILENT_FALLBACKS: We fail fast to prevent hidden bugs.`
-    );
+    const errorMsg = `CRITICAL: Failed to load tokenizer configuration from ${configPath}: ${error.message}`;
+    throw new Error(errorMsg);
 }
 
-// ============================================================================
-// LAYER 1: TRANSLATION LAYER - String to Binary Stream
-// ============================================================================
-// VISION: Not "reading" JavaScript, but "COMPUTING" JavaScript
-// 
-// This layer converts human-readable strings into mathematical representations
-// using PURE COMPUTATION based on Unicode/ASCII standards (NOT hardcoded values)
-// 
-// Flow: "const a = 1;"  [Binary Stream of Numeric Codes]
-// ============================================================================
+// Extract constants from configuration - ZERO HARDCODE
+const UNICODE = CONFIG.unicodeRanges.ranges;
+const CHAR_FLAGS = CONFIG.characterFlags.flags;
+const TOKEN_TYPES = CONFIG.tokenBinaryTypes.types;
+const TOKEN_TYPE_STRINGS = CONFIG.tokenTypeStrings.types;
+const ERROR_MESSAGES = CONFIG.errorMessages.templates;
+const PARSING_RULES = CONFIG.parsingRules.rules;
+const SECURITY_LIMITS = CONFIG.securityConfig.limits;
 
 /**
- * ASCII/Unicode Character Classifier - Pure Mathematical Computation
+ * ============================================================================
+ * UNIVERSAL CHARACTER CLASSIFIER
+ * ============================================================================
+ * หน้าที่: จำแนกตัวอักษรตาม Unicode Standard เท่านั้น
+ * ไม่มีการตัดสินใจเกี่ยวกับ grammar
  * 
- * WHY: These are international standards (Unicode Consortium), not hardcoded values.
- * We're using mathematical facts about character encoding, not arbitrary choices.
- * 
- * Standards used:
- * - Unicode Standard: https://www.unicode.org/charts/
- * - ASCII Standard: ANSI X3.4-1986
+ * NO_HARDCODE COMPLIANCE: โหลดค่าทั้งหมดจาก tokenizer-binary-config.json
  */
 export class UniversalCharacterClassifier {
-    // ========================================================================
-    // PURE MATHEMATICAL CHARACTER CLASSIFICATION
-    // Based on Unicode standard ranges - These are mathematical facts
-    // ========================================================================
-    
     /**
-     * Compute if character is letter using Unicode/ASCII mathematics
-     * Unicode Standard: A-Z (65-90), a-z (97-122)
-     * WHY: These numeric ranges are defined by Unicode, not us
+     * ตรวจสอบว่าเป็นตัวอักษรหรือไม่ (A-Z, a-z)
+     * Unicode Standard: โหลดจาก config
      */
     isLetterByMath(charCode) {
-        return (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122);
+        return (
+            (charCode >= UNICODE.UPPERCASE_LETTER.start && charCode <= UNICODE.UPPERCASE_LETTER.end) ||
+            (charCode >= UNICODE.LOWERCASE_LETTER.start && charCode <= UNICODE.LOWERCASE_LETTER.end)
+        );
     }
 
     /**
-     * Compute if character is digit using Unicode mathematics
-     * Unicode Standard: 0-9 (48-57)
+     * ตรวจสอบว่าเป็นตัวเลขหรือไม่ (0-9)
+     * Unicode Standard: โหลดจาก config
      */
     isDigitByMath(charCode) {
-        return charCode >= 48 && charCode <= 57;
+        return charCode >= UNICODE.DIGIT.start && charCode <= UNICODE.DIGIT.end;
     }
 
     /**
-     * Compute if character is whitespace using Unicode mathematics
-     * Unicode Standard: Space=32, Tab=9, LF=10, CR=13
+     * ตรวจสอบว่าเป็น whitespace หรือไม่
+     * Unicode Standard: โหลดจาก config
      */
     isWhitespaceByMath(charCode) {
-        return charCode === 32 || charCode === 9 || charCode === 10 || charCode === 13;
+        return (
+            charCode === UNICODE.SPACE.code ||
+            charCode === UNICODE.TAB.code ||
+            charCode === UNICODE.LINE_FEED.code ||
+            charCode === UNICODE.CARRIAGE_RETURN.code
+        );
     }
     
     /**
-     * Compute if character can start identifier using Unicode mathematics
-     * Unicode Standard: Letter, underscore (95), dollar sign (36)
-     */
-    canStartIdentifier(charCode) {
-        return this.isLetterByMath(charCode) || charCode === 95 || charCode === 36; // _ or $
-    }
-    
-    /**
-     * Compute if character can continue identifier using Unicode mathematics
-     */
-    canContinueIdentifier(charCode) {
-        return this.canStartIdentifier(charCode) || this.isDigitByMath(charCode);
-    }
-
-    /**
-     * BINARY FLAG COMPUTATION - Pure Bitwise Mathematics
-     * 
-     * WHY: Bitwise operations are 100x faster than string comparisons
-     * We convert character classification into binary math problem
-     * 
-     * Returns a single integer where each bit represents a character property:
-     * - Bit 0 (1 << 0 = 1): IsLetter
-     * - Bit 1 (1 << 1 = 2): IsDigit
-     * - Bit 2 (1 << 2 = 4): IsWhitespace
-     * - Bit 3 (1 << 3 = 8): IsOperator/Punctuation
-     * - Bit 4 (1 << 4 = 16): CanStartIdentifier
-     * 
-     * Example: Letter 'a' = 0b10001 (bits 0 and 4 set) = decimal 17
+     * คำนวณ Binary Flags จาก character code
+     * โหลด bit positions จาก config
      */
     computeBinaryFlags(charCode) {
         let flags = 0;
         
-        // WHY: Bitwise OR is pure binary addition - fastest possible computation
-        if (this.isLetterByMath(charCode)) flags |= (1 << 0);
-        if (this.isDigitByMath(charCode)) flags |= (1 << 1);
-        if (this.isWhitespaceByMath(charCode)) flags |= (1 << 2);
-        if (this.canStartIdentifier(charCode)) flags |= (1 << 4);
+        if (this.isLetterByMath(charCode)) flags |= (1 << CHAR_FLAGS.LETTER.bit);
+        if (this.isDigitByMath(charCode)) flags |= (1 << CHAR_FLAGS.DIGIT.bit);
+        if (this.isWhitespaceByMath(charCode)) flags |= (1 << CHAR_FLAGS.WHITESPACE.bit);
         
-        // WHY: Operators are "everything else in ASCII range"
-        // This is mathematical exclusion, not hardcoding
-        if (flags === 0 && charCode < 128) {
-            flags |= (1 << 3);
+        if (flags === 0 && charCode < UNICODE.ASCII_BOUNDARY.code) {
+            flags |= (1 << CHAR_FLAGS.OPERATOR.bit);
         }
         
         return flags;
     }
     
-    /**
-     * Fast bit checking helpers - Pure binary mathematics
-     */
-    isLetter(flags) { return (flags & (1 << 0)) !== 0; }
-    isDigit(flags) { return (flags & (1 << 1)) !== 0; }
-    isWhitespace(flags) { return (flags & (1 << 2)) !== 0; }
-    isOperator(flags) { return (flags & (1 << 3)) !== 0; }
-    canStart(flags) { return (flags & (1 << 4)) !== 0; }
+    isLetter(flags) { return (flags & (1 << CHAR_FLAGS.LETTER.bit)) !== 0; }
+    isDigit(flags) { return (flags & CHAR_FLAGS.DIGIT.value) !== 0; }
+    isWhitespace(flags) { return (flags & (1 << CHAR_FLAGS.WHITESPACE.bit)) !== 0; }
+    isOperator(flags) { return (flags & (1 << CHAR_FLAGS.OPERATOR.bit)) !== 0; }
 }
 
 /**
  * ============================================================================
- * BINARY COMPUTATION TOKENIZER
+ * PURE BINARY TOKENIZER - "BLANK PAPER"
  * ============================================================================
- * VISION: Not "Reading" JavaScript - "COMPUTING" JavaScript
+ * หน้าที่: แปลง String → Binary Token Stream
  * 
- * This is the "Central Nervous System" that connects all components:
- * - Constitution (validator.js): Philosophy and high-level rules
- * - Brain (grammar-index.js + trie.js): Lightning-fast lookups
- * - Intelligence (fuzzy-search.js): Smart error recovery and suggestions
- * - Dictionary (constants.js): Single source of truth
+ * ไม่มี hardcode logic ใดๆ - ถาม Brain ทุกอย่าง!
  * 
- * ARCHITECTURE:
- * Layer 1 (Translation): String  Binary Stream
- * Layer 2 (Computation): Binary Stream  AST
- * 
- * WHY: By converting to binary first, we transform string processing
- * into pure mathematical computation, achieving 100x speed improvement.
- * ============================================================================
+ * NO_HARDCODE COMPLIANCE: โหลดทุกค่าจาก config
  */
-export class BinaryComputationTokenizer {
-    constructor(grammarIndex, config = null) {
-        if (!grammarIndex) {
-            throw new Error('BinaryComputationTokenizer requires GrammarIndex (the "Brain")');
+export class PureBinaryTokenizer {
+    constructor(brain) {
+        if (!brain) {
+            throw new Error(ERROR_MESSAGES.BRAIN_REQUIRED);
         }
         
-        // WHY: Debug logging to verify grammarIndex was passed correctly
-        console.log(`BinaryComputationTokenizer initialized with GrammarIndex`);
-        console.log(`GrammarIndex has ${grammarIndex.operatorTrie?.size || 0} operators in Trie`);
-        
-        // WHY: Load configuration for fuzzy search parameters (NO_HARDCODE compliance)
-        // NO_SILENT_FALLBACKS: We MUST have valid config - no defaults allowed
-        // NOTE: Use module-level __dirname (already computed at top of file)
-        const cliConfigPath = join(__dirname, '../../../cli-config.json');
-        let fuzzyConfig = null;
-        
-        if (config && config.fuzzySearch) {
-            // Config passed directly to constructor
-            fuzzyConfig = config.fuzzySearch;
-        } else {
-            // Load from cli-config.json (REQUIRED)
-            try {
-                const cliConfig = JSON.parse(readFileSync(cliConfigPath, 'utf8'));
-                fuzzyConfig = cliConfig.fuzzySearch;
-                
-                if (!fuzzyConfig) {
-                    throw new Error('fuzzySearch section is missing in cli-config.json');
-                }
-            } catch (error) {
-                // WHY: FAIL FAST, FAIL LOUD - No silent fallbacks allowed
-                console.error(' CRITICAL: Failed to load fuzzy search configuration');
-                console.error('   Config path:', cliConfigPath);
-                console.error('   Error:', error.message);
-                throw new Error(
-                    `Fuzzy search configuration is required: ${cliConfigPath}\n` +
-                    `Cannot proceed without valid configuration.\n` +
-                    `NO_SILENT_FALLBACKS: We fail fast to prevent hidden bugs.`
-                );
-            }
-        }
-        
-        // Validate required field
-        if (typeof fuzzyConfig.maxLevenshteinDistance !== 'number') {
-            throw new Error('fuzzyConfig.maxLevenshteinDistance must be a number');
-        }
-        
-        // WHY: These are the "organs" of our nervous system
-        this.brain = grammarIndex;                               // Trie-based lightning search
-        this.classifier = new UniversalCharacterClassifier();    // Pure math classifier
-        this.fuzzyConfig = fuzzyConfig;                         // Fuzzy search configuration
+        this.brain = brain;
+        this.classifier = new UniversalCharacterClassifier();
         this.position = 0;
         this.input = '';
         this.inputLength = 0;
     }
 
     /**
-     * ========================================================================
-     * MAIN TRANSLATION ENGINE: String  Binary Token Stream
-     * ========================================================================
-     * Input:  "const a = 1;"  (Human-readable string)
-     * Output: [Binary Token Stream] (Machine-computable numbers)
-     * 
-     * WHY: This is NOT string manipulation - it's MATHEMATICAL TRANSFORMATION
-     * We're converting linguistic patterns into numeric patterns for computation
+     * หน้าที่เดียว: แปลง String → Binary Stream
+     * ตรวจสอบ security limits จาก config
      */
-    translateToBinaryStream(input) {
-        // Initialize computation state
+    tokenize(input) {
+        // Security check: โหลดจาก config
+        if (input.length > SECURITY_LIMITS.MAX_INPUT_LENGTH) {
+            throw new Error(`Input exceeds maximum length of ${SECURITY_LIMITS.MAX_INPUT_LENGTH} characters`);
+        }
+        
         this.input = input;
         this.inputLength = input.length;
         this.position = 0;
         
-        const binaryStream = [];
-        
-        console.log(' Translation Layer: String  Binary Stream');
-        console.log('Input:', input);
-        console.log('═'.repeat(80));
+        const tokens = [];
         
         while (this.position < this.inputLength) {
             const charCode = input.charCodeAt(this.position);
-            const binaryFlags = this.classifier.computeBinaryFlags(charCode);
+            const flags = this.classifier.computeBinaryFlags(charCode);
             
-            // WHY: Binary flag checking is pure bit arithmetic - fastest possible check
-            if (this.classifier.isWhitespace(binaryFlags)) {
+            // ข้าม whitespace (โหลดจาก config)
+            if (PARSING_RULES.SKIP_WHITESPACE && this.classifier.isWhitespace(flags)) {
                 this.position++;
                 continue;
             }
             
-            // Route to appropriate computational handler based on binary flags
-            const token = this.computeTokenByBinaryFlags(binaryFlags);
+            // ถาม Brain ว่า character นี้คืออะไร
+            const token = this.computeToken(flags);
             
             if (token) {
-                binaryStream.push(token);
-                console.log(`  Token: ${token.type.padEnd(12)} | Binary: 0b${token.binary.toString(2).padStart(8, '0')} | Value: "${token.value}"`);
+                tokens.push(token);
             }
         }
         
-        console.log('═'.repeat(80));
-        console.log(` Translation complete: ${binaryStream.length} tokens generated\n`);
-        
-        return binaryStream;
+        return tokens;
     }
 
     /**
-     * ========================================================================
-     * TOKENIZE METHOD - Backward Compatibility Wrapper
-     * ========================================================================
-     * WHY: Provides standard tokenize() API for compatibility with existing code
-     * that expects tokenize(code) instead of translateToBinaryStream(code)
+     * ถาม Brain แล้วคำนวณ token
+     * โหลด token type strings และ binary flags จาก config
      */
-    tokenize(code) {
-        return this.translateToBinaryStream(code);
-    }
-
-    /**
-     * ========================================================================
-     * BINARY FLAG ROUTER - Pure Computational Dispatch
-     * ========================================================================
-     * WHY: We use binary flags to COMPUTE which handler to call,
-     * not IF-ELSE chains. This is mathematical routing, not logical branching.
-     */
-    computeTokenByBinaryFlags(flags) {
+    computeToken(flags) {
         const char = this.input[this.position];
         
-        // Comments: Check BEFORE operators because `/` can be division OR comment start
-        if (char === '/' && this.position + 1 < this.inputLength) {
-            const nextChar = this.input[this.position + 1];
-            if (nextChar === '/' || nextChar === '*') {
-                return this.computeComment();
-            }
+        // ถาม Brain: character นี้คืออะไร?
+        const tokenType = this.brain.identifyTokenType(char, this.input, this.position);
+        
+        // เรียก compute function ตาม type ที่ Brain บอก
+        if (tokenType.isComment) {
+            return this.computePatternToken(
+                TOKEN_TYPE_STRINGS.COMMENT,
+                tokenType,
+                TOKEN_TYPES.COMMENT.bit
+            );
         }
         
-        // String: Quote detection (check early to avoid confusion with operators)
-        if (char === '"' || char === "'" || char === '`') {
-            return this.computeString();
+        if (tokenType.isString) {
+            return this.computeStringToken(tokenType);
         }
         
-        // Letter: Identifier or Keyword (checked against Brain/Trie)
-        if (this.classifier.isLetter(flags) || this.classifier.canStart(flags)) {
+        // Letter/Digit: ถาม Brain ว่าเป็น keyword หรือไม่
+        if (this.classifier.isLetter(flags)) {
             return this.computeIdentifierOrKeyword();
         }
         
-        // Digit: Number literal (pure mathematical parsing)
         if (this.classifier.isDigit(flags)) {
             return this.computeNumber();
         }
         
-        // Operator/Punctuation: Use Brain (Trie) for longest match
+        // Operator: ถาม Brain หา longest match
         if (this.classifier.isOperator(flags)) {
             return this.computeOperatorOrPunctuation();
         }
         
-        // Unknown: Throw error (NO_SILENT_FALLBACKS compliance)
-        throw new Error(
-            `Binary classification failed at position ${this.position}\n` +
-            `Character: "${char}" (code: ${this.input.charCodeAt(this.position)})\n` +
-            `Binary flags: 0b${flags.toString(2).padStart(8, '0')}`
-        );
+        // Error: โหลด error message template จาก config
+        const errorMsg = ERROR_MESSAGES.UNKNOWN_CHARACTER
+            .replace('{position}', this.position)
+            .replace('{char}', char);
+        throw new Error(errorMsg);
     }
 
     /**
-     * ========================================================================
-     * IDENTIFIER/KEYWORD COMPUTATION
-     * ========================================================================
-     * WHY: We use the "Brain" (GrammarIndex + Trie) to determine if this
-     * identifier is a keyword. This is O(m) operation, not O(n).
+     * คำนวณ token จาก pattern ที่ Brain บอก
+     * ใช้สำหรับ: Comment, Regex, etc.
+     * โหลด binary flag จาก config
      */
-    computeIdentifierOrKeyword() {
+    computePatternToken(type, tokenInfo, binaryFlagBit) {
         const start = this.position;
-        let end = start;
+        const startPattern = tokenInfo.startPattern;
+        const endPattern = tokenInfo.endPattern;
         
-        // WHY: Mathematical loop based on Unicode properties, not regex
+        // Security check: โหลดจาก config
+        if (startPattern.length > SECURITY_LIMITS.MAX_PATTERN_LENGTH) {
+            throw new Error(`Pattern exceeds maximum length of ${SECURITY_LIMITS.MAX_PATTERN_LENGTH}`);
+        }
+        
+        // ตรวจสอบว่าตรงกับ start pattern หรือไม่
+        if (!this.matchPattern(start, startPattern)) {
+            const errorMsg = ERROR_MESSAGES.EXPECTED_PATTERN
+                .replace('{pattern}', startPattern)
+                .replace('{position}', start);
+            throw new Error(errorMsg);
+        }
+        
+        let end = start + startPattern.length;
+        
+        // หา end pattern
         while (end < this.inputLength) {
-            const code = this.input.charCodeAt(end);
-            const flags = this.classifier.computeBinaryFlags(code);
-            
-            if (this.classifier.isLetter(flags) || this.classifier.isDigit(flags)) {
-                end++;
-            } else if (code === 95 || code === 36) { // _ or $ (Unicode standard)
-                end++;
-            } else {
+            if (this.matchPattern(end, endPattern)) {
+                end += endPattern.length;
                 break;
             }
-        }
-        
-        const value = this.input.slice(start, end);
-        this.position = end;
-        
-        // ====================================================================
-        // BRAIN QUERY: Is this a keyword? (Trie lookup - O(m) speed)
-        // ====================================================================
-        if (this.brain.isKeyword(value)) {
-            const keywordData = this.brain.getKeyword(value);
-            
-            // WHY: Check deprecation (helps developers avoid old patterns)
-            if (keywordData.deprecated) {
-                console.warn(`  Deprecated keyword: "${value}" - ${keywordData.deprecationMessage || ''}`);
-            }
-            
-            return {
-                type: 'KEYWORD',
-                binary: (1 << 5),  // Bit 5 = Keyword flag
-                value: value,
-                length: end - start,
-                start: start,
-                end: end,
-                metadata: keywordData
-            };
-        }
-        
-        // ====================================================================
-        // INTELLIGENCE: Smart typo detection using fuzzy-search.js
-        // ====================================================================
-        // WHY: Read maxDistance from config instead of hardcoding (NO_HARDCODE compliance)
-        const maxDistance = this.fuzzyConfig.maxLevenshteinDistance || 2;
-        const suggestion = this.brain.findClosestKeyword(value, maxDistance);
-        
-        if (suggestion && suggestion.distance <= maxDistance) {
-            console.warn(
-                ` Possible typo: "${value}" - Did you mean "${suggestion.keyword}"? ` +
-                `(Levenshtein distance: ${suggestion.distance})`
-            );
-        }
-        
-        return {
-            type: 'IDENTIFIER',
-            binary: (1 << 0),  // Bit 0 = Identifier flag
-            value: value,
-            length: end - start,
-            start: start,
-            end: end,
-            suggestion: suggestion // Include smart suggestion
-        };
-    }
-
-    /**
-     * ========================================================================
-     * NUMBER COMPUTATION - Pure Mathematical Parsing
-     * ========================================================================
-     * WHY: Numbers are processed using mathematical properties, not regex
-     */
-    computeNumber() {
-        const start = this.position;
-        let end = start;
-        let hasDecimal = false;
-        let hasExponent = false;
-        
-        // WHY: Mathematical loop using Unicode character codes
-        while (end < this.inputLength) {
-            const code = this.input.charCodeAt(end);
-            
-            // Digit (48-57)
-            if (code >= 48 && code <= 57) {
-                end++;
-            }
-            // Decimal point (46) - only one allowed
-            else if (code === 46 && !hasDecimal && !hasExponent) {
-                hasDecimal = true;
-                end++;
-            }
-            // Exponent (e/E: 69/101) - scientific notation
-            else if ((code === 69 || code === 101) && !hasExponent) {
-                hasExponent = true;
-                end++;
-                // Check for +/- after exponent
-                const nextCode = this.input.charCodeAt(end);
-                if (nextCode === 43 || nextCode === 45) { // + or -
-                    end++;
-                }
-            }
-            // Hex prefix (x/X after 0)
-            else if ((code === 120 || code === 88) && end === start + 1 && this.input[start] === '0') {
-                end++;
-            }
-            // Hex digits (a-f, A-F: 97-102, 65-70)
-            else if ((code >= 97 && code <= 102) || (code >= 65 && code <= 70)) {
-                end++;
-            }
-            else {
-                break;
-            }
+            end++;
         }
         
         const value = this.input.slice(start, end);
         this.position = end;
         
         return {
-            type: 'NUMBER',
-            binary: (1 << 1),  // Bit 1 = Number flag
+            type: type,
+            binary: (1 << binaryFlagBit),
             value: value,
-            numericValue: parseFloat(value), // Computed value
             length: end - start,
             start: start,
             end: end
@@ -484,80 +357,22 @@ export class BinaryComputationTokenizer {
     }
 
     /**
-     * ========================================================================
-     * OPERATOR/PUNCTUATION COMPUTATION
-     * ========================================================================
-     * WHY: This is where the "Brain" (Trie) shines brightest!
-     * Instead of checking all operators (O(n)), Trie finds longest match in O(m)
-     * 
-     * Example: "!==" could match "!", "!=", or "!==" - Trie finds "!==" directly
+     * คำนวณ string token
+     * โหลด Unicode constants และ limits จาก config
      */
-    computeOperatorOrPunctuation() {
+    computeStringToken(tokenInfo) {
         const start = this.position;
-        const char = this.input[start];
-        
-        // ====================================================================
-        // BRAIN QUERY: Find longest operator match using Trie
-        // ====================================================================
-        const operatorMatch = this.brain.findLongestOperator(this.input, start);
-        
-        // WHY: Debug logging to see what's happening
-        if (!operatorMatch || !operatorMatch.found) {
-            console.log(`  Operator NOT found: "${char}" at position ${start}`);
-            console.log(`   Input context: "${this.input.substring(Math.max(0, start - 5), start + 10)}"`);
-        }
-        
-        if (operatorMatch && operatorMatch.found) {
-            this.position += operatorMatch.length;
-            
-            return {
-                type: 'OPERATOR',
-                binary: (1 << 3),  // Bit 3 = Operator flag
-                value: operatorMatch.operator,
-                length: operatorMatch.length,
-                start: start,
-                end: this.position,
-                metadata: operatorMatch.data
-            };
-        }
-        
-        // ====================================================================
-        // BRAIN QUERY: Try punctuation if not operator
-        // ====================================================================
-        const punctMatch = this.brain.findPunctuation(char);
-        
-        if (punctMatch && punctMatch.found) {
-            this.position++;
-            
-            return {
-                type: 'PUNCTUATION',
-                binary: (1 << 6),  // Bit 6 = Punctuation flag
-                value: char,
-                length: 1,
-                start: start,
-                end: this.position,
-                metadata: punctMatch.data
-            };
-        }
-        
-        // Unknown operator/punctuation
-        throw new Error(`Unknown operator/punctuation: "${char}" at position ${start}`);
-    }
-
-    /**
-     * ========================================================================
-     * STRING COMPUTATION - Quote-based parsing
-     * ========================================================================
-     */
-    computeString() {
-        const start = this.position;
-        const quote = this.input[start];
+        const quote = tokenInfo.quote;
         let end = start + 1;
         let escaped = false;
         
-        // WHY: Mathematical loop with escape handling
         while (end < this.inputLength) {
-            const char = this.input[end];
+            // Security check: โหลดจาก config
+            if ((end - start) > SECURITY_LIMITS.MAX_STRING_LENGTH) {
+                throw new Error(`String exceeds maximum length of ${SECURITY_LIMITS.MAX_STRING_LENGTH}`);
+            }
+            
+            const charCode = this.input.charCodeAt(end);
             
             if (escaped) {
                 escaped = false;
@@ -565,13 +380,14 @@ export class BinaryComputationTokenizer {
                 continue;
             }
             
-            if (char === '\\') {
+            // Backslash: โหลดจาก config
+            if (charCode === UNICODE.BACKSLASH.code) {
                 escaped = true;
                 end++;
                 continue;
             }
             
-            if (char === quote) {
+            if (this.input[end] === quote) {
                 end++;
                 break;
             }
@@ -583,10 +399,9 @@ export class BinaryComputationTokenizer {
         this.position = end;
         
         return {
-            type: 'STRING',
-            binary: (1 << 7),  // Bit 7 = String flag
+            type: TOKEN_TYPE_STRINGS.STRING,
+            binary: (1 << TOKEN_TYPES.STRING.bit),
             value: value,
-            rawValue: value.slice(1, -1), // Remove quotes
             length: end - start,
             start: start,
             end: end
@@ -594,26 +409,40 @@ export class BinaryComputationTokenizer {
     }
 
     /**
-     * ========================================================================
-     * COMMENT COMPUTATION
-     * ========================================================================
+     * คำนวณ identifier/keyword โดยถาม Brain
+     * โหลด Unicode constants และ parsing rules จาก config
      */
-    computeComment() {
+    computeIdentifierOrKeyword() {
         const start = this.position;
+        let end = start;
         
-        // Single-line comment: //
-        if (this.input[start] === '/' && this.input[start + 1] === '/') {
-            let end = start + 2;
-            while (end < this.inputLength && this.input.charCodeAt(end) !== 10) { // LF
-                end++;
+        // อ่านตัวอักษร/ตัวเลข (โหลด rules จาก config)
+        while (end < this.inputLength) {
+            // Security check: โหลดจาก config
+            if ((end - start) > SECURITY_LIMITS.MAX_TOKEN_LENGTH) {
+                throw new Error(`Token exceeds maximum length of ${SECURITY_LIMITS.MAX_TOKEN_LENGTH}`);
             }
             
-            const value = this.input.slice(start, end);
-            this.position = end;
+            const code = this.input.charCodeAt(end);
+            const flags = this.classifier.computeBinaryFlags(code);
             
+            if (this.classifier.isLetter(flags) || this.classifier.isDigit(flags)) {
+                end++;
+            } else if (code === UNICODE.UNDERSCORE.code || code === UNICODE.DOLLAR.code) {
+                end++;
+            } else {
+                break;
+            }
+        }
+        
+        const value = this.input.slice(start, end);
+        this.position = end;
+        
+        // ถาม Brain: นี่คือ keyword หรือไม่?
+        if (this.brain.isKeyword(value)) {
             return {
-                type: 'COMMENT',
-                binary: (1 << 8),  // Bit 8 = Comment flag
+                type: TOKEN_TYPE_STRINGS.KEYWORD,
+                binary: (1 << TOKEN_TYPES.KEYWORD.bit),
                 value: value,
                 length: end - start,
                 start: start,
@@ -621,341 +450,121 @@ export class BinaryComputationTokenizer {
             };
         }
         
-        // Multi-line comment: /* */
-        if (this.input[start] === '/' && this.input[start + 1] === '*') {
-            let end = start + 2;
-            while (end < this.inputLength - 1) {
-                if (this.input[end] === '*' && this.input[end + 1] === '/') {
-                    end += 2;
-                    break;
-                }
-                end++;
-            }
-            
-            const value = this.input.slice(start, end);
-            this.position = end;
-            
-            return {
-                type: 'COMMENT',
-                binary: (1 << 8),  // Bit 8 = Comment flag
-                value: value,
-                length: end - start,
-                start: start,
-                end: end
-            };
-        }
-        
-        // !  NO_SILENT_FALLBACKS: คืน Object ที่มีสถานะชัดเจนแทน null
         return {
-            type: null,
-            binary: 0,
-            value: null,
-            length: 0,
+            type: TOKEN_TYPE_STRINGS.IDENTIFIER,
+            binary: (1 << TOKEN_TYPES.IDENTIFIER.bit),
+            value: value,
+            length: end - start,
             start: start,
-            end: start
+            end: end
         };
     }
-}
-
-/**
- * ============================================================================
- * EXAMPLE TOKENIZER - Integration Demo
- * ============================================================================
- * Shows how to use BinaryComputationTokenizer with GrammarIndex
- */
-export class ExampleTokenizer {
-    constructor(grammar) {
-        this.index = new GrammarIndex(grammar);
-        this.binaryTokenizer = new BinaryComputationTokenizer(this.index);
-    }
 
     /**
-     * Main tokenization method - delegates to binary engine
+     * คำนวณตัวเลข (pure math)
+     * โหลด Unicode constants และ limits จาก config
      */
-    tokenize(input) {
-        return this.binaryTokenizer.translateToBinaryStream(input);
-    }
-}
-
-// ============================================================================
-// PERFORMANCE BENCHMARKS
-// ============================================================================
-
-/**
- * Compare OLD vs NEW tokenizer performance
- */
-export function benchmarkTokenizer(grammar, testCode, iterations = TOKENIZER_CONFIG.benchmarkIterations) {
-    console.log('='.repeat(80));
-    console.log('TOKENIZER PERFORMANCE BENCHMARK');
-    console.log('='.repeat(80));
-
-    const tokenizer = new ExampleTokenizer(grammar);
-
-    // !  Warm-up
-    for (let i = 0; i < 10; i++) {
-        tokenizer.tokenize(testCode);
-    }
-
-    // !  Benchmark
-    const start = performance.now();
-    for (let i = 0; i < iterations; i++) {
-        tokenizer.tokenize(testCode);
-    }
-    const end = performance.now();
-
-    const totalTime = end - start;
-    const avgTime = totalTime / iterations;
-    const tokens = tokenizer.tokenize(testCode);
-
-    console.log(`Test Code: ${testCode}`);
-    console.log(`Iterations: ${iterations}`);
-    console.log(`Total Time: ${totalTime.toFixed(2)}ms`);
-    console.log(`Average Time: ${avgTime.toFixed(4)}ms`);
-    console.log(`Tokens Generated: ${tokens.length}`);
-    console.log(`Tokens per Second: ${(iterations * tokens.length / (totalTime / 1000)).toFixed(0)}`);
-    console.log('='.repeat(80));
-
-    return { totalTime, avgTime, tokens };
-}
-
-// !  =============================================================================
-// !  Usage Examples
-// !  =============================================================================
-
-/**
- * Example 1: Basic Tokenization
- */
-export function exampleBasicTokenization() {
-    console.log('\n===== Example 1: Basic Tokenization =====\n');
-
-    // !  Assume we have JAVASCRIPT_GRAMMAR
-    const { JAVASCRIPT_GRAMMAR } = require('../javascript/javascript.grammar.js');
-
-    const tokenizer = new ExampleTokenizer(JAVASCRIPT_GRAMMAR);
-    const code = 'const x = 10 + 20;';
-
-    const tokens = tokenizer.tokenize(code);
-    console.log('Code:', code);
-    console.log('Tokens:', JSON.stringify(tokens, null, 2));
-}
-
-/**
- * Example 2: Operator Longest Match
- */
-export function exampleOperatorLongestMatch() {
-    console.log('\n===== Example 2: Operator Longest Match =====\n');
-
-    const { JAVASCRIPT_GRAMMAR } = require('../javascript/javascript.grammar.js');
-    const index = new GrammarIndex(JAVASCRIPT_GRAMMAR);
-
-    const testCases = [
-        { input: '!== 10', position: 0, expected: '!==' },
-        { input: '!= 10', position: 0, expected: '!=' },
-        { input: '! true', position: 0, expected: '!' },
-        { input: 'x === y', position: 2, expected: '===' },
-        { input: 'x == y', position: 2, expected: '==' },
-        { input: '...rest', position: 0, expected: '...' }
-    ];
-
-    console.log('OLD METHOD: Loop through all operators (O(n))');
-    console.log('NEW METHOD: Trie longest match (O(m))\n');
-
-    for (const test of testCases) {
-        const result = index.findLongestOperator(test.input, test.position);
-
-        console.log(`Input: "${test.input}" at position ${test.position}`);
-        console.log(`Expected: "${test.expected}"`);
-        console.log(`Found: "${result.operator}"`);
-        console.log(`Match: ${result.operator === test.expected ? 'PASS' : 'FAIL'}`);
-        console.log(`Data:`, result.data);
-        console.log();
-    }
-}
-
-/**
- * Example 3: Typo Suggestions
- */
-export function exampleTypoSuggestions() {
-    console.log('\n===== Example 3: Typo Suggestions =====\n');
-
-    const { JAVASCRIPT_GRAMMAR } = require('../javascript/javascript.grammar.js');
-    const index = new GrammarIndex(JAVASCRIPT_GRAMMAR);
-
-    const typos = [
-        'functoin',  // !   function
-        'cosnt',     // !   const
-        'reutrn',    // !   return
-        'improt',    // !   import
-        'exprot',    // !   export
-        'awiat',     // !   await
-        'aysnc',     // !   async
-        'clss'       // !   class
-    ];
-
-    for (const typo of typos) {
-        const suggestions = index.suggestKeyword(typo, 3);
-
-        console.log(`Typo: "${typo}"`);
-        console.log('Suggestions:');
-        for (const s of suggestions) {
-            console.log(`  - "${s.keyword}" (distance: ${s.distance}, similarity: ${(s.similarity * 100).toFixed(1)}%)`);
-        }
-        console.log();
-    }
-}
-
-/**
- * Example 4: Keyword Autocomplete
- */
-export function exampleKeywordAutocomplete() {
-    console.log('\n===== Example 4: Keyword Autocomplete =====\n');
-
-    const { JAVASCRIPT_GRAMMAR } = require('../javascript/javascript.grammar.js');
-    const index = new GrammarIndex(JAVASCRIPT_GRAMMAR);
-
-    const prefixes = ['con', 'fun', 'imp', 'aw', 'class'];
-
-    for (const prefix of prefixes) {
-        const matches = index.findKeywordsByPrefix(prefix);
-
-        console.log(`Prefix: "${prefix}"`);
-        console.log(`Matches: ${matches.map(m => m.keyword).join(', ')}`);
-        console.log();
-    }
-}
-
-/**
- * Example 5: Category Queries
- */
-export function exampleCategoryQueries() {
-    console.log('\n===== Example 5: Category Queries =====\n');
-
-    const { JAVASCRIPT_GRAMMAR } = require('../javascript/javascript.grammar.js');
-    const index = new GrammarIndex(JAVASCRIPT_GRAMMAR);
-
-    const categories = index.getAllCategories();
-
-    console.log('All Categories:', categories.join(', '));
-    console.log();
-
-    for (const category of categories.slice(0, 5)) {
-        const keywords = index.getKeywordsByCategory(category);
-        console.log(`Category: "${category}"`);
-        console.log(`Keywords: ${keywords.map(k => k.keyword).join(', ')}`);
-        console.log();
-    }
-}
-
-/**
- * Example 6: Version Queries
- */
-export function exampleVersionQueries() {
-    console.log('\n===== Example 6: Version Queries =====\n');
-
-    const { JAVASCRIPT_GRAMMAR } = require('../javascript/javascript.grammar.js');
-    const index = new GrammarIndex(JAVASCRIPT_GRAMMAR);
-
-    const versions = index.getAllVersions();
-
-    console.log('All Versions:', versions.join(', '));
-    console.log();
-
-    for (const version of versions) {
-        const keywords = index.getKeywordsByVersion(version);
-        console.log(`Version: ${version}`);
-        console.log(`Keywords: ${keywords.map(k => k.keyword).join(', ')}`);
-        console.log();
-    }
-}
-
-// !  =============================================================================
-// !  Integration with Real Parser
-// !  =============================================================================
-
-/**
- * Example integration pattern for real parser
- */
-export class ParserIntegration {
-    constructor(grammar) {
-        this.index = new GrammarIndex(grammar);
-    }
-
-    /**
-     * ! Check if identifier can start expression
-     */
-    canStartExpression(identifier) {
-        const keyword = this.index.getKeyword(identifier);
-        if (!keyword) return true; // !  Not a keyword
-
-        return keyword.startsExpr === true;
-    }
-
-    /**
-     * ! Get operator precedence
-     */
-    getOperatorPrecedence(operator) {
-        const opData = this.index.getOperator(operator);
-        return opData?.precedence ?? 0;
-    }
-
-    /**
-     * ! Get operator associativity
-     */
-    getOperatorAssociativity(operator) {
-        const opData = this.index.getOperator(operator);
-        return opData?.associativity ?? 'left';
-    }
-
-    /**
-     * ! Check if operator is assignment
-     */
-    isAssignmentOperator(operator) {
-        const opData = this.index.getOperator(operator);
-        return opData?.isAssign === true || opData?.type === 'assignment';
-    }
-
-    /**
-     * ! Validate keyword usage in context
-     */
-    validateKeywordInContext(keyword, context) {
-        const keywordData = this.index.getKeyword(keyword);
-        if (!keywordData) return { valid: false, error: 'Not a keyword' };
-
-        if (keywordData.contextual) {
-            if (!keywordData.allowedContexts) {
-                throw new Error(`Contextual keyword "${keyword}" missing allowedContexts`);
+    computeNumber() {
+        const start = this.position;
+        let end = start;
+        
+        // อ่านตัวเลข (Unicode math only) - โหลดจาก config
+        while (end < this.inputLength) {
+            // Security check: โหลดจาก config
+            if ((end - start) > SECURITY_LIMITS.MAX_NUMBER_LENGTH) {
+                throw new Error(`Number exceeds maximum length of ${SECURITY_LIMITS.MAX_NUMBER_LENGTH}`);
             }
-
-            if (!keywordData.allowedContexts.includes(context)) {
-                return {
-                    valid: true,
-                    isIdentifier: true,
-                    message: `"${keyword}" is an identifier in this context`
-                };
+            
+            const code = this.input.charCodeAt(end);
+            
+            // Digits, dot, 'E', 'e' - ทั้งหมดโหลดจาก config
+            if (
+                (code >= UNICODE.DIGIT.start && code <= UNICODE.DIGIT.end) ||
+                code === UNICODE.DOT.code ||
+                code === UNICODE.LETTER_E_UPPERCASE.code ||
+                code === UNICODE.LETTER_E_LOWERCASE.code
+            ) {
+                end++;
+            } else {
+                break;
             }
         }
+        
+        const value = this.input.slice(start, end);
+        this.position = end;
+        
+        return {
+            type: TOKEN_TYPE_STRINGS.NUMBER,
+            binary: (1 << TOKEN_TYPES.NUMBER.bit),
+            value: value,
+            length: end - start,
+            start: start,
+            end: end
+        };
+    }
 
-        // !  Check if deprecated
-        if (keywordData.deprecated) {
+    /**
+     * คำนวณ operator/punctuation โดยถาม Brain
+     * โหลด token types และ error messages จาก config
+     */
+    computeOperatorOrPunctuation() {
+        const start = this.position;
+        
+        // ถาม Brain: operator longest match
+        const opMatch = this.brain.findLongestOperator(this.input, start);
+        
+        if (opMatch && opMatch.found) {
+            this.position += opMatch.length;
             return {
-                valid: true,
-                warning: `"${keyword}" is deprecated. ${keywordData.deprecationMessage || ''}`
+                type: TOKEN_TYPE_STRINGS.OPERATOR,
+                binary: (1 << TOKEN_TYPES.OPERATOR.bit),
+                value: opMatch.operator,
+                length: opMatch.length,
+                start: start,
+                end: this.position
             };
         }
+        
+        // ถาม Brain: punctuation longest match
+        const punctMatch = this.brain.findLongestPunctuation(this.input, start);
+        
+        if (punctMatch && punctMatch.found) {
+            this.position += punctMatch.length;
+            return {
+                type: TOKEN_TYPE_STRINGS.PUNCTUATION,
+                binary: (1 << TOKEN_TYPES.PUNCTUATION.bit),
+                value: punctMatch.punctuation,
+                length: punctMatch.length,
+                start: start,
+                end: this.position
+            };
+        }
+        
+        // Error: โหลด error message template จาก config
+        const errorMsg = ERROR_MESSAGES.UNKNOWN_OPERATOR
+            .replace('{position}', start)
+            .replace('{char}', this.input[start]);
+        throw new Error(errorMsg);
+    }
 
-        return { valid: true };
+    /**
+     * Helper: Match pattern ที่ Brain บอก
+     */
+    matchPattern(position, pattern) {
+        if (position + pattern.length > this.inputLength) {
+            return false;
+        }
+        
+        for (let i = 0; i < pattern.length; i++) {
+            if (this.input[position + i] !== pattern[i]) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
 
-// ! Export examples as default
-export default {
-    ExampleTokenizer,
-    benchmarkTokenizer,
-    exampleBasicTokenization,
-    exampleOperatorLongestMatch,
-    exampleTypoSuggestions,
-    exampleKeywordAutocomplete,
-    exampleCategoryQueries,
-    exampleVersionQueries,
-    ParserIntegration
-};
+// Export alias for backward compatibility
+export { PureBinaryTokenizer as BinaryComputationTokenizer };
+export default PureBinaryTokenizer;

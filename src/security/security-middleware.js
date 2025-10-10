@@ -9,6 +9,7 @@
 // ======================================================================
 
 // Note: vscode module handling for both extension and test environments
+import errorHandler from '../error-handler/ErrorHandler.js';
 let vscode;
 
 // Initialize vscode module

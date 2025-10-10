@@ -32,6 +32,7 @@ import {
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import errorHandler from '../../error-handler/ErrorHandler.js';
 
 // !  Load Configuration (NO MORE HARDCODE!)
 const __filename = fileURLToPath(import.meta.url);
@@ -659,6 +660,97 @@ export class GrammarIndex {
         
         console.log(` GrammarIndex: Retrieved ${patterns.length} patterns for rule ${ruleId} from grammar`);
         return patterns;
+    }
+
+    // !  ===========================================================================
+    // !  TOKEN TYPE IDENTIFICATION - For Tokenizer
+    // !  ===========================================================================
+    // !  PURPOSE: Tokenizer ถามว่า character นี้คืออะไร โดยไม่ต้อง hardcode
+    // !  ===========================================================================
+
+    /**
+     * ! ระบุประเภทของ token จาก character และ context
+     * ! @param {string} char - Current character
+     * ! @param {string} input - Full input string
+     * ! @param {number} position - Current position
+     * ! @returns {{type: string, isComment: boolean, isString: boolean, isRegex: boolean, startPattern: string, endPattern: string, quote: string}}
+     */
+    identifyTokenType(char, input, position) {
+        // เช็ค 2 ตัวอักษร (เช่น //, /*)
+        if (position + 1 < input.length) {
+            const twoChar = char + input[position + 1];
+            
+            // Single-line comment: //
+            if (twoChar === '//') {
+                return {
+                    type: 'COMMENT',
+                    isComment: true,
+                    isString: false,
+                    isRegex: false,
+                    startPattern: '//',
+                    endPattern: '\n',
+                    length: 2
+                };
+            }
+            
+            // Multi-line comment: /* */
+            if (twoChar === '/*') {
+                return {
+                    type: 'COMMENT',
+                    isComment: true,
+                    isString: false,
+                    isRegex: false,
+                    startPattern: '/*',
+                    endPattern: '*/',
+                    length: 2
+                };
+            }
+        }
+        
+        // String quotes: ", ', `
+        if (char === '"') {
+            return {
+                type: 'STRING',
+                isComment: false,
+                isString: true,
+                isRegex: false,
+                quote: '"',
+                length: 1
+            };
+        }
+        
+        if (char === "'") {
+            return {
+                type: 'STRING',
+                isComment: false,
+                isString: true,
+                isRegex: false,
+                quote: "'",
+                length: 1
+            };
+        }
+        
+        if (char === '`') {
+            return {
+                type: 'STRING',
+                isComment: false,
+                isString: true,
+                isRegex: false,
+                quote: '`',
+                length: 1
+            };
+        }
+        
+        // เช็คว่าเป็น regex หรือไม่ (ต้องมี context)
+        // TODO: ใช้ grammar disambiguation rules
+        
+        return {
+            type: 'UNKNOWN',
+            isComment: false,
+            isString: false,
+            isRegex: false,
+            length: 0
+        };
     }
 
 

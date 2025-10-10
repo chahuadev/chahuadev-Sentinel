@@ -24,6 +24,9 @@
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
+
 
 // Load Configuration (NO MORE HARDCODE!)
 const __filename = fileURLToPath(import.meta.url);

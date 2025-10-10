@@ -16,10 +16,11 @@ import { ABSOLUTE_RULES } from './src/rules/validator.js';
 import { createSmartParserEngine } from './src/grammars/index.js';
 import { SecurityManager } from './src/security/security-manager.js';
 import { createSecurityConfig } from './src/security/security-config.js';
-import fs from 'fs';
-import path from 'path';
+import errorHandler from './src/error-handler/ErrorHandler.js';
+import { ErrorDetectionValidator } from './src/error-handler/ast-error-detection-validator.js';
 
-// Load CLI configuration from JSON 
+import fs from 'fs';
+import path from 'path';// Load CLI configuration from JSON 
 const cliConfig = JSON.parse(
     fs.readFileSync(new URL('./cli-config.json', import.meta.url), 'utf8')
 );

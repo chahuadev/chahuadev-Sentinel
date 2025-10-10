@@ -1,3 +1,4 @@
+
 // ! ══════════════════════════════════════════════════════════════════════════════
 // !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
 // !  Repository: https://github.com/chahuadev/chahuadev-Sentinel.git
@@ -8,6 +9,8 @@
 // ! @description Advanced security management system for VS Code extension
 // ! @security_level FORTRESS - Maximum Security Protection
 // ! ══════════════════════════════════════════════════════════════════════════════
+
+import errorHandler from '../error-handler/ErrorHandler.js';
 
 import fs from 'fs';
 import path from 'path';

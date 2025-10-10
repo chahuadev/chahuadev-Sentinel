@@ -11,6 +11,7 @@
 // !  ============================================================================
 
 import { GrammarIndex } from './grammar-index.js';
+import errorHandler from '../../error-handler/ErrorHandler.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';

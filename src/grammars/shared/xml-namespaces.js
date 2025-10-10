@@ -8,6 +8,8 @@
 // XML Namespaces Configuration for JSX Grammar
 // ============================================================================
 
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
 /**
  * XML Namespaces for JSX/React components
  */

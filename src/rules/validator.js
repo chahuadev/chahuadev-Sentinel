@@ -15,8 +15,8 @@
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! Rule Files:
 // !  - NO_MOCKING.js
-// !   - NO_HARDCODE.js
-// !   - NO_SILENT_FALLBACKS.js
+// !  - NO_HARDCODE.js
+// !  - NO_SILENT_FALLBACKS.js
 // !  - NO_INTERNAL_CACHING.js
 // !  - NO_EMOJI.js
 // ! ══════════════════════════════════════════════════════════════════════════════
@@ -24,6 +24,8 @@
 // ! ══════════════════════════════════════════════════════════════════════════════
 // !  IMPORTS - นำเข้ากฎทั้ง 5 ข้อจากไฟล์แยก
 // ! ══════════════════════════════════════════════════════════════════════════════
+
+import errorHandler from '../error-handler/ErrorHandler.js';
 
 import { ABSOLUTE_RULES as MOCKING_RULE } from './NO_MOCKING.js';
 import { ABSOLUTE_RULES as HARDCODE_RULE } from './NO_HARDCODE.js';

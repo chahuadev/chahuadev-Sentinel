@@ -25,6 +25,9 @@
  * @param {object} config - Configuration for the store
  * @returns {object} Store instance with get/set/has/delete methods
  */
+import errorHandler from '../error-handler/ErrorHandler.js';
+
+
 function createRateLimitStore(type = 'memory', config = {}) {
     switch (type) {
         case 'memory':

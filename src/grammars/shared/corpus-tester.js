@@ -1,3 +1,5 @@
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
 
 // ! ======================================================================
 // !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
@@ -15,6 +17,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GrammarIndex } from './grammar-index.js';
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

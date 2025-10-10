@@ -10,11 +10,26 @@
 // !  ตรวจสอบความถูกต้องและความสอดคล้องของไฟล์แกรมม่าทั้งหมด
 // !  ============================================================================
 
-import { JAVASCRIPT_GRAMMAR } from '../javascript.grammar.js';
-import { TYPESCRIPT_GRAMMAR } from '../typescript.grammar.js';
-import { JAVA_GRAMMAR } from '../java.grammar.js';
-import { JSX_GRAMMAR } from '../jsx.grammar.js';
-import config from './parser-config.json' with { type: 'json' };
+// Grammar Validation Module
+// Ensures all grammars are correctly loaded before use
+
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load grammars from JSON (Pure Data)
+const JAVASCRIPT_GRAMMAR = JSON.parse(readFileSync(join(__dirname, '../javascript.grammar.json'), 'utf8'));
+const TYPESCRIPT_GRAMMAR = JSON.parse(readFileSync(join(__dirname, '../typescript.grammar.json'), 'utf8'));
+const JAVA_GRAMMAR = JSON.parse(readFileSync(join(__dirname, '../java.grammar.json'), 'utf8'));
+const JSX_GRAMMAR = JSON.parse(readFileSync(join(__dirname, '../jsx.grammar.json'), 'utf8'));
+
+// Load config
+const config = JSON.parse(readFileSync(join(__dirname, './parser-config.json'), 'utf8'));
 
 const VALIDATION_CONFIG = config.validationReporting;
 

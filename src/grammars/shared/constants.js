@@ -1,3 +1,5 @@
+import errorHandler from '../../error-handler/ErrorHandler.js';
+
 
 // ! ======================================================================
 // !  บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)
@@ -8,6 +10,7 @@
 // ! ======================================================================
 // !  ! NO_HARDCODE: Central repository for all rule IDs and constant values
 // !  ! ป้องกันการพิมพ์ผิด ruleId และจัดการ constants จากที่เดียว
+
 
 /**
  * Absolute Rule IDs - 5 กฎเหล็กของ Chahuadev
