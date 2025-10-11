@@ -159,7 +159,7 @@ const PUNCTUATION_BINARY_MAP = CONFIG.punctuationBinaryMap?.map || {};
  * 
  * NO_HARDCODE COMPLIANCE: โหลดค่าทั้งหมดจาก tokenizer-binary-config.json
  */
-export class UniversalCharacterClassifier {
+class UniversalCharacterClassifier {
     /**
      * ตรวจสอบว่าเป็นตัวอักษรหรือไม่ (A-Z, a-z)
      * Unicode Standard: โหลดจาก config
@@ -235,7 +235,7 @@ export class UniversalCharacterClassifier {
  * 
  * NO_HARDCODE COMPLIANCE: โหลดทุกค่าจาก config
  */
-export class PureBinaryTokenizer {
+class PureBinaryTokenizer {
     constructor(grammarIndexOrLanguage = 'javascript') {
         // ! Support both GrammarIndex object and language string for backward compatibility
         if (typeof grammarIndexOrLanguage === 'string') {
@@ -866,6 +866,24 @@ export class PureBinaryTokenizer {
     }
 }
 
-// Export alias for backward compatibility
-export { PureBinaryTokenizer as BinaryComputationTokenizer };
+// ============================================================================
+// EXPORTS FOR TESTING
+// ============================================================================
+// Export individual functions and classes for comprehensive unit testing
+// This allows tests to verify the actual implementation rather than
+// duplicating logic in test files
+// ============================================================================
+
+export { 
+    UniversalCharacterClassifier,
+    PureBinaryTokenizer,
+    PureBinaryTokenizer as BinaryComputationTokenizer, // Alias for backward compatibility
+    // Export config values for test access
+    CONFIG,
+    UNICODE,
+    CHAR_FLAGS,
+    TOKEN_TYPES
+};
+
+// Default export
 export default PureBinaryTokenizer;

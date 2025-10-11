@@ -75,7 +75,7 @@ npm run test:integration
 
 #### What We Test:
 - **Complete Parser Pipeline** (`parser.e2e.test.js`)
-  - Full source code → AST transformation
+  - Full source code  AST transformation
   - All JavaScript language features
   - Error handling for invalid syntax
   - Performance benchmarks

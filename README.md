@@ -125,7 +125,7 @@ flowchart LR
     style E fill:#c8e6c9
 ```
 
-**Visual Flow:** Source Code → Character Classification → Binary Tokenization → Grammar Lookup → Token Stream
+**Visual Flow:** Source Code  Character Classification  Binary Tokenization  Grammar Lookup  Token Stream
 
 ### Detailed Flow Diagram
 
@@ -133,22 +133,22 @@ flowchart LR
 ┌─────────────────────────────────────────────────────────────┐
 │                    SOURCE CODE (Text)                       │
 └─────────────────────────────────────────────────────────────┘
-                            ↓
+                            
 ┌─────────────────────────────────────────────────────────────┐
 │          UniversalCharacterClassifier                       │
-│  Reads Unicode values: 'a' → 97 → LETTER flag              │
+│  Reads Unicode values: 'a'  97  LETTER flag              │
 └─────────────────────────────────────────────────────────────┘
-                            ↓
+                            
 ┌─────────────────────────────────────────────────────────────┐
 │          PureBinaryTokenizer (Blank Paper)                  │
 │  Groups characters by binary flags (no language knowledge)  │
 └─────────────────────────────────────────────────────────────┘
-                            ↓
+                            
 ┌─────────────────────────────────────────────────────────────┐
 │          GrammarIndex (External Brain)                      │
 │  Consults grammar file: "Is 'const' a keyword?"            │
 └─────────────────────────────────────────────────────────────┘
-                            ↓
+                            
 ┌─────────────────────────────────────────────────────────────┐
 │          TOKEN STREAM (Semantic Binary Flags)               │
 └─────────────────────────────────────────────────────────────┘
