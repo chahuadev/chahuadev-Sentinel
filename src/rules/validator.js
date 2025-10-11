@@ -63,6 +63,12 @@ export class ValidationEngine {
             console.log('[SUCCESS] ValidationEngine initialized');
             return true;
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'ValidationEngine',
+                method: 'initializeParserStudy',
+                severity: 'CRITICAL',
+                context: 'ValidationEngine initialization failed - Parser engine creation error'
+            });
             console.error('[ERROR] ValidationEngine init failed:', error.message);
             throw new Error(`ValidationEngine initialization failed: ${error.message}`);
         }
@@ -81,6 +87,12 @@ export class ValidationEngine {
                 success: (results.violations || []).length === 0
             };
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'ValidationEngine',
+                method: 'validateCode',
+                severity: 'HIGH',
+                context: `Validation failed for ${fileName} - Code analysis error`
+            });
             console.error(`[ERROR] Validation error for ${fileName}:`, error.message);
             throw new Error(`Validation failed for ${fileName}: ${error.message}`);
         }

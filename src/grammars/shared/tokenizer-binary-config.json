@@ -108,7 +108,7 @@
       "categories": {
         "UNICODE_LETTER": {
           "ranges": "U+0080 to U+10FFFF",
-          "examples": ["á", "ñ", "文", "字", "😀"],
+          "examples": ["á", "ñ", "文", "字", ""],
           "note": "Requires ALLOW_UNICODE_IDENTIFIERS=true in parsingRules"
         },
         "UNICODE_DIGIT": {
@@ -981,7 +981,7 @@
     "javascript": {
       "language": "JavaScript",
       "version": "ES2024",
-      "totalKeywords": 64,
+      "totalKeywords": 80,
       "keywords": [
         "break", "case", "catch", "class", "const", "continue", "debugger", "default",
         "delete", "do", "else", "export", "extends", "finally", "for", "function",
@@ -989,18 +989,26 @@
         "this", "throw", "try", "typeof", "var", "void", "while", "with",
         "yield", "async", "await", "let", "static", "enum", "implements", "interface",
         "package", "private", "protected", "public", "true", "false", "null", "undefined",
-        "of", "get", "set", "from", "as", "meta", "target", "using", "defer"
+        "of", "get", "set", "from", "as", "meta", "target", "using", "defer",
+        "arguments", "eval", "constructor",
+        "abstract", "boolean", "byte", "char", "double", "final", "float", "goto", 
+        "int", "long", "native", "short", "synchronized", "throws", "transient", "volatile"
       ],
       "futureReserved": ["enum", "implements", "interface", "package", "private", "protected", "public"],
-      "contextualKeywords": ["async", "await", "of", "get", "set", "from", "as", "static", "target", "meta"],
+      "futureReservedOldECMA": [
+        "abstract", "boolean", "byte", "char", "double", "final", "float", "goto",
+        "int", "long", "native", "short", "synchronized", "throws", "transient", "volatile"
+      ],
+      "contextualKeywords": ["async", "await", "of", "get", "set", "from", "as", "static", "target", "meta", "using", "defer"],
       "strictModeReserved": ["let", "static", "yield", "arguments", "eval"],
+      "specialIdentifiers": ["arguments", "eval", "constructor"],
       "literals": ["true", "false", "null", "undefined"]
     },
 
     "typescript": {
       "language": "TypeScript",
       "version": "5.3",
-      "totalKeywords": 95,
+      "totalKeywords": 100,
       "keywords": [
         "break", "case", "catch", "class", "const", "continue", "debugger", "default",
         "delete", "do", "else", "export", "extends", "finally", "for", "function",
@@ -1011,17 +1019,23 @@
         "of", "get", "set", "from", "as", "namespace", "module", "declare", "type",
         "readonly", "abstract", "require", "global", "keyof", "infer", "is", "asserts",
         "any", "unknown", "never", "number", "boolean", "string", "symbol", "bigint",
-        "object", "unique", "out", "in", "satisfies", "using", "accessor", "override"
+        "object", "unique", "out", "in", "satisfies", "using", "accessor", "override",
+        "constructor", "intrinsic", "defer", "arguments", "eval"
       ],
       "typeKeywords": [
         "any", "unknown", "never", "void", "number", "boolean", "string", 
-        "symbol", "bigint", "object", "undefined", "null"
+        "symbol", "bigint", "object", "undefined", "null", "intrinsic"
       ],
       "modifiers": [
         "public", "private", "protected", "readonly", "static", "abstract",
         "async", "const", "declare", "override", "accessor"
       ],
       "typeOperators": ["keyof", "typeof", "infer", "is", "asserts", "satisfies", "unique"],
+      "specialIdentifiers": ["arguments", "eval", "constructor"],
+      "futureReservedOldECMA": [
+        "abstract", "boolean", "byte", "char", "double", "final", "float", "goto",
+        "int", "long", "native", "short", "synchronized", "throws", "transient", "volatile"
+      ],
       "literals": ["true", "false", "null", "undefined"]
     },
 
@@ -1243,6 +1257,142 @@
     "validationRequired": true
      },
 
+  "__section_15": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_15_number": "15",
+  "__section_15_title": "【SECTION 15】Grammar Structure Constants",
+  "__section_15_languages": ["All Languages"],
+  "__section_15_description": "Constants for grammar structure detection and metadata field identification",
+  "__section_15_purpose": "กำหนด field names ที่ใช้ระบุว่า object เป็น grammar item (keyword/operator) หรือเป็น nested category",
+  "__section_15_responsibility": "ให้ tokenizer สามารถ flatten nested grammar structure ได้โดยไม่ต้อง hardcode field names",
+  "__section_15_used_by": ["PureBinaryTokenizer.flattenSection"],
+  "__section_15_footer": "══════════════════════════════════════════════════════════════════════════════",
+
+  "grammarStructure": {
+    "description": "Field names that indicate a grammar item vs nested category - NO_HARDCODE compliance",
+    "metadataFields": {
+      "description": "Fields that appear in final grammar items (keywords, operators, punctuation)",
+      "purpose": "Used by flattenSection() to identify grammar items vs nested categories",
+      "fields": [
+        "type",
+        "category",
+        "subcategory",
+        "description",
+        "esVersion",
+        "source",
+        "precedence",
+        "associativity",
+        "usage",
+        "strictMode",
+        "contextual",
+        "deprecated",
+        "examples",
+        "fixity",
+        "arity"
+      ]
+    },
+    "sectionPrefixes": {
+      "description": "Prefixes that indicate section metadata (not grammar items)",
+      "purpose": "Used to skip metadata fields when flattening grammar sections",
+      "prefixes": [
+        "__section_",
+        "__comment_"
+      ]
+    }
+  },
+
+  "__section_16": "══════════════════════════════════════════════════════════════════════════════",
+  "__section_16_number": "16",
+  "__section_16_title": "【SECTION 16】Punctuation Binary Map",
+  "__section_16_languages": ["All Languages"],
+  "__section_16_description": "Binary constants for punctuation characters - enables 100% binary parsing without string comparison",
+  "__section_16_purpose": "แมป punctuation characters เป็นตัวเลข binary เพื่อให้ parser ใช้ integer comparison แทน string comparison",
+  "__section_16_responsibility": "ให้ parser สามารถตรวจสอบ punctuation ด้วย binary check ได้ 100% - NO STRING COMPARISON",
+  "__section_16_used_by": ["PureBinaryParser.matchPunctuation", "PureBinaryParser.consume"],
+  "__section_16_footer": "══════════════════════════════════════════════════════════════════════════════",
+
+  "punctuationBinaryMap": {
+    "description": "Binary constants for each punctuation character - enables pure binary comparison",
+    "philosophy": "100% BINARY - parser must never use string comparison, even for punctuation",
+    "usage": "Use token.punctuationBinary instead of token.value === '(' comparisons",
+    "totalPunctuations": 24,
+    "map": {
+      "(": 1,
+      ")": 2,
+      "{": 3,
+      "}": 4,
+      "[": 5,
+      "]": 6,
+      ";": 7,
+      ",": 8,
+      ".": 9,
+      ":": 10,
+      "?": 11,
+      "=>": 12,
+      "...": 13,
+      "@": 14,
+      "#": 15,
+      "`": 16,
+      "'": 17,
+      "\"": 18,
+      "!": 19,
+      "~": 20,
+      "<": 21,
+      ">": 22,
+      "/": 23,
+      "\\": 24
+    },
+    "reverseLookup": {
+      "1": "(",
+      "2": ")",
+      "3": "{",
+      "4": "}",
+      "5": "[",
+      "6": "]",
+      "7": ";",
+      "8": ",",
+      "9": ".",
+      "10": ":",
+      "11": "?",
+      "12": "=>",
+      "13": "...",
+      "14": "@",
+      "15": "#",
+      "16": "`",
+      "17": "'",
+      "18": "\"",
+      "19": "!",
+      "20": "~",
+      "21": "<",
+      "22": ">",
+      "23": "/",
+      "24": "\\"
+    },
+    "categories": {
+      "grouping": ["(", ")", "{", "}", "[", "]"],
+      "separators": [";", ",", ".", ":"],
+      "operators": ["?", "!", "~", "<", ">", "/", "\\"],
+      "arrows": ["=>"],
+      "spread": ["..."],
+      "decorators": ["@"],
+      "private": ["#"],
+      "stringDelimiters": ["'", "\"", "`"]
+    },
+    "contextDependent": {
+      "/": ["division operator", "regex delimiter", "comment start"],
+      "<": ["less than operator", "JSX opening tag", "type parameter start"],
+      ">": ["greater than operator", "JSX closing tag", "type parameter end"],
+      ".": ["member access", "decimal point", "spread part"],
+      "!": ["logical NOT", "non-null assertion (TS)", "important (CSS)"],
+      ":": ["ternary operator", "object property", "type annotation (TS)", "label"],
+      "'": ["string delimiter", "character literal (Java)"],
+      "\"": ["string delimiter"],
+      "`": ["template literal delimiter"],
+      "@": ["decorator (TS/Java)", "at-rule (CSS)", "annotation (Java)"],
+      "#": ["private field (JS)", "color (CSS)", "preprocessor (C)", "hashbang"],
+      "\\": ["escape character", "path separator (Windows)", "lambda (Haskell)"]
+    }
+  },
+
   "__section_philosophy": "══════════════════════════════════════════════════════════════════════════════",
   "__section_philosophy_type": "Documentation",
   "__section_philosophy_title": "【PHILOSOPHY】Architecture Philosophy & Design Principles",
@@ -1291,27 +1441,27 @@
           "step": 1,
           "name": "File System Storage",
           "description": "Source code file stored as binary (0s and 1s) by operating system",
-          "example": "const x = 5; → stored as sequence of ASCII/UTF-8 bytes"
+          "example": "const x = 5;  stored as sequence of ASCII/UTF-8 bytes"
         },
         {
           "step": 2,
           "name": "Character Code Reading",
           "description": "UniversalCharacterClassifier reads numeric character codes",
-          "example": "'c' → charCode 99 (0x63) → mathematical comparison begins",
-          "logic": "99 >= 65 && 99 <= 90 || 99 >= 97 && 99 <= 122 → TRUE → LETTER"
+          "example": "'c'  charCode 99 (0x63)  mathematical comparison begins",
+          "logic": "99 >= 65 && 99 <= 90 || 99 >= 97 && 99 <= 122  TRUE  LETTER"
         },
         {
           "step": 3,
           "name": "Binary Flag Computation",
           "description": "Character properties encoded as bit flags (from config)",
           "example": "LETTER=0b00001, DIGIT=0b00010, WHITESPACE=0b00100, OPERATOR=0b01000",
-          "bitwise": "flags |= (1 << CHAR_FLAGS.LETTER.bit) → flags = 0b00001"
+          "bitwise": "flags |= (1 << CHAR_FLAGS.LETTER.bit)  flags = 0b00001"
         },
         {
           "step": 4,
           "name": "Token Assembly",
           "description": "Characters grouped into tokens by asking Brain (GrammarIndex)",
-          "example": "'c','o','n','s','t' → Brain says 'KEYWORD' → assign binary 0b00100000"
+          "example": "'c','o','n','s','t'  Brain says 'KEYWORD'  assign binary 0b00100000"
         },
         {
           "step": 5,
@@ -1373,7 +1523,7 @@
       },
       "ourApproach": {
         "approach": "Pure mathematical character classification + external Brain",
-        "example": "brain.identifyTokenType(char, input, position) → ask, don't assume",
+        "example": "brain.identifyTokenType(char, input, position)  ask, don't assume",
         "advantages": [
           "All decisions delegated to external GrammarIndex (Brain)",
           "Single tokenizer for all languages, just swap Brain",
@@ -1387,9 +1537,9 @@
     "keyInsight": {
       "title": "The Fundamental Insight",
       "statement": "We are NOT reading Machine Code. We are reading Character Codes and converting them to Semantic Binary Flags through pure mathematics.",
-      "analogy": "Think of it like a prism splitting white light into spectrum. Source code (white light) → Character codes (photons) → Binary flags (colors). The prism (tokenizer) is dumb - it just bends light mathematically. The Brain (GrammarIndex) interprets what those colors mean.",
+      "analogy": "Think of it like a prism splitting white light into spectrum. Source code (white light)  Character codes (photons)  Binary flags (colors). The prism (tokenizer) is dumb - it just bends light mathematically. The Brain (GrammarIndex) interprets what those colors mean.",
       "prohibition": "NEVER try to understand CPU opcodes. That's the compiler's job downstream. Our job ends at semantic token stream.",
-      "boundary": "Our domain: Source Code → Binary Token Stream. Compiler's domain: Binary Token Stream → Machine Code."
+      "boundary": "Our domain: Source Code  Binary Token Stream. Compiler's domain: Binary Token Stream  Machine Code."
     },
 
     "visualExample": {
@@ -1400,54 +1550,54 @@
           "char": "c",
           "charCode": 99,
           "binary": "01100011",
-          "classification": "99>=97 && 99<=122 → LETTER (0b00001)",
+          "classification": "99>=97 && 99<=122  LETTER (0b00001)",
           "action": "Start identifier/keyword collection"
         },
         {
           "char": "o",
           "charCode": 111,
           "binary": "01101111",
-          "classification": "111>=97 && 111<=122 → LETTER (0b00001)",
+          "classification": "111>=97 && 111<=122  LETTER (0b00001)",
           "action": "Continue identifier/keyword collection"
         },
         {
           "sequence": "const",
           "chars": "c,o,n,s,t",
           "accumulated": "const",
-          "brainQuery": "brain.isKeyword('const') → TRUE",
+          "brainQuery": "brain.isKeyword('const')  TRUE",
           "tokenOutput": "{type:'KEYWORD', binary:32, value:'const'}"
         },
         {
           "char": " ",
           "charCode": 32,
           "binary": "00100000",
-          "classification": "32===32 → WHITESPACE (0b00100)",
+          "classification": "32===32  WHITESPACE (0b00100)",
           "action": "Skip (PARSING_RULES.SKIP_WHITESPACE=true)"
         },
         {
           "char": "x",
           "charCode": 120,
           "binary": "01111000",
-          "classification": "120>=97 && 120<=122 → LETTER (0b00001)",
+          "classification": "120>=97 && 120<=122  LETTER (0b00001)",
           "tokenOutput": "{type:'IDENTIFIER', binary:1, value:'x'}"
         },
         {
           "char": "=",
           "charCode": 61,
-          "brainQuery": "brain.findLongestOperator('=') → found",
+          "brainQuery": "brain.findLongestOperator('=')  found",
           "tokenOutput": "{type:'OPERATOR', binary:8, value:'='}"
         },
         {
           "char": "5",
           "charCode": 53,
           "binary": "00110101",
-          "classification": "53>=48 && 53<=57 → DIGIT (0b00010)",
+          "classification": "53>=48 && 53<=57  DIGIT (0b00010)",
           "tokenOutput": "{type:'NUMBER', binary:2, value:'5'}"
         },
         {
           "char": ";",
           "charCode": 59,
-          "brainQuery": "brain.findLongestPunctuation(';') → found",
+          "brainQuery": "brain.findLongestPunctuation(';')  found",
           "tokenOutput": "{type:'PUNCTUATION', binary:64, value:';'}"
         }
       ],
@@ -1464,13 +1614,13 @@
       "title": "Proving ZERO HARDCODE Compliance",
       "statement": "Every single value used by tokenizer comes from this config file",
       "evidence": [
-        "Character boundaries (65,90,97,122,48,57) → unicodeRanges.ranges",
-        "Token type strings ('KEYWORD','NUMBER') → tokenTypeStrings.types",
-        "Binary bit positions (bit:0,1,2,3...) → tokenBinaryTypes.types[*].bit",
-        "Error message templates → errorMessages.templates",
-        "Security limits (MAX_TOKEN_LENGTH) → securityConfig.limits",
-        "Parsing behavior (SKIP_WHITESPACE) → parsingRules.rules",
-        "All special characters (_, $, ., \\) → unicodeRanges.ranges"
+        "Character boundaries (65,90,97,122,48,57)  unicodeRanges.ranges",
+        "Token type strings ('KEYWORD','NUMBER')  tokenTypeStrings.types",
+        "Binary bit positions (bit:0,1,2,3...)  tokenBinaryTypes.types[*].bit",
+        "Error message templates  errorMessages.templates",
+        "Security limits (MAX_TOKEN_LENGTH)  securityConfig.limits",
+        "Parsing behavior (SKIP_WHITESPACE)  parsingRules.rules",
+        "All special characters (_, $, ., \\)  unicodeRanges.ranges"
       ],
       "verification": "If DevOps changes unicodeRanges.ranges.UPPERCASE_LETTER.start from 65 to 66, 'A' stops being recognized as letter - proving config controls everything",
       "goldenRule": "If you can't change tokenizer behavior by editing ONLY this JSON file, you found a hardcode violation"
@@ -1501,11 +1651,11 @@
           "name": "Identify Number Base",
           "description": "Look at second character to determine base",
           "patterns": {
-            "binary": "Next char is 'b' (98) or 'B' (66) → Binary (base 2)",
-            "octal": "Next char is 'o' (111) or 'O' (79) → Octal (base 8)",
-            "hex": "Next char is 'x' (120) or 'X' (88) → Hexadecimal (base 16)",
-            "legacyOctal": "Next char is digit 0-7 → Legacy octal (deprecated in strict mode)",
-            "decimal": "Anything else → Decimal"
+            "binary": "Next char is 'b' (98) or 'B' (66)  Binary (base 2)",
+            "octal": "Next char is 'o' (111) or 'O' (79)  Octal (base 8)",
+            "hex": "Next char is 'x' (120) or 'X' (88)  Hexadecimal (base 16)",
+            "legacyOctal": "Next char is digit 0-7  Legacy octal (deprecated in strict mode)",
+            "decimal": "Anything else  Decimal"
           }
         },
         "step3": {
@@ -1522,9 +1672,9 @@
           "name": "Handle Numeric Separators",
           "description": "Allow underscore (95) between digits for readability",
           "examples": [
-            "0b1010_1010 → Valid binary",
-            "1_000_000 → Valid decimal",
-            "0xFF_FF → Valid hexadecimal"
+            "0b1010_1010  Valid binary",
+            "1_000_000  Valid decimal",
+            "0xFF_FF  Valid hexadecimal"
           ],
           "rules": [
             "Cannot start with underscore",

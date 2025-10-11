@@ -23,19 +23,31 @@
 
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { SecurityManager } from '../../security/security-manager.js';
 import errorHandler from '../../error-handler/ErrorHandler.js';
+import { SmartParserEngine } from '../../../test/violation-examples/smart-parser-engine.js';
+import { GrammarIndex } from './grammar-index.js';
 
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// WHY: Get project root directory for CLI execution (NO_HARDCODE)
-const projectRoot = path.resolve(__dirname, '../../..');
-const cliPath = path.join(projectRoot, 'cli.js');
+// Load parser configuration
+const configPath = path.join(__dirname, 'parser-config.json');
+let PARSER_CONFIG;
+try {
+    PARSER_CONFIG = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+} catch (error) {
+    errorHandler.handleError(error, {
+        source: 'Logger',
+        method: 'initialization',
+        severity: 'CRITICAL',
+        context: `Failed to load parser configuration from ${configPath}`
+    });
+    throw new Error(`Failed to load parser configuration from ${configPath}: ${error.message}`);
+}
 
 // ============================================================================
 // Professional Logging System - ระบบบันทึกมืออาชีพ
@@ -255,6 +267,12 @@ class ProfessionalScanLogger {
         try {
             fs.appendFileSync(this.logFiles.errors, entry, 'utf8');
         } catch (err) {
+            errorHandler.handleError(err, {
+                source: 'Logger',
+                method: 'error',
+                severity: 'CRITICAL',
+                context: `Failed to write error log to ${this.logFiles.errors}`
+            });
             console.error(`CRITICAL: Failed to write error log: ${this.logFiles.errors}`, err);
             // WHY: Error logging failure is catastrophic - if we can't log errors, system is unreliable (NO_SILENT_FALLBACKS)
             throw new Error(`Error logging failed: ${err.message}`);
@@ -318,50 +336,178 @@ class ScanProcessor {
         this.logger = logger;
     }
 
-    runValidation(targetDir = 'src') {
-        colorLog('[STEP 2] Running validation on src/ directory...', 'yellow');
-        colorLog(`  -> Executing: node cli.js --quiet ${targetDir}`, 'gray');
+    async runValidation(targetDir = 'src') {
+        colorLog('[STEP 2] Running validation on source files...', 'yellow');
+        colorLog(`  -> Analyzing directory: ${targetDir}`, 'gray');
 
         const startTime = Date.now();
         this.logger.audit('SCAN_START', { targetDirectory: targetDir });
 
         try {
-            // WHY: Use absolute path to CLI to work from any location (NO_HARDCODE)
-            const output = execSync(`node "${cliPath}" --quiet ${targetDir}`, {
-                encoding: 'utf8',
-                stdio: ['pipe', 'pipe', 'pipe'],
-                cwd: projectRoot
-            });
+            // NEW: Direct import and function call (NO execSync!)
+            // Load all grammar files
+            colorLog('  -> Loading grammar files...', 'gray');
+            const [javascript, typescript, java, jsx] = await Promise.all([
+                GrammarIndex.loadGrammar('javascript'),
+                GrammarIndex.loadGrammar('typescript'),
+                GrammarIndex.loadGrammar('java'),
+                GrammarIndex.loadGrammar('jsx')
+            ]);
+
+            // Combine grammars
+            const combinedGrammar = {
+                ...javascript,
+                ...typescript,
+                ...java,
+                ...jsx
+            };
+
+            // Initialize SmartParserEngine
+            colorLog('  -> Initializing SmartParserEngine...', 'gray');
+            const engine = new SmartParserEngine(combinedGrammar, PARSER_CONFIG);
+
+            // Scan files in target directory
+            const files = this.getFilesToScan(targetDir);
+            colorLog(`  -> Found ${files.length} files to analyze`, 'gray');
+
+            let allViolations = [];
+            let totalErrors = 0;
+
+            for (const filePath of files) {
+                try {
+                    const code = fs.readFileSync(filePath, 'utf8');
+                    colorLog(`  -> Analyzing: ${filePath}`, 'gray');
+
+                    // Direct function call - Fast & Reliable!
+                    const violations = engine.analyzeCode(code);
+
+                    if (violations && violations.length > 0) {
+                        violations.forEach(v => {
+                            v.file = filePath; // Add file path to violation
+                            allViolations.push(v);
+                        });
+                        totalErrors += violations.length;
+                    }
+                } catch (fileError) {
+                    errorHandler.handleError(fileError, {
+                        source: 'ScanProcessor',
+                        method: 'runValidation',
+                        severity: 'HIGH',
+                        context: `Error analyzing file: ${filePath}`
+                    });
+                    console.error(`Error analyzing ${filePath}:`, fileError.message);
+                    this.logger.error('FILE_ANALYSIS_ERROR', fileError.message, fileError);
+                }
+            }
 
             const duration = Date.now() - startTime;
             this.logger.performance('SCAN_EXECUTION', duration, {
                 targetDirectory: targetDir,
-                exitCode: 0
+                filesScanned: files.length,
+                violationsFound: totalErrors,
+                exitCode: totalErrors > 0 ? 1 : 0
             });
 
-            colorLog('  [OK] Validation completed with exit code: 0', 'green');
-            return { output, exitCode: 0 };
+            // Format output similar to CLI format
+            const output = this.formatViolationsOutput(allViolations);
+
+            const exitCode = totalErrors > 0 ? 1 : 0;
+            colorLog(`  [OK] Validation completed with exit code: ${exitCode}`, exitCode === 0 ? 'green' : 'yellow');
+            colorLog(`  -> Found ${totalErrors} violations in ${files.length} files`, 'gray');
+
+            return { output, exitCode, violations: allViolations };
+
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'ScanProcessor',
+                method: 'runValidation',
+                severity: 'CRITICAL',
+                context: `Validation execution failed for directory: ${targetDir}`
+            });
             const duration = Date.now() - startTime;
             this.logger.performance('SCAN_EXECUTION', duration, {
                 targetDirectory: targetDir,
-                exitCode: error.status || 1
+                exitCode: 1,
+                error: error.message
             });
 
-            // WHY: This is expected behavior when violations are found (operational error)
-            const operationalError = new Error(`CLI exited with code ${error.status}`);
+            this.logger.error('SCAN_ERROR', error.message, error);
+
+            const operationalError = new Error(`Scan failed: ${error.message}`);
             operationalError.isOperational = true;
-            operationalError.statusCode = error.status;
             errorHandler.handleError(operationalError, {
                 source: 'logger.js',
                 method: 'runValidation',
-                targetDir: targetDir,
-                expectedBehavior: true
+                targetDir: targetDir
             });
 
-            colorLog(`  [OK] Validation completed with exit code: ${error.status}`, 'yellow');
-            return { output: error.stdout || error.stderr || '', exitCode: error.status || 1 };
+            throw error;
         }
+    }
+
+    /**
+     * Get list of JavaScript/TypeScript files to scan
+     */
+    getFilesToScan(targetDir) {
+        const files = [];
+        const extensions = ['.js', '.jsx', '.ts', '.tsx', '.mjs'];
+
+        const scanDirectory = (dir) => {
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+            for (const entry of entries) {
+                const fullPath = path.join(dir, entry.name);
+
+                if (entry.isDirectory()) {
+                    // Skip node_modules, .git, etc.
+                    if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
+                        scanDirectory(fullPath);
+                    }
+                } else if (entry.isFile()) {
+                    const ext = path.extname(entry.name);
+                    if (extensions.includes(ext)) {
+                        files.push(fullPath);
+                    }
+                }
+            }
+        };
+
+        scanDirectory(targetDir);
+        return files;
+    }
+
+    /**
+     * Format violations output similar to CLI format
+     */
+    formatViolationsOutput(violations) {
+        if (!violations || violations.length === 0) {
+            return 'No violations found.';
+        }
+
+        let output = '';
+        let currentFile = '';
+
+        violations.forEach(violation => {
+            // Group by file
+            if (violation.file !== currentFile) {
+                if (currentFile) output += '\n';
+                output += `\n${violation.file}:\n`;
+                currentFile = violation.file;
+            }
+
+            // Format violation line
+            const line = violation.location?.line || '?';
+            const col = violation.location?.column || '?';
+            const rule = violation.ruleId || 'unknown';
+            const severity = violation.severity || 'error';
+            const message = violation.message || 'No message';
+
+            output += `  ${line}:${col}  ${severity}  ${message}  ${rule}\n`;
+        });
+
+        output += `\n[x] ${violations.length} problem${violations.length > 1 ? 's' : ''}\n`;
+
+        return output;
     }
 
     classifyViolations(output, timestamp) {
@@ -402,6 +548,12 @@ class ScanProcessor {
             try {
                 fs.writeFileSync(filepath, content, 'utf8');
             } catch (err) {
+                errorHandler.handleError(err, {
+                    source: 'ScanProcessor',
+                    method: 'saveViolationsByRule',
+                    severity: 'CRITICAL',
+                    context: `Failed to write violation log: ${filepath}`
+                });
                 console.error(`CRITICAL: Failed to write violation log: ${filepath}`, err);
                 // WHY: Cannot continue without proper violation logging - must fail loudly (NO_SILENT_FALLBACKS)
                 const error = new Error(`Failed to create violation log for ${rule}: ${err.message}`);
@@ -470,6 +622,12 @@ class ScanProcessor {
         try {
             fs.writeFileSync(filepath, content, 'utf8');
         } catch (err) {
+            errorHandler.handleError(err, {
+                source: 'ScanProcessor',
+                method: 'saveErrorLog',
+                severity: 'CRITICAL',
+                context: `Failed to write error log: ${filepath}`
+            });
             console.error(`CRITICAL: Failed to write error log: ${filepath}`, err);
             // WHY: Error log is essential for debugging - failure to write must be reported (NO_SILENT_FALLBACKS)
             throw new Error(`Failed to create error log: ${err.message}`);
@@ -540,6 +698,12 @@ class ScanProcessor {
         try {
             fs.writeFileSync(filepath, content.join('\n'), 'utf8');
         } catch (err) {
+            errorHandler.handleError(err, {
+                source: 'ScanProcessor',
+                method: 'saveSummaryReport',
+                severity: 'CRITICAL',
+                context: `Failed to write summary report: ${filepath}`
+            });
             console.error(`CRITICAL: Failed to write summary report: ${filepath}`, err);
             // WHY: Summary report is the primary deliverable - failure must be visible (NO_SILENT_FALLBACKS)
             throw new Error(`Failed to create summary report: ${err.message}`);
@@ -589,7 +753,7 @@ class ScanProcessor {
 // Main Execution
 // ============================================================================
 
-function main() {
+async function main() {
     console.log('');
     colorLog('================================================', 'cyan');
     colorLog('  CHAHUADEV SENTINEL - PROFESSIONAL SCAN LOGGER', 'cyan');
@@ -602,14 +766,20 @@ function main() {
     colorLog(`  [OK] Logs session created: ${logger.sessionLogsDir}`, 'green');
     console.log('');
 
-    // Step 2: สร้าง Processor และรัน validation
+    // Step 2: สร้าง Processor และรัน validation (NOW ASYNC - Direct Engine Call)
     const processor = new ScanProcessor(logger);
-    const { output, exitCode } = processor.runValidation('src');
+    const { output, exitCode } = await processor.runValidation('src');
     
     const timestamp = logger.timestamp;
     try {
         fs.writeFileSync(logger.logFiles.rawOutput, output, 'utf8');
     } catch (err) {
+        errorHandler.handleError(err, {
+            source: 'Logger',
+            method: 'main',
+            severity: 'CRITICAL',
+            context: `Failed to write raw output: ${logger.logFiles.rawOutput}`
+        });
         console.error(`CRITICAL: Failed to write raw output: ${logger.logFiles.rawOutput}`, err);
         // WHY: Raw output is the source of all analysis - failure is catastrophic (NO_SILENT_FALLBACKS)
         throw new Error(`Failed to save raw scan output: ${err.message}`);
@@ -682,7 +852,17 @@ function main() {
 const isMainModule = import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`;
 
 if (isMainModule) {
-    main();
+    main().catch(error => {
+        errorHandler.handleError(error, {
+            source: 'Logger',
+            method: 'main',
+            severity: 'CRITICAL',
+            context: 'Fatal error in main execution'
+        });
+        console.error('[ERROR] Fatal error:', error.message);
+        console.error(error.stack);
+        process.exit(1);
+    });
 }
 
 export {

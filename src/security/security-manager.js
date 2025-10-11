@@ -305,6 +305,12 @@ class SecurityManager {
             return resolvedPath;
             
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityManager',
+                method: 'validatePath',
+                severity: 'HIGH',
+                context: `Path validation failed for ${inputPath} in operation ${operation}`
+            });
             this.logSecurityEvent('PATH_VIOLATION', error.message, {
                 path: inputPath,
                 operation,
@@ -331,6 +337,12 @@ class SecurityManager {
                 stats = await fs.promises.stat(validatedPath);
                 exists = true;
             } catch (error) {
+                errorHandler.handleError(error, {
+                    source: 'SecurityManager',
+                    method: 'validateFile',
+                    severity: 'MEDIUM',
+                    context: `File stat failed for ${validatedPath}`
+                });
                 if (error.code !== 'ENOENT') {
                     throw new FileValidationError(`File access error: ${error.message}`, validatedPath);
                 }
@@ -370,6 +382,12 @@ class SecurityManager {
             return validatedPath;
             
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityManager',
+                method: 'validateFile',
+                severity: 'HIGH',
+                context: `File validation failed for ${validatedPath} in operation ${operation}`
+            });
             this.logSecurityEvent('FILE_VIOLATION', this.sanitizeLogMessage(error.message), {
                 filePath: validatedPath,
                 operation,
@@ -387,6 +405,12 @@ class SecurityManager {
             try {
                 return input.match(pattern);
             } catch (error) {
+                errorHandler.handleError(error, {
+                    source: 'SecurityManager',
+                    method: 'safeRegexExecution',
+                    severity: 'MEDIUM',
+                    context: `Regex execution failed for pattern: ${pattern.source}`
+                });
                 // !  NO_SILENT_FALLBACKS: Throw error instead of returning null
                 this.logSecurityEvent('REGEX_ERROR', `Regex execution failed: ${error.message}`, {
                     pattern: pattern.source,
@@ -416,6 +440,12 @@ class SecurityManager {
                 clearTimeout(timeout);
                 resolve(result);
             } catch (error) {
+                errorHandler.handleError(error, {
+                    source: 'SecurityManager',
+                    method: 'safeRegexExecution',
+                    severity: 'MEDIUM',
+                    context: `Regex execution error for pattern: ${pattern.source}`
+                });
                 clearTimeout(timeout);
                 reject(new ReDoSError(
                     `Regex execution error: ${error.message}`,
@@ -581,6 +611,12 @@ class SecurityManager {
                     // File exists, check write permission
                     await fs.promises.access(filePath, fs.constants.W_OK);
                 } catch (error) {
+                    errorHandler.handleError(error, {
+                        source: 'SecurityManager',
+                        method: 'checkFilePermissions',
+                        severity: 'MEDIUM',
+                        context: `File permission check failed for ${filePath}`
+                    });
                     if (error.code === 'ENOENT') {
                         // File doesn't exist, check directory write permission
                         await fs.promises.access(path.dirname(filePath), fs.constants.W_OK);
@@ -590,6 +626,12 @@ class SecurityManager {
                 }
             }
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityManager',
+                method: 'checkFilePermissions',
+                severity: 'HIGH',
+                context: `Permission check failed for ${operation} operation on ${filePath}`
+            });
             throw new AccessDeniedError(
                 `Permission denied for ${operation} operation: ${filePath}`,
                 filePath
@@ -647,11 +689,23 @@ class SecurityManager {
                 // ! WHY: Cannot use logSecurityEvent here (infinite recursion)
                 // ! WHY: Must have SOME notification mechanism for logging failures
                 fs.promises.appendFile(this.securityLogPath, logEntry).catch((writeError) => {
+                    errorHandler.handleError(writeError, {
+                        source: 'SecurityManager',
+                        method: 'logSecurityEvent',
+                        severity: 'MEDIUM',
+                        context: 'Failed to write security log to file'
+                    });
                     // ! FAIL LOUD: Output to console stderr as last resort
                     console.error(`[SECURITY] Failed to write security log: ${writeError.message}`);
                     console.error(`[SECURITY] Event type: ${type}, Message: ${message}`);
                 });
             } catch (error) {
+                errorHandler.handleError(error, {
+                    source: 'SecurityManager',
+                    method: 'logSecurityEvent',
+                    severity: 'CRITICAL',
+                    context: 'Critical logging error in security event system'
+                });
                 // ! FAIL LOUD: Output critical error to console
                 console.error(`[SECURITY] Critical logging error: ${error.message}`);
                 console.error(`[SECURITY] Event type: ${type}, Message: ${message}`);

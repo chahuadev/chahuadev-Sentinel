@@ -26,6 +26,12 @@ try {
     const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
     DISAMBIGUATION_CONFIG = config.disambiguationEngine || { maxHistory: 10 };
 } catch (error) {
+    errorHandler.handleError(error, {
+        source: 'DisambiguationEngine',
+        method: 'initialization',
+        severity: 'MEDIUM',
+        context: `Failed to load disambiguation config from ${CONFIG_PATH} - Using default config`
+    });
     DISAMBIGUATION_CONFIG = { maxHistory: 10 };
 }
 
@@ -430,16 +436,29 @@ class DisambiguationEngine {
     matchesContext(expectedContext) {
         // !  Simple heuristic based on recent tokens
         const recentTypes = this.history.slice(-5).map(t => t.type);
+        const recentValues = this.history.slice(-5).map(t => t.value);
 
+        // SECTION-BASED: ใช้ grammar lookup แทน hardcode
         const contextMatches = {
             'BinaryExpression': recentTypes.includes('IDENTIFIER') || recentTypes.includes('LITERAL'),
-            'FunctionDeclaration': recentTypes.includes('function'),
+            'FunctionDeclaration': this._hasKeywordWithSubcategory(recentValues, 'functionDeclaration'),
             'JSXElement': recentTypes.includes('JSX_OPEN') || recentTypes.includes('UPPERCASE_IDENTIFIER'),
-            'ImportDeclaration': recentTypes.includes('import'),
-            'ExportDeclaration': recentTypes.includes('export')
+            'ImportDeclaration': this._hasKeywordWithSubcategory(recentValues, 'importDeclaration'),
+            'ExportDeclaration': this._hasKeywordWithSubcategory(recentValues, 'exportDeclaration')
         };
 
         return contextMatches[expectedContext] || false;
+    }
+
+    /**
+     * ! Helper: ตรวจสอบว่ามี keyword ที่มี subcategory ที่กำหนดหรือไม่ (section-based)
+     * @private
+     */
+    _hasKeywordWithSubcategory(values, subcategory) {
+        return values.some(value => {
+            const keywordInfo = this.grammarIndex.getKeywordInfo(value);
+            return keywordInfo && keywordInfo.subcategory === subcategory;
+        });
     }
 
     /**

@@ -1,6 +1,6 @@
 # Grammar Index System - Documentation
 
-## 📋 ภาพรวมระบบ
+##  ภาพรวมระบบ
 
 ระบบ Grammar Index ใหม่ออกแบบมาเพื่อให้ **Tokenizer** สามารถค้นหาข้อมูล grammar ได้โดย:
 - ส่ง **language** (ภาษา) และ **type** (ประเภท) 
@@ -10,37 +10,37 @@
 
 ---
 
-## 🏗️ สถาปัตยกรรม
+##  สถาปัตยกรรม
 
 ```
 ┌─────────────┐
 │  Tokenizer  │ ส่ง: language + type + itemName
 └──────┬──────┘
        │
-       ▼
+       
 ┌─────────────┐
 │  index.js   │ ทางเข้า-ทางออก (Entry/Exit Point)
 └──────┬──────┘
        │
-       ▼
+       
 ┌──────────────────┐
 │ grammar-index.js │ ค้นหาจาก grammar files
 └──────┬───────────┘
        │
-       ▼
+       
 ┌────────────────────────┐
 │ shared/grammars/*.json │ Grammar data files
 └────────────────────────┘
        │
-       ▼
+       
 ┌─────────────┐
-│  Tokenizer  │ รับผลลัพธ์ → แปลงเป็นเลขฐาน 2
+│  Tokenizer  │ รับผลลัพธ์  แปลงเป็นเลขฐาน 2
 └─────────────┘
 ```
 
 ---
 
-## 📂 โครงสร้างไฟล์
+##  โครงสร้างไฟล์
 
 ```
 src/grammars/
@@ -57,7 +57,7 @@ src/grammars/
 
 ---
 
-## 🔍 API Functions
+##  API Functions
 
 ### 1. **searchByType()** - ค้นหาตาม type (ใช้บ่อยที่สุด)
 
@@ -89,7 +89,7 @@ const result = await searchByType('javascript', 'keyword', 'function');
   metadata: {
     number: 1,
     name: "keywords",
-    title: "📝 Section 01: Keywords",
+    title: " Section 01: Keywords",
     // ... section info
   }
 }
@@ -128,7 +128,7 @@ const result = await identifyType('javascript', 'function');
 {
   found: true,
   language: "javascript",
-  type: "keyword",        // ← ระบุว่าเป็น type อะไร
+  type: "keyword",        //  ระบุว่าเป็น type อะไร
   section: "keywords",
   item: "function",
   data: { ... }
@@ -137,7 +137,7 @@ const result = await identifyType('javascript', 'function');
 
 ---
 
-## 🎯 Type Mapping
+##  Type Mapping
 
 Grammar Index แปลง `type` เป็น `section name` อัตโนมัติ:
 
@@ -161,7 +161,7 @@ Grammar Index แปลง `type` เป็น `section name` อัตโนม
 
 ---
 
-## 💡 ตัวอย่างการใช้งานจริง
+##  ตัวอย่างการใช้งานจริง
 
 ### Example 1: Tokenizer ค้นหา keyword
 
@@ -206,14 +206,14 @@ const results = await batchSearch('javascript', requests);
 
 results.forEach(r => {
   if (r.found) {
-    console.log(`✅ ${r.item}: ${r.data.category}`);
+    console.log(` ${r.item}: ${r.data.category}`);
   }
 });
 ```
 
 ---
 
-## 🔧 สำหรับ Tokenizer
+##  สำหรับ Tokenizer
 
 ### การใช้งาน Tokenizer จริง
 
@@ -262,7 +262,7 @@ const javaTokens = await tokenizer.tokenize('public class Main {}');
 
 ---
 
-## ✅ ข้อดีของระบบใหม่
+##  ข้อดีของระบบใหม่
 
 1. **ไม่มี Hardcode**
    - Grammar data อยู่ในไฟล์ JSON
@@ -287,32 +287,32 @@ const javaTokens = await tokenizer.tokenize('public class Main {}');
 
 ---
 
-## 🚀 การเพิ่มภาษาใหม่
+##  การเพิ่มภาษาใหม่
 
 1. สร้างไฟล์ grammar: `shared/grammars/[language].grammar.json`
 2. เพิ่ม section headers ตาม format เดิม
-3. เพิ่ม type mapping ใน `grammar-index.js` → `_mapTypeToSection()`
+3. เพิ่ม type mapping ใน `grammar-index.js`  `_mapTypeToSection()`
 4. Done! ไม่ต้องแก้โค้ดอื่น
 
 ---
 
-## 📝 หมายเหตุ
+##  หมายเหตุ
 
 - ไฟล์ grammar ต้องมี section headers (__section_XX_name, etc.)
 - Type ต้องตรงกับ section name ใน type mapping
 - **Tokenizer** ใช้ผ่าน `TokenizerBrainAdapter` ที่เชื่อมกับ GrammarIndex
-- **Brain Adapter** แปลงคำถามจาก Tokenizer → `searchByType()` / `loadGrammar()`
+- **Brain Adapter** แปลงคำถามจาก Tokenizer  `searchByType()` / `loadGrammar()`
 - Tokenizer รับผิดชอบแปลงเป็นเลขฐาน 2 เอง (ทำอยู่ใน tokenizer-helper.js แล้ว)
 
 ---
 
-## 📦 ไฟล์ในระบบ
+##  ไฟล์ในระบบ
 
 ### Core Files
 - `index.js` - Entry/Exit Point (รับ-ส่งต่อ)
 - `shared/grammar-index.js` - Search Engine (ค้นหา grammar)
-- `shared/tokenizer-brain-adapter.js` - เชื่อม Tokenizer ↔ GrammarIndex
-- `shared/tokenizer-helper.js` - Pure Binary Tokenizer (แปลง String → Binary)
+- `shared/tokenizer-brain-adapter.js` - เชื่อม Tokenizer  GrammarIndex
+- `shared/tokenizer-helper.js` - Pure Binary Tokenizer (แปลง String  Binary)
 
 ### Data Files
 - `shared/grammars/javascript.grammar.json`
@@ -327,7 +327,7 @@ const javaTokens = await tokenizer.tokenize('public class Main {}');
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ```bash
 # 1. ทดสอบ GrammarIndex
@@ -339,7 +339,7 @@ node src/grammars/shared/tokenizer-examples.js
 
 ---
 
-## 🔗 See Also
+##  See Also
 
 - `grammar-index-examples.js` - ตัวอย่างการใช้งาน
 - `shared/grammars/` - Grammar data files

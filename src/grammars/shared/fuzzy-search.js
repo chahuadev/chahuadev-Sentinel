@@ -52,6 +52,12 @@ try {
     
     console.log(' Fuzzy search configuration loaded from:', CONFIG_PATH);
 } catch (error) {
+    errorHandler.handleError(error, {
+        source: 'FuzzySearch',
+        method: 'initialization',
+        severity: 'CRITICAL',
+        context: `Failed to load fuzzy search configuration from ${CONFIG_PATH}`
+    });
     // WHY: FAIL FAST, FAIL LOUD - No silent fallbacks allowed
     console.error(' CRITICAL: Failed to load fuzzy search configuration');
     console.error('   Config path:', CONFIG_PATH);

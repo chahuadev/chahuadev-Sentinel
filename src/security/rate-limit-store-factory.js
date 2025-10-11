@@ -18,6 +18,8 @@
  * const securityManager = new SecurityManager({ rateLimitStore: store });
  */
 
+import errorHandler from '../error-handler/ErrorHandler.js';
+
 /**
  * Create rate limit store based on type
  * 
@@ -46,7 +48,7 @@ function createRateLimitStore(type = 'memory', config = {}) {
 
 /**
  * Create in-memory Map store
- * ⚠️  WARNING: Only for development or single-instance deployments
+ *   WARNING: Only for development or single-instance deployments
  */
 function createMemoryStore() {
     console.warn(
@@ -60,7 +62,7 @@ function createMemoryStore() {
 
 /**
  * Create Redis store adapter
- * ✅ RECOMMENDED for production multi-instance deployments
+ *  RECOMMENDED for production multi-instance deployments
  */
 function createRedisStore(config) {
     try {
@@ -77,6 +79,12 @@ function createRedisStore(config) {
         
         // Connect to Redis
         client.connect().catch(err => {
+            errorHandler.handleError(err, {
+                source: 'RateLimitStoreFactory',
+                method: 'createRedisStore',
+                severity: 'CRITICAL',
+                context: 'Failed to connect to Redis server'
+            });
             console.error('[SECURITY] Failed to connect to Redis:', err.message);
             throw err;
         });
@@ -117,6 +125,12 @@ function createRedisStore(config) {
         };
         
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'RateLimitStoreFactory',
+            method: 'createRedisStore',
+            severity: 'CRITICAL',
+            context: 'Redis store creation failed'
+        });
         if (error.code === 'MODULE_NOT_FOUND') {
             throw new Error(
                 'Redis module not found. Install it: npm install redis\n' +
@@ -129,7 +143,7 @@ function createRedisStore(config) {
 
 /**
  * Create Memcached store adapter
- * ✅ Alternative to Redis for production
+ *  Alternative to Redis for production
  */
 function createMemcachedStore(config) {
     try {
@@ -193,6 +207,12 @@ function createMemcachedStore(config) {
         };
         
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'RateLimitStoreFactory',
+            method: 'createMemcachedStore',
+            severity: 'CRITICAL',
+            context: 'Memcached store creation failed'
+        });
         if (error.code === 'MODULE_NOT_FOUND') {
             throw new Error(
                 'Memcached module not found. Install it: npm install memcached\n' +

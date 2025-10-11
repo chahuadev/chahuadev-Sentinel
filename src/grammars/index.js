@@ -12,6 +12,36 @@
 // ============================================================================
 
 import { GrammarIndex } from './shared/grammar-index.js';
+import { SmartParserEngine } from '../../test/violation-examples/smart-parser-engine.js';
+import { PureBinaryParser } from './shared/pure-binary-parser.js';
+import { BinaryComputationTokenizer } from './shared/tokenizer-helper.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+/**
+ * Create Smart Parser Engine instance (Factory Function)
+ * @param {Object} rules - Validation rules
+ * @returns {Promise<SmartParserEngine>}
+ */
+export async function createSmartParserEngine(rules) {
+    const grammar = await GrammarIndex.loadGrammar('javascript');
+    
+    // Load parser config
+    const configPath = join(__dirname, 'shared', 'parser-config.json');
+    const parserConfig = JSON.parse(readFileSync(configPath, 'utf8'));
+    
+    // Merge rules into config
+    const fullConfig = {
+        ...parserConfig,
+        rules: rules
+    };
+    
+    return new SmartParserEngine(grammar, fullConfig);
+}
 
 /**
  * Request JavaScript Grammar - ส่งต่อไป grammar-index.js
@@ -116,5 +146,5 @@ export async function identifyType(language, itemName) {
     return await GrammarIndex.identifyType(language, itemName);
 }
 
-// Re-export GrammarIndex for direct access if needed
-export { GrammarIndex };
+// Re-export classes and GrammarIndex for direct access if needed
+export { GrammarIndex, SmartParserEngine, PureBinaryParser, BinaryComputationTokenizer };

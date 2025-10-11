@@ -20,15 +20,15 @@
 // !  - grammar-index.js: GrammarIndex class
 // !  - tokenizer-helper.js: BinaryComputationTokenizer (Central Nervous System)
 // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-import { RULE_IDS, ERROR_TYPES, SEVERITY_LEVELS, TOKEN_TYPES, DEFAULT_LOCATION } from './constants.js';
+import { RULE_IDS, ERROR_TYPES, SEVERITY_LEVELS, TOKEN_TYPES, DEFAULT_LOCATION } from '../../src/grammars/shared/constants.js';
 
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { ABSOLUTE_RULES } from '../../rules/validator.js';
-import GrammarIndex from './grammar-index.js';
-import { BinaryComputationTokenizer } from './tokenizer-helper.js';
-import errorHandler from '../../error-handler/ErrorHandler.js';
+import { ABSOLUTE_RULES } from '../../src/rules/validator.js';
+import { GrammarIndex } from '../../src/grammars/shared/grammar-index.js';
+import { BinaryComputationTokenizer } from '../../src/grammars/shared/tokenizer-helper.js';
+import errorHandler from '../../src/error-handler/ErrorHandler.js';
 
 
 
@@ -50,7 +50,12 @@ try {
     PARSER_CONFIG = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
     console.log(' Parser configuration loaded successfully from:', CONFIG_PATH);
 } catch (error) {
-    console.error('CRITICAL: Failed to load parser config:', error.message);
+    errorHandler.handleError(error, {
+        source: 'SmartParserEngine',
+        method: 'initialization',
+        severity: 'CRITICAL',
+        context: `Failed to load parser config from ${CONFIG_PATH} - Configuration file is required and cannot proceed without valid configuration`
+    });
     throw new Error(`Configuration file is required: ${CONFIG_PATH}. Cannot proceed without valid configuration.`);
 }
 
@@ -179,10 +184,18 @@ class AdvancedStructureParser extends StructureParser {
                     statementCount++;
                 }
             } catch (error) {
-                // ! WHY: Error recovery allows parser to continue after syntax errors
-                // ! instead of crashing. This helps catch multiple violations in one pass.
-                console.log(`Skipping problematic token at ${this.current}: ${this.peek()?.value || 'EOF'}`);
-                this.advance();
+                // ! NO_SILENT_FALLBACKS: ส่ง error ไป ErrorHandler กลาง
+                errorHandler.handleError(error, {
+                    source: 'AdvancedStructureParser',
+                    method: 'parse',
+                    position: this.current,
+                    token: this.peek()?.value || 'EOF',
+                    severity: 'HIGH',
+                    context: 'Statement parsing failed'
+                });
+                
+                // ! Re-throw เพื่อหยุดการทำงาน (FAIL FAST)
+                throw error;
             }
         }
         
@@ -195,6 +208,15 @@ class AdvancedStructureParser extends StructureParser {
     // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     // ! โซนที่ 3: STATEMENT ROUTER - parseStatement() 
     // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    
+    // ! ───────────────────────────────────────────────────────────────────────────────────────────────
+    // ! skipComments() - ข้าม comment tokens ทั้งหมดที่อยู่ในตำแหน่งปัจจุบัน
+    // ! ───────────────────────────────────────────────────────────────────────────────────────────────
+    skipComments() {
+        while (this.peek() && this.peek().type === 'COMMENT') {
+            this.advance();  // ! ข้าม comment token
+        }
+    }
     // ! งานที่ทำ: ตัดสินใจว่า token ปัจจุบันคือ statement ประเภทไหน
     // !  - ดู token.type และ token.value
     // !  - ถ้าเป็น KEYWORD  ส่งต่อไปยัง parser ที่เหมาะสม:
@@ -208,6 +230,9 @@ class AdvancedStructureParser extends StructureParser {
     // !  - ถ้าไม่ใช่ KEYWORD  ถือว่าเป็น expression statement
     // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parseStatement() {
+        // ! ข้าม comments ก่อนอ่าน statement
+        this.skipComments();
+        
         const token = this.peek();                              // ! ดู token ปัจจุบันโดยไม่เลื่อน position
         if (!token) {
             // !  NO_SILENT_FALLBACKS: คืน Object ที่มีสถานะชัดเจนแทน null (EOF)
@@ -318,6 +343,76 @@ class AdvancedStructureParser extends StructureParser {
     }
 
     // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! โซนที่ 5.5: IMPORT/EXPORT PARSERS (ชั่วคราว)
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    // ! งานที่ทำ: ข้าม import/export statements ไปก่อน (ยังไม่ได้ implement เต็มรูปแบบ)
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
+    
+    parseImportDeclaration() {
+        console.warn('[Parser] Skipping ImportDeclaration (not yet implemented).');
+        const start = this.current;
+        
+        // ! ข้าม 'import' keyword
+        this.advance();
+        
+        // ! วนข้าม Token ไปเรื่อยๆ จนกว่าจะเจอ Semicolon (;) หรือเจอ 'from'
+        while (!this.isAtEnd() && !this.match(';') && this.peek().value !== 'from') {
+            this.advance();
+        }
+        
+        // ! ถ้าเจอ 'from' ให้ข้ามไปอ่าน string path
+        if (this.peek()?.value === 'from') {
+            this.advance(); // ! ข้าม 'from'
+            if (this.peek()?.type === 'STRING') {
+                this.advance(); // ! ข้าม string path
+            }
+        }
+        
+        // ! ข้าม semicolon ถ้ามี
+        if (this.match(';')) {
+            this.advance();
+        }
+        
+        // ! คืนค่า ImportDeclaration node แบบชั่วคราว
+        return {
+            type: 'ImportDeclaration',
+            specifiers: [],
+            source: { type: 'Literal', value: 'unknown' },
+            location: { start, end: this.current }
+        };
+    }
+    
+    parseExportDeclaration() {
+        console.warn('[Parser] Skipping ExportDeclaration (not yet implemented).');
+        const start = this.current;
+        
+        // ! ข้าม 'export' keyword
+        this.advance();
+        
+        // ! ตรวจสอบว่าเป็น export default หรือไม่
+        if (this.peek()?.value === 'default') {
+            this.advance(); // ! ข้าม 'default'
+        }
+        
+        // ! วนข้าม Token ไปเรื่อยๆ จนกว่าจะเจอ Semicolon (;)
+        while (!this.isAtEnd() && !this.match(';')) {
+            this.advance();
+        }
+        
+        // ! ข้าม semicolon ถ้ามี
+        if (this.match(';')) {
+            this.advance();
+        }
+        
+        // ! คืนค่า ExportDeclaration node แบบชั่วคราว
+        return {
+            type: 'ExportDefaultDeclaration',
+            declaration: { type: 'Identifier', name: 'unknown' },
+            location: { start, end: this.current }
+        };
+    }
+
+    // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     // ! โซนที่ 6: EXPRESSION PARSERS - parseExpression & Friends 
     // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     // ! งานที่ทำ: แปลง expressions ตาม operator precedence (ลำดับความสำคัญของตัวดำเนินการ)
@@ -422,7 +517,9 @@ class AdvancedStructureParser extends StructureParser {
 
     parseIdentifier() {
         const token = this.peek();
-        if (token && token.type === 'IDENTIFIER') {
+        // ! ยอมรับทั้ง IDENTIFIER และ KEYWORD (เพราะใน JS keywords สามารถใช้เป็น property name ได้)
+        // ! เช่น: import.meta, obj.class, foo.return
+        if (token && (token.type === 'IDENTIFIER' || token.type === 'KEYWORD')) {
             this.advance();
             return {
                 type: 'Identifier',
@@ -510,14 +607,19 @@ class AdvancedStructureParser extends StructureParser {
                 expression: expr                                // ! expression ที่อ่านได้
             };
         } catch (error) {
-            // ! WHY: Log error for debugging BUT still continue parsing (controlled recovery)
-            // ! This is NOT a silent fallback - we log the error loudly
-            // ! We continue parsing to find ALL violations in one pass (better UX)
-            console.error(`  Expression statement parsing error at position ${this.current}:`, error.message);
-            console.error(`   Token: "${this.peek()?.value || 'EOF'}" (type: ${this.peek()?.type})`);
-            console.error(`   Skipping this token and continuing parse...`);
+            // ! NO_SILENT_FALLBACKS: ส่ง error ไป ErrorHandler กลาง
+            errorHandler.handleError(error, {
+                source: 'AdvancedStructureParser',
+                method: 'parseExpressionStatement',
+                position: this.current,
+                token: this.peek()?.value || 'EOF',
+                tokenType: this.peek()?.type,
+                severity: 'HIGH',
+                context: 'Expression statement parsing failed'
+            });
             
-            // !  NO_SILENT_FALLBACKS: คืน error object แทน null
+            // ! Re-throw เพื่อหยุดการทำงาน (FAIL FAST)
+            throw error;
             this.advance();                                     // ! Skip problematic token
             return {
                 type: 'ERROR',
@@ -769,10 +871,30 @@ class AdvancedStructureParser extends StructureParser {
     // !     - คืน dummy Identifier node (name: 'unknown')
     // ! ═══════════════════════════════════════════════════════════════════════════════════════════════
     parsePrimaryExpression() {
+        // ! Skip comments before parsing
+        this.skipComments();
+        
         const token = this.peek();                              // ! ดู token ปัจจุบัน
         
         if (!token) {
             throw new Error('Unexpected end of input');         // ! ถ้าไม่มี token  error
+        }
+        
+        // ! Skip comment tokens if encountered
+        if (token.type === 'COMMENT') {
+            this.advance(); // Skip comment
+            return this.parsePrimaryExpression(); // Try next token
+        }
+        
+        // ! 0. NEW Expression (new Constructor())
+        if (token.type === 'KEYWORD' && token.value === 'new') {
+            this.advance();                                     // ! กิน 'new' keyword
+            const callee = this.parsePostfixExpression();       // ! อ่าน constructor (เช่น ErrorHandler())
+            return {
+                type: 'NewExpression',                          // ! ประเภท AST node
+                callee: callee,                                 // ! constructor ที่จะสร้าง
+                arguments: []                                   // ! arguments (อาจจะว่างหรือมีก็ได้)
+            };
         }
         
         // ! 1. NUMBER Literals
@@ -806,6 +928,16 @@ class AdvancedStructureParser extends StructureParser {
             const expr = this.parseExpression();                // ! อ่าน expression ภายใน (...)
             this.consume(')');                                  // ! ต้องมี ')' ปิด
             return expr;                                        // ! คืน expression (ไม่ต้องสร้าง node ใหม่)
+        }
+        
+        // ! 5. KEYWORDS ที่ไม่คาดหวัง (import, export, etc.) - Skip และคืน dummy node
+        if (token.type === 'KEYWORD') {
+            console.warn(`[Parser] Unexpected keyword "${token.value}" in expression context - creating placeholder`);
+            this.advance(); // ! ข้าม keyword ไป
+            return {
+                type: 'Identifier',
+                name: `__${token.value}_placeholder__`
+            };
         }
         
         // ! WHY: NO_SILENT_FALLBACKS - We throw error instead of returning dummy 'unknown' node
@@ -846,278 +978,7 @@ class AdvancedStructureParser extends StructureParser {
         this.consume(')');                                      // ! ต้องจบด้วย ')' ไม่งั้น error
         return args;                                            // ! คืน array ของ expression nodes
     }
-
-    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // !   SIMPLE STRUCTURE DETECTOR - parseSimpleStructures() 
-    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // !  งานที่ทำ: Simple structure detection (ไม่สร้าง full AST)
-    // !  
-    // !  NOTE: เปลี่ยนชื่อจาก parse()  parseSimpleStructures() เพื่อหลีกเลี่ยง method name collision
-    // !        Method หลัก parse() (บรรทัด 350) สร้าง Full AST (ESTree format)
-    // !        Method นี้ทำ Simple Structure Detection สำหรับ legacy support
-    // !  
-    // !  การทำงาน:
-    // !   - วน loop ผ่าน tokens ทั้งหมด
-    // !   - ตรวจจับโครงสร้างพื้นฐาน:
-    // !     * function declarations  this.structures.functions
-    // !     * async functions  this.structures.asyncFunctions
-    // !     * try blocks  this.structures.tryBlocks
-    // !     * classes  this.structures.classes
-    // !   - return structures object
-    // !  
-    // !   ใช้เมื่อ: ต้องการ Simple Structure Info แทน Full AST
-    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    parseSimpleStructures() {
-        if (this.tokens.length === 0) {
-            console.log('StructureParser: No tokens to parse, returning empty structures.');
-            return this.structures;
-        }
-
-        for (let i = 0; i < this.tokens.length; i++) {
-            const token = this.tokens[i];
-            
-            // ! Detect functions
-            if (token.type === 'KEYWORD' && token.value === 'function') {
-                const funcInfo = this.parseFunctionDeclaration(i);
-                if (funcInfo) {
-                    this.structures.functions.push(funcInfo);
-                }
-            }
-            
-            // ! Detect async functions
-            if (token.type === 'KEYWORD' && token.value === 'async') {
-                const nextToken = this.tokens[i + 1];
-                if (nextToken && nextToken.value === 'function') {
-                    const asyncFuncInfo = this.parseAsyncFunction(i);
-                    if (asyncFuncInfo) {
-                        this.structures.asyncFunctions.push(asyncFuncInfo);
-                    }
-                }
-            }
-            
-            // ! Detect try blocks
-            if (token.type === 'KEYWORD' && token.value === 'try') {
-                const tryInfo = this.parseTryBlock(i);
-                if (tryInfo) {
-                    this.structures.tryBlocks.push(tryInfo);
-                }
-            }
-            
-            // ! Detect classes
-            if (token.type === 'KEYWORD' && token.value === 'class') {
-                const classInfo = this.parseClass(i);
-                if (classInfo) {
-                    this.structures.classes.push(classInfo);
-                }
-            }
-        }
-        
-        return this.structures;
-    }
-
-    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // !   STRUCTURE DETECTION HELPERS 
-    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // !  งานที่ทำ: Helper methods สำหรับตรวจจับโครงสร้างแบบ simple (ไม่ใช้ full AST)
-    // !  
-    // !  parseFunctionDeclaration() 
-    // !   - ตรวจจับ function declaration
-    // !   - นับจำนวนพารามิเตอร์
-    // !   - return { type, name, paramCount, location }
-    // !  
-    // !  parseAsyncFunction() 
-    // !   - ตรวจจับ async function
-    // !   - เช็คว่ามี await และ try-catch หรือไม่
-    // !  
-    // !  hasAwaitInFunction() 
-    // !   - เช็คว่ามี await keyword ภายใน function หรือไม่
-    // !  
-    // !  hasTryCatchInFunction() 
-    // !   - เช็คว่ามี try-catch block ภายใน function หรือไม่
-    // !  
-    // !  parseTryBlock() 
-    // !   - ตรวจจับ try block
-    // !   - เช็คว่ามี catch และ finally หรือไม่
-    // !  
-    // !  hasCatchAfterTry() :
-    // !   - เช็คว่ามี catch block หลัง try หรือไม่
-    // !  
-    // !  hasFinallyAfterTry() :
-    // !   - เช็คว่ามี finally block หรือไม่ (simplified)
-    // !  
-    // !  parseClass() :
-    // !   - ตรวจจับ class declaration
-    // !   - return { type, name, location }
-    // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    parseFunctionDeclaration(startIndex) {
-        const nameToken = this.tokens[startIndex + 1];
-        if (!nameToken || nameToken.type !== 'IDENTIFIER') {
-            // !  NO_SILENT_FALLBACKS: คืน error object แทน null
-            return {
-                type: 'ERROR',
-                error: 'Function declaration missing identifier',
-                location: { start: startIndex, end: startIndex + 1 }
-            };
-        }
-        
-        // ! Count parameters
-        let paramCount = 0;
-        let i = startIndex + 2;
-        let foundOpenParen = false;
-        
-        while (i < this.tokens.length && !foundOpenParen) {
-            if (this.tokens[i].value === '(') {
-                foundOpenParen = true;
-                i++;
-                break;
-            }
-            i++;
-        }
-        
-        if (foundOpenParen) {
-            while (i < this.tokens.length && this.tokens[i].value !== ')') {
-                if (this.tokens[i].type === 'IDENTIFIER') {
-                    paramCount++;
-                }
-                i++;
-            }
-        }
-        
-        return {
-            type: 'function',
-            name: nameToken.value,
-            paramCount,
-            location: nameToken.location
-        };
-    }
-
-    parseAsyncFunction(startIndex) {
-        const funcInfo = this.parseFunctionDeclaration(startIndex + 1);
-        if (funcInfo) {
-            funcInfo.isAsync = true;
-            funcInfo.hasAwait = this.hasAwaitInFunction(startIndex);
-            funcInfo.hasTryCatch = this.hasTryCatchInFunction(startIndex);
-        }
-        return funcInfo;
-    }
-
-    hasAwaitInFunction(startIndex) {
-        // ! Simple check for await keyword after function declaration
-        let depth = 0;
-        for (let i = startIndex; i < this.tokens.length; i++) {
-            const token = this.tokens[i];
-            if (token.value === '{') depth++;
-            if (token.value === '}') {
-                depth--;
-                if (depth === 0) break;
-            }
-            if (token.type === 'KEYWORD' && token.value === 'await' && depth > 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    hasTryCatchInFunction(startIndex) {
-        // ! Simple check for try-catch blocks within function
-        let depth = 0;
-        for (let i = startIndex; i < this.tokens.length; i++) {
-            const token = this.tokens[i];
-            if (token.value === '{') depth++;
-            if (token.value === '}') {
-                depth--;
-                if (depth === 0) break;
-            }
-            if (token.type === 'KEYWORD' && token.value === 'try' && depth > 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    parseTryBlock(startIndex) {
-        return {
-            type: 'try-block',
-            location: this.tokens[startIndex].location,
-            hasCatch: this.hasCatchAfterTry(startIndex),
-            hasFinally: this.hasFinallyAfterTry(startIndex)
-        };
-    }
- 
-    hasCatchAfterTry(startIndex) {
-        let depth = 0;
-        for (let i = startIndex; i < this.tokens.length; i++) {
-            const token = this.tokens[i];
-            if (token.value === '{') depth++;
-            if (token.value === '}') {
-                depth--;
-                if (depth === 0) {
-                    // ! Check next token for catch
-                    const nextToken = this.tokens[i + 1];
-                    return nextToken && nextToken.value === 'catch';
-                }
-            }
-        }
-        return false;
-    }
-
-    hasFinallyAfterTry(startIndex) {
-        // ! Similar logic for finally block
-        return false; // ! Simplified for now
-    }
-
-    parseClass(startIndex) {
-        const nameToken = this.tokens[startIndex + 1];
-        if (!nameToken || nameToken.type !== 'IDENTIFIER') {
-            // !  NO_SILENT_FALLBACKS: คืน error object แทน null
-            return {
-                type: 'ERROR',
-                error: 'Class declaration missing identifier',
-                location: { start: startIndex, end: startIndex + 1 }
-            };
-        }
-        
-        return {
-            type: 'class',
-            name: nameToken.value,
-            location: nameToken.location
-        };
-    }
 }
-
-
-// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-// !  SIMPLE JAVASCRIPT PARSER CLASS 
-// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-// !  งานที่ทำ: Simple parser สำหรับสร้าง basic AST (ไม่ใช้ Acorn/Babel)
-// !  
-// !  CONSTRUCTOR :
-// !   - initialize tokens array และ position
-// !  
-// !  MAIN METHOD - parse() :
-// !   - tokenize code ด้วย tokenizeSimple()
-// !   - สร้าง Program node พร้อม body
-// !   - return basic AST structure
-// !  
-// !  tokenizeSimple() :
-// !   - Simple tokenizer ที่แยก:
-// !     * String literals (",',`)
-// !     * Numbers (123, 3.14)
-// !     * Identifiers (foo, myVar)
-// !     * Operators/Punctuation (+,-,*,/,etc.)
-// !   - สร้าง tokens พร้อม location info
-// !  
-// !  HELPER METHODS :
-// !   - parseStringLiteral(): แยก string literals
-// !   - parseNumber(): แยก numbers
-// !   - parseIdentifier(): แยก identifiers
-// !   - parseStatements(): สร้าง basic statements
-// !   - getLastLocation(): คืน location สุดท้าย
-// !  
-// !  NOTE: Parser นี้เป็น fallback/alternative สำหรับกรณีที่ไม่ต้องการ full AST
-// ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-
-
 
 // ! ══════════════════════════════════════════════════════════════════════════════════════════════════════════
 // !   SMART FILE ANALYZER CLASS 
@@ -1450,7 +1311,12 @@ class SmartParserEngine {
             console.log(`SmartParserEngine configured: maxTokens=${this.maxTokensPerAnalysis}, maxMemory=${Math.round(this.maxMemoryUsage/1024/1024)}MB, maxAST=${this.maxASTNodes}`);
             console.log(' GrammarIndex has been successfully integrated into the Smart Parser Engine.');
         } catch (error) {
-            console.error(' Failed to initialize SmartParserEngine:', error.message);
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'constructor',
+                severity: 'CRITICAL',
+                context: 'SmartParserEngine initialization failed - Configuration loading, GrammarIndex integration, or dependency setup error'
+            });
             throw new Error(`SmartParserEngine initialization failed: ${error.message}`);
         }
     }
@@ -1500,15 +1366,18 @@ class SmartParserEngine {
             allViolations.push(...violations);
                 
         } catch (parseError) {
-            // ! WHY: We log parse errors as "learning opportunities" instead of crashing.
-            // ! This helps identify which JavaScript syntax patterns we haven't implemented yet,
-            // ! allowing continuous improvement of the parser without blocking validation.
-            console.error('PARSE ERROR - This is our LEARNING OPPORTUNITY!');
-            console.error('What we need to teach our parser:');
-            console.error('Error:', parseError.message);
-            console.error('At position:', parseError.position || 'unknown');
-            console.error('Near code:', parseError.context || 'unknown');
+            // ! NO_SILENT_FALLBACKS: ส่ง error ไป ErrorHandler กลาง
+            errorHandler.handleError(parseError, {
+                source: 'SmartParserEngine',
+                method: 'analyzeCode',
+                position: parseError.position || 'unknown',
+                context: parseError.context || 'unknown',
+                severity: 'CRITICAL',
+                message: 'Parser encountered unimplemented syntax pattern'
+            });
             
+            // ! Re-throw เพื่อหยุดการทำงาน (FAIL FAST, FAIL LOUD)
+            throw parseError;
             // WHY: Use ERROR_TYPES from constants.js instead of hardcoding (NO_HARDCODE compliance)
             allViolations.push({
                 ruleId: ERROR_TYPES.PARSER_LEARNING_NEEDED,
@@ -1611,8 +1480,16 @@ class SmartParserEngine {
                 }
                 
             } catch (traverseError) {
-                console.error('CRITICAL AST traverse error at node:', currentNode.type, traverseError.message);
-                // ! หยุดการทำงานทันที เพราะไม่สามารถไปต่อได้อย่างน่าเชื่อถือ
+                // ! NO_SILENT_FALLBACKS: ส่ง error ไป ErrorHandler กลาง
+                errorHandler.handleError(traverseError, {
+                    source: 'SmartParserEngine',
+                    method: 'traverseAST',
+                    nodeType: currentNode.type,
+                    severity: 'CRITICAL',
+                    context: 'AST traversal failed - cannot continue reliably'
+                });
+                
+                // ! Re-throw เพื่อหยุดการทำงาน (FAIL FAST)
                 throw new Error(`AST traversal failed at node ${currentNode.type}: ${traverseError.message}`);
             }
         };
@@ -1657,8 +1534,13 @@ class SmartParserEngine {
                 });
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkMockingInAST: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkMockingInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for mocking detection'
+            });
+            throw error;
         }
     }
 
@@ -1724,8 +1606,13 @@ class SmartParserEngine {
                 });
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkHardcodeInAST: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkHardcodeInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for hardcode detection'
+            });
+            throw error;
         }
     }
 
@@ -1750,8 +1637,13 @@ class SmartParserEngine {
                 }
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkNumericHardcodeInAST: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkNumericHardcodeInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for numeric hardcode detection'
+            });
+            throw error;
         }
     }
 
@@ -1789,8 +1681,13 @@ class SmartParserEngine {
                 }
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkSilentFallbacksInAST: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkSilentFallbacksInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for silent fallback detection'
+            });
+            throw error;
         }
     }
 
@@ -1815,8 +1712,13 @@ class SmartParserEngine {
                 }
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkLogicalFallbacksInAST: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkLogicalFallbacksInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for logical fallback detection'
+            });
+            throw error;
         }
     }
 
@@ -1842,8 +1744,13 @@ class SmartParserEngine {
                 }
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkPromiseCatchFallbacks: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkPromiseCatchFallbacks',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for Promise catch detection'
+            });
+            throw error;
         }
     }
 
@@ -1872,8 +1779,13 @@ class SmartParserEngine {
                 });
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkAsyncFunctionWithoutTryCatch: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkAsyncFunctionWithoutTryCatch',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for async function detection'
+            });
+            throw error;
         }
     }
 
@@ -1912,8 +1824,13 @@ class SmartParserEngine {
                 });
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkCachingInAST: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkCachingInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for caching detection'
+            });
+            throw error;
         }
     }
 
@@ -1932,8 +1849,13 @@ class SmartParserEngine {
                 }
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkCachingPropertyInAST: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkCachingPropertyInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for caching property detection'
+            });
+            throw error;
         }
     }
 
@@ -1974,8 +1896,13 @@ class SmartParserEngine {
                 });
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkMemoizationInAST: ${error.message}`);
-            throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkMemoizationInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in validation logic for memoization detection'
+            });
+            throw error;
         }
     }
 
@@ -2014,7 +1941,12 @@ class SmartParserEngine {
                 }
             }
         } catch (error) {
-            console.error(`[CRITICAL] Bug in validation logic at checkEmojiInAST: ${error.message}`);
+            errorHandler.handleError(error, {
+                source: 'SmartParserEngine',
+                method: 'checkEmojiInAST',
+                severity: 'CRITICAL',
+                context: 'Bug in emoji detection validation logic - AST traversal or pattern matching failed'
+            });
             throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
         }
     }
@@ -2248,7 +2180,12 @@ class SmartParserEngine {
                     }
                 }
             } catch (error) {
-                console.error(`[CRITICAL] Bug in GrammarIndex pattern for NO_SILENT_FALLBACKS[${patternIndex}]: ${error.message}`);
+                errorHandler.handleError(error, {
+                    source: 'SmartParserEngine.GrammarIndex',
+                    method: 'detectSilentFallbackViolations',
+                    severity: 'CRITICAL',
+                    context: `Bug in GrammarIndex pattern validation for NO_SILENT_FALLBACKS[${patternIndex}] - Pattern matching or line estimation failed`
+                });
                 throw error; // ! ส่งต่อ error ไปยังระดับบนเพื่อหยุดการทำงาน
             }
         });

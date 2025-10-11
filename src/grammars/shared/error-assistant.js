@@ -293,12 +293,16 @@ class ErrorAssistant {
         }
 
         // !  Add async keyword
-        if (context.token === 'await' && grammarInfo && grammarInfo.requiresAsync) {
-            fixes.push({
-                title: 'Add async to function',
-                description: 'await can only be used in async functions',
-                confidence: 0.85
-            });
+        // SECTION-BASED: ใช้ grammar lookup แทน string comparison
+        if (context.token && grammarInfo && grammarInfo.requiresAsync) {
+            const keywordInfo = this.grammarIndex.getKeywordInfo(context.token);
+            if (keywordInfo && keywordInfo.subcategory === 'asyncAwait') {
+                fixes.push({
+                    title: 'Add async to function',
+                    description: 'await can only be used in async functions',
+                    confidence: 0.85
+                });
+            }
         }
 
         // !  Import missing module

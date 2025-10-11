@@ -35,6 +35,12 @@ function loadCorpusConfig() {
         const config = JSON.parse(configData);
         return config;
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'CorpusTester',
+            method: 'loadCorpusConfig',
+            severity: 'CRITICAL',
+            context: 'Failed to load corpus configuration'
+        });
         throw new Error(`Failed to load corpus configuration: ${error.message}`);
     }
 }
@@ -143,6 +149,12 @@ class CorpusTester {
             };
 
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'CorpusTester',
+                method: 'testFile',
+                severity: 'HIGH',
+                context: `Tokenization failed for ${path.basename(filePath)} in project ${projectName}`
+            });
             // !  Failure
             this.results.failedFiles++;
 

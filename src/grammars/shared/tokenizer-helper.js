@@ -9,7 +9,7 @@
 // ! ══════════════════════════════════════════════════════════════════════════════
 // !  PHILOSOPHY: Tokenizer คือ "กระดาษเปล่า" ที่ไม่รู้อะไรเลย
 // !  
-// !  หน้าที่เดียว: แปลง String → Binary (0b10001)
+// !  หน้าที่เดียว: แปลง String  Binary (0b10001)
 // !  
 // !  ไม่มีหน้าที่:
 // !  - [NO] ไม่รู้ว่า "//" คือ comment
@@ -42,7 +42,7 @@
 // ! │ - Universal text representation standard                                │
 // ! │ - Same across ALL platforms                                             │
 // ! │ - UniversalCharacterClassifier reads THESE numeric values               │
-// ! │ - Pure mathematics: 99 >= 97 && 99 <= 122 → LETTER                     │
+// ! │ - Pure mathematics: 99 >= 97 && 99 <= 122  LETTER                     │
 // ! └─────────────────────────────────────────────────────────────────────────┘
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! ┌─────────────────────────────────────────────────────────────────────────┐
@@ -56,19 +56,19 @@
 // ! └─────────────────────────────────────────────────────────────────────────┘
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! ══════════════════════════════════════════════════════════════════════════════
-// ! COMPLETE FLOW: Source Code → Semantic Binary Stream
+// ! COMPLETE FLOW: Source Code  Semantic Binary Stream
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! Input:  "const x = 5;"
 // !
 // ! Step 1: File System (OS stores as binary)
-// !         const → 99,111,110,115,116 (ASCII codes)
+// !         const  99,111,110,115,116 (ASCII codes)
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! Step 2: Character Classification (Pure Math)
-// !         99 ≥ 97 && 99 ≤ 122 → TRUE → LETTER flag (0b00001)
+// !         99  97 && 99  122  TRUE  LETTER flag (0b00001)
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! Step 3: Token Assembly (Ask Brain)
-// !         "const" → brain.isKeyword("const") → TRUE
+// !         "const"  brain.isKeyword("const")  TRUE
 // !         Assign: binary = (1 << TOKEN_TYPES.KEYWORD.bit) = 0b00100000
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! Step 4: Output Semantic Stream
@@ -103,8 +103,8 @@
 // ! "Semantic Binary Flags through pure mathematics."
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! Our Boundary:
-// !    Source Code → Binary Token Stream (OUR DOMAIN)
-// !    Binary Token Stream → Machine Code (COMPILER'S DOMAIN)
+// !    Source Code  Binary Token Stream (OUR DOMAIN)
+// !    Binary Token Stream  Machine Code (COMPILER'S DOMAIN)
 // ! ══════════════════════════════════════════════════════════════════════════════
 
 import { readFileSync } from 'fs';
@@ -112,8 +112,6 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { GrammarIndex } from './grammar-index.js';
 import errorHandler from '../../error-handler/ErrorHandler.js';
-
-
 
 // ! ══════════════════════════════════════════════════════════════════════════════
 // ! LOAD CONFIGURATION - NO_HARDCODE COMPLIANCE
@@ -126,8 +124,13 @@ let CONFIG;
 try {
     CONFIG = JSON.parse(readFileSync(configPath, 'utf-8'));
 } catch (error) {
-    const errorMsg = `CRITICAL: Failed to load tokenizer configuration from ${configPath}: ${error.message}`;
-    throw new Error(errorMsg);
+    errorHandler.handleError(error, {
+        source: 'BinaryComputationTokenizer',
+        method: 'initialization',
+        severity: 'CRITICAL',
+        context: `Failed to load tokenizer configuration from ${configPath} - Configuration file is required for tokenization`
+    });
+    throw new Error(`CRITICAL: Failed to load tokenizer configuration from ${configPath}: ${error.message}`);
 }
 
 // Extract constants from configuration - ZERO HARDCODE
@@ -138,6 +141,14 @@ const TOKEN_TYPE_STRINGS = CONFIG.tokenTypeStrings.types;
 const ERROR_MESSAGES = CONFIG.errorMessages.templates;
 const PARSING_RULES = CONFIG.parsingRules.rules;
 const SECURITY_LIMITS = CONFIG.securityConfig.limits;
+
+// ! NO_HARDCODE: Grammar structure metadata fields - โหลดจาก config
+// ! These field names indicate a final grammar item (keyword/operator) vs nested category
+const GRAMMAR_METADATA_FIELDS = CONFIG.grammarStructure?.metadataFields?.fields || [];
+
+// ! NO_HARDCODE: Punctuation binary map - โหลดจาก config
+// ! For 100% binary parsing without string comparison
+const PUNCTUATION_BINARY_MAP = CONFIG.punctuationBinaryMap?.map || {};
 
 /**
  * ============================================================================
@@ -188,7 +199,10 @@ export class UniversalCharacterClassifier {
     computeBinaryFlags(charCode) {
         let flags = 0;
         
-        if (this.isLetterByMath(charCode)) flags |= (1 << CHAR_FLAGS.LETTER.bit);
+        // ! เพิ่ม _ (Underscore) และ $ (Dollar) ให้เป็น Letter เพื่อรองรับ JavaScript Identifiers
+        if (this.isLetterByMath(charCode) || charCode === UNICODE.UNDERSCORE.code || charCode === UNICODE.DOLLAR.code) {
+            flags |= (1 << CHAR_FLAGS.LETTER.bit);
+        }
         if (this.isDigitByMath(charCode)) flags |= (1 << CHAR_FLAGS.DIGIT.bit);
         if (this.isWhitespaceByMath(charCode)) flags |= (1 << CHAR_FLAGS.WHITESPACE.bit);
         
@@ -209,86 +223,280 @@ export class UniversalCharacterClassifier {
  * ============================================================================
  * PURE BINARY TOKENIZER - "BLANK PAPER"
  * ============================================================================
- * หน้าที่: แปลง String → Binary Token Stream
+ * หน้าที่: แปลง String  Binary Token Stream
  * 
- * ไม่มี hardcode logic ใดๆ - ถาม Brain ทุกอย่าง!
+ * Flow:
+ * 1. Tokenizer ถาม GrammarIndex: "ขอ section 'operators' ของ JS"
+ * 2. GrammarIndex ส่ง: Stream ของ section ทั้งหมด (1 ครั้ง)
+ * 3. Tokenizer Cache section ไว้
+ * 4. Tokenizer หา "&" ใน section  แปลงเป็นเลขฐาน 2
+ * 
+ * ไม่ต้องถาม 100 ครั้ง - ถามครั้งเดียวได้ทั้ง section!
  * 
  * NO_HARDCODE COMPLIANCE: โหลดทุกค่าจาก config
  */
 export class PureBinaryTokenizer {
-    constructor(brain) {
-        if (!brain) {
-            throw new Error(ERROR_MESSAGES.BRAIN_REQUIRED);
+    constructor(grammarIndexOrLanguage = 'javascript') {
+        // ! Support both GrammarIndex object and language string for backward compatibility
+        if (typeof grammarIndexOrLanguage === 'string') {
+            // Legacy mode: language string provided
+            this.language = grammarIndexOrLanguage;
+            this.brain = null; // Will load grammar from file
+        } else if (grammarIndexOrLanguage && typeof grammarIndexOrLanguage === 'object') {
+            // Modern mode: GrammarIndex (Brain) provided directly
+            this.brain = grammarIndexOrLanguage;
+            this.language = 'javascript'; // Default, could be extracted from brain if needed
+        } else {
+            throw new Error('PureBinaryTokenizer requires either a language string or GrammarIndex object');
         }
         
-        this.brain = brain;
         this.classifier = new UniversalCharacterClassifier();
         this.position = 0;
         this.input = '';
         this.inputLength = 0;
+        
+        // Cache sections (โหลดครั้งเดียว ใช้ได้หลายครั้ง)
+        this.grammarCache = null;
+        this.sectionCache = {
+            keywords: null,
+            operators: null,
+            punctuation: null,
+            literals: null,
+            comments: null
+        };
     }
 
     /**
-     * หน้าที่เดียว: แปลง String → Binary Stream
-     * ตรวจสอบ security limits จาก config
+     * โหลด grammar และ cache sections
      */
-    tokenize(input) {
-        // Security check: โหลดจาก config
-        if (input.length > SECURITY_LIMITS.MAX_INPUT_LENGTH) {
-            throw new Error(`Input exceeds maximum length of ${SECURITY_LIMITS.MAX_INPUT_LENGTH} characters`);
+    loadGrammarSections() {
+        if (this.grammarCache) {
+            return; // โหลดแล้ว
+        }
+
+        try {
+            // ! If Brain (GrammarIndex) is provided, use it directly
+            if (this.brain) {
+                // Use Brain's grammar data directly
+                this.grammarCache = this.brain.grammar || this.brain;
+                
+                console.log('[DEBUG] Tokenizer using Brain (GrammarIndex)');
+                console.log('[DEBUG] Grammar cache type:', typeof this.grammarCache);
+                console.log('[DEBUG] Has keywords:', !!this.grammarCache.keywords);
+                console.log('[DEBUG] Has operators:', !!this.grammarCache.operators);
+                console.log('[DEBUG] Has punctuation:', !!this.grammarCache.punctuation);
+                
+                // ! FLATTEN nested structure to hash sections
+                // ! Convert: { operators: { binaryOperators: { "+": {...} } } }
+                // ! To:      { operators: { "+": {...} } }
+                this.sectionCache.keywords = this.flattenSection(this.grammarCache.keywords || {});
+                this.sectionCache.operators = this.flattenSection(this.grammarCache.operators || {});
+                this.sectionCache.punctuation = this.flattenSection(this.grammarCache.punctuation || {});
+                this.sectionCache.literals = this.flattenSection(this.grammarCache.literals || {});
+                this.sectionCache.comments = this.grammarCache.comments || {};
+                
+                console.log('[DEBUG] Flattened sections - operators count:', Object.keys(this.sectionCache.operators).length);
+                console.log('[DEBUG] Flattened sections - punctuation count:', Object.keys(this.sectionCache.punctuation).length);
+                return;
+            }
+            
+            // ! Legacy mode: Load from file
+            // โหลด grammar ทั้งหมดครั้งเดียว
+            const grammarPath = join(__dirname, 'grammars', `${this.language}.grammar.json`);
+            this.grammarCache = JSON.parse(readFileSync(grammarPath, 'utf8'));
+
+            // Cache sections ที่ใช้บ่อย (Stream ทั้ง section)
+            this.sectionCache.keywords = this.grammarCache.keywords || {};
+            this.sectionCache.operators = this.grammarCache.operators || {};
+            this.sectionCache.punctuation = this.grammarCache.punctuation || {};
+            this.sectionCache.literals = this.grammarCache.literals || {};
+            this.sectionCache.comments = this.grammarCache.comments || {};
+        } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'BinaryComputationTokenizer',
+                method: 'loadGrammar',
+                severity: 'CRITICAL',
+                context: `Failed to load grammar for ${this.language} - Grammar file or GrammarIndex loading error`
+            });
+            throw new Error(`Failed to load grammar for ${this.language}: ${error.message}`);
+        }
+    }
+    
+    /**
+     * Flatten nested grammar section to hash section (no conversion needed)
+     * ! Convert nested structure: { binaryOperators: { "+": {...} }, unaryOperators: { "!": {...} } }
+     * ! To flat hash: { "+": {...}, "!": {...} }
+     * ! This is the "hash section" format - no value conversion, just structure flattening
+     */
+    flattenSection(section) {
+        if (!section || typeof section !== 'object') {
+            return {};
         }
         
-        this.input = input;
-        this.inputLength = input.length;
-        this.position = 0;
+        const flat = {};
         
-        const tokens = [];
-        
-        while (this.position < this.inputLength) {
-            const charCode = input.charCodeAt(this.position);
-            const flags = this.classifier.computeBinaryFlags(charCode);
-            
-            // ข้าม whitespace (โหลดจาก config)
-            if (PARSING_RULES.SKIP_WHITESPACE && this.classifier.isWhitespace(flags)) {
-                this.position++;
+        for (const [key, value] of Object.entries(section)) {
+            // Skip metadata fields
+            if (key.startsWith('__section_')) {
                 continue;
             }
             
-            // ถาม Brain ว่า character นี้คืออะไร
-            const token = this.computeToken(flags);
-            
-            if (token) {
-                tokens.push(token);
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                // Check if this value has metadata fields (means it's a final token/keyword)
+                // ! NO_HARDCODE: Use GRAMMAR_METADATA_FIELDS from config instead of hardcoded array
+                const hasMetadata = Object.keys(value).some(k => 
+                    GRAMMAR_METADATA_FIELDS.includes(k)
+                );
+                
+                if (hasMetadata) {
+                    // This is a final item (keyword/operator/punctuation definition)
+                    flat[key] = value;
+                } else {
+                    // This is a nested category, merge its contents recursively
+                    const flattened = this.flattenSection(value);
+                    Object.assign(flat, flattened);
+                }
+            } else {
+                flat[key] = value;
             }
         }
         
-        return tokens;
+        return flat;
     }
 
     /**
-     * ถาม Brain แล้วคำนวณ token
-     * โหลด token type strings และ binary flags จาก config
+     * เปลี่ยนภาษา (clear cache)
+     */
+    setLanguage(language) {
+        if (this.language !== language) {
+            this.language = language;
+            this.grammarCache = null;
+            this.sectionCache = {
+                keywords: null,
+                operators: null,
+                punctuation: null,
+                literals: null,
+                comments: null
+            };
+        }
+    }
+
+    /**
+     * หน้าที่เดียว: แปลง String  Binary Stream
+     * ตรวจสอบ security limits จาก config
+     * 
+     * Flow:
+     * 1. โหลด grammar sections (cache)
+     * 2. แปลง String  Binary tokens
+     * 3. ส่งงานต่อให้ Parser
+     * 4. ลบ cache ทันที (memory management)
+     */
+    tokenize(input) {
+        try {
+            // โหลด grammar sections ครั้งเดียว
+            this.loadGrammarSections();
+
+            // Security check: โหลดจาก config
+            if (input.length > SECURITY_LIMITS.MAX_INPUT_LENGTH) {
+                throw new Error(`Input exceeds maximum length of ${SECURITY_LIMITS.MAX_INPUT_LENGTH} characters`);
+            }
+            
+            // ! ========================================================================
+            // ! PREPROCESSING: จัดการกับ Special Characters ที่ต้องข้าม
+            // ! ========================================================================
+            
+            // 1. ตรวจจับและข้าม BOM (Byte Order Mark - charCode 65279)
+            // ! WHY: Text editors บน Windows มักใส่ BOM ไว้หน้าไฟล์ UTF-8
+            // ! SOLUTION: ข้ามตัวอักษรนี้ไปเพื่อไม่ให้เกิด "Unknown character" error
+            if (input.charCodeAt(0) === 65279) {
+                input = input.slice(1);
+                console.log('[Tokenizer] Skipped BOM (Byte Order Mark) at start of file');
+            }
+            
+            // 2. ตรวจจับและข้าม Shebang (#!/usr/bin/env node)
+            // ! WHY: ไฟล์ JavaScript CLI มักขึ้นต้นด้วย shebang เพื่อบอก OS ว่าจะใช้ Node.js รัน
+            // ! SOLUTION: ข้ามบรรทัดแรกทั้งหมดถ้าขึ้นต้นด้วย #!
+            if (input.startsWith('#!')) {
+                const endOfLine = input.indexOf('\n');
+                if (endOfLine !== -1) {
+                    input = input.slice(endOfLine + 1);
+                    console.log('[Tokenizer] Skipped Shebang line');
+                } else {
+                    // ถ้าทั้งไฟล์มีแค่ shebang ให้เป็นไฟล์ว่าง
+                    input = '';
+                }
+            }
+            
+            // ! ========================================================================
+            
+            this.input = input;
+            this.inputLength = input.length;
+            this.position = 0;
+            
+            const tokens = [];
+            
+            while (this.position < this.inputLength) {
+                const charCode = input.charCodeAt(this.position);
+                const flags = this.classifier.computeBinaryFlags(charCode);
+                
+                // ข้าม whitespace (โหลดจาก config)
+                if (PARSING_RULES.SKIP_WHITESPACE && this.classifier.isWhitespace(flags)) {
+                    this.position++;
+                    continue;
+                }
+                
+                // คำนวณ token (ค้นหาใน section cache)
+                const token = this.computeToken(flags);
+                
+                if (token) {
+                    tokens.push(token);
+                }
+            }
+            
+            //  ส่งงานต่อให้ Parser เสร็จแล้ว  ลบ cache ทันที!
+            return tokens;
+            
+        } finally {
+            //  CRITICAL: ลบ cache หลังส่งงานต่อให้ Parser
+            // เพื่อ Memory Management และป้องกันข้อมูลค้าง
+            this.clearCache();
+        }
+    }
+
+    /**
+     * ลบ cache ทั้งหมดหลังจากส่งงานต่อให้ Parser
+     * เรียกทันทีหลัง tokenize() เสร็จ
+     */
+    clearCache() {
+        this.grammarCache = null;
+        this.sectionCache = {
+            keywords: null,
+            operators: null,
+            punctuation: null,
+            literals: null,
+            comments: null
+        };
+    }
+
+    /**
+     * คำนวณ token โดยค้นหาใน section cache
+     * ไม่ต้องถาม brain - ใช้ section stream ที่ cache ไว้แล้ว
      */
     computeToken(flags) {
         const char = this.input[this.position];
         
-        // ถาม Brain: character นี้คืออะไร?
-        const tokenType = this.brain.identifyTokenType(char, this.input, this.position);
-        
-        // เรียก compute function ตาม type ที่ Brain บอก
-        if (tokenType.isComment) {
-            return this.computePatternToken(
-                TOKEN_TYPE_STRINGS.COMMENT,
-                tokenType,
-                TOKEN_TYPES.COMMENT.bit
-            );
+        // ตรวจสอบ Comment (ค้นหาใน section cache)
+        const commentResult = this.checkComment();
+        if (commentResult) {
+            return commentResult;
+        }
+
+        // ตรวจสอบ String
+        if (char === '"' || char === "'" || char === '`') {
+            return this.computeStringToken(char);
         }
         
-        if (tokenType.isString) {
-            return this.computeStringToken(tokenType);
-        }
-        
-        // Letter/Digit: ถาม Brain ว่าเป็น keyword หรือไม่
+        // Letter/Digit: ตรวจสอบว่าเป็น keyword หรือไม่
         if (this.classifier.isLetter(flags)) {
             return this.computeIdentifierOrKeyword();
         }
@@ -297,27 +505,67 @@ export class PureBinaryTokenizer {
             return this.computeNumber();
         }
         
-        // Operator: ถาม Brain หา longest match
+        // Operator/Punctuation: ค้นหาใน section cache
         if (this.classifier.isOperator(flags)) {
             return this.computeOperatorOrPunctuation();
         }
         
-        // Error: โหลด error message template จาก config
-        const errorMsg = ERROR_MESSAGES.UNKNOWN_CHARACTER
-            .replace('{position}', this.position)
-            .replace('{char}', char);
-        throw new Error(errorMsg);
+        // ! NO_SILENT_FALLBACKS: ห้าม fallback - ต้อง throw error ทันที
+        // ! ให้ ErrorHandler กลางจัดการ (src/error-handler/ErrorHandler.js)
+        const error = new Error(
+            `Unknown character at position ${this.position}: "${char}" (charCode: ${char.charCodeAt(0)})`
+        );
+        error.name = 'TokenizerError';
+        error.errorCode = 'UNKNOWN_CHARACTER';
+        error.position = this.position;
+        error.character = char;
+        error.isOperational = false; // Programming error - ต้อง crash
+        
+        throw error; // Let ErrorHandler decide what to do
     }
 
     /**
-     * คำนวณ token จาก pattern ที่ Brain บอก
-     * ใช้สำหรับ: Comment, Regex, etc.
-     * โหลด binary flag จาก config
+     * ตรวจสอบ comment โดยค้นหาใน comments section cache
      */
-    computePatternToken(type, tokenInfo, binaryFlagBit) {
+    checkComment() {
+        const commentsSection = this.sectionCache.comments;
+        const input = this.input;
+        const position = this.position;
+
+        // ตรวจสอบ single-line comment
+        if (commentsSection.singleLine) {
+            const start = commentsSection.singleLine.start;
+            if (input.substr(position, start.length) === start) {
+                return this.computeCommentToken(
+                    start,
+                    commentsSection.singleLine.end,
+                    TOKEN_TYPE_STRINGS.COMMENT,
+                    TOKEN_TYPES.COMMENT.bit
+                );
+            }
+        }
+
+        // ตรวจสอบ multi-line comment
+        if (commentsSection.multiLine) {
+            const start = commentsSection.multiLine.start;
+            if (input.substr(position, start.length) === start) {
+                return this.computeCommentToken(
+                    start,
+                    commentsSection.multiLine.end,
+                    TOKEN_TYPE_STRINGS.COMMENT,
+                    TOKEN_TYPES.COMMENT.bit
+                );
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * คำนวณ comment token
+     */
+    computeCommentToken(startPattern, endPattern, type, binaryFlagBit) {
         const start = this.position;
-        const startPattern = tokenInfo.startPattern;
-        const endPattern = tokenInfo.endPattern;
         
         // Security check: โหลดจาก config
         if (startPattern.length > SECURITY_LIMITS.MAX_PATTERN_LENGTH) {
@@ -360,9 +608,8 @@ export class PureBinaryTokenizer {
      * คำนวณ string token
      * โหลด Unicode constants และ limits จาก config
      */
-    computeStringToken(tokenInfo) {
+    computeStringToken(quote) {
         const start = this.position;
-        const quote = tokenInfo.quote;
         let end = start + 1;
         let escaped = false;
         
@@ -438,8 +685,13 @@ export class PureBinaryTokenizer {
         const value = this.input.slice(start, end);
         this.position = end;
         
-        // ถาม Brain: นี่คือ keyword หรือไม่?
-        if (this.brain.isKeyword(value)) {
+        // ค้นหาใน keywords section cache (ไม่ต้องถาม brain)
+        const keywordsSection = this.sectionCache.keywords;
+        const isKeyword = keywordsSection && 
+                         keywordsSection.hasOwnProperty(value) && 
+                         !value.startsWith('__section_');
+        
+        if (isKeyword) {
             return {
                 type: TOKEN_TYPE_STRINGS.KEYWORD,
                 binary: (1 << TOKEN_TYPES.KEYWORD.bit),
@@ -504,36 +756,45 @@ export class PureBinaryTokenizer {
     }
 
     /**
-     * คำนวณ operator/punctuation โดยถาม Brain
-     * โหลด token types และ error messages จาก config
+     * คำนวณ operator/punctuation โดยค้นหาใน section cache
+     * Longest match algorithm
      */
     computeOperatorOrPunctuation() {
         const start = this.position;
         
-        // ถาม Brain: operator longest match
-        const opMatch = this.brain.findLongestOperator(this.input, start);
+        // ค้นหา operator longest match ใน section cache
+        const opMatch = this.findLongestInSection(
+            this.sectionCache.operators,
+            this.input,
+            start
+        );
         
-        if (opMatch && opMatch.found) {
+        if (opMatch) {
             this.position += opMatch.length;
             return {
                 type: TOKEN_TYPE_STRINGS.OPERATOR,
                 binary: (1 << TOKEN_TYPES.OPERATOR.bit),
-                value: opMatch.operator,
+                value: opMatch.value,
                 length: opMatch.length,
                 start: start,
                 end: this.position
             };
         }
         
-        // ถาม Brain: punctuation longest match
-        const punctMatch = this.brain.findLongestPunctuation(this.input, start);
+        // ค้นหา punctuation longest match ใน section cache
+        const punctMatch = this.findLongestInSection(
+            this.sectionCache.punctuation,
+            this.input,
+            start
+        );
         
-        if (punctMatch && punctMatch.found) {
+        if (punctMatch) {
             this.position += punctMatch.length;
             return {
                 type: TOKEN_TYPE_STRINGS.PUNCTUATION,
                 binary: (1 << TOKEN_TYPES.PUNCTUATION.bit),
-                value: punctMatch.punctuation,
+                value: punctMatch.value,
+                punctuationBinary: PUNCTUATION_BINARY_MAP[punctMatch.value] || 0,
                 length: punctMatch.length,
                 start: start,
                 end: this.position
@@ -548,7 +809,47 @@ export class PureBinaryTokenizer {
     }
 
     /**
-     * Helper: Match pattern ที่ Brain บอก
+     * หา longest match ใน section
+     * @param {Object} section - Section cache (operators/punctuation)
+     * @param {string} input - Input string
+     * @param {number} position - Current position
+     * @returns {Object|null} { value, length } หรือ null
+     */
+    findLongestInSection(section, input, position) {
+        if (!section) {
+            return null;
+        }
+
+        let longestMatch = null;
+        let longestLength = 0;
+
+        // ค้นหาทุก item ใน section
+        for (const [item, data] of Object.entries(section)) {
+            // ข้าม metadata fields
+            if (item.startsWith('__section_')) continue;
+
+            // ตรวจสอบว่าตรงกับ input หรือไม่
+            if (input.substr(position, item.length) === item) {
+                if (item.length > longestLength) {
+                    longestMatch = item;
+                    longestLength = item.length;
+                }
+            }
+        }
+
+        if (longestMatch) {
+            return {
+                value: longestMatch,
+                length: longestLength,
+                data: section[longestMatch]
+            };
+        }
+
+        return null;
+    }
+
+    /**
+     * Helper: Match pattern
      */
     matchPattern(position, pattern) {
         if (position + pattern.length > this.inputLength) {

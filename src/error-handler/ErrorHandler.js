@@ -16,7 +16,7 @@
 // ! 3. ทุก Error ต้องมีการจัดประเภท (Operational vs Programming)
 // ! 4. Error ที่เป็นบั๊ก (Non-Operational) ต้อง Crash Process ทันที
 // ! ══════════════════════════════════════════════════════════════════════════════
-// ! Flow: Code → throw Error → ErrorHandler → Logger → Log File
+// ! Flow: Code  throw Error  ErrorHandler  Logger  Log File
 // ! ══════════════════════════════════════════════════════════════════════════════
 
 import fs from 'fs';

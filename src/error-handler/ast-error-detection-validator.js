@@ -22,9 +22,9 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import errorHandler from './ErrorHandler.js';
-import { AdvancedStructureParser } from '../grammars/shared/smart-parser-engine.js';
+import { PureBinaryParser } from '../grammars/shared/pure-binary-parser.js';
 import { BinaryComputationTokenizer } from '../grammars/shared/tokenizer-helper.js';
-import { GrammarIndex } from '../grammars/shared/grammar-index.js';
+import { GrammarIndex } from '../grammars/index.js';
 
 
 
@@ -118,8 +118,8 @@ class ASTErrorDetectionValidator {
             const tokenizer = new BinaryComputationTokenizer(grammarIndex);
             const tokens = tokenizer.tokenize(content);
 
-            // Parse to AST
-            const parser = new AdvancedStructureParser(tokens);
+            // Parse to AST using Pure Binary Parser
+            const parser = new PureBinaryParser(tokens, grammarIndex);
             const ast = parser.parse();
 
             // Step 1: Check if file imports errorHandler
@@ -540,8 +540,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
             }
         })
         .catch((error) => {
-            console.error('\n[FATAL] Validator crashed:');
-            console.error(error);
-            process.exit(1);
+            errorHandler.handleError(error, {
+                source: 'ast-error-detection-validator.js',
+                method: 'CLI',
+                severity: 'CRITICAL',
+                context: 'Validator execution crashed - AST parsing, file scanning, or report generation failed'
+            });
+            // errorHandler.handleError จะ process.exit(1) เองถ้าเป็น CRITICAL
         });
 }

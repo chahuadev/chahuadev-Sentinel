@@ -28,6 +28,12 @@ async function initializeVSCode() {
             throw new Error('VS Code module loaded but is empty');
         }
     } catch (e) {
+        errorHandler.handleError(e, {
+            source: 'SecurityMiddleware',
+            method: 'initializeVSCode',
+            severity: 'HIGH',
+            context: 'Running outside VS Code environment - Using mock vscode objects for testing'
+        });
         // Running outside VS Code environment (e.g., during testing)
         vscode = {
             // Mock vscode objects for testing
@@ -322,6 +328,12 @@ class SecurityMiddleware {
             };
             
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityMiddleware',
+                method: 'secureFileRead',
+                severity: 'HIGH',
+                context: `File read failed for ${filePath}`
+            });
             throw new SecurityError(`File read failed: ${error.message}`, filePath);
         }
     }
@@ -355,6 +367,12 @@ class SecurityMiddleware {
             };
             
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityMiddleware',
+                method: 'secureFileWrite',
+                severity: 'HIGH',
+                context: `File write failed for ${filePath}`
+            });
             throw new SecurityError(`File write failed: ${error.message}`, filePath);
         }
     }
@@ -403,6 +421,12 @@ class SecurityMiddleware {
                         });
                     }
                 } catch (regexError) {
+                    errorHandler.handleError(regexError, {
+                        source: 'SecurityMiddleware',
+                        method: 'secureFileScan',
+                        severity: 'MEDIUM',
+                        context: `Regex execution error for pattern: ${patternConfig.name}`
+                    });
                     // Log regex execution error but continue scanning
                     this.securityManager.logSecurityEvent(
                         'SCAN_PATTERN_ERROR', 
@@ -438,6 +462,12 @@ class SecurityMiddleware {
                     try {
                         JSON.parse(content);
                     } catch (jsonError) {
+                        errorHandler.handleError(jsonError, {
+                            source: 'SecurityMiddleware',
+                            method: 'secureFileScan',
+                            severity: 'MEDIUM',
+                            context: `JSON validation failed for ${filePath}`
+                        });
                         securityIssues.push({
                             issue: 'Invalid JSON format detected',
                             name: 'JSON Syntax Error',
@@ -460,6 +490,12 @@ class SecurityMiddleware {
             };
             
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityMiddleware',
+                method: 'secureFileScan',
+                severity: 'HIGH',
+                context: `File scan failed for ${filePath}`
+            });
             throw new SecurityError(`File scan failed: ${error.message}`, filePath);
         }
     }
@@ -492,7 +528,12 @@ class SecurityMiddleware {
         let errorCode = 'UNKNOWN';
         if (error.errorCode) {
             if (typeof error.errorCode !== 'string') {
-                console.error('[SECURITY] CRITICAL: error.errorCode is not a string', typeof error.errorCode);
+                errorHandler.handleError(new Error('error.errorCode is not a string'), {
+                    source: 'SecurityMiddleware',
+                    method: 'handleSecurityError',
+                    severity: 'CRITICAL',
+                    context: `Invalid errorCode type: ${typeof error.errorCode}`
+                });
             } else {
                 errorCode = error.errorCode;
             }
@@ -502,11 +543,24 @@ class SecurityMiddleware {
         let severity = 'HIGH';
         if (error.severity) {
             if (typeof error.severity !== 'string') {
-                console.error('[SECURITY] CRITICAL: error.severity is not a string', typeof error.severity);
+                errorHandler.handleError(new Error('error.severity is not a string'), {
+                    source: 'SecurityMiddleware',
+                    method: 'handleSecurityError',
+                    severity: 'CRITICAL',
+                    context: `Invalid severity type: ${typeof error.severity}`
+                });
             } else {
                 severity = error.severity;
             }
         }
+        
+        // Send to central errorHandler first
+        errorHandler.handleError(error, {
+            source: 'SecurityMiddleware',
+            method: operation,
+            severity: severity,
+            context: `Security error in operation: ${operation}`
+        });
         
         // Log security event with sanitized message (message will be sanitized in logSecurityEvent)
         this.securityManager.logSecurityEvent('SECURITY_ERROR', error.message, {
@@ -587,6 +641,12 @@ class SecurityMiddleware {
             }
             
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityMiddleware',
+                method: 'showSecurityReport',
+                severity: 'MEDIUM',
+                context: 'Failed to display security report'
+            });
             console.error('Failed to show security report:', error);
         }
     }

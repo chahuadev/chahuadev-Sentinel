@@ -38,6 +38,12 @@ try {
     const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
     BENCHMARK_CONFIG = config.performanceBenchmarks || { defaultSize: 100, defaultIterations: 100, intensiveIterations: 10000 };
 } catch (error) {
+    errorHandler.handleError(error, {
+        source: 'PerformanceBenchmarks',
+        method: 'initialization',
+        severity: 'MEDIUM',
+        context: `Failed to load benchmark config from ${CONFIG_PATH} - Using default config`
+    });
     BENCHMARK_CONFIG = { defaultSize: 100, defaultIterations: 100, intensiveIterations: 10000 };
 }
 
@@ -397,6 +403,12 @@ export function runAllBenchmarks(grammar) {
         results.tokenizer = benchmarkCompleteTokenizer(grammar, testCode);
 
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'PerformanceBenchmarks',
+            method: 'main',
+            severity: 'HIGH',
+            context: 'Benchmark execution error'
+        });
         console.error('Benchmark error:', error);
     }
 

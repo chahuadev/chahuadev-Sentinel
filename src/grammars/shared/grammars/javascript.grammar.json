@@ -15,11 +15,12 @@
   "__section_01_name": "keywords",
   "__section_01_title": "【SECTION 01】JavaScript Keywords & Reserved Words",
   "__section_01_language": "JavaScript",
-  "__section_01_total_items": 64,
-  "__section_01_description": "All JavaScript reserved keywords including ES1-ES2024, strict mode, and contextual keywords",
-  "__section_01_purpose": "กำหนด keywords ทั้งหมดของ JavaScript เช่น if, for, async, await, class พร้อม ES version และ disambiguation rules",
-  "__section_01_responsibility": "ให้ Brain รู้ว่า keyword แต่ละตัวมาจาก ES version ไหน, ใช้ใน context ไหน, strict mode หรือไม่",
+  "__section_01_total_items": 75,
+  "__section_01_description": "Complete JavaScript keywords: ES1-ES2024, strict mode, contextual, futureReserved, and futureReservedOldECMA (Java-inspired)",
+  "__section_01_purpose": "กำหนด keywords ทั้งหมดของ JavaScript รวมถึง reserved words จาก ES3 ที่ inspired จาก Java เพื่อให้ Grammar สมบูรณ์ 100%",
+  "__section_01_responsibility": "ให้ Brain รู้ว่า keyword แต่ละตัวมาจาก ES version ไหน, ใช้ใน context ไหน, strict mode หรือไม่, และเป็น futureReserved หรือไม่",
   "__section_01_used_by": ["KeywordRecognizer", "ContextAnalyzer", "StrictModeValidator"],
+  "__section_01_notes": "รวม 16 futureReservedOldECMA keywords (abstract, boolean, byte, char, double, final, float, goto, int, long, native, short, synchronized, throws, transient, volatile) เพื่อเป็น Base Grammar สำหรับ C-Family languages",
   "__section_01_footer": "══════════════════════════════════════════════════════════════════════════════",
 
   "keywords": {
@@ -2044,8 +2045,17 @@
       "disambiguation": [
         {
           "language": "JavaScript",
-          "rule": "from is contextual",
-          "note": "Only keyword in import/export. Can be identifier elsewhere."
+          "rule": "from in modules vs identifier",
+          "module": "import x from './mod'; // Keyword",
+          "identifier": "const from = 'value'; // Valid identifier",
+          "note": "from is only keyword in import/export contexts"
+        },
+        {
+          "language": "JavaScript",
+          "rule": "from clause requirements",
+          "valid": "import x from './file.js'; // Must be string literal",
+          "invalid": "import x from module; // SyntaxError",
+          "note": "from must be followed by string literal module specifier"
         }
       ],
       "errorMessage": "from requires string module specifier.",
@@ -2056,9 +2066,12 @@
       ],
       "notes": "Contextual keyword. Requires string literal.",
       "quirks": [
-        "Contextual",
-        "Only in import/export",
-        "Can be identifier name"
+        "Contextual keyword in import/export only",
+        "Can be used as identifier elsewhere",
+        "Must be followed by string literal",
+        "Works with both import and export statements",
+        "No dynamic import expressions (use import() function)",
+        "Bare specifiers require module resolution"
       ],
       "stage": "stable",
       "example": "import x from \"./mod.js\";"
@@ -2090,7 +2103,14 @@
           "rule": "as in modules vs TypeScript",
           "module": "import { x as y } from \"mod\"",
           "namespace": "import * as ns from \"mod\"",
-          "note": "Contextual keyword"
+          "note": "Contextual keyword in import/export"
+        },
+        {
+          "language": "JavaScript vs TypeScript",
+          "rule": "as in modules vs type assertion",
+          "javascript": "import { name as alias } from './mod'; // Rename",
+          "typescript": "const x = value as Type; // Type assertion (TS only)",
+          "note": "TypeScript extends as for type casting"
         }
       ],
       "errorMessage": "as requires identifier.",
@@ -2100,9 +2120,12 @@
       ],
       "notes": "Contextual keyword. Rename or namespace.",
       "quirks": [
-        "Contextual",
-        "Rename imports/exports",
-        "Namespace imports"
+        "Contextual keyword in import/export only",
+        "Can be used as identifier outside modules",
+        "Renames imported/exported bindings",
+        "Creates namespace for import * as",
+        "TypeScript uses for type assertions (different usage)",
+        "Cannot rename default exports inline"
       ],
       "stage": "stable",
       "example": "import { x as y } from \"./mod.js\";"
@@ -2543,97 +2566,1489 @@
       "category": "statement",
       "esVersion": "ES1",
       "source": "ECMA-262",
-      "deprecated": true
+      "deprecated": true,
+      "description": "Creates a scope where properties of an object become variables. DEPRECATED - forbidden in strict mode.",
+      "followedBy": [
+        "PAREN_OPEN"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN"
+      ],
+      "parentContext": [
+        "BlockStatement",
+        "Program"
+      ],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "isStatement": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "with statement vs object destructuring",
+          "with": "with (obj) { x = 1; } // Deprecated",
+          "destructuring": "const { x } = obj; x = 1; // Modern",
+          "note": "with statement is forbidden in strict mode and should never be used"
+        }
+      ],
+      "quirks": [
+        "Forbidden in strict mode (SyntaxError)",
+        "Creates ambiguous scope chains",
+        "Prevents optimization",
+        "Can't determine variable binding at compile time",
+        "Security risk - can hijack global objects",
+        "Slower execution due to dynamic scope lookup"
+      ],
+      "stage": "deprecated",
+      "spec": "ECMA-262 Annex B.3.4",
+      "errorMessage": "Strict mode code may not include a with statement",
+      "bestPractice": "NEVER use with. Use destructuring or explicit property access instead.",
+      "example": "with (Math) { console.log(PI); } // BAD - deprecated",
+      "modernAlternative": "const { PI } = Math; console.log(PI); // GOOD"
     },
     "enum": {
       "category": "reserved",
       "esVersion": "ES1",
       "source": "ECMA-262",
-      "futureReserved": true
+      "futureReserved": true,
+      "description": "Reserved for future use in JavaScript. Has meaning in TypeScript for enumerated types.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs TypeScript",
+          "rule": "enum keyword usage",
+          "javascript": "enum // SyntaxError - reserved but not implemented",
+          "typescript": "enum Color { Red, Green, Blue } // Valid TypeScript",
+          "note": "Reserved in JavaScript for potential future use, but currently implemented only in TypeScript"
+        }
+      ],
+      "quirks": [
+        "Reserved in all JavaScript contexts",
+        "Cannot be used as variable name",
+        "Cannot be used as property name in dot notation",
+        "Has meaning in TypeScript",
+        "No implementation in JavaScript spec",
+        "May be implemented in future ECMAScript versions"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Section 12.6.2",
+      "errorMessage": "Unexpected reserved word 'enum'",
+      "bestPractice": "Avoid using as identifier. Use Object.freeze() for enum-like patterns in JavaScript.",
+      "example": "const enum = 1; // SyntaxError",
+      "jsEnumPattern": "const Colors = Object.freeze({ RED: 'red', GREEN: 'green', BLUE: 'blue' });"
     },
     "implements": {
       "category": "reserved",
       "esVersion": "ES5",
       "source": "ECMA-262",
-      "strictOnly": true
+      "strictOnly": true,
+      "description": "Reserved in strict mode for future use. Has meaning in TypeScript for interface implementation.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs TypeScript",
+          "rule": "implements usage",
+          "javascript": "'use strict'; const implements = 1; // SyntaxError",
+          "typescript": "class Dog implements Animal { } // Valid TypeScript",
+          "note": "Reserved only in strict mode JavaScript, but has actual meaning in TypeScript"
+        }
+      ],
+      "quirks": [
+        "Only reserved in strict mode",
+        "Valid identifier in non-strict ES5",
+        "Cannot be variable name in strict mode",
+        "TypeScript uses for interface implementation",
+        "Part of future-proofing JavaScript for OOP features"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Section 13.1.1",
+      "errorMessage": "Unexpected strict mode reserved word",
+      "bestPractice": "Avoid using as identifier even in non-strict mode for forward compatibility.",
+      "example": "'use strict'; const implements = 1; // SyntaxError",
+      "nonStrict": "const implements = 1; // Valid in non-strict mode (not recommended)"
     },
     "interface": {
       "category": "reserved",
       "esVersion": "ES5",
       "source": "ECMA-262",
-      "strictOnly": true
+      "strictOnly": true,
+      "description": "Reserved in strict mode for future use. Has meaning in TypeScript for type contracts.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs TypeScript",
+          "rule": "interface usage",
+          "javascript": "'use strict'; const interface = 1; // SyntaxError",
+          "typescript": "interface Person { name: string; } // Valid TypeScript",
+          "note": "Reserved in JavaScript strict mode, structural typing in TypeScript"
+        }
+      ],
+      "quirks": [
+        "Only reserved in strict mode",
+        "Valid identifier in non-strict ES5",
+        "TypeScript uses for type definitions",
+        "Cannot be property name via dot notation in strict mode",
+        "May be implemented in future JavaScript versions"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Section 13.1.1",
+      "errorMessage": "Unexpected strict mode reserved word",
+      "bestPractice": "Always avoid. Use TypeScript for interfaces, duck typing for JavaScript.",
+      "example": "'use strict'; const interface = 1; // SyntaxError",
+      "duckTyping": "function greet(person) { return person.name; } // Duck typing in JS"
     },
     "package": {
       "category": "reserved",
       "esVersion": "ES5",
       "source": "ECMA-262",
-      "strictOnly": true
+      "strictOnly": true,
+      "description": "Reserved in strict mode for future use. Possibly for Java-like package systems.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "package keyword",
+          "javascript": "'use strict'; const package = 1; // SyntaxError",
+          "java": "package com.example; // Valid Java",
+          "note": "Reserved to prevent confusion with Java-like package systems"
+        }
+      ],
+      "quirks": [
+        "Only reserved in strict mode",
+        "Never implemented in JavaScript",
+        "JavaScript uses modules instead",
+        "Valid identifier in non-strict mode",
+        "Part of Java-inspired reserved words"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Section 13.1.1",
+      "errorMessage": "Unexpected strict mode reserved word",
+      "bestPractice": "Avoid completely. Use ES6 modules for code organization.",
+      "example": "'use strict'; const package = 1; // SyntaxError",
+      "modules": "import { module } from './module.js'; export { feature }; // Modern approach"
     },
     "private": {
       "category": "reserved",
       "esVersion": "ES5",
       "source": "ECMA-262",
-      "strictOnly": true
+      "strictOnly": true,
+      "description": "Reserved in strict mode. JavaScript uses # prefix for private fields instead (ES2022).",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs TypeScript vs Java",
+          "rule": "private access modifier",
+          "javascript": "class C { #private = 1; } // Uses # prefix",
+          "typescript": "class C { private x = 1; } // Uses keyword",
+          "java": "private int x; // Uses keyword",
+          "note": "JavaScript chose # prefix over keyword to avoid breaking existing code"
+        }
+      ],
+      "quirks": [
+        "Only reserved in strict mode",
+        "JavaScript uses # prefix for private fields",
+        "TypeScript uses private keyword",
+        "Can be used as identifier in non-strict mode",
+        "Reserved to allow future syntax evolution"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Section 13.1.1",
+      "enhancements": {
+        "ES2022": "Private fields use # prefix: class C { #field }"
+      },
+      "errorMessage": "Unexpected strict mode reserved word",
+      "bestPractice": "Use # prefix for private fields in JavaScript classes.",
+      "example": "'use strict'; const private = 1; // SyntaxError",
+      "privateFields": "class C { #secret = 42; getSecret() { return this.#secret; } }"
     },
     "protected": {
       "category": "reserved",
       "esVersion": "ES5",
       "source": "ECMA-262",
-      "strictOnly": true
+      "strictOnly": true,
+      "description": "Reserved in strict mode for future use. TypeScript has protected for inheritance access control.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs TypeScript",
+          "rule": "protected access modifier",
+          "javascript": "'use strict'; const protected = 1; // SyntaxError",
+          "typescript": "class C { protected x = 1; } // Valid TypeScript",
+          "note": "JavaScript has no protected access - use conventions or closures"
+        }
+      ],
+      "quirks": [
+        "Only reserved in strict mode",
+        "No protected access in JavaScript",
+        "TypeScript implements protected for inheritance",
+        "Valid identifier in non-strict mode",
+        "Use naming conventions (_protected) in JavaScript"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Section 13.1.1",
+      "errorMessage": "Unexpected strict mode reserved word",
+      "bestPractice": "Use naming conventions (_prefix) or TypeScript for protected members.",
+      "example": "'use strict'; const protected = 1; // SyntaxError",
+      "convention": "class C { _protected = 1; } // Convention: _ means internal"
     },
     "public": {
       "category": "reserved",
       "esVersion": "ES5",
       "source": "ECMA-262",
-      "strictOnly": true
+      "strictOnly": true,
+      "description": "Reserved in strict mode for future use. All JavaScript class fields are public by default.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs TypeScript",
+          "rule": "public access modifier",
+          "javascript": "class C { x = 1; } // Public by default",
+          "typescript": "class C { public x = 1; } // Explicit",
+          "note": "JavaScript doesn't need public keyword - all fields are public unless prefixed with #"
+        }
+      ],
+      "quirks": [
+        "Only reserved in strict mode",
+        "All JS class fields are public by default",
+        "TypeScript has explicit public keyword",
+        "Valid identifier in non-strict mode",
+        "Redundant in JavaScript design"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Section 13.1.1",
+      "errorMessage": "Unexpected strict mode reserved word",
+      "bestPractice": "No need for explicit public in JavaScript. Fields are public by default.",
+      "example": "'use strict'; const public = 1; // SyntaxError",
+      "defaultPublic": "class C { x = 1; getX() { return this.x; } } // All public"
+    },
+    "abstract": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java-inspired). No meaning in JavaScript, but has meaning in TypeScript for abstract classes.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs TypeScript",
+          "rule": "abstract keyword",
+          "javascript": "const abstract = 1; // SyntaxError in strict mode",
+          "typescript": "abstract class Shape { abstract area(): number; } // Valid TypeScript",
+          "note": "Reserved in JavaScript for potential future use, implemented in TypeScript"
+        }
+      ],
+      "quirks": [
+        "Reserved in strict mode only",
+        "Valid identifier in non-strict mode (not recommended)",
+        "Part of Java-inspired reserved words",
+        "TypeScript uses for abstract classes and methods",
+        "No implementation in JavaScript spec"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'abstract'",
+      "bestPractice": "Avoid using. Use TypeScript for abstract classes or design patterns in JavaScript.",
+      "example": "'use strict'; const abstract = 1; // SyntaxError",
+      "tsExample": "abstract class Animal { abstract makeSound(): void; }"
+    },
+    "boolean": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3. JavaScript uses 'Boolean' (capitalized) as constructor, not 'boolean' keyword.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs TypeScript/Java",
+          "rule": "boolean type",
+          "javascript": "const x = true; // Use Boolean() constructor or literals",
+          "typescript": "const x: boolean = true; // Type annotation",
+          "note": "JavaScript has Boolean (object) not boolean (keyword)"
+        }
+      ],
+      "quirks": [
+        "Reserved but unused in JavaScript",
+        "JavaScript uses Boolean (capitalized) as constructor",
+        "TypeScript uses boolean (lowercase) for type annotation",
+        "Part of Java primitive type names"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'boolean'",
+      "bestPractice": "Use Boolean() constructor or true/false literals in JavaScript.",
+      "example": "const boolean = 1; // SyntaxError in strict mode",
+      "jsWay": "const x = Boolean('test'); // or const x = true;"
+    },
+    "byte": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java primitive type). JavaScript uses typed arrays instead.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "byte type",
+          "javascript": "const arr = new Int8Array(10); // Use typed arrays",
+          "java": "byte b = 127; // Primitive type",
+          "note": "JavaScript has no byte keyword, use Int8Array/Uint8Array"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "Part of Java primitive type names",
+        "JavaScript uses Int8Array/Uint8Array for byte data",
+        "Valid identifier in non-strict mode"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'byte'",
+      "bestPractice": "Use Int8Array or Uint8Array for byte manipulation.",
+      "example": "const byte = 1; // SyntaxError in strict mode",
+      "jsWay": "const bytes = new Uint8Array([1, 2, 3]);"
+    },
+    "char": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java primitive type). JavaScript uses strings for characters.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "char type",
+          "javascript": "const c = 'a'; // Use string",
+          "java": "char c = 'a'; // Primitive type",
+          "note": "JavaScript has no char type, single characters are strings"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "JavaScript treats single characters as strings",
+        "Part of Java primitive type names",
+        "Use string[0] or charAt(0) in JavaScript"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'char'",
+      "bestPractice": "Use string for single characters in JavaScript.",
+      "example": "const char = 'a'; // SyntaxError in strict mode",
+      "jsWay": "const char = 'a'; // String of length 1"
+    },
+    "double": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java primitive type). JavaScript's Number is already IEEE 754 double-precision.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "double type",
+          "javascript": "const x = 3.14; // All numbers are double-precision",
+          "java": "double d = 3.14; // Explicit double type",
+          "note": "JavaScript Number is always 64-bit IEEE 754 double"
+        }
+      ],
+      "quirks": [
+        "Reserved but redundant in JavaScript",
+        "All JavaScript numbers are double-precision (64-bit)",
+        "Part of Java primitive type names",
+        "Use Number or numeric literals"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'double'",
+      "bestPractice": "Use Number type or numeric literals directly.",
+      "example": "const double = 3.14; // SyntaxError in strict mode",
+      "jsWay": "const x = 3.14; // Already double-precision"
+    },
+    "final": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java keyword). JavaScript uses 'const' for similar purpose.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "final keyword",
+          "javascript": "const x = 1; // Immutable binding",
+          "java": "final int x = 1; // Immutable variable",
+          "note": "JavaScript uses const instead of final"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "JavaScript's const serves similar purpose",
+        "Part of Java modifiers",
+        "Object.freeze() for immutable objects"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'final'",
+      "bestPractice": "Use const for immutable bindings, Object.freeze() for immutable objects.",
+      "example": "const final = 1; // SyntaxError in strict mode",
+      "jsWay": "const x = 1; Object.freeze(obj);"
+    },
+    "float": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java primitive type). JavaScript uses Number for all floating-point values.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "float type",
+          "javascript": "const x = 3.14; // All numbers are IEEE 754 double",
+          "java": "float f = 3.14f; // 32-bit floating point",
+          "note": "JavaScript has no separate float type, use Number or Float32Array"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "JavaScript Number is 64-bit (double), not 32-bit (float)",
+        "Use Float32Array for 32-bit float arrays",
+        "Part of Java primitive type names"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'float'",
+      "bestPractice": "Use Number for general use, Float32Array for performance-critical float arrays.",
+      "example": "const float = 3.14; // SyntaxError in strict mode",
+      "jsWay": "const x = 3.14; // or new Float32Array([3.14]);"
+    },
+    "goto": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3. Never implemented in JavaScript due to structured programming principles.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs C/Java",
+          "rule": "goto statement",
+          "javascript": "// Use functions, loops, and return instead",
+          "c": "goto label; label: statement(); // Jump to label",
+          "note": "JavaScript deliberately excludes goto to encourage structured programming"
+        }
+      ],
+      "quirks": [
+        "Reserved to prevent future use",
+        "Considered harmful in structured programming",
+        "JavaScript uses functions, loops, break, continue instead",
+        "Never will be implemented",
+        "Part of compatibility with C/Java"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'goto'",
+      "bestPractice": "Use structured control flow: functions, loops, break, continue, return.",
+      "example": "const goto = 1; // SyntaxError in strict mode",
+      "jsWay": "// Use early return or break instead of goto"
+    },
+    "int": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java primitive type). JavaScript uses Number for all numeric values.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "int type",
+          "javascript": "const x = 42; // Use Number or BigInt",
+          "java": "int x = 42; // 32-bit signed integer",
+          "note": "JavaScript has no int keyword, use Number, BigInt, or Int32Array"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "JavaScript Number can represent integers up to 2^53-1 safely",
+        "Use BigInt for larger integers",
+        "Use Int32Array/Uint32Array for typed arrays"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'int'",
+      "bestPractice": "Use Number for integers, BigInt for large integers, typed arrays for performance.",
+      "example": "const int = 42; // SyntaxError in strict mode",
+      "jsWay": "const x = 42; const big = 42n; // or new Int32Array([42]);"
+    },
+    "long": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java primitive type). JavaScript uses BigInt for 64-bit integers.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "long type",
+          "javascript": "const x = 9007199254740991n; // Use BigInt",
+          "java": "long x = 9007199254740991L; // 64-bit integer",
+          "note": "JavaScript uses BigInt (ES2020) for arbitrary precision integers"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "JavaScript now has BigInt for large integers",
+        "Number can safely represent integers up to 2^53-1",
+        "Part of Java primitive type names"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'long'",
+      "bestPractice": "Use BigInt for large integers beyond Number.MAX_SAFE_INTEGER.",
+      "example": "const long = 42; // SyntaxError in strict mode",
+      "jsWay": "const x = 9007199254740991n; // BigInt literal"
+    },
+    "native": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java keyword). No equivalent in JavaScript.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "native keyword",
+          "javascript": "// No native keyword - use WebAssembly for native code",
+          "java": "native void nativeMethod(); // JNI method",
+          "note": "JavaScript has no native keyword, use WebAssembly or Node.js addons"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "Part of Java's JNI (Java Native Interface)",
+        "JavaScript uses WebAssembly or native addons instead",
+        "No direct equivalent in JavaScript"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'native'",
+      "bestPractice": "Use WebAssembly for performance-critical native code.",
+      "example": "const native = 1; // SyntaxError in strict mode",
+      "jsWay": "// Use WebAssembly.instantiate() for native code"
+    },
+    "short": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java primitive type). JavaScript uses Int16Array for 16-bit integers.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "short type",
+          "javascript": "const arr = new Int16Array([1, 2, 3]); // 16-bit integers",
+          "java": "short s = 32767; // 16-bit signed integer",
+          "note": "JavaScript uses Int16Array/Uint16Array for 16-bit integers"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "JavaScript uses Int16Array/Uint16Array for 16-bit data",
+        "Part of Java primitive type names",
+        "Number can represent all short values"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'short'",
+      "bestPractice": "Use Number for general use, Int16Array for typed arrays.",
+      "example": "const short = 1; // SyntaxError in strict mode",
+      "jsWay": "const x = 32767; // or new Int16Array([32767]);"
+    },
+    "synchronized": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java keyword). JavaScript uses async/await and Web Workers instead.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "synchronized keyword",
+          "javascript": "// Use async/await or Web Workers for concurrency",
+          "java": "synchronized void method() { } // Thread synchronization",
+          "note": "JavaScript is single-threaded, use async patterns or SharedArrayBuffer with Atomics"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "JavaScript is single-threaded (event loop)",
+        "Use async/await for asynchronous operations",
+        "Use Web Workers for parallel processing",
+        "SharedArrayBuffer + Atomics for shared memory"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'synchronized'",
+      "bestPractice": "Use async/await for async operations, Web Workers for parallelism.",
+      "example": "const synchronized = 1; // SyntaxError in strict mode",
+      "jsWay": "async function fetch() { await response; } // or new Worker('worker.js');"
+    },
+    "throws": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java keyword). JavaScript uses 'throw' (singular) instead.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "throws vs throw",
+          "javascript": "throw new Error('message'); // Throw exception",
+          "java": "void method() throws Exception { } // Declare exceptions",
+          "note": "JavaScript uses throw (verb), not throws (declaration)"
+        }
+      ],
+      "quirks": [
+        "Reserved but never used",
+        "JavaScript uses 'throw' (singular) to throw exceptions",
+        "No checked exceptions in JavaScript",
+        "Part of Java exception handling"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'throws'",
+      "bestPractice": "Use throw to throw exceptions, try/catch to handle them.",
+      "example": "const throws = 1; // SyntaxError in strict mode",
+      "jsWay": "throw new Error('message'); try {} catch(e) {}"
+    },
+    "transient": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java keyword). JavaScript has no serialization keywords.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "transient keyword",
+          "javascript": "// Use toJSON() method for custom serialization",
+          "java": "transient int temp; // Skip serialization",
+          "note": "JavaScript uses toJSON() or replacer function in JSON.stringify()"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "Part of Java serialization mechanism",
+        "JavaScript uses JSON.stringify() with custom logic",
+        "No built-in transient concept"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'transient'",
+      "bestPractice": "Use toJSON() method or replacer function for custom serialization.",
+      "example": "const transient = 1; // SyntaxError in strict mode",
+      "jsWay": "obj.toJSON = () => ({ /* custom */ }); JSON.stringify(obj, replacer);"
+    },
+    "volatile": {
+      "category": "reserved",
+      "esVersion": "ES3",
+      "source": "ECMA-262",
+      "futureReserved": true,
+      "description": "Reserved word from ECMAScript 3 (Java keyword). JavaScript uses Atomics for shared memory operations.",
+      "followedBy": [],
+      "precededBy": [],
+      "parentContext": [],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "language": "JavaScript vs Java",
+          "rule": "volatile keyword",
+          "javascript": "// Use Atomics with SharedArrayBuffer for thread-safe operations",
+          "java": "volatile int counter; // Memory visibility guarantee",
+          "note": "JavaScript uses Atomics API for shared memory visibility"
+        }
+      ],
+      "quirks": [
+        "Reserved but never implemented",
+        "Part of Java memory model",
+        "JavaScript uses Atomics API for similar purpose",
+        "Relevant for SharedArrayBuffer and Web Workers"
+      ],
+      "stage": "reserved",
+      "spec": "ECMA-262 Annex C",
+      "errorMessage": "Unexpected reserved word 'volatile'",
+      "bestPractice": "Use Atomics API with SharedArrayBuffer for thread-safe operations.",
+      "example": "const volatile = 1; // SyntaxError in strict mode",
+      "jsWay": "const sab = new SharedArrayBuffer(4); Atomics.load(new Int32Array(sab), 0);"
     },
     "static": {
-      "category": "reserved",
-      "esVersion": "ES5",
+      "category": "modifier",
+      "esVersion": "ES6",
       "source": "ECMA-262",
-      "strictOnly": true
+      "strictOnly": false,
+      "description": "Declares a static method, property, or initialization block for a class. Static members belong to the class itself, not instances.",
+      "followedBy": [
+        "IDENTIFIER",
+        "get",
+        "set",
+        "BRACE_OPEN",
+        "HASH",
+        "async"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN"
+      ],
+      "parentContext": [
+        "ClassBody"
+      ],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "isModifier": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "Static vs Instance Members",
+          "static": "MyClass.staticMethod() // Accessed on class",
+          "instance": "new MyClass().instanceMethod() // Accessed on instance",
+          "note": "Static members cannot directly access instance members via 'this'"
+        },
+        {
+          "language": "JavaScript",
+          "rule": "Static initialization blocks (ES2022)",
+          "staticBlock": "class C { static { this.init(); } }",
+          "staticProperty": "class C { static prop = value; }",
+          "note": "Static blocks run once when class is evaluated"
+        }
+      ],
+      "quirks": [
+        "Static members inherited by subclasses",
+        "'this' refers to class constructor itself",
+        "Cannot be used outside class declaration",
+        "ES2022 introduced static initialization blocks",
+        "Can combine with private fields: static #privateField",
+        "Static blocks can access private instance fields",
+        "Not available in object literals"
+      ],
+      "stage": "stable",
+      "spec": "ECMA-262 Section 15.7.10",
+      "enhancements": {
+        "ES2022": "Static initialization blocks: static { ... }"
+      },
+      "bestPractice": "Use for utility functions or properties shared across all instances. Use static blocks for complex initialization.",
+      "example": "class User { static count = 0; static getCount() { return User.count; } }",
+      "staticBlock": "class C { static resource; static { C.resource = loadResource(); } }",
+      "staticPrivate": "class C { static #secret = 42; static getSecret() { return C.#secret; } }"
     },
     "of": {
       "category": "iterator",
       "esVersion": "ES6",
-      "source": "Babel",
-      "contextual": true
+      "source": "ECMA-262",
+      "contextual": true,
+      "description": "Iterates over iterable objects (arrays, strings, Maps, Sets, etc.) in for...of loops.",
+      "followedBy": [
+        "IDENTIFIER",
+        "Expression"
+      ],
+      "precededBy": [
+        "IDENTIFIER",
+        "BRACKET_CLOSE",
+        "BRACE_CLOSE"
+      ],
+      "parentContext": [
+        "ForOfStatement"
+      ],
+      "startsExpr": false,
+      "beforeExpr": true,
+      "isContextual": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "for...of vs for...in",
+          "forOf": "for (const item of array) // Iterates over values",
+          "forIn": "for (const key in object) // Iterates over keys",
+          "note": "for...of works with iterables, for...in works with enumerable properties"
+        },
+        {
+          "language": "JavaScript",
+          "rule": "of as contextual keyword vs identifier",
+          "keyword": "for (const x of arr) {} // Keyword",
+          "identifier": "const of = 'value'; // Valid identifier",
+          "note": "of is only a keyword in for loops context"
+        }
+      ],
+      "quirks": [
+        "Only a keyword in for loop context",
+        "Can be used as variable name outside for loops",
+        "Works with any iterable (Array, String, Map, Set, etc.)",
+        "Does not work with plain objects (not iterable)",
+        "Creates fresh binding in each iteration",
+        "Cannot iterate object properties directly"
+      ],
+      "stage": "stable",
+      "spec": "ECMA-262 Section 14.7.5",
+      "errorMessage": "for...of requires an iterable object",
+      "bestPractice": "Use for...of for arrays and iterables. Use for...in for object keys. Use Object.entries() for object iteration.",
+      "example": "for (const item of [1, 2, 3]) { console.log(item); }",
+      "withString": "for (const char of 'hello') { console.log(char); }",
+      "withMap": "for (const [key, value] of map) { console.log(key, value); }",
+      "withSet": "for (const item of new Set([1, 2, 3])) { console.log(item); }",
+      "objectIteration": "for (const [key, value] of Object.entries(obj)) { console.log(key, value); }",
+      "asIdentifier": "const of = 'test'; console.log(of); // Valid outside for loop"
     },
     "get": {
       "category": "accessor",
       "esVersion": "ES5",
-      "source": "Babel",
-      "contextual": true
+      "source": "ECMA-262",
+      "contextual": true,
+      "description": "Defines a getter method that executes when a property is accessed.",
+      "followedBy": [
+        "IDENTIFIER",
+        "BRACKET_OPEN",
+        "STRING"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN",
+        "COMMA"
+      ],
+      "parentContext": [
+        "ObjectLiteral",
+        "ClassBody"
+      ],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "isContextual": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "get accessor vs get identifier",
+          "accessor": "const obj = { get name() { return 'John'; } }; // Getter",
+          "identifier": "const get = 'value'; // Valid identifier",
+          "note": "get is only a keyword before method names in objects/classes"
+        },
+        {
+          "language": "JavaScript",
+          "rule": "get vs regular method",
+          "getter": "obj.name // Called without parentheses",
+          "method": "obj.getName() // Called with parentheses",
+          "note": "Getters are accessed like properties but execute code"
+        }
+      ],
+      "quirks": [
+        "Only a keyword before method names",
+        "Can be used as variable name",
+        "Cannot have parameters",
+        "Must return a value",
+        "Accessed without parentheses (like property)",
+        "Can be used with computed property names: get [prop]()",
+        "Works in object literals and classes"
+      ],
+      "stage": "stable",
+      "spec": "ECMA-262 Section 13.2.5",
+      "errorMessage": "Getter must not have parameters",
+      "bestPractice": "Use for computed properties or lazy evaluation. Don't perform expensive operations in getters.",
+      "example": "const obj = { get fullName() { return `${this.first} ${this.last}`; } };",
+      "classGetter": "class Person { get age() { return new Date().getFullYear() - this.birthYear; } }",
+      "computedGetter": "const obj = { get [Symbol.iterator]() { return this.items[Symbol.iterator](); } };",
+      "asIdentifier": "const get = 'value'; console.log(get); // Valid",
+      "withSetter": "const obj = { _val: 0, get value() { return this._val; }, set value(v) { this._val = v; } };"
     },
     "set": {
       "category": "accessor",
       "esVersion": "ES5",
-      "source": "Babel",
-      "contextual": true
+      "source": "ECMA-262",
+      "contextual": true,
+      "description": "Defines a setter method that executes when a property is assigned a value.",
+      "followedBy": [
+        "IDENTIFIER",
+        "BRACKET_OPEN",
+        "STRING"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN",
+        "COMMA"
+      ],
+      "parentContext": [
+        "ObjectLiteral",
+        "ClassBody"
+      ],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "isContextual": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "set accessor vs set identifier",
+          "accessor": "const obj = { set name(value) { this._name = value; } }; // Setter",
+          "identifier": "const set = 'value'; // Valid identifier",
+          "note": "set is only a keyword before method names in objects/classes"
+        },
+        {
+          "language": "JavaScript",
+          "rule": "set vs regular method",
+          "setter": "obj.name = 'John'; // Called with assignment",
+          "method": "obj.setName('John'); // Called explicitly",
+          "note": "Setters are invoked during assignment but execute code"
+        }
+      ],
+      "quirks": [
+        "Only a keyword before method names",
+        "Can be used as variable name",
+        "Must have exactly one parameter",
+        "Cannot return values (return is ignored)",
+        "Invoked during property assignment",
+        "Can be used with computed property names: set [prop](val)",
+        "Works in object literals and classes"
+      ],
+      "stage": "stable",
+      "spec": "ECMA-262 Section 13.2.5",
+      "errorMessage": "Setter must have exactly one parameter",
+      "bestPractice": "Use for validation, side effects, or derived properties. Pair with getters for consistency.",
+      "example": "const obj = { set name(value) { this._name = value.trim(); } };",
+      "classSetter": "class Person { set age(value) { if (value < 0) throw new Error('Invalid age'); this._age = value; } }",
+      "computedSetter": "const obj = { set [Symbol.toStringTag](value) { this._tag = value; } };",
+      "asIdentifier": "const set = 'value'; console.log(set); // Valid",
+      "withGetter": "const obj = { _val: 0, get value() { return this._val; }, set value(v) { this._val = Math.max(0, v); } };",
+      "validation": "const obj = { set email(value) { if (!value.includes('@')) throw new Error('Invalid email'); this._email = value; } };"
     },
     "meta": {
       "category": "meta",
       "esVersion": "ES6",
-      "source": "Babel",
-      "contextual": true
+      "source": "ECMA-262",
+      "contextual": true,
+      "description": "Part of meta-properties: new.target (constructor detection) and import.meta (module metadata).",
+      "followedBy": [
+        "DOT"
+      ],
+      "precededBy": [
+        "new",
+        "import"
+      ],
+      "parentContext": [
+        "MetaProperty"
+      ],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "isContextual": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "new.target vs import.meta",
+          "newTarget": "function F() { console.log(new.target); } // Constructor detection",
+          "importMeta": "console.log(import.meta.url); // Module metadata",
+          "note": "meta is part of two different meta-properties"
+        },
+        {
+          "language": "JavaScript",
+          "rule": "meta as keyword vs identifier",
+          "keyword": "new.target // Part of meta-property",
+          "identifier": "const meta = {}; // Valid identifier",
+          "note": "meta is only keyword when following new or import with dot"
+        }
+      ],
+      "quirks": [
+        "Only keyword in new.target and import.meta",
+        "Cannot be used standalone",
+        "Always followed by dot (.)",
+        "Can be used as regular identifier elsewhere",
+        "new.target is undefined in non-constructor contexts",
+        "import.meta only available in modules"
+      ],
+      "stage": "stable",
+      "spec": "ECMA-262 Section 13.3.8 (new.target), Section 16.2.11 (import.meta)",
+      "bestPractice": "Use new.target for constructor checks. Use import.meta for module information.",
+      "example": "function F() { if (!new.target) throw new Error('Must use new'); }",
+      "importMetaExample": "console.log(import.meta.url); // Current module URL",
+      "newTargetExample": "class Base { constructor() { console.log(new.target.name); } }"
     },
     "target": {
       "category": "meta",
       "esVersion": "ES6",
-      "source": "Babel",
-      "contextual": true
+      "source": "ECMA-262",
+      "contextual": true,
+      "description": "Part of new.target meta-property. Refers to the constructor that was directly invoked with new.",
+      "followedBy": [
+        "DOT",
+        "SEMICOLON",
+        "PAREN_CLOSE",
+        "COMMA"
+      ],
+      "precededBy": [
+        "DOT"
+      ],
+      "parentContext": [
+        "MetaProperty"
+      ],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "isContextual": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "new.target usage",
+          "inConstructor": "new.target === ConstructorFunction // true when called with new",
+          "inFunction": "new.target === undefined // When called without new",
+          "note": "Detects whether function was called as constructor"
+        },
+        {
+          "language": "JavaScript",
+          "rule": "target in inheritance",
+          "base": "class Base { constructor() { console.log(new.target); } }",
+          "derived": "class Derived extends Base {} new Derived(); // logs Derived, not Base",
+          "note": "new.target refers to the most derived constructor"
+        }
+      ],
+      "quirks": [
+        "Only meaningful after new. prefix",
+        "Can be used as regular identifier",
+        "undefined when function not called with new",
+        "Points to most derived constructor in inheritance",
+        "Not available in arrow functions",
+        "Helps prevent calling constructors without new"
+      ],
+      "stage": "stable",
+      "spec": "ECMA-262 Section 13.3.8",
+      "errorMessage": "new.target can only be used in constructors",
+      "bestPractice": "Use to enforce new usage in constructors. Check in base classes for abstract patterns.",
+      "example": "function User(name) { if (!new.target) throw new Error('Must use new'); this.name = name; }",
+      "abstractPattern": "class Abstract { constructor() { if (new.target === Abstract) throw new Error('Abstract class'); } }",
+      "asIdentifier": "const target = document.querySelector('#target'); // Valid identifier"
     },
     "using": {
       "category": "declaration",
       "esVersion": "ES2024",
-      "source": "Babel",
-      "contextual": true
+      "source": "ECMA-262",
+      "contextual": true,
+      "description": "Explicit Resource Management - declares a resource that will be automatically disposed when leaving scope.",
+      "followedBy": [
+        "IDENTIFIER",
+        "BRACE_OPEN",
+        "BRACKET_OPEN"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN"
+      ],
+      "parentContext": [
+        "BlockStatement",
+        "ForStatement"
+      ],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "isContextual": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "using declaration vs identifier",
+          "declaration": "using file = await fs.open('data.txt'); // Resource management",
+          "identifier": "const using = 'value'; // Valid identifier in older engines",
+          "note": "using is contextual - only a keyword when declaring resources"
+        },
+        {
+          "language": "JavaScript vs C#",
+          "rule": "using statement comparison",
+          "javascript": "using resource = getResource(); // Block-scoped",
+          "csharp": "using (var resource = GetResource()) { } // Statement",
+          "note": "JavaScript using is more like C# using combined with block scope"
+        }
+      ],
+      "quirks": [
+        "ES2024 feature (very new)",
+        "Contextual keyword",
+        "Requires Symbol.dispose or Symbol.asyncDispose",
+        "Calls [Symbol.dispose]() when leaving scope",
+        "Works with try-finally internally",
+        "Can use await using for async disposal",
+        "Not yet widely supported (check compatibility)"
+      ],
+      "stage": "stage-3",
+      "spec": "ECMA-262 Explicit Resource Management Proposal",
+      "proposal": "https://github.com/tc39/proposal-explicit-resource-management",
+      "errorMessage": "using declaration requires resource with Symbol.dispose",
+      "bestPractice": "Use for file handles, database connections, locks - any resource needing cleanup.",
+      "example": "using file = await openFile('data.txt'); // Auto-closes when scope exits",
+      "asyncExample": "await using connection = await db.connect(); // Async disposal",
+      "customResource": "const resource = { [Symbol.dispose]() { console.log('Cleaned up!'); } }; using res = resource;",
+      "compatibility": "Node.js 20+, Chrome 122+, Safari 17.4+"
     },
     "defer": {
       "category": "declaration",
       "esVersion": "ES2024",
-      "source": "Babel",
-      "contextual": true
+      "source": "ECMA-262",
+      "contextual": true,
+      "description": "Deferred Resource Management - declares a resource that will be disposed in reverse order at end of block.",
+      "followedBy": [
+        "using"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN"
+      ],
+      "parentContext": [
+        "BlockStatement"
+      ],
+      "startsExpr": false,
+      "beforeExpr": false,
+      "isContextual": true,
+      "disambiguation": [
+        {
+          "language": "JavaScript",
+          "rule": "defer using vs regular using",
+          "defer": "defer using resource = getResource(); // LIFO disposal order",
+          "regular": "using resource = getResource(); // Immediate scope disposal",
+          "note": "defer ensures reverse (LIFO) disposal order like Go's defer"
+        },
+        {
+          "language": "JavaScript vs Go",
+          "rule": "defer comparison",
+          "javascript": "defer using lock = acquireLock(); // Disposed at end",
+          "go": "defer lock.Release() // Executed at function end",
+          "note": "JavaScript defer using is inspired by Go's defer statement"
+        }
+      ],
+      "quirks": [
+        "ES2024 feature (very new)",
+        "Must be followed by 'using' keyword",
+        "Provides LIFO (stack-like) disposal order",
+        "Similar to Go's defer statement",
+        "Useful for nested resources",
+        "Can use await defer using for async",
+        "Not yet widely supported"
+      ],
+      "stage": "stage-3",
+      "spec": "ECMA-262 Explicit Resource Management Proposal",
+      "proposal": "https://github.com/tc39/proposal-explicit-resource-management",
+      "errorMessage": "defer must be followed by using declaration",
+      "bestPractice": "Use when disposal order matters (e.g., nested locks, transaction rollback).",
+      "example": "{ defer using lock1 = acquireLock(); defer using lock2 = acquireLock(); } // lock2 released first",
+      "asyncExample": "await defer using tx = db.transaction(); // Rollback if error",
+      "lifoOrder": "defer using a = getA(); defer using b = getB(); // b disposed first, then a",
+      "compatibility": "Node.js 20+, Chrome 122+, Safari 17.4+"
+    },
+    "true": {
+      "category": "literal",
+      "esVersion": "ES1",
+      "source": "ECMA-262",
+      "description": "Boolean literal - true value",
+      "followedBy": [
+        "SEMICOLON",
+        "COMMA",
+        "PAREN_CLOSE",
+        "BRACKET_CLOSE",
+        "BRACE_CLOSE",
+        "COLON"
+      ],
+      "precededBy": [
+        "ASSIGN",
+        "PAREN_OPEN",
+        "BRACKET_OPEN",
+        "return",
+        "COLON"
+      ],
+      "parentContext": [
+        "Expression",
+        "Literal"
+      ],
+      "startsExpr": true,
+      "beforeExpr": false,
+      "isLiteral": true,
+      "isPrimitive": true,
+      "value": true,
+      "notes": "Boolean literal representing true value",
+      "stage": "stable",
+      "deprecated": false,
+      "spec": "ECMA-262 Section 12.8.1",
+      "example": "const x = true;"
+    },
+    "false": {
+      "category": "literal",
+      "esVersion": "ES1",
+      "source": "ECMA-262",
+      "description": "Boolean literal - false value",
+      "followedBy": [
+        "SEMICOLON",
+        "COMMA",
+        "PAREN_CLOSE",
+        "BRACKET_CLOSE",
+        "BRACE_CLOSE",
+        "COLON"
+      ],
+      "precededBy": [
+        "ASSIGN",
+        "PAREN_OPEN",
+        "BRACKET_OPEN",
+        "return",
+        "COLON"
+      ],
+      "parentContext": [
+        "Expression",
+        "Literal"
+      ],
+      "startsExpr": true,
+      "beforeExpr": false,
+      "isLiteral": true,
+      "isPrimitive": true,
+      "value": false,
+      "notes": "Boolean literal representing false value",
+      "stage": "stable",
+      "deprecated": false,
+      "spec": "ECMA-262 Section 12.8.1",
+      "example": "const x = false;"
+    },
+    "null": {
+      "category": "literal",
+      "esVersion": "ES1",
+      "source": "ECMA-262",
+      "description": "Null literal - intentional absence of value",
+      "followedBy": [
+        "SEMICOLON",
+        "COMMA",
+        "PAREN_CLOSE",
+        "BRACKET_CLOSE",
+        "BRACE_CLOSE",
+        "COLON"
+      ],
+      "precededBy": [
+        "ASSIGN",
+        "PAREN_OPEN",
+        "BRACKET_OPEN",
+        "return",
+        "COLON",
+        "TRIPLE_EQUALS",
+        "DOUBLE_EQUALS"
+      ],
+      "parentContext": [
+        "Expression",
+        "Literal"
+      ],
+      "startsExpr": true,
+      "beforeExpr": false,
+      "isLiteral": true,
+      "isPrimitive": true,
+      "value": null,
+      "notes": "Null literal - typeof null is 'object' (legacy bug)",
+      "quirks": [
+        "typeof null === 'object' (historical bug)",
+        "null == undefined (true)",
+        "null === undefined (false)"
+      ],
+      "stage": "stable",
+      "deprecated": false,
+      "spec": "ECMA-262 Section 12.8.2",
+      "example": "const x = null;"
+    },
+    "arguments": {
+      "category": "identifier",
+      "esVersion": "ES1",
+      "source": "ECMA-262",
+      "description": "Arguments object - array-like object in functions",
+      "followedBy": [
+        "DOT",
+        "BRACKET_OPEN",
+        "SEMICOLON"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN"
+      ],
+      "parentContext": [
+        "FunctionBody"
+      ],
+      "startsExpr": true,
+      "beforeExpr": false,
+      "isIdentifier": true,
+      "strictModeReserved": true,
+      "notInArrow": true,
+      "notes": "Special identifier - not available in arrow functions, reserved in strict mode",
+      "quirks": [
+        "Array-like (not true array)",
+        "Not in arrow functions",
+        "Reserved in strict mode",
+        "Use rest parameters instead"
+      ],
+      "stage": "stable",
+      "deprecated": true,
+      "deprecationMessage": "Use rest parameters (...args) instead",
+      "spec": "ECMA-262 Section 10.4.2",
+      "example": "function fn() { console.log(arguments); }"
+    },
+    "eval": {
+      "category": "identifier",
+      "esVersion": "ES1",
+      "source": "ECMA-262",
+      "description": "Eval function - executes string as code (dangerous)",
+      "followedBy": [
+        "PAREN_OPEN"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN"
+      ],
+      "parentContext": [
+        "Expression",
+        "CallExpression"
+      ],
+      "startsExpr": true,
+      "beforeExpr": false,
+      "isIdentifier": true,
+      "strictModeReserved": true,
+      "dangerous": true,
+      "notes": "Special identifier - evaluates string as code, reserved in strict mode, security risk",
+      "quirks": [
+        "Evaluates string as code",
+        "Reserved in strict mode",
+        "Security risk (XSS)",
+        "Performance impact",
+        "Avoid in production"
+      ],
+      "stage": "stable",
+      "deprecated": true,
+      "deprecationMessage": "Avoid eval - security and performance risks",
+      "spec": "ECMA-262 Section 19.2.1",
+      "example": "eval('1 + 1'); // 2 (but dangerous!)"
+    },
+    "constructor": {
+      "category": "identifier",
+      "esVersion": "ES1",
+      "source": "ECMA-262",
+      "description": "Constructor method - initializes class instances",
+      "followedBy": [
+        "PAREN_OPEN",
+        "BRACE_OPEN"
+      ],
+      "precededBy": [
+        "NEWLINE",
+        "SEMICOLON",
+        "BRACE_OPEN"
+      ],
+      "parentContext": [
+        "ClassBody",
+        "ObjectLiteral"
+      ],
+      "startsExpr": true,
+      "beforeExpr": false,
+      "isIdentifier": true,
+      "isMethod": true,
+      "notes": "Special method name - constructor method in classes, property on all objects",
+      "quirks": [
+        "Reserved method name in classes",
+        "Property on all objects",
+        "Cannot be called with super()",
+        "Automatically called with new"
+      ],
+      "stage": "stable",
+      "deprecated": false,
+      "spec": "ECMA-262 Section 15.7.5",
+      "example": "class X { constructor() { this.x = 1; } }"
     }
   },
 
@@ -3329,6 +4744,25 @@
   "__section_03_footer": "══════════════════════════════════════════════════════════════════════════════",
 
   "punctuation": {
+    "#": {
+      "type": "accessor",
+      "name": "private-field",
+      "source": "ECMA-262",
+      "esVersion": "ES2022",
+      "description": "Private class fields, methods, and accessors prefix",
+      "notes": "Used for private class members: #privateField, #privateMethod()",
+      "startsExpr": false,
+      "beforeExpr": false,
+      "disambiguation": [
+        {
+          "ifFollowedBy": [
+            "IDENTIFIER"
+          ],
+          "then": "PRIVATE_IDENTIFIER",
+          "notes": "class MyClass { #privateField; }"
+        }
+      ]
+    },
     "[": {
       "type": "bracket",
       "pair": "]",
@@ -3684,6 +5118,23 @@
   "__section_05_responsibility": "ให้ Brain เข้าใจ context ของ token เช่น { คือ object literal หรือ block statement",
   "__section_05_used_by": ["ContextAnalyzer", "AST Builder", "Ambiguity Resolver"],
   "__section_05_footer": "══════════════════════════════════════════════════════════════════════════════",
+
+  "comments": {
+    "singleLine": {
+      "start": "//",
+      "end": "\n",
+      "description": "Single-line comment - starts with // and ends at newline",
+      "esVersion": "ES1",
+      "source": "ECMA-262"
+    },
+    "multiLine": {
+      "start": "/*",
+      "end": "*/",
+      "description": "Multi-line comment - starts with /* and ends with */",
+      "esVersion": "ES1",
+      "source": "ECMA-262"
+    }
+  },
 
   "tokenMetadata": {
     "flags": {

@@ -266,6 +266,12 @@ class SecurityConfig {
             
             return result;
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityConfig',
+                method: 'get',
+                severity: 'CRITICAL',
+                context: `Invalid configuration path: ${path}`
+            });
             // !  NO_SILENT_FALLBACKS: Never return default silently - always throw
             // !  WHY: Missing config is CRITICAL ERROR, not something to ignore
             throw new Error(`CRITICAL: Invalid configuration path '${path}'. ${error.message}`);
@@ -454,6 +460,12 @@ function applyVSCodeSettings(config, vscodeSettings) {
                 }
             }
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'SecurityConfig',
+                method: 'importFromVSCodeSettings',
+                severity: 'HIGH',
+                context: `Validation error for setting: ${vscodeKey}`
+            });
             // !  NO_SILENT_FALLBACKS: Collect error instead of swallowing it
             errors.push(`${vscodeKey}: ${error.message}`);
         }

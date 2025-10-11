@@ -61,6 +61,12 @@ function activate(context) {
         // ! Initialize validation engine
         validationEngine = new ValidationEngine();
         validationEngine.initializeParserStudy().catch(error => {
+            errorHandler.handleError(error, {
+                source: 'Extension',
+                method: 'activate',
+                severity: 'CRITICAL',
+                context: 'Failed to initialize validation engine'
+            });
             throw new Error(`Failed to initialize validation engine: ${error.message}`);
         });
         
@@ -74,6 +80,12 @@ function activate(context) {
         );
         
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'Extension',
+            method: 'activate',
+            severity: 'CRITICAL',
+            context: 'Failed to initialize security system'
+        });
         console.error(' Failed to initialize security system:', error);
         vscode.window.showErrorMessage(extensionConfig.messages.securityInitFailed);
         throw error; // ! Don't silently continue - extension should fail if security can't initialize
@@ -92,6 +104,12 @@ function activate(context) {
             try {
                 await secureDocumentScan(event.document);
             } catch (error) {
+                errorHandler.handleError(error, {
+                    source: 'Extension',
+                    method: 'onDidChangeTextDocument',
+                    severity: 'HIGH',
+                    context: 'Security error in document scan'
+                });
                 console.error(' Security error in document scan:', error.message);
                 throw error; // ! Re-throw to let caller handle properly
             }
@@ -107,6 +125,12 @@ function activate(context) {
             await secureDocumentScan(document);
             await securityMiddleware.showSecureNotification(extensionConfig.messages.scanSuccess);
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'Extension',
+                method: 'onDidSaveTextDocument',
+                severity: 'HIGH',
+                context: 'Security error in save scan'
+            });
             console.error(' Security error in save scan:', error.message);
             await securityMiddleware.showSecureNotification(extensionConfig.messages.securityError, 'error');
             throw error; // ! Re-throw for proper error handling
@@ -139,6 +163,12 @@ function activate(context) {
                 showSubtleNotification(message);
             }
         } catch (error) {
+            errorHandler.handleError(error, {
+                source: 'Extension',
+                method: 'scanFileCommand',
+                severity: 'HIGH',
+                context: 'Scan file command failed'
+            });
             console.error('Scan file command failed:', error);
             throw error;
         }
@@ -183,6 +213,12 @@ function activate(context) {
                     totalViolations += results.violations.length;
                     scannedCount++;
                 } catch (error) {
+                    errorHandler.handleError(error, {
+                        source: 'Extension',
+                        method: 'scanWorkspaceCommand',
+                        severity: 'HIGH',
+                        context: `Scan error for file: ${fileName}`
+                    });
                     console.error('Scan error:', error);
                     throw error; // ! Re-throw to surface scanning issues
                 }
@@ -214,6 +250,12 @@ function activate(context) {
     // ! Initial scan of active document
     if (vscode.window.activeTextEditor) {
         scanDocument(vscode.window.activeTextEditor.document).catch(error => {
+            errorHandler.handleError(error, {
+                source: 'Extension',
+                method: 'activate',
+                severity: 'MEDIUM',
+                context: 'Initial document scan failed'
+            });
             console.error('Initial document scan failed:', error);
         });
     }
@@ -308,6 +350,12 @@ async function scanDocument(document) {
         return results;
         
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'Extension',
+            method: 'scanDocument',
+            severity: 'HIGH',
+            context: `Scan error for document: ${document.fileName}`
+        });
         console.error(' Chahuadev Sentinel scan error:', error);
         
         // ! Show error as diagnostic but re-throw for proper error handling
@@ -443,6 +491,12 @@ async function secureDocumentScan(document) {
         };
         
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'Extension',
+            method: 'secureDocumentScan',
+            severity: 'HIGH',
+            context: `Secure document scan failed for: ${document.fileName}`
+        });
         console.error(' Secure document scan failed:', error);
         
         // ! Show security alert to user
@@ -488,6 +542,12 @@ async function showSecurityStatus() {
         }
         
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'Extension',
+            method: 'showSecurityStatus',
+            severity: 'MEDIUM',
+            context: 'Failed to show security status'
+        });
         console.error('Failed to show security status:', error);
         vscode.window.showErrorMessage(extensionConfig.messages.securityStatusFailed);
         throw error; // ! Re-throw for proper error handling
@@ -509,6 +569,12 @@ async function showDetailedSecurityReport(report) {
         await vscode.window.showTextDocument(doc);
         
     } catch (error) {
+        errorHandler.handleError(error, {
+            source: 'Extension',
+            method: 'showDetailedSecurityReport',
+            severity: 'MEDIUM',
+            context: 'Failed to show security report'
+        });
         console.error('Failed to show security report:', error);
     }
 }
