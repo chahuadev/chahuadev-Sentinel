@@ -1,10 +1,13 @@
-# Chahuadev Sentinel
+<div align="center">
+  <img src="https://raw.githubusercontent.com/chahuadev/chahuadev/main/icon.png" alt="Chahuadev Sentinel" width="150"/>
 
 [![Version](https://img.shields.io/badge/version-2.0.0--alpha-blue?style=flat-square)](https://github.com/chahuadev/chahuadev-Sentinel)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active--development-orange?style=flat-square)]()
+[![Node](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen?style=flat-square)]()
 
 > **A Revolutionary Pure Binary Parser** - Talking to computers in their native language: **Numbers, not Strings**
+</div>
 
 ---
 
@@ -108,26 +111,44 @@ console.log(tokens);
 
 ## Architecture Overview
 
+```mermaid
+flowchart LR
+    A[Source Code] --> B[Character Classifier]
+    B --> C[Binary Tokenizer]
+    C --> D[Grammar Index]
+    D --> E[Token Stream]
+    
+    style A fill:#e1f5ff
+    style B fill:#fff3e0
+    style C fill:#fff9c4
+    style D fill:#f3e5f5
+    style E fill:#c8e6c9
+```
+
+**Visual Flow:** Source Code → Character Classification → Binary Tokenization → Grammar Lookup → Token Stream
+
+### Detailed Flow Diagram
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    SOURCE CODE (Text)                       │
 └─────────────────────────────────────────────────────────────┘
-                            
+                            ↓
 ┌─────────────────────────────────────────────────────────────┐
 │          UniversalCharacterClassifier                       │
-│  Reads Unicode values: 'a'  97  LETTER flag              │
+│  Reads Unicode values: 'a' → 97 → LETTER flag              │
 └─────────────────────────────────────────────────────────────┘
-                            
+                            ↓
 ┌─────────────────────────────────────────────────────────────┐
 │          PureBinaryTokenizer (Blank Paper)                  │
 │  Groups characters by binary flags (no language knowledge)  │
 └─────────────────────────────────────────────────────────────┘
-                            
+                            ↓
 ┌─────────────────────────────────────────────────────────────┐
 │          GrammarIndex (External Brain)                      │
 │  Consults grammar file: "Is 'const' a keyword?"            │
 └─────────────────────────────────────────────────────────────┘
-                            
+                            ↓
 ┌─────────────────────────────────────────────────────────────┐
 │          TOKEN STREAM (Semantic Binary Flags)               │
 └─────────────────────────────────────────────────────────────┘
@@ -287,10 +308,10 @@ class GrammarIndex {
 
 ## Documentation
 
-- [**Architecture Overview**](./docs/architecture/BASE_GRAMMAR_DELTA_ARCHITECTURE.md) - Base Grammar + Delta system
+- [**Architecture Overview**](./docs/architecture/BASE_GRAMMAR_DELTA_ARCHITECTURE.md) - Base Grammar + Delta system explained in detail
+- [**Test Suite Documentation**](./__tests__/README.md) - Testing Pyramid approach with Unit, Integration, and E2E tests
 - [**Binary System Design**](./docs/BINARY_SYSTEM.md) - Character classification and flags *(coming soon)*
 - [**Grammar File Format**](./docs/GRAMMAR_FORMAT.md) - How to write grammar files *(coming soon)*
-- [**Contributing Guide**](./CONTRIBUTING.md) - How to contribute *(coming soon)*
 
 ---
 
@@ -310,7 +331,7 @@ Teach compiler design with a **pure mathematical** approach instead of regex mag
 
 ---
 
-##  Contributing
+## Contributing
 
 We welcome contributions! Sentinel is in active development, and we're looking for:
 
@@ -319,17 +340,17 @@ We welcome contributions! Sentinel is in active development, and we're looking f
 - **Documentation Writers:** Help explain concepts clearly
 - **Testers:** Test with real-world codebases
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+Please read our [Contributing Guidelines](./docs/CONTRIBUTING.md) *(coming soon)* before submitting pull requests.
 
 ---
 
-##  License
+## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-##  Acknowledgments
+## Acknowledgments
 
 Inspired by:
 - **Acorn** & **Babel** - Proved that JavaScript parsers can be elegant
@@ -340,127 +361,30 @@ But Sentinel takes a different path: **Pure Binary Mathematics**
 
 ---
 
-##  Contact
+## Support & Contact
 
-- **Email:** chahuadev@gmail.com
 - **Issues:** [GitHub Issues](https://github.com/chahuadev/chahuadev-Sentinel/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/chahuadev/chahuadev-Sentinel/discussions)
+- **Email:** chahuadev@gmail.com
+- **Website:** https://chahuadev.com
+
+---
+
+## Project Status
+
+**Version:** 2.0.0-alpha  
+**Status:** Active Development  
+**Maintenance:** Actively Maintained  
+**Requirements:**
+- Node.js >= 22.0.0
+- VS Code >= 1.74.0 (for extension)
 
 ---
 
 <div align="center">
 
-**Built with  and  by Chahua Development Team**
+**Built by Chahua Development Co., Ltd.**
 
 *"Talk to computers in their native language—not yours."*
 
 </div>
-- `Ctrl+Shift+P`  "Chahuadev Sentinel: Scan Entire Workspace"
-
-#### CLI
-```bash
-# Scan current directory
-chahuadev-sentinel .
-
-# Scan specific files
-chahuadev-sentinel src/**/*.js
-
-# JSON output for CI/CD
-chahuadev-sentinel --json src/ > report.json
-
-# Quiet mode (errors only)
-chahuadev-sentinel --quiet src/
-```
-
-##  The 5 Absolute Rules
-
-1. **NO_MOCKING** - No mock data or stub implementations in production
-2. **NO_HARDCODE** - No hardcoded values, use configuration files
-3. **NO_EMOJI** - No emoji in code comments or strings
-4. **NO_EXTERNAL_API** - No external API calls without proper abstraction
-5. **NO_STUB_CODE** - No placeholder or temporary code
-
-##  Architecture
-
-### Core Components
-
-- **Smart Parser Engine** - AST analysis with fallback strategies
-- **Grammar Index System** - Fast keyword and pattern matching
-- **Security Middleware** - Multi-layered security validation
-- **Validation Engine** - Rule enforcement and violation reporting
-
-### Supported Languages
-
-- **JavaScript** (ES2022+)
-- **TypeScript** (5.0+)
-- **JSX/TSX** (React 18+)
-- **Java** (SE 21)
-
-##  Documentation
-
-### Essential Documentation
-- **[Code of Conduct](docs/CODE_OF_CONDUCT.md)** - Community standards and behavior guidelines
-- **[Contributing Guidelines](docs/CONTRIBUTING.md)** - How to contribute to the project
-- **[Security Policy](docs/SECURITY.md)** - Security policies and vulnerability reporting
-
-### Development Documentation
-- **[API Reference](docs/API.md)** - Complete programming interface documentation
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - System design and architecture overview
-- **[Commit Guidelines](docs/COMMIT_GUIDELINES.md)** - Professional commit message standards
-
-### Project Management
-- **[Governance Model](docs/GOVERNANCE.md)** - Project leadership and decision-making
-- **[Collaboration Guidelines](docs/COLLABORATION.md)** - Open source collaboration practices
-- **[Release Process](docs/RELEASE_PROCESS.md)** - Release procedures and quality assurance
-- [Architecture Guide](docs/ARCHITECTURE.md) - System design and architecture
-- [Security Guide](docs/SECURITY.md) - Security policies and procedures
-
-##  Contributing
-
-We welcome contributions from the community! Please read our documentation before getting started:
-
-- **[Contributing Guidelines](docs/CONTRIBUTING.md)** - Complete contribution procedures
-- **[Commit Guidelines](docs/COMMIT_GUIDELINES.md)** - Professional commit message standards  
-- **[Collaboration Guidelines](docs/COLLABORATION.md)** - Open source collaboration practices
-
-### Quick Contribution Steps
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes following our coding standards
-4. Run tests: `npm test`
-5. Commit your changes: `git commit -m 'Add amazing feature'`
-6. Push to the branch: `git push origin feature/amazing-feature`
-7. Open a Pull Request
-
-##  License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-##  About Chahua Development
-
-**บริษัท ชาหัว ดีเวลลอปเมนต์ จำกัด (Chahua Development Co., Ltd.)**
-
-We are committed to creating high-quality, secure, and maintainable software solutions. Our tools and standards reflect our dedication to excellence in software development.
-
-- **Website**: https://chahuadev.com
-- **Email**: chahuadev@gmail.com
-- **Repository**: https://github.com/chahuadev/chahuadev-Sentinel.git
-
-##  Support
-
-- **Issues**: [GitHub Issues](https://github.com/chahuadev/chahuadev-Sentinel/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/chahuadev/chahuadev-Sentinel/discussions)
-- **Email**: chahuadev@gmail.com
-
-##  Project Status
-
-- **Version**: 1.0.0
-- **Status**: Active Development
-- **Maintenance**: Actively Maintained
-- **Node.js**: >=22.0.0
-- **VS Code**: >=1.104.0
-
----
-
-**Made with  by Chahua Development Co., Ltd.**

@@ -1,0 +1,921 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`E2E: Comments should handle all comment types 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 21,
+  },
+  "sourceCode": "// Different comment types
+
+// Single-line comment
+const x = 1; // inline comment
+
+/*
+ * Multi-line comment
+ * with multiple lines
+ */
+const y = 2;
+
+/**
+ * JSDoc comment
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Sum of a and b
+ */
+function add(a, b) {
+    return a + b;
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 64,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: comments 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 21,
+  },
+  "sourceCode": "// Different comment types
+
+// Single-line comment
+const x = 1; // inline comment
+
+/*
+ * Multi-line comment
+ * with multiple lines
+ */
+const y = 2;
+
+/**
+ * JSDoc comment
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Sum of a and b
+ */
+function add(a, b) {
+    return a + b;
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 64,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: complex-function 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": true,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 29,
+  },
+  "sourceCode": "// Complex function with multiple features
+async function fetchUserData(userId) {
+    try {
+        const response = await fetch(\`/api/users/\${userId}\`);
+        
+        if (!response.ok) {
+            throw new Error(\`HTTP \${response.status}\`);
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Failed to fetch user:', error);
+        return null;
+    }
+}
+
+// Arrow function
+const multiply = (a, b) => a * b;
+
+// Generator function
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 84,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: destructuring-spread 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 15,
+  },
+  "sourceCode": "// Destructuring and spread operators
+const person = {
+    name: 'John',
+    age: 30,
+    city: 'New York'
+};
+
+const { name, age, ...rest } = person;
+
+const numbers = [1, 2, 3, 4, 5];
+const [first, second, ...remaining] = numbers;
+
+const combined = [...numbers, 6, 7, 8];
+const merged = { ...person, country: 'USA' };
+",
+  "timestamp": "2025-10-11",
+  "tokens": 55,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: edge-cases 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 42,
+  },
+  "sourceCode": "// Edge cases and quirky JavaScript
+
+// With statement (deprecated but valid)
+// Note: 'with' is not allowed in strict mode, but is valid JavaScript
+// Commented out to avoid linter errors, but parser should handle it
+// with (Math) {
+//     const x = cos(PI);
+// }
+
+// Comma operator
+let a = (1, 2, 3); // a = 3
+
+// Void operator
+void function() {
+    console.log('IIFE');
+}();
+
+// In operator
+const obj = { prop: true };
+const hasProp = 'prop' in obj;
+
+// Instanceof
+const arr = [];
+const isArray = arr instanceof Array;
+
+// Typeof with quirks
+typeof null; // "object" (quirk!)
+typeof undefined; // "undefined"
+typeof function(){}; // "function"
+
+// Delete operator
+const obj2 = { x: 1 };
+delete obj2.x;
+
+// Label statement
+loop1:
+for (let i = 0; i < 3; i++) {
+    if (i === 1) {
+        break loop1;
+    }
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 150,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: es6-class 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": true,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 29,
+  },
+  "sourceCode": "// ES6 Class with inheritance
+class Animal {
+    constructor(name) {
+        this.name = name;
+    }
+    
+    speak() {
+        console.log(\`\${this.name} makes a sound\`);
+    }
+}
+
+class Dog extends Animal {
+    constructor(name, breed) {
+        super(name);
+        this.breed = breed;
+    }
+    
+    speak() {
+        console.log(\`\${this.name} barks\`);
+    }
+    
+    static species() {
+        return 'Canis familiaris';
+    }
+}
+
+const myDog = new Dog('Buddy', 'Golden Retriever');
+myDog.speak();
+",
+  "timestamp": "2025-10-11",
+  "tokens": 57,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: es6-modules 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": true,
+    "hasExport": true,
+    "hasImport": true,
+    "linesOfCode": 17,
+  },
+  "sourceCode": "// ES6 Modules
+import { sum, multiply } from './math.js';
+import * as utils from './utils.js';
+import defaultExport from './default.js';
+
+export const PI = 3.14159;
+
+export function calculateArea(radius) {
+    return PI * radius * radius;
+}
+
+export default class Calculator {
+    add(a, b) {
+        return a + b;
+    }
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 51,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: for-loop 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 15,
+  },
+  "sourceCode": "// For loop iteration
+for (let i = 0; i < 10; i++) {
+    console.log(i);
+}
+
+// For-of loop
+for (const item of array) {
+    process(item);
+}
+
+// For-in loop
+for (const key in object) {
+    console.log(key, object[key]);
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 40,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: if-else 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 9,
+  },
+  "sourceCode": "// If-else conditional statement
+if (x > 0) {
+    console.log('positive');
+} else if (x < 0) {
+    console.log('negative');
+} else {
+    console.log('zero');
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 24,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: invalid-syntax 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": true,
+    "hasExport": true,
+    "hasImport": false,
+    "linesOfCode": 35,
+  },
+  "sourceCode": "// Intentionally invalid syntax
+// Note: This file contains syntax errors ON PURPOSE for testing error handling
+// It should NOT pass linting - these are test cases for the parser's error detection
+
+// Test Case 1: Missing value
+// const x = ; // Missing value
+
+// Test Case 2: Missing closing brace
+// function missingBrace() {
+//     return 42;
+// // Missing closing brace
+
+// Test Case 3: Missing extends target
+// class MissingExtends extends {
+//     constructor() {
+//         super();
+//     }
+// }
+
+// Test Case 4: Invalid identifier
+// const y = 123abc; // Unexpected token
+
+// For actual testing, these should be stored as strings:
+const invalidSyntaxExamples = [
+    'const x = ;',  // Missing value
+    'function missingBrace() { return 42;',  // Missing closing brace
+    'class MissingExtends extends { }',  // Missing extends target
+    'const y = 123abc;',  // Invalid identifier
+    'if (x > 0',  // Missing closing parenthesis
+    'const { x, } = ;',  // Missing destructuring target
+];
+
+// Export for use in E2E tests
+export default invalidSyntaxExamples;
+",
+  "timestamp": "2025-10-11",
+  "tokens": 177,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: simple-variable 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 5,
+  },
+  "sourceCode": "// Simple variable declaration
+const x = 1;
+const y = 2;
+const sum = x + y;
+",
+  "timestamp": "2025-10-11",
+  "tokens": 19,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complete Parser Pipeline should correctly parse: template-literals 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 19,
+  },
+  "sourceCode": "// Template literals
+const name = 'World';
+const greeting = \`Hello, \${name}!\`;
+
+const multiline = \`
+    This is a
+    multiline string
+    with \${greeting}
+\`;
+
+// Tagged template
+function highlight(strings, ...values) {
+    return strings.reduce((result, str, i) => {
+        return result + str + (values[i] || '');
+    }, '');
+}
+
+const emphasized = highlight\`Name: \${name}\`;
+",
+  "timestamp": "2025-10-11",
+  "tokens": 54,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Complex Function should parse async/await and generators 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": true,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 29,
+  },
+  "sourceCode": "// Complex function with multiple features
+async function fetchUserData(userId) {
+    try {
+        const response = await fetch(\`/api/users/\${userId}\`);
+        
+        if (!response.ok) {
+            throw new Error(\`HTTP \${response.status}\`);
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Failed to fetch user:', error);
+        return null;
+    }
+}
+
+// Arrow function
+const multiply = (a, b) => a * b;
+
+// Generator function
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 84,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Destructuring and Spread should parse modern syntax correctly 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 15,
+  },
+  "sourceCode": "// Destructuring and spread operators
+const person = {
+    name: 'John',
+    age: 30,
+    city: 'New York'
+};
+
+const { name, age, ...rest } = person;
+
+const numbers = [1, 2, 3, 4, 5];
+const [first, second, ...remaining] = numbers;
+
+const combined = [...numbers, 6, 7, 8];
+const merged = { ...person, country: 'USA' };
+",
+  "timestamp": "2025-10-11",
+  "tokens": 55,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: ES6 Class should parse class inheritance correctly 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": true,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 29,
+  },
+  "sourceCode": "// ES6 Class with inheritance
+class Animal {
+    constructor(name) {
+        this.name = name;
+    }
+    
+    speak() {
+        console.log(\`\${this.name} makes a sound\`);
+    }
+}
+
+class Dog extends Animal {
+    constructor(name, breed) {
+        super(name);
+        this.breed = breed;
+    }
+    
+    speak() {
+        console.log(\`\${this.name} barks\`);
+    }
+    
+    static species() {
+        return 'Canis familiaris';
+    }
+}
+
+const myDog = new Dog('Buddy', 'Golden Retriever');
+myDog.speak();
+",
+  "timestamp": "2025-10-11",
+  "tokens": 57,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: ES6 Modules should parse import/export statements 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": true,
+    "hasExport": true,
+    "hasImport": true,
+    "linesOfCode": 17,
+  },
+  "sourceCode": "// ES6 Modules
+import { sum, multiply } from './math.js';
+import * as utils from './utils.js';
+import defaultExport from './default.js';
+
+export const PI = 3.14159;
+
+export function calculateArea(radius) {
+    return PI * radius * radius;
+}
+
+export default class Calculator {
+    add(a, b) {
+        return a + b;
+    }
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 51,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Edge Cases should handle quirky JavaScript features 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 42,
+  },
+  "sourceCode": "// Edge cases and quirky JavaScript
+
+// With statement (deprecated but valid)
+// Note: 'with' is not allowed in strict mode, but is valid JavaScript
+// Commented out to avoid linter errors, but parser should handle it
+// with (Math) {
+//     const x = cos(PI);
+// }
+
+// Comma operator
+let a = (1, 2, 3); // a = 3
+
+// Void operator
+void function() {
+    console.log('IIFE');
+}();
+
+// In operator
+const obj = { prop: true };
+const hasProp = 'prop' in obj;
+
+// Instanceof
+const arr = [];
+const isArray = arr instanceof Array;
+
+// Typeof with quirks
+typeof null; // "object" (quirk!)
+typeof undefined; // "undefined"
+typeof function(){}; // "function"
+
+// Delete operator
+const obj2 = { x: 1 };
+delete obj2.x;
+
+// Label statement
+loop1:
+for (let i = 0; i < 3; i++) {
+    if (i === 1) {
+        break loop1;
+    }
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 150,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: For Loops should parse all loop types correctly 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 15,
+  },
+  "sourceCode": "// For loop iteration
+for (let i = 0; i < 10; i++) {
+    console.log(i);
+}
+
+// For-of loop
+for (const item of array) {
+    process(item);
+}
+
+// For-in loop
+for (const key in object) {
+    console.log(key, object[key]);
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 40,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: If-Else Statement should parse conditional logic correctly 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 9,
+  },
+  "sourceCode": "// If-else conditional statement
+if (x > 0) {
+    console.log('positive');
+} else if (x < 0) {
+    console.log('negative');
+} else {
+    console.log('zero');
+}
+",
+  "timestamp": "2025-10-11",
+  "tokens": 24,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Invalid Syntax Error Handling should throw appropriate errors for invalid syntax 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": true,
+    "hasExport": true,
+    "hasImport": false,
+    "linesOfCode": 35,
+  },
+  "sourceCode": "// Intentionally invalid syntax
+// Note: This file contains syntax errors ON PURPOSE for testing error handling
+// It should NOT pass linting - these are test cases for the parser's error detection
+
+// Test Case 1: Missing value
+// const x = ; // Missing value
+
+// Test Case 2: Missing closing brace
+// function missingBrace() {
+//     return 42;
+// // Missing closing brace
+
+// Test Case 3: Missing extends target
+// class MissingExtends extends {
+//     constructor() {
+//         super();
+//     }
+// }
+
+// Test Case 4: Invalid identifier
+// const y = 123abc; // Unexpected token
+
+// For actual testing, these should be stored as strings:
+const invalidSyntaxExamples = [
+    'const x = ;',  // Missing value
+    'function missingBrace() { return 42;',  // Missing closing brace
+    'class MissingExtends extends { }',  // Missing extends target
+    'const y = 123abc;',  // Invalid identifier
+    'if (x > 0',  // Missing closing parenthesis
+    'const { x, } = ;',  // Missing destructuring target
+];
+
+// Export for use in E2E tests
+export default invalidSyntaxExamples;
+",
+  "timestamp": "2025-10-11",
+  "tokens": 177,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Regression Tests should handle Unicode identifiers 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 1,
+  },
+  "sourceCode": "const 변수명 = 123;",
+  "timestamp": "2025-10-11",
+  "tokens": 4,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Regression Tests should not break on empty file 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 1,
+  },
+  "sourceCode": "",
+  "timestamp": "2025-10-11",
+  "tokens": 1,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Regression Tests should not break on single-line comment only 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 1,
+  },
+  "sourceCode": "// just a comment",
+  "timestamp": "2025-10-11",
+  "tokens": 4,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Regression Tests should not break on whitespace-only file 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 3,
+  },
+  "sourceCode": "   
+  	  
+   ",
+  "timestamp": "2025-10-11",
+  "tokens": 2,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Simple Variable Declaration should parse const declaration correctly 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 5,
+  },
+  "sourceCode": "// Simple variable declaration
+const x = 1;
+const y = 2;
+const sum = x + y;
+",
+  "timestamp": "2025-10-11",
+  "tokens": 19,
+  "type": "Program",
+}
+`;
+
+exports[`E2E: Template Literals should parse template strings and tags 1`] = `
+{
+  "body": [],
+  "language": "javascript",
+  "metadata": {
+    "hasAsync": false,
+    "hasClass": false,
+    "hasExport": false,
+    "hasImport": false,
+    "linesOfCode": 19,
+  },
+  "sourceCode": "// Template literals
+const name = 'World';
+const greeting = \`Hello, \${name}!\`;
+
+const multiline = \`
+    This is a
+    multiline string
+    with \${greeting}
+\`;
+
+// Tagged template
+function highlight(strings, ...values) {
+    return strings.reduce((result, str, i) => {
+        return result + str + (values[i] || '');
+    }, '');
+}
+
+const emphasized = highlight\`Name: \${name}\`;
+",
+  "timestamp": "2025-10-11",
+  "tokens": 54,
+  "type": "Program",
+}
+`;

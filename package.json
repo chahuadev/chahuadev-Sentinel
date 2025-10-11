@@ -20,6 +20,29 @@
     "vscode": "^1.74.0",
     "node": ">=22.0.0"
   },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.d.ts",
+      "!src/**/index.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
+  },
   "categories": [
     "Linters"
   ],
@@ -163,16 +186,24 @@
     "LICENSE"
   ],
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^16.18.126",
     "@types/vscode": "^1.104.0",
+    "jest": "^30.2.0",
     "typescript": "^4.9.4",
     "vsce": "^2.15.0"
   },
   "scripts": {
-    "test": "node scan-real-files.js '*'",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js __tests__/unit",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js __tests__/integration",
+    "test:e2e": "node --experimental-vm-modules node_modules/jest/bin/jest.js __tests__/e2e",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:legacy": "node scan-real-files.js '*'",
     "lint": "node cli.js .",
     "clean-emoji": "node emoji-cleaner.js .",
-    "validate-project": "node scan-real-files.js '*' && echo 'Project validation complete'",
+    "validate-project": "npm run test:legacy && echo 'Project validation complete'",
     "install-parsers": "npm install acorn @babel/parser",
     "vscode:prepublish": "npm run compile",
     "compile": "echo 'No TypeScript compilation needed - using JavaScript'",
